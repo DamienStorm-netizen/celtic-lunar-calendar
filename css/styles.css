@@ -9,17 +9,12 @@
 }
 
 #wheel {
-    /* Ensure animation only plays when not dragging */
-    /*animation: spin 30s linear infinite;
-    animation-play-state: running;*/
     width: 500px;
     height: 500px;
     background: url('/assets/images/zodiac-wheel.png') no-repeat center;
     background-size: contain;
     border-radius: 50%;
     position: absolute; /* Ensure it stays in one place */
-    /* top: 50%; Centre it vertically */
-    /* left: 50%; Centre it horizontally */
     transform: translate(-50%, -50%) rotate(0deg); /* Centre and rotate */
     animation: spin 30s linear infinite; /* Slow spin at rest */
     animation-play-state: running; /* Ensure it spins by default */
@@ -33,11 +28,18 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background-color: rgba(255, 0, 0, 0.5);
-    border: 2px solid black;
+    /*background-color: rgba(255, 0, 0, 0.5);
+    border: 2px solid black;*/
     transform: translate(-50%, -50%); /* Anchor from the centre */
     pointer-events: all; /* Ensure interactive */
     will-change: transform; /* Prevent layout recalculations */
+    cursor: pointer;
+    transition: box-shadow 0.3s ease-in-out; /* Smooth transition */
+}
+
+.hotspot:hover {
+  box-shadow: 0 0 20px 10px rgba(255, 255, 0, 0.8); /* Glowy yellow halo */
+  /* transform: scale(1.1); /* Slightly enlarges on hover */
 }
   
   @keyframes spin {
