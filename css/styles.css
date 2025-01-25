@@ -1,0 +1,52 @@
+.wheel-container {
+    display: flex; /* Flexbox magic */
+    justify-content: center; /* Centre horizontally */
+    align-items: center; /* Centre vertically */
+    height: 100vh; /* Full viewport height */
+    width: 100vw; /* Full viewport width */
+    position: relative; /* Relative to ensure inner positioning works */
+    overflow: hidden; /* Prevent scrollbars */
+}
+
+#wheel {
+    /* Ensure animation only plays when not dragging */
+    /*animation: spin 30s linear infinite;
+    animation-play-state: running;*/
+    width: 500px;
+    height: 500px;
+    background: url('/assets/images/zodiac-wheel.png') no-repeat center;
+    background-size: contain;
+    border-radius: 50%;
+    position: absolute; /* Ensure it stays in one place */
+    /* top: 50%; Centre it vertically */
+    /* left: 50%; Centre it horizontally */
+    transform: translate(-50%, -50%) rotate(0deg); /* Centre and rotate */
+    animation: spin 30s linear infinite; /* Slow spin at rest */
+    animation-play-state: running; /* Ensure it spins by default */
+    transform-origin: center; /* Spin around its centre */
+    will-change: transform; /* Optimise for GPU rendering */
+    transition: none !important;
+  }
+
+.hotspot {
+    position: absolute; /* Stay in place */
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: rgba(255, 0, 0, 0.5);
+    border: 2px solid black;
+    transform: translate(-50%, -50%); /* Anchor from the centre */
+    pointer-events: all; /* Ensure interactive */
+    will-change: transform; /* Prevent layout recalculations */
+}
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  
