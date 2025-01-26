@@ -26,7 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const wheelRadius = 165; // Radius of the wheel
     const offsetX = 255; // Centre X (half the wheel size)
-    const offsetY = 245; // Centre Y (half the wheel size)
+    const offsetY = 252; // Centre Y (half the wheel size)
+
+    const audio = new Audio('assets/sound/harp.wav');
   
     // Position hotspots evenly around the wheel
     hotspots.forEach((hotspot, index) => {
@@ -36,9 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         hotspot.style.left = `${xPos}px`;
         hotspot.style.top = `${yPos}px`;
-
-        // hotspot.style.left = `${xPos - hotspot.offsetWidth / 2}px`; // Centre align hotspot
-        // hotspot.style.top = `${yPos - hotspot.offsetHeight / 2}px`; // Centre align hotspot
   
       // Add hover interactivity
       hotspot.addEventListener("mouseover", () => {
@@ -56,5 +55,16 @@ document.addEventListener("DOMContentLoaded", () => {
     wheel.addEventListener("mouseout", () => {
         wheel.style.animationPlayState = "running"; // Resume spinning
     });
+
+    // Add audio on hover on the Celtic Zodiac on Zodiac wheel
+    hotspots.forEach(hotspot => {
+      // Play sound on click
+      hotspot.addEventListener('click', () => {
+          audio.currentTime = 0; // Reset the audio to start from the beginning
+          audio.play();
+      });
+   });
+
+    
 
 });
