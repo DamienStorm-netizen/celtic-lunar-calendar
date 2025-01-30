@@ -1,3 +1,7 @@
+import { renderHome } from './components/home.js';
+import { renderCalendar } from './components/calendar.js';
+import { renderSettings } from './components/settings.js';
+
 let currentRotation = 0; // Declare at the top of your script
 
 // Define zodiac signs and their descriptions
@@ -19,6 +23,9 @@ const zodiacSigns = [
 
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log('App is ready!');
+  // Navigation logic is handled by `router.js`
+  
     const wheel = document.getElementById("wheel");
     const hotspots = document.querySelectorAll(".hotspot");
     const totalHotspots = hotspots.length;
