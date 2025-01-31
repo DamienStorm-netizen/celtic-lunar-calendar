@@ -2,12 +2,16 @@ import {renderHome} from './components/home.js';
 import {renderCalendar} from './components/calendar.js';
 import {renderInsights} from './components/insights.js';
 import {renderSettings} from './components/settings.js';
+import {renderAbout} from './components/about.js';
+import {renderPrivacy} from './components/privacy.js';
 
 const routes = {
     home: renderHome,
     calendar: renderCalendar,
     insights: renderInsights,
     settings: renderSettings,
+    about: renderAbout,
+    privacy: renderPrivacy
 };
 
 // Handle navigation changes
