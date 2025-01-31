@@ -52,7 +52,6 @@ with open("calendar_data.json", "r") as file:
 def read_root():
     return {"message": "Welcome to the Celtic Calendar API"}
 
-
 # Display all 13 months
 @app.get("/calendar")
 def get_calendar():

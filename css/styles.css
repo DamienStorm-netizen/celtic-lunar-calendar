@@ -1,3 +1,133 @@
+body {
+  padding-top: 5px;
+}
+
+/* CUSTOM FONTS */
+@font-face {
+  font-family: 'Cinzel Decorative';
+  src: url('../assets/fonts/cinzeldecorative-regular-webfont.woff2') format('woff2'),
+       url('../assets/fonts/cinzeldecorative-regular-webfont.woff') format('woff');
+  font-weight: 400; /* Regular weight */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Cinzel Decorative';
+  src: url('../assets/fonts/cinzeldecorative-bold-webfont.woff2') format('woff2'),
+       url('../assets/fonts/cinzeldecorative-bold.woff') format('woff');
+  font-weight: 700; /* Bold weight */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Vidaloka';
+  src: url('../assets/fonts/vidaloka-regular-webfont.woff2') format('woff2'),
+       url('../assets/fonts/vidaloka-regular-webfont.woff') format('woff');
+  font-weight: 400; /* Bold weight */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Libre Baskerville';
+  src: url('../assets/fonts/librebaskerville-regular-webfont.woff2') format('woff2'),
+       url('../assets/fonts/vidaloka-regular-webfont.woff') format('woff');
+  font-weight: 700; /* Bold weight */
+  font-style: normal;
+}
+
+/* TYPOGRAPHY */
+h1, .main-title {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2.5rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+}
+
+/* CONTAINER */
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 480px; /* Adjust for mobile-first design */
+  min-height: 500px;
+  margin: 0 auto;   /* Centres the container */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Optional: Adds a soft shadow */
+  border: 1px solid #6a0dad; /* Optional: Adds a border */
+  background: rgb(94,133,148);
+  background: linear-gradient(0deg, rgba(94,133,148,1) 4%, rgba(22,38,63,1) 58%);
+  min-height: 100vh; /* Ensures it takes up full screen height */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent stars from spilling out */
+  border-radius: 15px; /* Optional: Add rounded corners for extra charm */
+}
+
+/* STAR LAYER */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.6; } /* Adjust starting/ending opacity */
+  50% { opacity: 0.2; }      /* Dim stars at their lowest point */
+}
+
+.star-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('../assets/images/decor/stars.png') repeat-x;
+  /*z-index: -1; Ensure it stays behind all content */
+  animation: twinkle 8s infinite ease-in-out; /* animation speed */
+  pointer-events: none; /* Prevent interaction */
+  opacity: 0.5; /* Adjust global opacity if needed */
+}
+
+/* HEADER & NAVIGATION */
+header {
+  background: 
+        linear-gradient(to bottom, rgba(106, 13, 173, 1), rgba(53, 10, 95, 1));
+  background-size: auto, contain;
+  padding: 10px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-link {
+  margin: 0 15px;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.nav-link:hover {
+  transform: scale(1.2);
+}
+
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  filter: drop-shadow(0 0 4px #ffffff);
+  transition: filter 0.3s ease;
+}
+
+.nav-link:hover .nav-icon {
+  filter: drop-shadow(0 0 8px #ffd700);
+}
+
+.nav-link.active .nav-icon {
+  filter: drop-shadow(0 0 10px #00ff00);
+}
+
+
 /* HOME SCREEN */
 .home {
   text-align: center;
@@ -33,6 +163,22 @@
 .home-btn:hover {
   background: #8546c5;
   transform: scale(1.1);
+}
+
+#date-container {
+  text-align: center;
+  color: #fff;
+  margin-top: 20px;
+}
+
+#day {
+  font-size: 2em;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+#celtic-date, #gregorian-date {
+  font-size: 1.2em;
+  font-family: 'Libre Baskerville', serif;
 }
 
 
@@ -90,5 +236,77 @@
       transform: rotate(360deg);
     }
   }
+
+/* FOOTER */
+footer {
+  background: 
+        linear-gradient(to bottom, rgba(106, 13, 173, 1), rgba(53, 10, 95, 1));
+  color: #fff;
+  text-align: center;
+  padding: 15px 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 1000;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
+  font-family: 'Lora', serif; /* Match the comp's font if using Google Fonts */
+}
+
+footer nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Space between elements */
+}
+
+.footer-link {
+  text-decoration: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #ffda44; /* Highlight on hover */
+  text-shadow: 0 0 8px #ffda44;
+}
+
+.footer-knot {
+  width: 30px;
+  height: 30px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.footer-knot:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 6px #ffda44);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .container {
+    max-width: 768px; /* Adjust for tablets */
+  }
+
+  footer nav {
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  .footer-knot {
+      width: 25px;
+      height: 25px;
+  }
+
+  .footer-link {
+      font-size: 14px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+      max-width: 1024px; /* Adjust for desktops */
+  }
+}
 
   
