@@ -72,6 +72,5 @@ document.addEventListener("DOMContentLoaded", () => {
       });
    });
 
-    
 
 });

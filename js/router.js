@@ -21,10 +21,25 @@ function handleNavigation() {
     }
 }
 
+// Hover Effects on Nav icons
+function highlightNav() {
+    const links = document.querySelectorAll('.nav-link');
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === window.location.hash) {
+        link.classList.add('active');
+      }
+    });
+  }
+
 export function navigateTo(hash) {
     const view = routes[hash.replace('#', '')] || Home;
     document.getElementById('app').innerHTML = view();
 }
+
+// Call highlightNav whenever the hash changes
+window.addEventListener('hashchange', highlightNav);
+window.addEventListener('load', highlightNav);
 
 // Listen for hash changes
 window.addEventListener('hashchange', () => navigateTo(location.hash));

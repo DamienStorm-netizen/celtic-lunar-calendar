@@ -7,25 +7,50 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <div class="container">
     <header>
         <nav>
-            <ul>
-                <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#calendar" class="nav-link">Calendar</a></li>
-                <li><a href="#insights" class="nav-link">Insights</a></li>
-                <li><a href="#settings" class="nav-link">Settings</a></li>
-            </ul>
+          <ul class="nav-list">
+            <li>
+              <a href="#home" class="nav-link" id="nav-home">
+                <img src="assets/icons/home-icon.png" alt="Home" class="nav-icon" />
+              </a>
+            </li>
+            <li>
+              <a href="#calendar" class="nav-link" id="nav-calendar">
+                <img src="assets/icons/calendar-icon.png" alt="Calendar" class="nav-icon" />
+              </a>
+            </li>
+            <li>
+              <a href="#insights" class="nav-link" id="nav-insights">
+                <img src="assets/icons/insights-icon.png" alt="Insights" class="nav-icon" />
+              </a>
+            </li>
+            <li>
+              <a href="#settings" class="nav-link" id="nav-settings">
+                <img src="assets/icons/settings-icon.png" alt="Settings" class="nav-icon" />
+              </a>
+            </li>
+          </ul>
         </nav>
     </header>
+
+    <div class="star-layer"></div>
 
     <main id="app">
         <!-- Dynamic content will be injected here -->
     </main>
 
     <footer>
-        <p>&copy; 2025 Eclipsed Realities
-        </p>
-    </footer>
+      <nav>
+          <a href="#settings" class="footer-link">Settings</a>
+          <img src="assets/images/decor/knot.png" alt="Celtic Knot" class="footer-knot">
+          <a href="#about" class="footer-link">About</a>
+          <img src="assets/images/decor/knot.png" alt="Celtic Knot" class="footer-knot">
+          <a href="#privacy" class="footer-link">Privacy</a>
+      </nav>
+  </footer>
+</div>
 
     <script src="js/router.js" type="module"></script>
     <script src="js/script.js" type="module"></script>  

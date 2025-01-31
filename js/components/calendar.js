@@ -14,7 +14,7 @@ export function renderCalendar() {
     const app = document.getElementById('app');
     return `
         <section class="calendar">
-            <h1 style="color: purple">Celtic Monthly Calendar</h1>
+            <h1>Celtic Monthly Calendar</h1>
             <div id="month-grid">
             <!-- Dynamically load month thumbnails -->
             ${renderMonths()}
