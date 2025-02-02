@@ -44,27 +44,6 @@ h1, .main-title {
   text-align: center;
 }
 
-/* Celtic Date Styling */
-.header-title {
-  text-align: center;
-  margin-top: 20px;
-  color: #FFD700; /* Gold colour for the text */
-}
-
-.header-title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin: 0;
-  font-family: 'Cinzel Decorative', serif;
-  text-transform: uppercase;
-}
-
-.header-title {
-  font-size: 1.2rem;
-  font-family: 'Libre Baskerville', serif;
-  margin: 5px 0 0;
-}
-
 /* CONTAINER */
 .container {
   position: relative;
@@ -100,6 +79,7 @@ h1, .main-title {
   animation: twinkle 8s infinite ease-in-out; /* animation speed */
   pointer-events: none; /* Prevent interaction */
   opacity: 0.5; /* Adjust global opacity if needed */
+  z-index: 0;
 }
 
 /* HEADER & NAVIGATION */
@@ -197,10 +177,126 @@ header {
   font-family: 'Cinzel Decorative', serif;
 }
 
-#celtic-date, #gregorian-date {
-  font-size: 1.2em;
-  font-family: 'Libre Baskerville', serif;
+#celtic-day {
+  font-family: 'Cinzel Decorative', serif;
+  filter: drop-shadow(0 0 8px #ffd700);
 }
+
+#celtic-month {
+  color: #f5d742; 
+  font-size: 1.2em;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+#gregorian-month {
+  font-size: 0.7em;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* Today's Moon Phase and Celtic Zodiac Sign */
+.celtic-info-container {
+  display: flex;
+  justify-content: space-between; /* Keeps the two columns apart */
+  align-items: flex-start; /* Aligns items to the top */
+  margin: auto;
+  max-width: 90%;
+  padding: 0 10px 0 10px;
+}
+
+.moon-column,
+.zodiac-column {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+}
+
+.moon-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.moon-graphic {
+  font-size: 6rem;
+  margin-bottom: 0px;
+}
+
+.moon-phase-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.celtic-zodiac {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.celtic-zodiac h3 {
+  font-size: 2rem;
+  color: #ffd700;
+  margin-top: 0;
+}
+
+.zodiac-description {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #fff;
+}
+
+.zodiac-subheader {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Phase of the Moon */
+
+.moon-phase {
+  text-align: center;
+  margin-top: 0rem;
+  padding: 0rem;
+}
+
+.moon-phase-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0px;
+}
+
+.moon-phase-details h3 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin: 0;
+}
+
+.moon-phase-details p {
+  font-size: 1em;
+  margin-top: 0px;
+  text-align: center;
+  color: #fff; /* Or any colour matching your theme */
+}
+
+.moon-phase-graphic {
+  font-size: 100px; /* Or any size you need */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.moon-phase-details blockquote {
+  font-family: 'Vidaloka', serif;
+  font-style: italic;
+  color: #ddd;
+  margin-top: 1rem;
+  border-left: 4px solid #ffd700;
+  padding-left: 1rem;
+}
+
 
 
 /* CELTIC ZODIAC SCREEN */
@@ -309,10 +405,12 @@ footer nav {
     max-width: 768px; /* Adjust for tablets */
   }
 
+  /*
   footer nav {
       flex-direction: column;
       gap: 10px;
   }
+  */
 
   .footer-knot {
       width: 25px;
