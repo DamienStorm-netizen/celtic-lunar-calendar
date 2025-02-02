@@ -39,18 +39,9 @@ app.mount("/js", StaticFiles(directory="js"), name="js")
 async def read_root():
     return FileResponse("index.html")
 
-@app.get("/")
-async def read_root():
-    return {"message": "Welcome to the Celtic Calendar!"}
-
 # Load the JSON data from the file
 with open("calendar_data.json", "r") as file:
     calendar_data = json.load(file)
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the Celtic Calendar API"}
 
 # Display all 13 months
 @app.get("/calendar")
@@ -219,7 +210,7 @@ def get_celtic_year_start(year):
     return celtic_year_start
 
 #Display today's date in the Celtic Calendar
-def get_celtic_date(gregorian_date):
+def compute_celtic_date(gregorian_date):
     year = gregorian_date.year
     celtic_year_start = get_celtic_year_start(year)
 
@@ -227,11 +218,8 @@ def get_celtic_date(gregorian_date):
     if gregorian_date >= datetime(year, 12, 21).date():
         celtic_year_start = get_celtic_year_start(year + 1)
 
-    print(f"Final Celtic Year Start: {celtic_year_start.date()} (Year: {year})")
-
     # Calculate the number of days since the Celtic year started
     days_since_start = (gregorian_date - celtic_year_start.date()).days
-    print(f"Gregorian Date: {gregorian_date}, Days Since Start: {days_since_start}")
 
     # Define Celtic months (13 months, each with 28 days)
     celtic_months = [
@@ -239,33 +227,30 @@ def get_celtic_date(gregorian_date):
         "Solis", "Terra", "Lugh", "Pomona", "Autumma", "Frost", "Aether"
     ]
 
-    # Handle leap year special days
+    # Handle leap year special days (if applicable)
     if is_leap_year(year) and days_since_start == 8:
         return {"month": "Leap Day", "day": 1}
 
-    # Handle floating day (last day of a regular year)
     if days_since_start == 364:
         return {"month": "Floating Day", "day": 1}
 
-    # Determine the month and day
     month_index = days_since_start // 28
     day = (days_since_start % 28) + 1
 
-    # Handle overflow (fallback)
+    # Fallback for overflow (if any)
     if month_index >= len(celtic_months):
-        print(f"ERROR: Invalid Month Index {month_index}.")
         return {"month": "Invalid Date", "day": None}
 
     month = celtic_months[month_index]
     return {"month": month, "day": day}
+
     
 
 # Display today's date in the Celtic Calendar
 @app.get("/celtic-today")
 def celtic_today():
     today = datetime.now().date()
-    #today = datetime(2024, 12, 31).date()
-    celtic_date = get_celtic_date(today)
+    celtic_date = compute_celtic_date(today)  # Use the new name here
     return {
         "gregorian_date": today.isoformat(),
         "celtic_month": celtic_date["month"],
@@ -487,3 +472,37 @@ def get_lunar_visuals(month_name: str = None, start_date: str = None, end_date: 
         "month": month_name if month_name else "Custom Range",
         "days": visuals
     }
+
+@app.get("/api/celtic-date")
+def compute_celtic_date():
+
+    # Load the Celtic calendar data
+    with open("calendar_data.json") as f:
+        celtic_calendar = json.load(f)
+
+    # Current date
+    current_date = datetime.now().date()
+    weekday = current_date.strftime("%A")  # Example: "Wednesday"
+    gregorian_date = current_date.strftime("%B %d")  # Example: "January 31"
+
+    # Loop through your Celtic calendar mapping to find the current Celtic day and month
+    for month in celtic_calendar["months"]:
+        start_date = datetime.strptime(month["start_date"], "%Y-%m-%d").date()
+        end_date = datetime.strptime(month["end_date"], "%Y-%m-%d").date()
+
+        if start_date <= current_date <= end_date:
+            # Calculate the Celtic day within this month
+            celtic_day = (current_date - start_date).days + 1
+            celtic_month = month["name"]  # Example: "Nivis"
+            return {
+                "day": weekday,
+                "celtic_day": celtic_day,
+                "month": celtic_month,
+                "gregorian_date": gregorian_date
+            }
+
+    # If no match is found
+    return {"error": "Celtic date not found in the current range"}
+
+if __name__ == "__main__":
+    app.run()

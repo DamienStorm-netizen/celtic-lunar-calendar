@@ -1,4 +1,4 @@
-import {renderHome} from './components/home.js';
+import {renderHome, fetchCelticDate, fetchDynamicMoonPhase} from './components/home.js';
 import {renderCalendar} from './components/calendar.js';
 import {renderInsights} from './components/insights.js';
 import {renderSettings} from './components/settings.js';
@@ -16,13 +16,13 @@ const routes = {
 
 // Handle navigation changes
 function handleNavigation() {
-    const hash = window.location.hash || '#home'; // Default to home
-    const page = routes[hash.replace('#', '')];
-    if (page) {
-        document.getElementById('app').innerHTML = page();
-    } else {
-        console.error('Page not found:', hash);
-    }
+  const hash = window.location.hash || '#home'; // Default to home
+  const page = routes[hash.replace('#', '')];
+  if (page) {
+    document.getElementById('app').innerHTML = page();
+  } else {
+    console.error('Page not found:', hash);
+  }
 }
 
 // Hover Effects on Nav icons
@@ -36,10 +36,41 @@ function highlightNav() {
     });
   }
 
-export function navigateTo(hash) {
-    const view = routes[hash.replace('#', '')] || Home;
-    document.getElementById('app').innerHTML = view();
-}
+  function navigateTo(hash) {
+    const routeKey = hash.replace('#', '');
+    const appContainer = document.getElementById('app');
+  
+    switch (routeKey) {
+      case 'home':
+        appContainer.innerHTML = renderHome();
+        fetchCelticDate(); // Fetch dynamic date for the home page
+        fetchDynamicMoonPhase(); // Fetch dynamic moon phase
+        break;
+      case 'insights':
+        appContainer.innerHTML = renderInsights();
+        break;
+      case 'calendar':
+        appContainer.innerHTML = renderCalendar();
+        break;
+      case 'about':
+        appContainer.innerHTML = renderAbout();
+        break;
+      case 'settings':
+        appContainer.innerHTML = renderSettings();
+        break;
+      case 'privacy':
+        appContainer.innerHTML = renderPrivacy();
+        break;
+      default:
+        console.error('Page not found:', hash);
+        appContainer.innerHTML = `<p class="error-message">Oops! Page not found.</p>`;
+    }
+  }
+
+//export function navigateTo(hash) {
+//    const view = routes[hash.replace('#', '')] || Home;
+//    document.getElementById('app').innerHTML = view();
+//}
 
 // Call highlightNav whenever the hash changes
 window.addEventListener('hashchange', highlightNav);

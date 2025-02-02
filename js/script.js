@@ -2,6 +2,8 @@ import { renderHome } from './components/home.js';
 import { renderCalendar } from './components/calendar.js';
 import { renderSettings } from './components/settings.js';
 
+
+  // CELTIC ZODIAC WHEEL
 let currentRotation = 0; // Declare at the top of your script
 
 // Define zodiac signs and their descriptions
@@ -20,7 +22,6 @@ const zodiacSigns = [
     { name: "Reed", description: "Symbol of harmony and courage.", top: "20%", left: "65%" },
     { name: "Elder", description: "Symbol of transformation and release.", top: "40%", left: "75%" }
   ];
-
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log('App is ready!');
