@@ -359,19 +359,50 @@ def edit_custom_date(date: str, updated_data: dict):
 # Retrieve the Celtic Zodiac sign for a specific date
 @app.get("/zodiac")
 def get_zodiac_by_date(date: str):
+    from datetime import datetime
+
+    # Parse the query date
     query_date = datetime.fromisoformat(date).date()
+    query_month_day = (query_date.month, query_date.day)  # Extract month and day
+    print(f"Query Date: {query_date}, Month-Day: {query_month_day}")
+
     for sign in calendar_data["zodiac"]:
+        # Extract month and day from start and end dates
         start = datetime.fromisoformat(sign["start_date"]).date()
         end = datetime.fromisoformat(sign["end_date"]).date()
-        if start <= query_date <= end:
-            return {
-                "date": date,
-                "zodiac_sign": sign["name"],
-                "symbolism": sign["symbolism"],
-                "animal": sign["animal"],
-                "mythical_creature": sign["mythical_creature"]
-            }
-    return {"message": "No Zodiac sign found for this date."}
+        start_month_day = (start.month, start.day)
+        end_month_day = (end.month, end.day)
+
+        print(f"Checking Zodiac: {sign['name']}")
+        print(f"Start Month-Day: {start_month_day}, End Month-Day: {end_month_day}")
+
+        # Check for "normal" ranges (start and end in the same year)
+        if start_month_day <= end_month_day:
+            if start_month_day <= query_month_day <= end_month_day:
+                print(f"Match Found: {sign['name']} (Normal Range)")
+                return {
+                    "date": date,
+                    "zodiac_sign": sign["name"],
+                    "symbolism": sign["symbolism"],
+                    "animal": sign["animal"],
+                    "mythical_creature": sign["mythical_creature"]
+                }
+
+        # Check for "wrapped" ranges (e.g., Dec 24 - Jan 20)
+        else:
+            if query_month_day >= start_month_day or query_month_day <= end_month_day:
+                print(f"Match Found: {sign['name']} (Wrapped Range)")
+                return {
+                    "date": date,
+                    "zodiac_sign": sign["name"],
+                    "symbolism": sign["symbolism"],
+                    "animal": sign["animal"],
+                    "mythical_creature": sign["mythical_creature"]
+                }
+
+    # No match found
+    print("No match found.")
+
 
 # Display all Zodiac signs with their dates and symbolism
 @app.get("/zodiac/all")
@@ -472,6 +503,20 @@ def get_lunar_visuals(month_name: str = None, start_date: str = None, end_date: 
         "month": month_name if month_name else "Custom Range",
         "days": visuals
     }
+
+# Fetch the moon poem or display a default moon poem
+@app.get("/api/lunar-phase-poem")
+def get_moon_poem(phase: str = None, moon_name: str = None):
+    # Example: Use the "phase" or "moon_name" to retrieve the poem dynamically
+    for moon in calendar_data["lunar_phases"]:
+        if (phase and moon["phase"].lower() == phase.lower()) or \
+           (moon_name and moon.get("phaseName", "").lower() == moon_name.lower()):
+            return {"poem": moon.get("poem", "The moon whispers secrets untold...")}
+    
+    # Fallback poem if no match is found
+    return {"poem": "<strong class='goldNugget'>The Moon’s Gentle Whisper</strong><br />A sliver of light, a quiet song,<br />Guiding the night as dreams drift along.<br />Not yet whole, but softly bright,<br />The moon still weaves her silver light."}
+
+
 
 @app.get("/api/celtic-date")
 def compute_celtic_date():
