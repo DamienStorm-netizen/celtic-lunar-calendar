@@ -72,6 +72,34 @@ export function renderCalendar() {
     `;
 }
 
+export function generateCalendarGrid(monthName) {
+    console.log("Generate Calendar Grid for:", monthName);
+
+    const daysInMonth = 28; // Every Celtic month has 28 days
+    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    // Create the calendar container
+    let calendarHTML = `<div class="calendar-header">`;
+
+    // Add weekday labels
+    daysOfWeek.forEach(day => {
+        calendarHTML += `<div class="day-header">${day}</div>`;
+    });
+
+    calendarHTML += `</div><div class="calendar-days">`;
+
+    // Loop to generate 28 days
+    for (let day = 1; day <= daysInMonth; day++) {
+        calendarHTML += `<div class="calendar-day" data-day="${day}">${day}</div>`;
+    }
+
+    calendarHTML += `</div>`;
+
+    //const calendarTest = 'Yellow Submarine';
+
+    return calendarHTML;
+}
+
 export async function setupCalendarEvents() {
     // Select the modal elements
     const modalContainer = document.getElementById("modal-container");
@@ -103,98 +131,43 @@ export async function setupCalendarEvents() {
 
     function showModal(monthName) {
         if (monthName) {
-          const modalDetails = document.getElementById("modal-details");
-          modalDetails.innerHTML = `<h2>${monthName}</h2><p>${monthsData[monthName] || "No data available."}</p>`;
-          modalContainer.classList.remove("hidden");
+            const modalDetails = document.getElementById("modal-details");
+            // Insert your modal content along with an empty calendar grid container.
+
+            if (modalDetails) {
+                modalDetails.innerHTML = `
+                    <h2>${monthName}</h2>
+                    <p>${monthsData[monthName] || "No data available."}</p>
+                    <div class="calendar-grid"></div>
+                `;
+            }
+            
+            // Now query the calendar grid that you just inserted
+            const modalCalendarGrid = modalDetails.querySelector(".calendar-grid");
+            console.log("Generate Calendar Grid for:", monthName);
+            if (modalCalendarGrid) {
+                // Make sure generateCalendarGrid returns a value (e.g., an HTML string)
+                modalCalendarGrid.innerHTML = generateCalendarGrid(monthName);
+            }
+            modalContainer.classList.remove("hidden");
         }
-      }
+    }
 
     // Close modal
     modalClose.addEventListener("click", () => {
         modalContainer.classList.add("hidden");
     });
 
+     // Generate and set the calendar grid
+     // modalCalendarGrid.innerHTML = generateCalendarGrid(monthName);
+     
     // Attach event listeners to each thumbnail
     const thumbnails = document.querySelectorAll(".month-thumbnail");
     thumbnails.forEach((thumbnail) => {
         thumbnail.addEventListener("click", (e) => {
-            console.log("CLICK!");
             const monthName = e.target.closest(".month-thumbnail").dataset.month;
-            showModal(monthName);
+            console.log("CLICK! for:", monthName);
+            showModal(monthName); // Call showModal to handle modal content
         });
     });
 }
-
-
-/*
-export function generateCalendarGrid(monthName, totalDays) {
-    const showLunarPhases = localStorage.getItem("showLunarPhases") === "true";
-    const showFestivals = localStorage.getItem("showFestivals") === "true";
-
-    const calendarGrid = document.querySelector(".calendar-grid");
-    calendarGrid.innerHTML = ""; // Clear previous grid
-
-    for (let day = 1; day <= totalDays; day++) {
-        const dayCell = document.createElement("div");
-        dayCell.classList.add("grid-cell");
-        dayCell.textContent = day;
-
-        if (showLunarPhases) {
-            // Add lunar phase information dynamically
-            dayCell.classList.add("lunar-phase");
-        }
-
-        if (showFestivals) {
-            // Add festival information dynamically
-            dayCell.classList.add("festival");
-        }
-
-        calendarGrid.appendChild(dayCell);
-    }
-}
-    */
-
-/*
-
-// Populate Modal Content
-export function populateModal(monthName) {
-    const modalMonthName = document.getElementById("modal-month-name");
-    modalMonthName.textContent = monthName;
-
-    // Populate the grid, toggles, and zodiac dynamically here later!
-}
-*/
-
-/*
-export function displayLunarPhases(container, lunarPhases) {
-    // Clear any existing lunar phase content
-    clearDynamicContent(container, "lunar");
-
-    const lunarDiv = document.createElement("div");
-    lunarDiv.classList.add("lunar-content");
-    lunarDiv.innerHTML = `<h3>Lunar Phases</h3>`;
-    lunarPhases.forEach(phase => {
-        lunarDiv.innerHTML += `<p>${phase.date}: ${phase.phase}</p>`;
-    });
-
-    container.appendChild(lunarDiv);
-}
-
-export function displayFestivals(container, festivals) {
-    // Clear any existing festival content
-    clearDynamicContent(container, "festivals");
-
-    const festivalDiv = document.createElement("div");
-    festivalDiv.classList.add("festival-content");
-    festivalDiv.innerHTML = `<h3>Festivals</h3>`;
-    festivals.forEach(festival => {
-        festivalDiv.innerHTML += `<p>${festival.name}: ${festival.description}</p>`;
-    });
-
-    container.appendChild(festivalDiv);
-}
-
-export function clearDynamicContent(container, type) {
-    const existingContent = container.querySelector(`.${type}-content`);
-    if (existingContent) existingContent.remove();
-}*/
