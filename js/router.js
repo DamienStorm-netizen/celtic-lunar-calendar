@@ -1,7 +1,7 @@
 import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate} from './components/home.js';
 import {renderCalendar, setupCalendarEvents} from './components/calendar.js';
 import {renderInsights} from './components/insights.js';
-import {renderSettings} from './components/settings.js';
+import {renderSettings, setupSettingsEvents} from './components/settings.js';
 import {renderAbout} from './components/about.js';
 import {renderPrivacy} from './components/privacy.js';
 
@@ -53,13 +53,14 @@ function highlightNav() {
         break;
       case 'calendar':
         appContainer.innerHTML = renderCalendar();
-        setupCalendarEvents(); // Assign click behaviour to thumbs
+        setupCalendarEvents();
         break;
       case 'about':
         appContainer.innerHTML = renderAbout();
         break;
       case 'settings':
         appContainer.innerHTML = renderSettings();
+        setupSettingsEvents();
         break;
       case 'privacy':
         appContainer.innerHTML = renderPrivacy();
