@@ -1,5 +1,5 @@
-import {renderHome, fetchCelticDate, fetchDynamicMoonPhase} from './components/home.js';
-import {renderCalendar} from './components/calendar.js';
+import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate} from './components/home.js';
+import {renderCalendar, setupCalendarEvents} from './components/calendar.js';
 import {renderInsights} from './components/insights.js';
 import {renderSettings} from './components/settings.js';
 import {renderAbout} from './components/about.js';
@@ -45,12 +45,15 @@ function highlightNav() {
         appContainer.innerHTML = renderHome();
         fetchCelticDate(); // Fetch dynamic date for the home page
         fetchDynamicMoonPhase(); // Fetch dynamic moon phase
+        fetchCelticZodiac(); // Fetch Celtic Zodiac sign
+        fetchPoemAndUpdate(); // Fetch Moon poem and update
         break;
       case 'insights':
         appContainer.innerHTML = renderInsights();
         break;
       case 'calendar':
         appContainer.innerHTML = renderCalendar();
+        setupCalendarEvents(); // Assign click behaviour to thumbs
         break;
       case 'about':
         appContainer.innerHTML = renderAbout();
@@ -67,10 +70,6 @@ function highlightNav() {
     }
   }
 
-//export function navigateTo(hash) {
-//    const view = routes[hash.replace('#', '')] || Home;
-//    document.getElementById('app').innerHTML = view();
-//}
 
 // Call highlightNav whenever the hash changes
 window.addEventListener('hashchange', highlightNav);
