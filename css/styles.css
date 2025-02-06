@@ -36,7 +36,7 @@ body {
 }
 
 /* TYPOGRAPHY */
-h1, .main-title {
+h1, .main-title, .month-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
   font-size: 2.5rem; /* Adjust size as needed */
@@ -328,7 +328,7 @@ blockquote.moon-poem {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  max-width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.8); /* Transparent dark overlay */
   display: flex;
@@ -338,6 +338,7 @@ blockquote.moon-poem {
 }
 
 /* Modal Content */
+
 #modal-content {
   background: var(--modal-bg, #1e1e2e);
   color: var(--text-color, #fff);
@@ -370,18 +371,44 @@ blockquote.moon-poem {
 /* Grid */
 
 .calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr); /* 7 days a week */
-  gap: 0; /* No gap between cells for a seamless grid */
-  /* border: 1px dotted #32CD32;  Outer dotted border */
-  border-collapse: collapse;
-  border-radius: 5px; /* Optional for rounded corners */
-  overflow: hidden; /* To ensure the dots don't overlap outside the grid */
+  width: 100%; /* Make the grid responsive to the modal */
+  border-collapse: collapse; /* Merge cell borders */
 }
 
-/* Apply spacing within the grid */
-.calendar-grid {
-  border-spacing: 0; /* No spacing around the dots */
+.calendar-grid th {
+  text-align: center;
+  padding: 10px;
+  color: #fff;
+  font-family: "Vidaloka", serif;
+  font-size: 14px;
+  font-weight: bold;
+  border: none; /* Remove borders from weekday headers */
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle background for headers */
+}
+
+.calendar-grid td {
+  text-align: center;
+  padding: 14px;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle background for each day */
+  border: 1px dotted #32CD32; /* Green dotted border for gridlines */
+  border-top: none; /* Remove top border of the first row */
+  border-left: none; /* Remove left border of the first column */
+  font-family: "Vidaloka", serif;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.calendar-grid td:hover {
+  background-color: rgba(50, 205, 50, 0.3); /* Highlight on hover */
+}
+
+.calendar-grid tr:last-child td {
+  border-bottom: none; /* Remove bottom border of the last row */
+}
+
+.calendar-grid tr td:last-child {
+  border-right: none; /* Remove right border of the last column */
 }
 
 /* Individual date cells */

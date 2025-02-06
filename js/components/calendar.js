@@ -73,31 +73,10 @@ export function renderCalendar() {
 }
 
 export function generateCalendarGrid(monthName) {
-    console.log("Generate Calendar Grid for:", monthName);
+    
+    const calendarMonth = '<table class="calendar-grid"><thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr><tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr><tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr></tbody></table>';
 
-    const daysInMonth = 28; // Every Celtic month has 28 days
-    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-    // Create the calendar container
-    let calendarHTML = `<div class="calendar-header">`;
-
-    // Add weekday labels
-    daysOfWeek.forEach(day => {
-        calendarHTML += `<div class="day-header">${day}</div>`;
-    });
-
-    calendarHTML += `</div><div class="calendar-days">`;
-
-    // Loop to generate 28 days
-    for (let day = 1; day <= daysInMonth; day++) {
-        calendarHTML += `<div class="calendar-day" data-day="${day}">${day}</div>`;
-    }
-
-    calendarHTML += `</div>`;
-
-    //const calendarTest = 'Yellow Submarine';
-
-    return calendarHTML;
+    return calendarMonth;
 }
 
 export async function setupCalendarEvents() {
@@ -136,7 +115,7 @@ export async function setupCalendarEvents() {
 
             if (modalDetails) {
                 modalDetails.innerHTML = `
-                    <h2>${monthName}</h2>
+                    <h2 class="month-title">${monthName}</h2>
                     <p>${monthsData[monthName] || "No data available."}</p>
                     <div class="calendar-grid"></div>
                 `;
