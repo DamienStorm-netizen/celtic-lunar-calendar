@@ -129,7 +129,8 @@ export async function setupCalendarEvents() {
     // Open modal window and insert HTML
     function showModal(monthName) {
         if (monthName) {
-            const modalDetails = document.getElementById("modal-details");
+            const modalContainer = document.getElementById("modal-container");
+            const modalDetails = modalContainer.querySelector("#modal-details");
 
             // Insert modal content, including the calendar grid
             if (modalDetails) {
@@ -150,17 +151,44 @@ export async function setupCalendarEvents() {
             // Enhance the existing table with click and highlight behaviour
             enhanceCalendarTable(modalContainer, monthName);
 
+             // Apply fade-in effect
+            modalContainer.classList.remove("hidden");
+            modalContainer.classList.add("fade-in");
+
+            // Remove fade-out class if present
+            modalContainer.addEventListener("animationend", () => {
+                modalContainer.classList.remove("fade-out");
+            });
+
             modalContainer.classList.remove("hidden");
         }
     }
 
     // Close modal
-    modalClose.addEventListener("click", () => {
-        modalContainer.classList.add("hidden");
-    });
+    function closeModal() {
+        console.log("Click Close Button");
+        const modalContainer = document.getElementById("modal-container");
+        
+        // Remove 'fade-in' class before adding 'fade-out'
+        modalContainer.classList.remove("fade-in");
+        modalContainer.classList.add("fade-out");
+    
+        // Add animationend listener to handle hiding the modal
+        const onAnimationEnd = () => {
+            modalContainer.classList.add("hidden");
+            modalContainer.classList.remove("fade-out");
+            
+            // Clean up listener
+            modalContainer.removeEventListener("animationend", onAnimationEnd);
+        };
+    
+        modalContainer.addEventListener("animationend", onAnimationEnd);
+    }
+    
+    // Attach event listener to the close button
+    document.getElementById("modal-close").addEventListener("click", closeModal);
 
-     // Generate and set the calendar grid
-     // modalCalendarGrid.innerHTML = generateCalendarGrid(monthName);
+
      
     // Attach event listeners to each thumbnail
     const thumbnails = document.querySelectorAll(".month-thumbnail");
