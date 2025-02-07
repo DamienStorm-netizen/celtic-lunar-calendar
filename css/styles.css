@@ -2,7 +2,11 @@ body {
   padding-top: 5px;
 }
 
+
+/**********************************************/
 /* CUSTOM FONTS */
+/**********************************************/
+
 @font-face {
   font-family: 'Cinzel Decorative';
   src: url('../assets/fonts/cinzeldecorative-regular-webfont.woff2') format('woff2'),
@@ -35,7 +39,11 @@ body {
   font-style: normal;
 }
 
+
+/**********************************************/
 /* TYPOGRAPHY */
+/**********************************************/
+
 h1, .main-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
@@ -54,7 +62,11 @@ h1, .main-title {
   color: #ffd700;
 }
 
-/* CONTAINER */
+
+/**********************************************/
+/* APP CONTAINER */
+/**********************************************/
+
 .container {
   position: relative;
   width: 100%;
@@ -92,7 +104,11 @@ h1, .main-title {
   z-index: 0;
 }
 
+
+/**********************************************/
 /* HEADER & NAVIGATION */
+/**********************************************/
+
 header {
   background: 
         linear-gradient(to bottom, rgba(106, 13, 173, 1), rgba(53, 10, 95, 1));
@@ -138,8 +154,10 @@ header {
   filter: drop-shadow(0 0 10px #00ff00);
 }
 
-
+/**********************************************/
 /* HOME SCREEN */
+/**********************************************/
+
 .home {
   text-align: center;
   margin: 2rem;
@@ -319,9 +337,9 @@ blockquote.moon-poem {
   padding-left: 1rem;
 }
 
-/* **************************************** */
-
+/* ********************************************/
 /* CELTIC CALENDAR SCREEN */
+/**********************************************/
 
 /* Modal Structure */
 .hidden {
@@ -484,12 +502,12 @@ blockquote.moon-poem {
 }
 
 /* Today highlight */
-.calendar-day.today {
-  background: #FFD700; /* Golden highlight */
-  color: #000;
+.highlight-today {
+  background: #FFD700; /* Golden glow */
+  color: #000; /* Black text for contrast */
   font-weight: bold;
-  border-radius: 5px; /* Optional for rounded "today" box */
-  box-shadow: 0 0 10px 2px #FFD700; /* Glowing effect */
+  border-radius: 50%; /* Circular highlight */
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7); /* Magical glow effect */
 }
 
 .calendar-day:hover {
@@ -576,10 +594,88 @@ blockquote.moon-poem {
   text-align: center;
 }
 
+/**********************************************/
+/* MODAL ANIMATIONS */
+/**********************************************/
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: scale(0.95);
+  }
+  to {
+      opacity: 1;
+      transform: scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+      opacity: 1;
+      transform: scale(1);
+  }
+  to {
+      opacity: 0;
+      transform: scale(0.95);
+  }
+}
+
+/* Month Transition */
+@keyframes slideIn {
+  from {
+      transform: translateX(100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateX(0);
+      opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+      transform: translateX(0);
+      opacity: 1;
+  }
+  to {
+      transform: translateX(-100%);
+      opacity: 0;
+  }
+}
+
+/* Highlight Animation */
+@keyframes highlightPulse {
+  0% {
+      box-shadow: 0 0 0 rgba(255, 255, 0, 0.5);
+  }
+  50% {
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+  }
+  100% {
+      box-shadow: 0 0 0 rgba(255, 255, 0, 0.5);
+  }
+}
+
+/* Apply to Modal */
+.modal {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal.hidden {
+  animation: fadeOut 0.3s ease-out;
+}
+
+/* Date Click Feedback */
+.calendar-day.highlight-today {
+  animation: highlightPulse 0.5s ease-in-out;
+}
 
 
 
+
+/**********************************************/
 /* CELTIC ZODIAC SCREEN */
+/**********************************************/
 
 .wheel-container {
     display: flex; /* Flexbox magic */

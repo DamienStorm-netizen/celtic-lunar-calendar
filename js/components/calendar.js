@@ -63,6 +63,10 @@ export function renderCalendar() {
             </div>
         </div>
     `;
+
+    // Enhance the table with Celtic date logic
+    enhanceCalendarTable(modalContainer, monthName);
+
 }
 
 export async function setupCalendarEvents() {
@@ -94,6 +98,35 @@ export async function setupCalendarEvents() {
         "Aether": "Aether, the ethereal veil between seasons, where dreams and reality entwine."
     };
 
+    // Add click events to HTML table
+    async function enhanceCalendarTable(modalContainer, monthName) {
+        const todayCeltic = await getCelticDate(); // Fetch today's Celtic date
+        if (!todayCeltic) {
+            console.error("Could not fetch Celtic date. Highlight skipped.");
+            return;
+        }
+      
+        const { celticMonth, celticDay } = todayCeltic;
+        const tableCells = modalContainer.querySelectorAll(".calendar-grid td");
+      
+        tableCells.forEach((cell) => {
+            const day = parseInt(cell.textContent, 10); // Get the day number from the cell
+            if (!isNaN(day)) {
+                // Highlight today's Celtic date if it matches the current month and day
+                if (monthName === celticMonth && day === celticDay) {
+                    cell.classList.add("highlight-today");
+                }
+      
+                // Assign click behaviour to each date cell
+                cell.addEventListener("click", () => {
+                    console.log(`Clicked on day ${day} in the month of ${monthName}`);
+                    // Add custom logic here for the clicked date
+                });
+            }
+        });
+      }
+
+    // Open modal window and insert HTML
     function showModal(monthName) {
         if (monthName) {
             const modalDetails = document.getElementById("modal-details");
@@ -111,8 +144,12 @@ export async function setupCalendarEvents() {
             }
             
             // Now query the calendar grid that you just inserted
-            
-            const modalContainer = document.getElementById("modal-container");
+            //const modalContainer = document.getElementById("modal-container");
+            //modalContainer.classList.remove("hidden");
+
+            // Enhance the existing table with click and highlight behaviour
+            enhanceCalendarTable(modalContainer, monthName);
+
             modalContainer.classList.remove("hidden");
         }
     }
@@ -134,4 +171,21 @@ export async function setupCalendarEvents() {
             showModal(monthName); // Call showModal to handle modal content
         });
     });
+}
+
+export async function getCelticDate() {
+    try {
+        const response = await fetch("/api/celtic-date");
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return {
+            celticMonth: data.month, // "Janus"
+            celticDay: parseInt(data.celtic_day, 10), // 19
+        };
+    } catch (error) {
+        console.error("Failed to fetch Celtic date:", error);
+        return null;
+    }
 }
