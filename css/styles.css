@@ -36,7 +36,7 @@ body {
 }
 
 /* TYPOGRAPHY */
-h1, .main-title, .month-title {
+h1, .main-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
   font-size: 2.5rem; /* Adjust size as needed */
@@ -319,7 +319,9 @@ blockquote.moon-poem {
   padding-left: 1rem;
 }
 
-/* Modal Styles */
+/* **************************************** */
+
+/* MODAL STRUCTURE */
 .hidden {
   display: none !important;
 }
@@ -337,35 +339,70 @@ blockquote.moon-poem {
   z-index: 1000;
 }
 
-/* Modal Content */
-
 #modal-content {
   background: var(--modal-bg, #1e1e2e);
   color: var(--text-color, #fff);
   border-radius: 10px;
-  padding: 20px;
+  /*padding: 20px;*/
   width: 80%;
+  min-height: 400px;;
   max-width: 600px;
   position: relative;
+}
+
+.topBar {
+  background-image: url("../assets/images/decor/celtic-knot-bg.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 25px;
+  background-color: #68468c;
+  border-radius: 10px 10px 0 0;
+ }
+
+ .month-title {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2.5rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 5px;
+
+ }
+
+ .bottomBar {
+  background-image: url("../assets/images/decor/celtic-knot-bg.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 25px;
+  background-color: #68468c;
+  border-radius: 0 0 10px 10px;
+ }
+
+
+ /* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+ #modal-details {
+  padding: 0px 5px 0 5px;
+  border-radius: 10px;
+  background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
 }
 
 /* Close Button */
 #modal-close {
   position: absolute;
-  top: 10px;
+  top: 5px;
   right: 10px;
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 1rem;
   color: var(--text-color, #fff);
   cursor: pointer;
-}
-
-/* Modal Header */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 /* Grid */
@@ -377,7 +414,7 @@ blockquote.moon-poem {
 
 .calendar-grid th {
   text-align: center;
-  padding: 10px;
+  padding: 9px;
   color: #fff;
   font-family: "Vidaloka", serif;
   font-size: 14px;
@@ -388,7 +425,7 @@ blockquote.moon-poem {
 
 .calendar-grid td {
   text-align: center;
-  padding: 14px;
+  padding: 13px;
   color: #fff;
   background-color: rgba(255, 255, 255, 0.1); /* Subtle background for each day */
   border: 1px dotted #32CD32; /* Green dotted border for gridlines */

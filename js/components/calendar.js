@@ -47,7 +47,9 @@ export function renderCalendar() {
         </section>
 
         <div id="modal-container" class="hidden">
+            
             <div id="modal-content">
+                <div class="topBar"></div>
                 <span id="modal-close" class="close-btn">X</span>
                 <div id="modal-details">
                     <div class="modal-header">
@@ -60,13 +62,16 @@ export function renderCalendar() {
                     <div class="dynamic-content">
                         <!-- Dynamic lunar phases and festivals will appear here -->
                     </div>
+                    <div class="feature">
+                        <img src="assets/images/decor/treeoflife.png" alt="Tree of Life" />
+                    </div>
                     <div class="modal-footer">
                         <h3 id="celtic-zodiac-title">Celtic Zodiac</h3>
                         <p id="celtic-zodiac-info">Birch / Rowan</p>
                     </div>
                 </div>
-                
             </div>
+            <div class="bottomBar"></div>
         </div>
 
     `;
