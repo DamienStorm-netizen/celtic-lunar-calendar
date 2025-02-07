@@ -5,43 +5,43 @@ export function renderCalendar() {
             <h1 class="calendar-title">Calendar</h1>
             <div class="calendar-grid">
                 <div class="month-thumbnail" id="nivis" data-month="Nivis">
-                    <img src="assets/images/decor/nivis-thumbnail.png" alt="Nivis Month Thumbnail">
+                    <img src="assets/images/months/nivis-thumbnail.png" alt="Nivis Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="janus" data-month="Janus">
-                    <img src="assets/images/decor/janus-thumbnail.png" alt="Janus Month Thumbnail">
+                    <img src="assets/images/months/janus-thumbnail.png" alt="Janus Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="brigid" data-month="Brigid">
-                    <img src="assets/images/decor/brigid-thumbnail.png" alt="Brigid Month Thumbnail">
+                    <img src="assets/images/months/brigid-thumbnail.png" alt="Brigid Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="Flora" data-month="Flora">
-                    <img src="assets/images/decor/flora-thumbnail.png" alt="Flora Month Thumbnail">
+                    <img src="assets/images/months/flora-thumbnail.png" alt="Flora Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="Maia" data-month="Maia">
-                    <img src="assets/images/decor/maia-thumbnail.png" alt="Maia Month Thumbnail">
+                    <img src="assets/images/months/maia-thumbnail.png" alt="Maia Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="Juno" data-month="Juno">
-                    <img src="assets/images/decor/juno-thumbnail.png" alt="Juno Month Thumbnail">
+                    <img src="assets/images/months/juno-thumbnail.png" alt="Juno Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="Solis" data-month="Solis">
-                    <img src="assets/images/decor/solis-thumbnail.png" alt="Solis Month Thumbnail">
+                    <img src="assets/images/months/solis-thumbnail.png" alt="Solis Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="Terra" data-month="Terra">
-                    <img src="assets/images/decor/terra-thumbnail.png" alt="Terra Month Thumbnail">
+                    <img src="assets/images/months/terra-thumbnail.png" alt="Terra Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="Lugh" data-month="Lugh">
-                    <img src="assets/images/decor/lugh-thumbnail.png" alt="Lugh Month Thumbnail">
+                    <img src="assets/images/months/lugh-thumbnail.png" alt="Lugh Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="Pomona" data-month="Pomona">
-                    <img src="assets/images/decor/pomona-thumbnail.png" alt="Pomona Month Thumbnail">
+                    <img src="assets/images/months/pomona-thumbnail.png" alt="Pomona Month Thumbnail">
                 </div>
                 <div class="month-thumbnail" id="Autumna" data-month="Autumna">
-                    <img src="assets/images/decor/autumna-thumbnail.png" alt="Autumna Month Thumbnail">
+                    <img src="assets/images/months/autumna-thumbnail.png" alt="Autumna Month Thumbnail">
                 </div>
                  <div class="month-thumbnail" id="Eira" data-month="Eira">
-                    <img src="assets/images/decor/eira-thumbnail.png" alt="Eira Month Thumbnail">
+                    <img src="assets/images/months/eira-thumbnail.png" alt="Eira Month Thumbnail">
                 </div>
                  <div class="month-thumbnail" id="Aether" data-month="Aether">
-                    <img src="assets/images/decor/Aether-thumbnail.png" alt="Aether Month Thumbnail">
+                    <img src="assets/images/months/Aether-thumbnail.png" alt="Aether Month Thumbnail">
                 </div>
             </div>
         </section>
@@ -50,38 +50,19 @@ export function renderCalendar() {
             
             <div id="modal-content">
                 <div class="topBar"></div>
-                <span id="modal-close" class="close-btn">X</span>
+                <span id="modal-close" class="close-btn">
+                    <img src="assets/images/decor/close-btn.png" alt="Close Modal" />
+                </span>
                 <div id="modal-details">
-                    <div class="modal-header">
-                        <h2 id="modal-month-name">Month Name</h2>
-                        <button id="today-button">Today</button>
-                    </div>
-                    <div class="calendar-grid">
-                        <!-- Dynamic calendar grid will be generated here -->
-                    </div>
-                    <div class="dynamic-content">
-                        <!-- Dynamic lunar phases and festivals will appear here -->
-                    </div>
-                    <div class="feature">
-                        <img src="assets/images/decor/treeoflife.png" alt="Tree of Life" />
-                    </div>
-                    <div class="modal-footer">
-                        <h3 id="celtic-zodiac-title">Celtic Zodiac</h3>
-                        <p id="celtic-zodiac-info">Birch / Rowan</p>
-                    </div>
+                    <!-- Display dynamic Cedltic months -->
                 </div>
+                <!-- <div class="bottomBar">
+                    <h3 id="celtic-zodiac-title">Celtic Zodiac</h3>
+                    <p id="celtic-zodiac-info">Birch / Rowan</p>
+                </div> -->
             </div>
-            <div class="bottomBar"></div>
         </div>
-
     `;
-}
-
-export function generateCalendarGrid(monthName) {
-    
-    const calendarMonth = '<table class="calendar-grid"><thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr><tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr><tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr></tbody></table>';
-
-    return calendarMonth;
 }
 
 export async function setupCalendarEvents() {
@@ -116,23 +97,22 @@ export async function setupCalendarEvents() {
     function showModal(monthName) {
         if (monthName) {
             const modalDetails = document.getElementById("modal-details");
-            // Insert your modal content along with an empty calendar grid container.
 
+            // Insert modal content, including the calendar grid
             if (modalDetails) {
                 modalDetails.innerHTML = `
                     <h2 class="month-title">${monthName}</h2>
-                    <p>${monthsData[monthName] || "No data available."}</p>
-                    <div class="calendar-grid"></div>
+                    <p class="month-poem">${monthsData[monthName] || "No data available."}</p>
+                    <table class="calendar-grid"><thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr><tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr><tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr></tbody></table>
+                    <div class="feature-image">
+                        <img src="assets/images/months/${monthName.toLowerCase()}-bg.png" alt="${monthName}" />
+                    </div>
                 `;
             }
             
             // Now query the calendar grid that you just inserted
-            const modalCalendarGrid = modalDetails.querySelector(".calendar-grid");
-            console.log("Generate Calendar Grid for:", monthName);
-            if (modalCalendarGrid) {
-                // Make sure generateCalendarGrid returns a value (e.g., an HTML string)
-                modalCalendarGrid.innerHTML = generateCalendarGrid(monthName);
-            }
+            
+            const modalContainer = document.getElementById("modal-container");
             modalContainer.classList.remove("hidden");
         }
     }

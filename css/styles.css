@@ -321,7 +321,9 @@ blockquote.moon-poem {
 
 /* **************************************** */
 
-/* MODAL STRUCTURE */
+/* CELTIC CALENDAR SCREEN */
+
+/* Modal Structure */
 .hidden {
   display: none !important;
 }
@@ -359,6 +361,23 @@ blockquote.moon-poem {
   border-radius: 10px 10px 0 0;
  }
 
+ /* Close Button */
+#modal-close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: none;
+  border: none;
+  width: 18px;
+  font-size: 1rem;
+  color: var(--text-color, #fff);
+  cursor: pointer;
+}
+
+ .close-btn img {
+  width: 100%;
+ }
+
  .month-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
@@ -366,19 +385,15 @@ blockquote.moon-poem {
   color: #f5d742; /* Your dazzling title colour! */
   text-align: center;
   filter: drop-shadow(0 0 8px #ffd700);
-  margin-top: 5px;
-
+  margin: 10px 0 10px 0;
  }
 
- .bottomBar {
-  background-image: url("../assets/images/decor/celtic-knot-bg.png");
-  background-repeat: no-repeat;
-  background-size: 100%;
-  height: 25px;
-  background-color: #68468c;
-  border-radius: 0 0 10px 10px;
- }
-
+.month-poem {
+  text-align: center;
+  display: block;
+  width: 201px;
+  margin: 0 auto 16px auto;
+}
 
  /* Modal Header */
 .modal-header {
@@ -391,18 +406,6 @@ blockquote.moon-poem {
   padding: 0px 5px 0 5px;
   border-radius: 10px;
   background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
-}
-
-/* Close Button */
-#modal-close {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: var(--text-color, #fff);
-  cursor: pointer;
 }
 
 /* Grid */
@@ -459,7 +462,6 @@ blockquote.moon-poem {
   transition: all 0.3s ease;
 }
 
-
 .calendar-header, .calendar-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -496,13 +498,24 @@ blockquote.moon-poem {
   transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
-.dynamic-content {
-  margin-top: 1rem;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: #fff;
+.feature-image {
+  width: 120px;
+  margin: 10px auto;
 }
+
+.feature-image img {
+  width: 100%;
+}
+
+.bottomBar {
+  background-image: url("../assets/images/decor/celtic-knot-bg.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 25px;
+  background-color: #68468c;
+  border-radius: 0 0 10px 10px;
+ }
+
 
 .lunar-content h3, .festival-content h3 {
   font-size: 1.2rem;
