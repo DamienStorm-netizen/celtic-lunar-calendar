@@ -1,5 +1,5 @@
 import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate} from './components/home.js';
-import {renderCalendar, setupCalendarEvents} from './components/calendar.js';
+import {renderCalendar, setupCalendarEvents, getCelticDate} from './components/calendar.js';
 import {renderInsights} from './components/insights.js';
 import {renderSettings, setupSettingsEvents} from './components/settings.js';
 import {renderAbout} from './components/about.js';
@@ -54,6 +54,7 @@ function highlightNav() {
       case 'calendar':
         appContainer.innerHTML = renderCalendar();
         setupCalendarEvents();
+        getCelticDate();
         break;
       case 'about':
         appContainer.innerHTML = renderAbout();

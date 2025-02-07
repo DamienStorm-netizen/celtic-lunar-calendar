@@ -2,7 +2,11 @@ body {
   padding-top: 5px;
 }
 
+
+/**********************************************/
 /* CUSTOM FONTS */
+/**********************************************/
+
 @font-face {
   font-family: 'Cinzel Decorative';
   src: url('../assets/fonts/cinzeldecorative-regular-webfont.woff2') format('woff2'),
@@ -35,7 +39,11 @@ body {
   font-style: normal;
 }
 
+
+/**********************************************/
 /* TYPOGRAPHY */
+/**********************************************/
+
 h1, .main-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
@@ -54,7 +62,11 @@ h1, .main-title {
   color: #ffd700;
 }
 
-/* CONTAINER */
+
+/**********************************************/
+/* APP CONTAINER */
+/**********************************************/
+
 .container {
   position: relative;
   width: 100%;
@@ -92,7 +104,11 @@ h1, .main-title {
   z-index: 0;
 }
 
+
+/**********************************************/
 /* HEADER & NAVIGATION */
+/**********************************************/
+
 header {
   background: 
         linear-gradient(to bottom, rgba(106, 13, 173, 1), rgba(53, 10, 95, 1));
@@ -138,8 +154,10 @@ header {
   filter: drop-shadow(0 0 10px #00ff00);
 }
 
-
+/**********************************************/
 /* HOME SCREEN */
+/**********************************************/
+
 .home {
   text-align: center;
   margin: 2rem;
@@ -319,6 +337,210 @@ blockquote.moon-poem {
   padding-left: 1rem;
 }
 
+/* ********************************************/
+/* CELTIC CALENDAR SCREEN */
+/**********************************************/
+
+/* Modal Structure */
+.hidden {
+  display: none !important;
+}
+
+#modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  max-width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Transparent dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#modal-content {
+  background: var(--modal-bg, #1e1e2e);
+  color: var(--text-color, #fff);
+  border-radius: 10px;
+  /*padding: 20px;*/
+  width: 80%;
+  min-height: 400px;;
+  max-width: 600px;
+  position: relative;
+}
+
+.topBar {
+  background-image: url("../assets/images/decor/celtic-knot-bg.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 25px;
+  background-color: #68468c;
+  border-radius: 10px 10px 0 0;
+ }
+
+ /* Close Button */
+#modal-close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: none;
+  border: none;
+  width: 18px;
+  font-size: 1rem;
+  color: var(--text-color, #fff);
+  cursor: pointer;
+}
+
+ .close-btn img {
+  width: 100%;
+ }
+
+ .month-title {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2.5rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin: 10px 0 10px 0;
+ }
+
+.month-poem {
+  text-align: center;
+  display: block;
+  width: 201px;
+  margin: 0 auto 16px auto;
+}
+
+ /* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+ #modal-details {
+  padding: 0px 5px 0 5px;
+  border-radius: 10px;
+  background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
+}
+
+/* Grid */
+
+.calendar-grid {
+  width: 100%; /* Make the grid responsive to the modal */
+  border-collapse: collapse; /* Merge cell borders */
+}
+
+.calendar-grid th {
+  text-align: center;
+  padding: 9px;
+  color: #fff;
+  font-family: "Vidaloka", serif;
+  font-size: 14px;
+  font-weight: bold;
+  border: none; /* Remove borders from weekday headers */
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle background for headers */
+}
+
+.calendar-grid td {
+  text-align: center;
+  padding: 13px;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle background for each day */
+  border: 1px dotted #32CD32; /* Green dotted border for gridlines */
+  border-top: none; /* Remove top border of the first row */
+  border-left: none; /* Remove left border of the first column */
+  font-family: "Vidaloka", serif;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.calendar-grid td:hover {
+  background-color: rgba(50, 205, 50, 0.3); /* Highlight on hover */
+}
+
+.calendar-grid tr:last-child td {
+  border-bottom: none; /* Remove bottom border of the last row */
+}
+
+.calendar-grid tr td:last-child {
+  border-right: none; /* Remove right border of the last column */
+}
+
+/* Individual date cells */
+.calendar-day {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFF;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 16px;
+  font-family: "Vidaloka", serif;
+  transition: all 0.3s ease;
+}
+
+.calendar-header, .calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  text-align: center;
+}
+
+.day-header {
+  font-weight: bold;
+  padding: 5px;
+  border-bottom: 2px solid #ddd;
+}
+
+.calendar-day {
+  padding: 10px;
+  /*background: #f9f9f9;*/
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+/* Today highlight */
+.highlight-today {
+  background: #FFD700; /* Golden glow */
+  color: #000; /* Black text for contrast */
+  font-weight: bold;
+  border-radius: 50%; /* Circular highlight */
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7); /* Magical glow effect */
+}
+
+.calendar-day:hover {
+  background: rgba(50, 205, 50, 0.7); /* Light green background on hover */
+  color: #000;
+  transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.feature-image {
+  width: 120px;
+  margin: 10px auto;
+}
+
+.feature-image img {
+  width: 100%;
+}
+
+.bottomBar {
+  background-image: url("../assets/images/decor/celtic-knot-bg.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 25px;
+  background-color: #68468c;
+  border-radius: 0 0 10px 10px;
+ }
+
+
+.lunar-content h3, .festival-content h3 {
+  font-size: 1.2rem;
+  color: #ffd700;
+  margin-bottom: 0.5rem;
+}
+
 /* CALENDAR SCREEN */
 
 /* Section Styling */
@@ -366,97 +588,120 @@ blockquote.moon-poem {
   transform: scale(1.1);
 }
 
-/* Modal Styles */
-.hidden {
-  display: none !important;
-}
-
-#modal-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8); /* Transparent dark overlay */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-/* Modal Base */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.6);
-}
-
-/* Modal Content */
-#modal-content {
-  background: var(--modal-bg, #1e1e2e);
-  color: var(--text-color, #fff);
-  border-radius: 10px;
-  padding: 20px;
-  width: 80%;
-  max-width: 600px;
-  position: relative;
-}
-
-/* Close Button */
-#modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: var(--text-color, #fff);
-  cursor: pointer;
-}
-
-/* Modal Header */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Grid */
-.calendar-grid {
-  margin-top: 20px;
-}
-
-.dynamic-content {
-  margin-top: 1rem;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: #fff;
-}
-
-.lunar-content h3, .festival-content h3 {
-  font-size: 1.2rem;
-  color: #ffd700;
-  margin-bottom: 0.5rem;
-}
-
 /* Footer */
 .modal-footer {
   margin-top: 20px;
   text-align: center;
 }
 
+/**********************************************/
+/* MODAL ANIMATIONS */
+/**********************************************/
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: scale(0.95);
+  }
+  to {
+      opacity: 1;
+      transform: scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+      opacity: 1;
+      transform: scale(1);
+  }
+  to {
+      opacity: 0;
+      transform: scale(0.95);
+  }
+}
+
+/* Month Transition */
+@keyframes slideIn {
+  from {
+      transform: translateX(100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateX(0);
+      opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+      transform: translateX(0);
+      opacity: 1;
+  }
+  to {
+      transform: translateX(-100%);
+      opacity: 0;
+  }
+}
+
+/* Highlight Animation */
+@keyframes highlightPulse {
+  0% {
+      box-shadow: 0 0 0 rgba(255, 255, 0, 0.5);
+  }
+  50% {
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+  }
+  100% {
+      box-shadow: 0 0 0 rgba(255, 255, 0, 0.5);
+  }
+}
+
+/* Apply to Modal */
+.modal {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal.hidden {
+  animation: fadeOut 0.3s ease-out;
+}
+
+/* Date Click Feedback */
+.calendar-day.highlight-today {
+  animation: highlightPulse 0.5s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+  }
+  to {
+      opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+      opacity: 1;
+  }
+  to {
+      opacity: 0;
+  }
+}
 
 
 
+
+/**********************************************/
 /* CELTIC ZODIAC SCREEN */
+/**********************************************/
 
 .wheel-container {
     display: flex; /* Flexbox magic */
