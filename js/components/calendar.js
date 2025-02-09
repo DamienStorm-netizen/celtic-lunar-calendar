@@ -122,10 +122,40 @@ export async function setupCalendarEvents() {
                 cell.addEventListener("click", () => {
                     console.log(`Clicked on day ${day} in the month of ${monthName}`);
                     // Add custom logic here for the clicked date
+                    showDateDetailsModal(day); // Launch the modal for the selected day
                 });
             }
         });
       }
+    
+    // Launch Day details modal
+    function showDateDetailsModal(dayNumber) {
+        const modalContainer = document.getElementById("modal-container");
+        const modalDetails = document.getElementById("modal-details");
+
+        // Replace these placeholders with dynamic data fetching logic
+        const lunarPhase = "Waxing Gibbous";
+        const zodiacSign = "Rowan";
+        const events = "7 pm, Meditation Circle, Amber's place.";
+        const mysticalSuggestions = "Plant a seed with intention, visualise its growth under the moonlight.";
+
+        modalDetails.innerHTML = `
+            <h2>${lunarPhase}</h2>
+            <p><strong>Day ${dayNumber}:</strong></p>
+            <p><strong>Celtic Zodiac:</strong> ${zodiacSign}</p>
+            <p><strong>Today's Events:</strong> ${events}</p>
+            <p><strong>Mystical Suggestions:</strong> ${mysticalSuggestions}</p>
+            <p class="back-button">Back to Maia</p>
+        `;
+
+        modalContainer.classList.remove("hidden");
+
+        // Add event listener for "Back" button
+        document.getElementById("back-to-month").addEventListener("click", () => {
+        showModal(selectedMonth); // Assuming `selectedMonth` is the month user navigated from
+        });
+    }
+
 
     // Open modal window and insert HTML
     function showModal(monthName) {
@@ -147,14 +177,11 @@ export async function setupCalendarEvents() {
                 `;
             }
             
-            // Now query the calendar grid that you just inserted
-            //const modalContainer = document.getElementById("modal-container");
-            //modalContainer.classList.remove("hidden");
-
+      
             // Enhance the existing table with click and highlight behaviour
             enhanceCalendarTable(modalContainer, monthName);
 
-             // Apply fade-in effect
+                // Apply fade-in effect
             modalContainer.classList.remove("hidden");
             modalContainer.classList.add("fade-in");
 
@@ -193,7 +220,7 @@ export async function setupCalendarEvents() {
 
 
      
-    // Attach event listeners to each thumbnail
+    // Attach event listeners to each month thumbnail
     const thumbnails = document.querySelectorAll(".month-thumbnail");
     thumbnails.forEach((thumbnail) => {
         thumbnail.addEventListener("click", (e) => {
@@ -220,3 +247,5 @@ export async function getCelticDate() {
         return null;
     }
 }
+
+
