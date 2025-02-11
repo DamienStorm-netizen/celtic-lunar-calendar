@@ -42,7 +42,8 @@ function highlightNav() {
   
     switch (routeKey) {
       case 'home':
-        appContainer.innerHTML = renderHome();
+        appContainer.innerHTML = 
+        renderHome();
         fetchCelticDate(); // Fetch dynamic date for the home page
         fetchDynamicMoonPhase(); // Fetch dynamic moon phase
         fetchCelticZodiac(); // Fetch Celtic Zodiac sign
@@ -52,7 +53,8 @@ function highlightNav() {
         appContainer.innerHTML = renderInsights();
         break;
       case 'calendar':
-        appContainer.innerHTML = renderCalendar();
+        appContainer.innerHTML = 
+        renderCalendar();
         setupCalendarEvents();
         getCelticDate();
         break;

@@ -127,35 +127,6 @@ export async function setupCalendarEvents() {
             }
         });
       }
-    
-    // Launch Day details modal
-    function showDateDetailsModal(dayNumber, monthName) {
-        const modalContainer = document.getElementById("modal-container");
-        const modalDetails = document.getElementById("modal-details");
-    
-        // Replace these placeholders with dynamic data fetching logic
-        const lunarPhase = "Waxing Gibbous";
-        const zodiacSign = "Rowan";
-        const events = "7 pm, Meditation Circle, Amber's place.";
-        const mysticalSuggestions = "Plant a seed with intention, visualise its growth under the moonlight.";
-    
-        modalDetails.innerHTML = `
-            <h2>${lunarPhase}</h2>
-            <p><strong>Day ${dayNumber}:</strong></p>
-            <p><strong>Celtic Zodiac:</strong> ${zodiacSign}</p>
-            <p><strong>Today's Events:</strong> ${events}</p>
-            <p><strong>Mystical Suggestions:</strong> ${mysticalSuggestions}</p>
-            <button id="back-to-month" class="back-button">Back to ${monthName}</button>
-        `;
-    
-        modalContainer.classList.remove("hidden");
-    
-        // Add event listener for "Back" button
-        document.getElementById("back-to-month").addEventListener("click", () => {
-            showModal(monthName); // Go back to the month modal
-        });
-    }
-
 
     // Open modal window and insert HTML
     function showModal(monthName) {
@@ -229,6 +200,109 @@ export async function setupCalendarEvents() {
             showModal(monthName); // Call showModal to handle modal content
         });
     });
+
+    // Convert Celtic date to Grgorian date.
+    function convertCelticToGregorian(celticMonth, celticDay) {
+
+        console.log("Celtic month is:", celticMonth);
+        // Define your Celtic-to-Gregorian mapping based on calendar_data.json
+        const monthMapping = {
+          "Nivis": "2024-12-23",
+          "Janus": "2025-01-20",
+          "Brigid": "2025-02-17",
+          "Flora": "2025-03-17",
+          "Maia": "2025-04-14",
+          "Juno": "2025-05-12",
+          "Solis": "2025-06-09",
+          "Terra": "2025-07-07",
+          "Lugh": "2025-08-04",
+          "Pomona": "2025-09-01",
+          "Autumna": "2025-09-29",
+          "Eira": "2025-10-27",
+          "Aether": "2025-11-24"
+        };
+      
+        const startDateStr = monthMapping[celticMonth];
+        if (!startDateStr) {
+          console.error("Invalid Celtic month:", celticMonth);
+          return null;
+        }
+        const startDate = new Date(startDateStr);
+        // Subtract one because Celtic day 1 corresponds to the start date.
+        const gregorianDate = new Date(startDate.getTime() + (celticDay) * 24 * 60 * 60 * 1000);
+        
+        const gregorianMonth = ("0" + (gregorianDate.getMonth() + 1)).slice(-2); // Month in MM format
+        const gregorianDay = gregorianDate.getDate();
+        return { gregorianMonth, gregorianDay };
+    }
+
+    async function fetchDynamicMoonPhase(day) {
+        const today = new Date().toISOString().split('T')[0]; // Today's date in ISO format
+        try {
+            const response = await fetch(`/dynamic-moon-phases?start_date=${today}&end_date=${today}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            if (data.length > 0) {
+                const moonPhase = data[0];
+    
+                // Select the container for the moon phase
+                const moonPhaseContainer = document.querySelector('.moon-phase');
+    
+                // Update the UI with moon phase details
+                moonPhaseContainer.innerHTML = `
+                    <div class="moon-phase-details">
+                        <div class="moon-phase-graphic">${moonPhase.graphic}</div>
+                        <p>${moonPhase.moonName || moonPhase.phase} </p>
+                        <!-- <span>${moonPhase.poem || 'A sliver of light...'}</span> -->
+                    </div>
+                `;
+                console.log(moonPhase.graphic);
+            } else {
+                console.warn('No moon phase data available.');
+            }
+        } catch (error) {
+            console.error('Failed to fetch moon phase:', error);
+        }
+    }
+      
+      // Then in your showDateDetailsModal, use the conversion before calling the API:
+      function showDateDetailsModal(celticDay, celticMonth) {
+        const modalContainer = document.getElementById("modal-container");
+        const modalDetails = document.getElementById("modal-details");
+      
+        // Convert the Celtic date to Gregorian
+        const gregorian = convertCelticToGregorian(celticMonth, celticDay);
+        if (!gregorian) {
+          modalDetails.innerHTML = "<p>Error: Invalid date conversion.</p>";
+          return;
+        }
+      
+        // Now, pass the Gregorian day and month to your API call.
+        const apiUrl = `/api/lunar-phase?day=${gregorian.gregorianDay}&month=${gregorian.gregorianMonth}`;
+        console.log("Fetching lunar phase from:", apiUrl);
+        
+        // Use fetch or your existing logic to get the lunar phase and other details
+        // and update the modal content accordingly.
+        
+        // For now, placeholder content:
+        modalDetails.innerHTML = `
+          <h2>Moon Phase Data</h2>
+          <p><strong>Gregorian Date:</strong> ${gregorian.gregorianMonth}/${gregorian.gregorianDay}</p>
+          <p><strong>Celtic Date:</strong> ${celticMonth} ${celticDay}</p>
+          <!-- Additional dynamic data here -->
+          <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
+        `;
+        
+        modalContainer.classList.remove("hidden");
+      
+        document.getElementById("back-to-month").addEventListener("click", () => {
+           // Add event listener for "Back" button
+            showModal(celticMonth); // Go back to the month modal
+        });
+    }
 }
 
 export async function getCelticDate() {
@@ -247,5 +321,3 @@ export async function getCelticDate() {
         return null;
     }
 }
-
-
