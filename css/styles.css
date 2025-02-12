@@ -55,6 +55,16 @@ h1, .main-title {
   margin-top: 0;
 }
 
+.goldenTitle {
+  font-family: 'Vidaloka', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+}
+
 .purplePassion {
   color: #68468c;
 }

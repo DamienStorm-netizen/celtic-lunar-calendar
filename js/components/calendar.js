@@ -294,11 +294,14 @@ export async function fetchAndDisplayLunarPhase(celticDay, celticMonth) {
       // Update modal with lunar details.
       // Notice we check for a custom moon name (like "Snow Moon" for a full moon)
       modalDetails.innerHTML = `
-        <h2>Moon Phase</h2>
-        <p><strong>Celtic Date:</strong> ${celticMonth} ${celticDay}</p>
-        <p><strong>Gregorian Date:</strong> ${monthStr}/${dayStr}</p>
-        <p><strong>Phase:</strong> ${lunarData.moonName || lunarData.phase} ${lunarData.graphic}</p>
-        <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
+        <div style="text-align: center; padding-top: 10px; color: white">
+            <h2 class="goldNugget">Tuesday</h2>
+            <h2 class="goldenTitle">${celticMonth} ${celticDay}</h2>
+            <h3> ${monthStr}/${dayStr}</h3>
+            <div class="moon-phase-graphic">${lunarData.graphic}</div>
+            <h2>${lunarData.moonName || lunarData.phase} </h2>
+            <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
+        </div>
       `;
   
       // Add event listener for the "Back" button.
