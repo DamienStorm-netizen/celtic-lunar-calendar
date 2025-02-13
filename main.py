@@ -593,3 +593,16 @@ def get_events(month: str, day: int):
         if event["month"] == month and event["day"] == day:
             return event
     return {"message": "No events found."}
+
+
+# Load custom events from a JSON file (or replace with database logic)
+try:
+    with open("calendar_data.json", "r") as file:
+        calendar_data = json.load(file)
+        custom_events = calendar_data.get("custom_events", [])
+except FileNotFoundError:
+    custom_events = []
+
+@app.get("/api/custom-events")
+def get_custom_events():
+    return custom_events

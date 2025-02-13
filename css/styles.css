@@ -423,6 +423,72 @@ blockquote.moon-poem {
   color: #fff6ea;
 }
 
+.detailsTitle {
+  font-family: 'Cinzel Decorative', serif;
+  color: #f5d742; /* Your dazzling title colour! */
+  margin-bottom: 5px;
+}
+
+.detailsDay {
+  font-family: 'Cinzel Decorative', serif;
+  color: #f5d742; /* Your dazzling title colour! */
+  margin: 5px;
+
+}
+
+.detailsCelticDate {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.detailsGregorianDate {
+  font-size: 0.7em;
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  margin-bottom: 5px;
+}
+
+.detailsMoonPhase {
+  margin:0;
+  font-size: 0.7em;
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  font-size: 1em;
+}
+
+.detailsMoonDescription {
+  font-family: 'Vidaloka', serif;
+  font-weight: 400;;
+  margin: 10px 15px;
+}
+
+.detailsCelticZodiac p {
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  margin-top: 5px;
+}
+
+.detailsCelticZodiac img {
+  width: 100px;
+}
+
+.detailsCustomEvents {
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  font-size: 1em; 
+}
+
+.divider {
+  display: block;
+  margin: 5px auto;
+}
+
 .back-button {
   background-color: #663399;
   color: #FFF;

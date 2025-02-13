@@ -139,7 +139,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
             cell.addEventListener("click", () => {
                 console.log(`Clicked on day ${day} in the month of ${monthName}`);
                 // Add custom logic here for the clicked date
-                showDateDetailsModal(day, monthName); // Launch the modal for the selected day
+                showDayModal(day, monthName); // Launch the modal for the selected day
             });
         }
     });
@@ -257,81 +257,191 @@ export async function getCelticDate() {
     }
 }
 
-// Function to fetch and display the lunar phase for a selected Celtic date
-export async function fetchAndDisplayLunarPhase(celticDay, celticMonth) {
+// Function to fetch and display the details for a selected Celtic date
+export async function showDayModal(celticDay, celticMonth) {
+    const modalContainer = document.getElementById("modal-container");
     const modalDetails = document.getElementById("modal-details");
   
-    // Convert the Celtic date to Gregorian.
-    // (Assumes convertCelticToGregorian returns an object with gregorianDay and gregorianMonth)
+    // Show loading state while fetching data
+    modalDetails.innerHTML = `
+        <h2>Celtic Calendar</h2>
+        <p>Loading...</p>
+    `;
+  
+    // Display the modal
+    modalContainer.classList.remove("hidden");
+  
+    // Convert the Celtic date to Gregorian
     const gregorian = convertCelticToGregorian(celticMonth, celticDay);
     if (!gregorian) {
-      modalDetails.innerHTML = "<p>Error: Invalid date conversion.</p>";
-      return;
+        modalDetails.innerHTML = "<p>Error: Invalid date conversion.</p>";
+        return;
     }
+
+    // Testing Zodiac
+    console.log(`Gregorian Date Passed: ${gregorian.gregorianMonth}-${gregorian.gregorianDay}`);
+
+    const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
+    const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
+
+    console.log(`Gregorian Date Passed: ${formattedMonth}-${formattedDay}`); // Debug Log
+
+    const zodiac = getCelticZodiac(parseInt(gregorian.gregorianMonth, 10), parseInt(gregorian.gregorianDay, 10));
+     // Get additional data
+    const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
+    //const zodiac = getCelticZodiac(celticMonth, celticDay);
+    const events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
+    const mysticalSuggestion = getMysticalSuggestion();
   
-    // Construct an ISO date string.
-    // For example, if your calendar always uses 2025, you can hard-code it.
-    // Otherwise, you may wish to include the year in your conversion.
-    const year = "2025"; 
-    // Ensure the month and day are in two-digit format.
-    const monthStr = gregorian.gregorianMonth.padStart(2, "0"); // if it's a string already; or use:
-    // const monthStr = ("0" + parseInt(gregorian.gregorianMonth)).slice(-2);
+    // Construct an ISO date string
+    const year = "2025";
+    const monthStr = gregorian.gregorianMonth.padStart(2, "0");
     const dayStr = gregorian.gregorianDay < 10 ? "0" + gregorian.gregorianDay : gregorian.gregorianDay;
     const dateStr = `${year}-${monthStr}-${dayStr}`;
   
     try {
-      // Call the dynamic endpoint using the constructed date string as both start and end dates.
-      const response = await fetch(`/dynamic-moon-phases?start_date=${dateStr}&end_date=${dateStr}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (!data || data.length === 0) {
-        throw new Error("Invalid lunar data received");
-      }
-      const lunarData = data[0];
+        // Call the dynamic endpoint using the constructed date string
+        const response = await fetch(`/dynamic-moon-phases?start_date=${dateStr}&end_date=${dateStr}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!data || data.length === 0) {
+            throw new Error("Invalid lunar data received");
+        }
+        const lunarData = data[0];
   
-      // Update modal with lunar details.
-      // Notice we check for a custom moon name (like "Snow Moon" for a full moon)
-      modalDetails.innerHTML = `
-        <div style="text-align: center; padding-top: 10px; color: white">
-            <h2 class="goldNugget">Tuesday</h2>
-            <h2 class="goldenTitle">${celticMonth} ${celticDay}</h2>
-            <h3> ${monthStr}/${dayStr}</h3>
-            <div class="moon-phase-graphic">${lunarData.graphic}</div>
-            <h2>${lunarData.moonName || lunarData.phase} </h2>
-            <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
-        </div>
-      `;
+        // Format the Gregorian month
+        const gMonth = getFormattedMonth(monthStr);
   
-      // Add event listener for the "Back" button.
-      document.getElementById("back-to-month").addEventListener("click", () => {
-        showModal(celticMonth); // Go back to the month modal
-      });
-
+        // Update modal with lunar details
+        modalDetails.innerHTML = `
+            <div style="text-align: center; padding-top: 10px; color: white">
+                <h2 class="detailsDay">${dayOfWeek}</h2>
+                <h2 class="detailsCelticDate">${celticMonth} ${celticDay}</h2>
+                <h3 class="detailsGregorianDate">${gMonth} ${dayStr}</h3>
+                <div class="moon-phase-graphic">${lunarData.graphic}</div>
+                <h3 class="detailsMoonPhase">${lunarData.moonName || lunarData.phase} </h3>
+                <p class="detailsMoonDescription">${lunarData.description}</p>
+                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h3 class="detailsTitle">Celtic Zodiac</h3>
+                <div class="detailsCelticZodiac">
+                    <img src="assets/images/zodiac/zodiac-${zodiac.toLowerCase()}.png" alt="${zodiac}" 
+     onerror="this.src='assets/images/decor/treeoflife.png';" />
+                    <p>${zodiac}</p>
+                </div>
+                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h3 class="detailsTitle">Today's Events</h3>
+                <p class="detailsCustomEvents">${events}</p>
+                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h3 class="detailsTitle">Mystical Suggestions</h3>
+                <p>${mysticalSuggestion}</p>
+                <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
+            </div>
+        `;
+  
+        // Add event listener for the "Back" button
+        document.getElementById("back-to-month").addEventListener("click", () => {
+            showModal(celticMonth);
+        });
+  
     } catch (error) {
-      console.error("Error fetching lunar phase:", error);
-      modalDetails.innerHTML = `<p>Failed to load moon phase data.</p>`;
+        console.error("Error fetching lunar phase:", error);
+        modalDetails.innerHTML = `<p>Failed to load moon phase data.</p>`;
     }
   }
 
-// Modify showDateDetailsModal to call fetchAndDisplayLunarPhase
-export function showDateDetailsModal(celticDay, celticMonth) {
-    const modalContainer = document.getElementById("modal-container");
-    const modalDetails = document.getElementById("modal-details");
+export function getFormattedMonth(monthNum) {
+    const monthNames = [
+        "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+        "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+    ];
+    return monthNames[parseInt(monthNum, 10) - 1]; // Convert to zero-based index
+}
 
-    // Show loading state while fetching data
-    modalDetails.innerHTML = `
-        <h2>Moon Phase Data</h2>
-        <p>Loading...</p>
-    `;
+export function getDayOfWeek(gregorianMonth, gregorianDay) {
+    const date = new Date(`2025-${gregorianMonth}-${gregorianDay}`);
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    return days[date.getDay()];
+}
 
-    // Display the modal
-    modalContainer.classList.remove("hidden");
+// Get Celtic Zodiac sign
+export function getCelticZodiac(gregorianMonth, gregorianDay) {
+    console.log(`Checking zodiac for: ${gregorianMonth}-${gregorianDay}`);
+  
+    const zodiacSigns = [
+        { name: "Birch", start: { month: 12, day: 24 }, end: { month: 1, day: 20 } },
+        { name: "Rowan", start: { month: 1, day: 21 }, end: { month: 2, day: 17 } },
+        { name: "Ash", start: { month: 2, day: 18 }, end: { month: 3, day: 17 } },
+        { name: "Alder", start: { month: 3, day: 18 }, end: { month: 4, day: 14 } },
+        { name: "Willow", start: { month: 4, day: 15 }, end: { month: 5, day: 12 } },
+        { name: "Hawthorn", start: { month: 5, day: 13 }, end: { month: 6, day: 9 } },
+        { name: "Oak", start: { month: 6, day: 10 }, end: { month: 7, day: 7 } },
+        { name: "Holly", start: { month: 7, day: 8 }, end: { month: 8, day: 4 } },
+        { name: "Hazel", start: { month: 8, day: 5 }, end: { month: 9, day: 1 } },
+        { name: "Vine", start: { month: 9, day: 2 }, end: { month: 9, day: 29 } },
+        { name: "Ivy", start: { month: 9, day: 30 }, end: { month: 10, day: 27 } },
+        { name: "Reed", start: { month: 10, day: 28 }, end: { month: 11, day: 24 } },
+        { name: "Elder", start: { month: 11, day: 25 }, end: { month: 12, day: 23 } }
+    ];
+  
+    const monthNum = parseInt(gregorianMonth, 10);
+    const dayNum = parseInt(gregorianDay, 10);
+  
+    for (const sign of zodiacSigns) {
+        const startMonth = sign.start.month;
+        const startDay = sign.start.day;
+        const endMonth = sign.end.month;
+        const endDay = sign.end.day;
+  
+        console.log(`Checking ${sign.name}: ${startMonth}/${startDay} - ${endMonth}/${endDay}`);
+  
+        // Zodiac range handling with numeric comparison
+        if (
+            (monthNum === startMonth && dayNum >= startDay) || 
+            (monthNum === endMonth && dayNum <= endDay) || 
+            (monthNum > startMonth && monthNum < endMonth) || 
+            (startMonth > endMonth && (monthNum > startMonth || monthNum < endMonth))
+        ) {
+            console.log(`🎉 Match Found! Zodiac: ${sign.name}`);
+            return sign.name;
+        }
+    }
+  
+    console.log("❌ No zodiac match found, returning 'Unknown'");
+    return "Unknown";
+  }
 
-    // Fetch and display lunar phase dynamically
-    fetchAndDisplayLunarPhase(celticDay, celticMonth);
+export async function getCustomEvents(gregorianMonth, gregorianDay) {
+    try {
+        const response = await fetch("/api/custom-events");
+        if (!response.ok) throw new Error("Failed to fetch events");
+
+        const events = await response.json();
+        const filteredEvents = events.filter(event => 
+            event.date === `2025-${gregorianMonth}-${gregorianDay}`
+        );
+
+        return filteredEvents.length > 0 
+            ? filteredEvents.map(e => `<p>${e.title}: ${e.notes}</p>`).join("") 
+            : "There are no events today.>";
+            console.log('Target custom date is', filteredEvents);
+
+    } catch (error) {
+        console.error("Error fetching events:", error);
+        return "Unable to load events.";
+    }
 }
 
 
+export function getMysticalSuggestion() {
+    const suggestions = [
+        "Light a candle and focus on your intentions for the day.",
+        "Meditate under the moonlight and visualize your dreams.",
+        "Draw a rune and interpret its meaning for guidance.",
+        "Write a letter to your future self and store it safely.",
+        "Collect a small item from nature and set an intention with it."
+    ];
 
+    return suggestions[Math.floor(Math.random() * suggestions.length)];
+}

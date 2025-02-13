@@ -319,17 +319,17 @@
         }
     ],
 
-    "custom_dates": [
+    "custom_events": [
         {
             "title": "My Birthday", 
             "type": "Birthday", 
-            "date": "2025-05-15", 
-            "notes": "Turning 30! 🎉"
+            "date": "2025-12-09", 
+            "notes": "Turning 55! 🎉"
         },
         {
             "title": "Hawaii Trip", 
             "type": "Holiday", 
-            "date": "2025-07-10", 
+            "date": "2025-02-12", 
             "notes": "Vacation time! 🌴"
         },
         {
