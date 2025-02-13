@@ -1,5 +1,6 @@
 body {
   padding-top: 5px;
+  background-color: #1E1E1E;
 }
 
 
@@ -54,6 +55,16 @@ h1, .main-title {
   margin-top: 0;
 }
 
+.goldenTitle {
+  font-family: 'Vidaloka', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+}
+
 .purplePassion {
   color: #68468c;
 }
@@ -70,8 +81,8 @@ h1, .main-title {
 .container {
   position: relative;
   width: 100%;
-  max-width: 480px; /* Adjust for mobile-first design */
-  min-height: 500px;
+  max-width: 480px !important; /* Adjust for mobile-first design */
+  min-height: 500px !important;
   margin: 0 auto;   /* Centres the container */
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Optional: Adds a soft shadow */
   border: 1px solid #6a0dad; /* Optional: Adds a border */
@@ -347,46 +358,44 @@ blockquote.moon-poem {
 }
 
 #modal-container {
-  position: fixed;
+  position: fixed; /* Ensures it stays in place */
   top: 0;
   left: 0;
-  max-width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8); /* Transparent dark overlay */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  width: 100vw; /* Full width of the viewport */
+  height: 100vh; /* Full height of the viewport */
+  background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+  display: flex; /* Flexbox for centring */
+  justify-content: center; /* Centre horizontally */
+  align-items: center; /* Centre vertically */
+  z-index: 1000; /* Ensure it appears above other content */
 }
 
 #modal-content {
-  background: var(--modal-bg, #1e1e2e);
-  color: var(--text-color, #fff);
-  border-radius: 10px;
-  /*padding: 20px;*/
-  width: 80%;
-  min-height: 400px;;
-  max-width: 600px;
-  position: relative;
+  max-width: 400px; /* Limit modal width */
+  width: 90%; /* Add some responsiveness */
+  background: #1e1e2e; /* Dark background */
+  border-radius: 10px; /* Add some rounded corners */
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow */
 }
 
 .topBar {
   background-image: url("../assets/images/decor/celtic-knot-bg.png");
   background-repeat: no-repeat;
   background-size: 100%;
-  height: 25px;
+  height: 29px;
   background-color: #68468c;
   border-radius: 10px 10px 0 0;
+  padding: 2px 5px 0 0;
  }
 
  /* Close Button */
 #modal-close {
-  position: absolute;
-  top: 5px;
-  right: 10px;
+  display: block;
+  width: 25px;
+  margin-left: auto;
   background: none;
   border: none;
-  width: 18px;
   font-size: 1rem;
   color: var(--text-color, #fff);
   cursor: pointer;
@@ -411,6 +420,90 @@ blockquote.moon-poem {
   display: block;
   width: 201px;
   margin: 0 auto 16px auto;
+  color: #fff6ea;
+}
+
+.detailsTitle {
+  font-family: 'Cinzel Decorative', serif;
+  color: #f5d742; /* Your dazzling title colour! */
+  margin-bottom: 5px;
+}
+
+.detailsDay {
+  font-family: 'Cinzel Decorative', serif;
+  color: #f5d742; /* Your dazzling title colour! */
+  margin: 5px;
+
+}
+
+.detailsCelticDate {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.detailsGregorianDate {
+  font-size: 0.7em;
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  margin-bottom: 5px;
+}
+
+.detailsMoonPhase {
+  margin:0;
+  font-size: 0.7em;
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  font-size: 1em;
+}
+
+.detailsMoonDescription {
+  font-family: 'Vidaloka', serif;
+  font-weight: 400;;
+  margin: 10px 15px;
+}
+
+.detailsCelticZodiac p {
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  margin-top: 5px;
+}
+
+.detailsCelticZodiac img {
+  width: 100px;
+}
+
+.detailsCustomEvents {
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  font-size: 1em; 
+}
+
+.divider {
+  display: block;
+  margin: 5px auto;
+}
+
+.back-button {
+  background-color: #663399;
+  color: #FFF;
+  border: none;
+  padding: 8px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-family: "Vidaloka", serif;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #55287C;
 }
 
  /* Modal Header */
@@ -428,32 +521,44 @@ blockquote.moon-poem {
 
 /* Grid */
 
+.calendarGridBox {
+  width: 314px;
+  margin: 0 auto;
+}
+
+/* Ensure table cells don't break */
 .calendar-grid {
-  width: 100%; /* Make the grid responsive to the modal */
-  border-collapse: collapse; /* Merge cell borders */
+  table-layout: fixed; /* Distribute columns evenly */
+  width: 100%; /* Table stretches to fit modal */
+  border-collapse: collapse; /* Clean up borders */
+}
+
+.calendar-grid th,
+.calendar-grid td {
+  text-align: center;
+  border: 1px dotted #32CD32; /* Ensure borders stay aligned */
+  font-family: "Vidaloka", serif;
 }
 
 .calendar-grid th {
-  text-align: center;
-  padding: 9px;
+  padding: 11px; /* Consistent padding */
   color: #fff;
   font-family: "Vidaloka", serif;
-  font-size: 14px;
+  font-size: 11.5px;
   font-weight: bold;
   border: none; /* Remove borders from weekday headers */
   background-color: rgba(255, 255, 255, 0.1); /* Subtle background for headers */
 }
 
 .calendar-grid td {
-  text-align: center;
-  padding: 13px;
+  padding: 13px; /* Consistent padding */
   color: #fff;
   background-color: rgba(255, 255, 255, 0.1); /* Subtle background for each day */
   border: 1px dotted #32CD32; /* Green dotted border for gridlines */
   border-top: none; /* Remove top border of the first row */
   border-left: none; /* Remove left border of the first column */
   font-family: "Vidaloka", serif;
-  font-size: 14px;
+  font-size: 13px;
   transition: background-color 0.3s ease;
 }
 
@@ -765,7 +870,7 @@ footer {
   padding: 15px 0;
   position: sticky;
   bottom: 0;
-  z-index: 1000;
+  z-index: 0;
   box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
   font-family: 'Lora', serif; /* Match the comp's font if using Google Fonts */
 }

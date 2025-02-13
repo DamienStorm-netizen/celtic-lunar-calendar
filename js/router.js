@@ -1,5 +1,5 @@
 import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate} from './components/home.js';
-import {renderCalendar, setupCalendarEvents, getCelticDate} from './components/calendar.js';
+import {renderCalendar, setupCalendarEvents, getCelticDate, showDayModal, convertCelticToGregorian, showModal, closeModal, enhanceCalendarTable, getFormattedMonth, getDayOfWeek, getCelticZodiac, getCustomEvents, getMysticalSuggestion, getMoonPoem} from './components/calendar.js';
 import {renderInsights} from './components/insights.js';
 import {renderSettings, setupSettingsEvents} from './components/settings.js';
 import {renderAbout} from './components/about.js';
@@ -42,7 +42,8 @@ function highlightNav() {
   
     switch (routeKey) {
       case 'home':
-        appContainer.innerHTML = renderHome();
+        appContainer.innerHTML = 
+        renderHome();
         fetchCelticDate(); // Fetch dynamic date for the home page
         fetchDynamicMoonPhase(); // Fetch dynamic moon phase
         fetchCelticZodiac(); // Fetch Celtic Zodiac sign
@@ -52,9 +53,21 @@ function highlightNav() {
         appContainer.innerHTML = renderInsights();
         break;
       case 'calendar':
-        appContainer.innerHTML = renderCalendar();
+        appContainer.innerHTML = 
+        renderCalendar();
         setupCalendarEvents();
         getCelticDate();
+        showDayModal();
+        convertCelticToGregorian();
+        showModal();
+        closeModal();
+        enhanceCalendarTable();
+        getFormattedMonth();
+        getDayOfWeek();
+        getCelticZodiac();
+        getCustomEvents();
+        getMysticalSuggestion();
+        getMoonPoem();
         break;
       case 'about':
         appContainer.innerHTML = renderAbout();
