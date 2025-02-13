@@ -313,6 +313,9 @@ export async function showDayModal(celticDay, celticMonth) {
   
         // Format the Gregorian month
         const gMonth = getFormattedMonth(monthStr);
+
+        // Get alternative lunar descriptions
+        const moonPoem = getMoonPoem(lunarData.phase, dateStr);
   
         // Update modal with lunar details
         modalDetails.innerHTML = `
@@ -322,7 +325,7 @@ export async function showDayModal(celticDay, celticMonth) {
                 <h3 class="detailsGregorianDate">${gMonth} ${dayStr}</h3>
                 <div class="moon-phase-graphic">${lunarData.graphic}</div>
                 <h3 class="detailsMoonPhase">${lunarData.moonName || lunarData.phase} </h3>
-                <p class="detailsMoonDescription">${lunarData.description}</p>
+                <p class="detailsMoonDescription">${moonPoem}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="detailsTitle">Celtic Zodiac</h3>
                 <div class="detailsCelticZodiac">
@@ -418,21 +421,27 @@ export async function getCustomEvents(gregorianMonth, gregorianDay) {
         if (!response.ok) throw new Error("Failed to fetch events");
 
         const events = await response.json();
-        const filteredEvents = events.filter(event => 
-            event.date === `2025-${gregorianMonth}-${gregorianDay}`
-        );
+
+        // Convert numbers to strings and ensure two-digit format
+        const monthStr = String(gregorianMonth).padStart(2, "0");
+        const dayStr = String(gregorianDay).padStart(2, "0");
+
+        const targetDate = `2025-${monthStr}-${dayStr}`;
+        console.log("Searching for events on:", targetDate);
+
+        const filteredEvents = events.filter(event => event.date === targetDate);
+
+        console.log("Matching events found:", filteredEvents);
 
         return filteredEvents.length > 0 
             ? filteredEvents.map(e => `<p>${e.title}: ${e.notes}</p>`).join("") 
-            : "There are no events today.>";
-            console.log('Target custom date is', filteredEvents);
+            : "There are no events today.";
 
     } catch (error) {
         console.error("Error fetching events:", error);
         return "Unable to load events.";
     }
 }
-
 
 export function getMysticalSuggestion() {
     const suggestions = [
@@ -444,4 +453,60 @@ export function getMysticalSuggestion() {
     ];
 
     return suggestions[Math.floor(Math.random() * suggestions.length)];
+}
+
+export function getMoonPoem(moonPhase, date) {
+    console.log("The lunar phase is ", moonPhase, "on", date);
+
+    // Named full moon lookup (Month-Day format)
+    const fullMoonNames = {
+        "01": "Wolf Moon",
+        "02": "Snow Moon",
+        "03": "Worm Moon",
+        "04": "Flower Moon",
+        "05": "Strawberry Moon",
+        "06": "Thunder Moon",
+        "07": "Grain Moon",
+        "08": "Harvest Moon",
+        "09": "Hunter's Moon",
+        "10": "Frost Moon",
+        "11": "Beaver Moon",
+        "12": "Cold Moon"
+    };
+
+    // If it's a Full Moon, try to find the named moon using the month
+    if (moonPhase === "Full Moon" && date) {
+        const month = date.split("-")[1]; // Extract the month (MM) from YYYY-MM-DD
+        if (fullMoonNames[month]) {
+            moonPhase = fullMoonNames[month]; // Replace "Full Moon" with the proper name
+            console.log(`Mapped Full Moon to: ${moonPhase}`);
+        }
+    }
+
+    // Moon poems
+    const moonPoems = {
+        "Waxing Crescent": "Silver sliver in the sky,\nDreams take shape as time goes by.",
+        "First Quarter": "Halfway seen, a guiding light,\nBalance found in dark and bright.",
+        "Waxing Gibbous": "Almost full, yet not quite whole,\nA time to act, fulfill your goal.",
+        "Waning Gibbous": "Light recedes, yet wisdom grows,\nHarvest knowledge as it flows.",
+        "Last Quarter": "Half in shadow, half in glow,\nRelease the past, let wisdom show.",
+        "Waning Crescent": "A whisper fades into the night,\nRest and dream ‘til new moon’s light.",
+        "New Moon": "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
+        
+        // Named Full Moons
+        "Wolf Moon": "Beneath the snow and howling skies,\nThe Wolf Moon watches, ancient, wise.\nA time to gather strength and rest,\nAnd light a candle, for what’s best.",
+        "Snow Moon": "The Snow Moon casts its tranquil glow,\nUpon the earth where frost does grow.\nWrap in warmth, let dreams ignite,\nBurn cedar’s scent in soft moonlight.",
+        "Worm Moon": "The Worm Moon stirs the thawing ground,\nWhere seeds of life are newly found.\nTurn the soil of heart and mind,\nWrite your dreams, and leave fear behind.",
+        "Flower Moon": "Petals bloom in moonlit air,\nA fragrant world beyond compare.\nPlant your dreams in fertile ground,\nLet love and joy in all things abound.",
+        "Strawberry Moon": "The Strawberry Moon, ripe and red,\nA time to savour what’s been bred.\nSip something sweet, give thanks, rejoice,\nAnd honour life with grateful voice.",
+        "Thunder Moon": "Thunder roars, the moon’s alive,\nWith storms of passion, dreams will thrive.\nDance in rain or light a flame,\nAnd cleanse your soul of doubt or shame.",
+        "Grain Moon": "Fields of grain in moonlight bask,\nA time to gather, a sacred task.\nShare your wealth, both bright and deep,\nAnd sow what’s needed for the reap.",
+        "Harvest Moon": "The Harvest Moon, so round, so bright,\nGuides weary hands through autumn’s night.\nReflect on work, both done and due,\nAnd thank the world for gifting you.",
+        "Hunter's Moon": "The Hunter’s Moon is sharp and keen,\nA guide through shadows yet unseen.\nPrepare your heart, your tools, your way,\nAnd let the moonlight mark your stay.",
+        "Frost Moon": "Frost-kissed trees stand still and bare,\nA quiet world in winter's care.\nBeneath the moon's soft silver glow,\nA time of peace, as storms lie low.",
+        "Cold Moon": "The Cold Moon whispers of the past,\nOf trials endured and shadows cast.\nSip warm tea, let heartbeats mend,\nPrepare your soul for year’s new bend."
+    };
+
+    console.log(`Poem found: ${moonPoems[moonPhase] || "No description available."}`);
+    return moonPoems[moonPhase] || "No description available.";
 }

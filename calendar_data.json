@@ -136,184 +136,116 @@
 
     "lunar_phases": [
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings", 
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-01-11"
         },
         {
-            "phase": "Full Moon",
             "phaseName":"Wolf Moon", 
-            "description":"Named after the howling of hungry wolves in midwinter, this moon symbolises strength and survival in the coldest time of the year.", 
-            "poem" : "Beneath the snow and howling skies,\nThe Wolf Moon watches, ancient, wise.\nA time to gather strength and rest,\nAnd light a candle, for what’s best.  ",
             "graphic": "🌕", 
             "date": "2025-01-25"
         },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings",
-            "description":"The start of a new lunar cycle.",
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-02-10"
         },
         {
-            "phase": "Full Moon", 
             "phaseName":"Snow Moon", 
-            "description":"Reflecting the heavy snowfall of late winter, the Snow Moon represents the purity and quiet beauty of the season.", 
-            "poem" : "The Snow Moon casts its tranquil glow,\nUpon the earth where frost does grow.\n  Wrap in warmth, let dreams ignite,\nBurn cedar’s scent in soft moonlight.",
             "graphic": "🌕", 
             "date": "2025-02-15"},
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings",
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-03-10"
         },
         {
-            "phase": "Full Moon", 
             "phaseName":"Worm Moon", 
-            "description":"Named for the thawing ground and the return of worms, this moon signals the rebirth of the soil as spring approaches.", 
-            "poem" : "The Worm Moon stirs the thawing ground,\nWhere seeds of life are newly found.\nTurn the soil of heart and mind,\nWrite your dreams, and leave fear behind. ",
             "graphic": "🌕",
             "date": "2025-02-25"
-            },
+        },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings",
-            "description":"The start of a new lunar cycle.",
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-04-08"
-            },
+        },
         {
-            "phase": "Full Moon", 
             "phaseName":"Flower Moon", 
-            "description":"Named for the abundance of blooming flowers, this moon symbolises growth and beauty in full swing.", 
-            "poem" : "Petals bloom in moonlit air,\nA fragrant world beyond compare.\nPlant your dreams in fertile ground,\nLet love and joy in all things abound.",
             "graphic": "🌕", 
             "date": "2025-05-15"
         },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings", 
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-06-08"
         },
         {
-            "phase": "Full Moon", 
             "phaseName":"Strawberry Moon", 
-            "description":"A tribute to the ripening of strawberries, this moon marks the sweet beginning of summer.", 
-            "poem" : "The Strawberry Moon, ripe and red,\nA time to savour what’s been bred.\nSip something sweet, give thanks, rejoice,\nAnd honour life with grateful voice.",
             "graphic": "🌕", 
             "date": "2025-06-25"
         },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings",
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-07-09"
         },
         {
-            "phase": "Full Moon", 
             "phaseName":"Thunder Moon", 
-            "description":"Named for summer’s frequent thunderstorms, this moon carries the energy of midsummer storms. Also known as Buck Moon.", 
-            "poem" : "Thunder roars, the moon’s alive,\nWith storms of passion, dreams will thrive.\nDance in rain or light a flame,\nAnd cleanse your soul of doubt or shame.",
             "graphic": "🌕", 
             "date": "2025-07-15"
         },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings",
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-08-07"
         },
         {
-            "phase": "Full Moon", 
             "phaseName":"Grain Moon", 
-            "description":"Reflecting the ripening fields of grain, this moon celebrates abundance and gratitude for the first harvest. Also known as Sturgeon Moon.", 
-            "poem" : "Fields of grain in moonlight bask,\nA time to gather, a sacred task.\nShare your wealth, both bright and deep,\nAnd sow what’s needed for the reap.",
             "graphic": "🌕", 
             "date": "2025-08-15"
         },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings",
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-09-05"
         },
         {
-            "phase": "Full Moon", 
             "phaseName":"Harvest Moon", 
-            "description":"The full moon closest to the autumn equinox, the Harvest Moon lights the way for farmers gathering crops late into the night.", 
-            "poem" : "The Harvest Moon, so round, so bright,\nGuides weary hands through autumn’s night.\nReflect on work, both done and due,\nAnd thank the world for gifting you.",
             "graphic": "🌕", 
             "date": "2025-09-25"
         },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings",
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-10-10"
         },
         {
-            "phase": "Full Moon",
             "phaseName":"Hunter's Moon", 
-            "description":"Traditionally aiding hunters in tracking game, this moon symbolises preparation and sustenance.", 
-            "poem" : "The Hunter’s Moon is sharp and keen,\nA guide through shadows yet unseen.\nPrepare your heart, your tools, your way,\nAnd let the moonlight mark your stay.",
             "graphic": "🌕", 
             "date": "2025-10-15"
         },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings",
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-11-08"
         },
         {
-            "phase": "Full Moon", 
             "phaseName":"Frost Moon", 
-            "description":"Named for the first frost of the season, this moon marks the transition to winter’s stillness. Also known as Beaver Moon.", 
-            "poem" : "Frost-kissed trees stand still and bare,\nA quiet world in winter's care.\nBeneath the moon's soft silver glow,\nA time of peace, as storms lie low.",
             "graphic": "🌕", 
             "date": "2025-11-15"
         },
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings", 
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-12-06"
         },
         {
-            "phase": "Full Moon", 
+
             "phaseName":"Cold Moon", 
-            "description":"Reflecting the chill of winter’s embrace, this moon represents endurance and reflection.", 
-            "poem" : "The Cold Moon whispers of the past,\nOf trials endured and shadows cast.\nSip warm tea, let heartbeats mend,\nPrepare your soul for year’s new bend.",
             "graphic": "🌕", 
             "date": "2025-12-15"},
         {
-            "phase": "New Moon", 
             "phaseName": "New Beginnings", 
-            "description":"The start of a new lunar cycle.", 
-            "poem" : "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
             "graphic": "🌑", 
             "date": "2025-12-21"
         }
@@ -336,7 +268,8 @@
             "title": "Cycle Start", 
             "type": "Period", 
             "date": "2025-06-01", 
-            "notes": "First day of cycle."}
+            "notes": "First day of cycle."
+        }
     ],
 
 

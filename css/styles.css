@@ -870,7 +870,7 @@ footer {
   padding: 15px 0;
   position: sticky;
   bottom: 0;
-  z-index: 1000;
+  z-index: 0;
   box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
   font-family: 'Lora', serif; /* Match the comp's font if using Google Fonts */
 }
