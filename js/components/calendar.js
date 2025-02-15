@@ -427,11 +427,9 @@ export async function getCustomEvents(gregorianMonth, gregorianDay) {
         const dayStr = String(gregorianDay).padStart(2, "0");
 
         const targetDate = `2025-${monthStr}-${dayStr}`;
-        console.log("Searching for events on:", targetDate);
 
         const filteredEvents = events.filter(event => event.date === targetDate);
 
-        console.log("Matching events found:", filteredEvents);
 
         return filteredEvents.length > 0 
             ? filteredEvents.map(e => `<p>${e.title}: ${e.notes}</p>`).join("") 
@@ -456,8 +454,6 @@ export function getMysticalSuggestion() {
 }
 
 export function getMoonPoem(moonPhase, date) {
-    console.log("The lunar phase is ", moonPhase, "on", date);
-
     // Named full moon lookup (Month-Day format)
     const fullMoonNames = {
         "01": "Wolf Moon",
@@ -479,7 +475,6 @@ export function getMoonPoem(moonPhase, date) {
         const month = date.split("-")[1]; // Extract the month (MM) from YYYY-MM-DD
         if (fullMoonNames[month]) {
             moonPhase = fullMoonNames[month]; // Replace "Full Moon" with the proper name
-            console.log(`Mapped Full Moon to: ${moonPhase}`);
         }
     }
 
@@ -507,6 +502,5 @@ export function getMoonPoem(moonPhase, date) {
         "Cold Moon": "The Cold Moon whispers of the past,\nOf trials endured and shadows cast.\nSip warm tea, let heartbeats mend,\nPrepare your soul for year’s new bend."
     };
 
-    console.log(`Poem found: ${moonPoems[moonPhase] || "No description available."}`);
     return moonPoems[moonPhase] || "No description available.";
 }

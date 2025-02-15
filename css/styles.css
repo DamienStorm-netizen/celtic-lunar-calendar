@@ -809,42 +809,55 @@ blockquote.moon-poem {
 /**********************************************/
 
 .wheel-container {
-    display: flex; /* Flexbox magic */
-    justify-content: center; /* Centre horizontally */
-    align-items: center; /* Centre vertically */
-    height: 100vh; /* Full viewport height */
-    width: 100vw; /* Full viewport width */
-    position: relative; /* Relative to ensure inner positioning works */
-    overflow: hidden; /* Prevent scrollbars */
+  display: flex; /* Flexbox magic */
+  justify-content: center; /* Centre horizontally */
+  align-items: center; /* Centre vertically */
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  position: relative; /* Relative to ensure inner positioning works */
+  overflow: hidden; /* Prevent scrollbars */
 }
 
 #wheel {
-    width: 500px;
-    height: 500px;
-    background: url('/assets/images/zodiac/zodiac-wheel.png') no-repeat center;
-    background-size: contain;
-    border-radius: 50%;
-    position: absolute; /* Ensure it stays in one place */
-    transform: translate(-50%, -50%) rotate(0deg); /* Centre and rotate */
-    animation: spin 30s linear infinite; /* Slow spin at rest */
-    animation-play-state: running; /* Ensure it spins by default */
-    transform-origin: center; /* Spin around its centre */
-    will-change: transform; /* Optimise for GPU rendering */
-    transition: none !important;
+  width: 500px;
+  height: 500px;
+  background: url('/assets/images/zodiac/zodiac-wheel.png') no-repeat center;
+  background-size: contain;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform 0.3s ease-out;
+  animation: idleSpin 60s linear infinite;
+  animation-play-state: running; /* Ensure animation starts */
+  pointer-events: all;
+}
+
+/* Idle spin when untouched */
+@keyframes idleSpin {
+  from {
+      transform: translate(-50%, -50%) rotate(0deg);
   }
+  to {
+      transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
 
 .hotspot {
-    position: absolute; /* Stay in place */
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    /*background-color: rgba(255, 0, 0, 0.5);
-    border: 2px solid black;*/
-    transform: translate(-50%, -50%); /* Anchor from the centre */
-    pointer-events: all; /* Ensure interactive */
-    will-change: transform; /* Prevent layout recalculations */
-    cursor: pointer;
-    transition: box-shadow 0.3s ease-in-out; /* Smooth transition */
+  position: absolute; /* Stay in place */
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  /*background-color: rgba(255, 0, 0, 0.5);
+  border: 2px solid black;*/
+  transform: translate(-50%, -50%); /* Anchor from the centre */
+  pointer-events: all; /* Ensure interactive */
+  will-change: transform; /* Prevent layout recalculations */
+  cursor: pointer;
+  transition: box-shadow 0.3s ease-in-out; /* Smooth transition */
 }
 
 .hotspot:hover {
@@ -861,7 +874,11 @@ blockquote.moon-poem {
     }
   }
 
-/* FOOTER */
+
+/**********************************************/
+/*   FOOTER   */
+/**********************************************/
+
 footer {
   background: 
         linear-gradient(to bottom, rgba(106, 13, 173, 1), rgba(53, 10, 95, 1));
@@ -906,7 +923,10 @@ footer nav {
   filter: drop-shadow(0 0 6px #ffda44);
 }
 
-/* MOBILE */
+/**********************************************/
+/*   MOBILE   */
+/**********************************************/
+
 @media (max-width: 768px) {
   .container {
     max-width: 768px; /* Adjust for tablets */
