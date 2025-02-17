@@ -808,72 +808,121 @@ blockquote.moon-poem {
 /* CELTIC ZODIAC SCREEN */
 /**********************************************/
 
+/* Ensure the container is centred */
 .wheel-container {
-  display: flex; /* Flexbox magic */
-  justify-content: center; /* Centre horizontally */
-  align-items: center; /* Centre vertically */
-  height: 100vh; /* Full viewport height */
-  width: 100vw; /* Full viewport width */
-  position: relative; /* Relative to ensure inner positioning works */
-  overflow: hidden; /* Prevent scrollbars */
+  position: relative;
+  width: 250px; /* Adjust to match the actual wheel size */
+  height: 250px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Prevent any overflow issues */
 }
 
+/* Wheel image is properly contained */
 #wheel {
-  width: 500px;
-  height: 500px;
-  background: url('/assets/images/zodiac/zodiac-wheel.png') no-repeat center;
-  background-size: contain;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(0deg);
-  transform-origin: center center;
+  position: relative;
+  background: url('assets/images/zodiac/zodiac-wheel.png') no-repeat center;
+  background-size: contain; /* Ensure the wheel image is fully visible */
+}
+
+.zodiac-wheel {
+  position: relative;
+  width: 100%; /* Fit within the container */
+  height: 100%; /* Match container dimensions */
+  transition: transform 0.5s ease-out; /* Smooth spinning */
   will-change: transform;
-  transition: transform 0.3s ease-out;
-  animation: idleSpin 60s linear infinite;
-  animation-play-state: running; /* Ensure animation starts */
-  pointer-events: all;
+  touch-action: manipulation; /* For touch interactions */
 }
 
-/* Idle spin when untouched */
-@keyframes idleSpin {
-  from {
-      transform: translate(-50%, -50%) rotate(0deg);
-  }
-  to {
-      transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
+/* Hotspots are circles */
 .hotspot {
-  position: absolute; /* Stay in place */
-  width: 60px;
-  height: 60px;
+  position: absolute;
+  width: 62px; /* Adjust to fit your design */
+  height: 62px;
   border-radius: 50%;
-  /*background-color: rgba(255, 0, 0, 0.5);
-  border: 2px solid black;*/
-  transform: translate(-50%, -50%); /* Anchor from the centre */
-  pointer-events: all; /* Ensure interactive */
-  will-change: transform; /* Prevent layout recalculations */
+  background-color: rgba(255, 0, 0, 0); /* Transparent red for debugging */
+  border: 0px solid black;
+  transform: translate(-50%, -50%);
   cursor: pointer;
-  transition: box-shadow 0.3s ease-in-out; /* Smooth transition */
 }
 
 .hotspot:hover {
-  box-shadow: 0 0 20px 10px rgba(255, 255, 0, 0.8); /* Glowy yellow halo */
-  /* transform: scale(1.1); /* Slightly enlarges on hover */
+  background: rgba(255, 255, 255, 0.3); /* Optional hover effect */
 }
-  
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
 
+.zodiac-label {
+  pointer-events: none; /* So labels don't block the wheel interaction */
+  font-family: 'Cinzel Decorative', serif; /* Use your selected font */
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black;
+  white-space: nowrap;
+}
+
+#hover-info {
+  text-align: center;
+  font-size: 1.5rem;
+  color: gold;
+  margin-top: 20px;
+  transition: color 0.3s ease-in-out;
+}
+
+.segment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+  transform-origin: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.segment span {
+  position: absolute;
+  top: 10%; /* Move label outward slightly */
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg); /* Align outward */
+  transform-origin: 0 0; /* Pivot from the segment’s centre */
+  font-size: 0.9rem; /* Slightly larger for better readability */
+  font-weight: bold; /* Make the text pop */
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Add a subtle glow for readability */
+  pointer-events: none; /* Prevent labels from interfering with spinning */
+}
+
+.segment:nth-child(1) { transform: rotate(0deg) translateX(-50%); }
+.segment:nth-child(2) { transform: rotate(60deg) translateX(-50%); }
+.segment:nth-child(3) { transform: rotate(120deg) translateX(-50%); }
+.segment:nth-child(4) { transform: rotate(180deg) translateX(-50%); }
+.segment:nth-child(5) { transform: rotate(240deg) translateX(-50%); }
+.segment:nth-child(6) { transform: rotate(300deg) translateX(-50%); }
+
+.zodiac-info {
+  margin-top: 20px;
+}
+
+/* Add a slow rotation animation */
+@keyframes slow-spin {
+from {
+  transform: rotate(0deg);
+}
+to {
+  transform: rotate(360deg);
+}
+}
+
+#wheel {
+animation: slow-spin 60s linear infinite; /* Slow spin over 30 seconds */
+}
+
+#wheel.no-animation {
+animation: none; /* Stop animation when user interacts */
+}
+
+#wheel.hover-stop {
+animation: none; /* Stop animation when hovered */
+}
 
 /**********************************************/
 /*   FOOTER   */

@@ -2,16 +2,20 @@ export function renderInsights() {
     return `
     <section class="settings">
         <h1>Insights</h1>
-        <div class="wheel-container">
-        <div id="wheel">
-            <img src="assets/images/zodiac/zodiac-wheel.png" alt="Celtic Zodiac Wheel" class="zodiac-wheel" />
+        <div id="insightsNavBar">Insights Navigation Bar</div>
+        <div class="celtic-zodiac">
+            <h2 class="goldNugget">Discover Your Zodiac</h2>
+            <div class="wheel-container">
+                <div id="wheel">
+                    <img src="assets/images/zodiac/zodiac-wheel.png" alt="Celtic Zodiac Wheel" class="zodiac-wheel" />
+                </div>
+            </div>
+            <div class="zodiac-info">
+                <h2 id="zodiac-name">Hover over a sign!</h2>
+                <p id="zodiac-description"></p>
+                <!-- <div id="hover-info">Hover over a sign!</div> -->
+            </div>
         </div>
-    </div>
-    <div class="zodiac-info">
-        <h2 id="zodiac-name">Hover over a sign!</h2>
-        <p id="zodiac-description"></p>
-        <!-- <div id="hover-info">Hover over a sign!</div> -->
-    </div>
     </section>
     `;
 }
@@ -35,67 +39,107 @@ const zodiacSigns = [
   
   export function initializeWheel() {
     const wheel = document.getElementById("wheel");
-
-    if (!wheel) {
-        console.error("Wheel element not found! Retrying...");
-        setTimeout(initializeWheel, 100);
-        return;
-    }
-
-    console.log("Wheel successfully found!");
-
+    const hoverInfo = document.getElementById("hover-info");
+    const zodiacName = document.getElementById("zodiac-name");
+    const zodiacDescription = document.getElementById("zodiac-description");
+  
+    const radius = wheel.offsetWidth / 2;
+    const centerX = radius;
+    const centerY = radius;
+    const adjustmentFactor = 0.66; // Tightened circle
+    const rotationOffset = Math.PI / -120; // Clockwise rotation offset
+    const xOffset = 4; // Manual fine-tune for X
+    const yOffset = -3; // Manual fine-tune for Y
+  
+    zodiacSigns.forEach((sign, index) => {
+      const angle = (index / zodiacSigns.length) * 2 * Math.PI + rotationOffset;
+  
+      const xPos = centerX + Math.cos(angle) * (radius * adjustmentFactor) + xOffset;
+      const yPos = centerY + Math.sin(angle) * (radius * adjustmentFactor) + yOffset;
+  
+      const hotspot = document.createElement("div");
+      hotspot.classList.add("hotspot");
+      hotspot.style.left = `${xPos}px`;
+      hotspot.style.top = `${yPos}px`;
+      hotspot.dataset.zodiac = sign.name;
+  
+      hotspot.addEventListener("mouseenter", () => {
+        zodiacName.textContent = sign.name;
+        zodiacDescription.textContent = sign.description;
+      });
+  
+      hotspot.addEventListener("mouseleave", () => {
+        zodiacName.textContent = "Hover over a sign!";
+        zodiacDescription.textContent = "";
+      });
+  
+      wheel.appendChild(hotspot);
+    });
+  
+    // Enable spinning of the Zodiac Wheel
     let isDragging = false;
     let startAngle = 0;
     let currentAngle = 0;
-
-    // 🛑 Stop animation when interacting
+  
+    // Function to get rotation angle
+    function getRotationAngle(event, isTouch = false) {
+      const rect = wheel.getBoundingClientRect();
+      const x = (isTouch ? event.touches[0].clientX : event.clientX) - rect.left - rect.width / 2;
+      const y = (isTouch ? event.touches[0].clientY : event.clientY) - rect.top - rect.height / 2;
+      return Math.atan2(y, x) * (180 / Math.PI);
+    }
+  
+    // Start spinning
     function startSpin(event) {
-        isDragging = true;
-        wheel.style.animationPlayState = "paused"; // ❌ Pause idle spin
-
-        const rect = wheel.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const clientX = event.clientX || event.touches[0].clientX;
-        const clientY = event.clientY || event.touches[0].clientY;
-        startAngle = Math.atan2(clientY - centerY, clientX - centerX) - currentAngle;
+      isDragging = true;
+      wheel.classList.add("no-animation"); // Stop the slow spin
+      startAngle = getRotationAngle(event, event.type === "touchstart");
+      currentAngle = parseFloat(wheel.dataset.angle) || 0;
+      event.preventDefault();
     }
-
+  
+    // Spin the wheel
     function spinWheel(event) {
-        if (!isDragging) return;
-        const rect = wheel.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const clientX = event.clientX || event.touches[0].clientX;
-        const clientY = event.clientY || event.touches[0].clientY;
-        currentAngle = Math.atan2(clientY - centerY, clientX - centerX) - startAngle;
-
-        // 🌀 Ensure smooth transition without flickering
-        wheel.style.transition = "none";
-        wheel.style.transform = `translate(-50%, -50%) rotate(${currentAngle}rad)`;
+      if (!isDragging) return;
+      const currentRotation = getRotationAngle(event, event.type === "touchmove");
+      const deltaAngle = currentRotation - startAngle;
+      wheel.style.transform = `rotate(${currentAngle + deltaAngle}deg)`;
     }
-
-    function stopSpin() {
-        isDragging = false;
-
-        // ✅ Allow transition back into idle spin
-        wheel.style.transition = "transform 0.5s ease-out";
-        wheel.style.animationPlayState = "running"; // 🔄 Resume smooth idle spin
+  
+    // Stop spinning
+    function stopSpin(event) {
+      if (!isDragging) return;
+      isDragging = false;
+      const rectifiedAngle = parseFloat(wheel.style.transform.replace(/[^\d.-]/g, '')) % 360;
+      currentAngle = rectifiedAngle < 0 ? rectifiedAngle + 360 : rectifiedAngle;
+      wheel.dataset.angle = currentAngle;
+  
+      // Restart the slow spin after a delay
+      setTimeout(() => {
+        wheel.classList.remove("no-animation");
+      }, 2000); // Wait 2 seconds before resuming the slow spin
     }
-
+  
+    // Stop animation on hover
+    wheel.addEventListener("mouseenter", () => {
+      wheel.classList.add("hover-stop");
+    });
+  
+    // Resume animation on mouse leave
+    wheel.addEventListener("mouseleave", () => {
+      if (!isDragging) {
+        wheel.classList.remove("hover-stop");
+      }
+    });
+  
+  
     // Mouse events
     wheel.addEventListener("mousedown", startSpin);
     window.addEventListener("mousemove", spinWheel);
     window.addEventListener("mouseup", stopSpin);
-
+  
     // Touch events
     wheel.addEventListener("touchstart", startSpin);
     window.addEventListener("touchmove", spinWheel);
     window.addEventListener("touchend", stopSpin);
-}
-
-// ✅ Run this after `renderInsights()` finishes
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("Waiting for renderInsights() to complete...");
-    setTimeout(initializeWheel, 200); // 🔄 Wait for the wheel to exist before starting
-});
+};
