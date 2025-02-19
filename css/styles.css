@@ -1,6 +1,7 @@
 body {
   padding-top: 5px;
   background-color: #1E1E1E;
+  overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
 
@@ -49,6 +50,16 @@ h1, .main-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
   font-size: 2.5rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+}
+
+.inner-title {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 1.5rem; /* Adjust size as needed */
   color: #f5d742; /* Your dazzling title colour! */
   text-align: center;
   filter: drop-shadow(0 0 8px #ffd700);
@@ -301,7 +312,7 @@ blockquote.moon-poem {
   padding-bottom: 0 !important;
 }
 
-/* Phase of the Moon */
+/*** Phase of the Moon ***/
 
 .moon-phase {
   text-align: center;
@@ -352,7 +363,7 @@ blockquote.moon-poem {
 /* CELTIC CALENDAR SCREEN */
 /**********************************************/
 
-/* Modal Structure */
+/*** Modal Structure ***/
 .hidden {
   display: none !important;
 }
@@ -506,7 +517,7 @@ blockquote.moon-poem {
   background-color: #55287C;
 }
 
- /* Modal Header */
+ /*** Modal Header ***/
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -519,7 +530,7 @@ blockquote.moon-poem {
   background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
 }
 
-/* Grid */
+/*** Calendar Grid ***/
 
 .calendarGridBox {
   width: 314px;
@@ -646,7 +657,7 @@ blockquote.moon-poem {
   margin-bottom: 0.5rem;
 }
 
-/* CALENDAR SCREEN */
+/*** CALENDAR SCREEN */
 
 /* Section Styling */
 .calendar {
@@ -808,6 +819,13 @@ blockquote.moon-poem {
 /* CELTIC ZODIAC SCREEN */
 /**********************************************/
 
+#insightsNavBar {
+  text-align: center;
+  color: white;
+}
+
+/*** Celtic Zodiac Wheel ***/
+
 /* Ensure the container is centred */
 .wheel-container {
   position: relative;
@@ -823,8 +841,13 @@ blockquote.moon-poem {
 /* Wheel image is properly contained */
 #wheel {
   position: relative;
-  background: url('assets/images/zodiac/zodiac-wheel.png') no-repeat center;
+  padding: 5px;
+  background: url('../assets/images/zodiac/zodiac-wheel.png') no-repeat center;
   background-size: contain; /* Ensure the wheel image is fully visible */
+  animation: slow-spin 90s linear infinite;
+  transform: perspective(1000px) rotate(0deg);
+  transform-origin: center;
+  will-change: transform;
 }
 
 .zodiac-wheel {
@@ -836,21 +859,6 @@ blockquote.moon-poem {
   touch-action: manipulation; /* For touch interactions */
 }
 
-/* Hotspots are circles */
-.hotspot {
-  position: absolute;
-  width: 62px; /* Adjust to fit your design */
-  height: 62px;
-  border-radius: 50%;
-  background-color: rgba(255, 0, 0, 0); /* Transparent red for debugging */
-  border: 0px solid black;
-  transform: translate(-50%, -50%);
-  cursor: pointer;
-}
-
-.hotspot:hover {
-  background: rgba(255, 255, 255, 0.3); /* Optional hover effect */
-}
 
 .zodiac-label {
   pointer-events: none; /* So labels don't block the wheel interaction */
@@ -868,28 +876,6 @@ blockquote.moon-poem {
   transition: color 0.3s ease-in-out;
 }
 
-.segment {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  clip-path: polygon(50% 50%, 100% 0, 100% 100%);
-  transform-origin: center;
-  text-align: center;
-  overflow: hidden;
-}
-
-.segment span {
-  position: absolute;
-  top: 10%; /* Move label outward slightly */
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-90deg); /* Align outward */
-  transform-origin: 0 0; /* Pivot from the segment’s centre */
-  font-size: 0.9rem; /* Slightly larger for better readability */
-  font-weight: bold; /* Make the text pop */
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Add a subtle glow for readability */
-  pointer-events: none; /* Prevent labels from interfering with spinning */
-}
 
 .segment:nth-child(1) { transform: rotate(0deg) translateX(-50%); }
 .segment:nth-child(2) { transform: rotate(60deg) translateX(-50%); }
@@ -902,27 +888,176 @@ blockquote.moon-poem {
   margin-top: 20px;
 }
 
+.zodiac-list ul li {
+ color: #fff6ea;
+}
+
 /* Add a slow rotation animation */
 @keyframes slow-spin {
-from {
-  transform: rotate(0deg);
-}
-to {
-  transform: rotate(360deg);
-}
-}
-
-#wheel {
-animation: slow-spin 60s linear infinite; /* Slow spin over 30 seconds */
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-#wheel.no-animation {
-animation: none; /* Stop animation when user interacts */
+
+/*** Celtic Zodiac Sign List ***/
+
+.zodiac-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two columns */
+  gap: 15px; /* Space between items */
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  list-style: none;
+  max-width: 500px; /* Keeps it nicely centered */
+  margin: 0 auto;
 }
 
-#wheel.hover-stop {
-animation: none; /* Stop animation when hovered */
+.zodiac-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100px; /* Adjust as needed */
+  height: 120px;
+  padding-top: 15px;
+  background: rgba(20, 20, 20, 0.6); /* Soft mystical backdrop */
+  border-radius: 15px;
+  border: 2px solid rgba(255, 223, 127, 0.5);
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  position: relative;
 }
+
+.zodiac-item p {
+  color: #fff6ea;
+  font-family: 'Cinzel Decorative', serif; /* Use your selected font */
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+
+.celtic-date {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.4em;
+  color: #fff6ea;
+}
+
+/* Glow effect on hover */
+.zodiac-item:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 223, 127, 0.8);
+}
+
+/* Ensure images fit perfectly */
+.zodiac-item img {
+  width: 80%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.zodiac-item img {
+  display: block;
+  width: 80px;
+  margin: 0 auto;
+}
+
+/* Hover effect: a gentle glow pulse */
+.zodiac-item:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(255, 223, 127, 0.9), 
+              0 0 30px rgba(255, 223, 127, 0.6);
+}
+
+/* Click effect: a ripple of magic */
+.zodiac-item:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 20px rgba(255, 127, 127, 0.9), 
+              0 0 50px rgba(255, 127, 127, 0.6);
+}
+
+
+@keyframes glow-fade {
+  0% { opacity: 1; transform: translateY(0px); }
+  50% { opacity: 0.8; transform: translateY(-2px); }
+  100% { opacity: 1; transform: translateY(0px); }
+}
+
+.zodiac-list {
+  animation: glow-fade 5s infinite alternate ease-in-out;
+}
+
+/*** Celtic Zodiac Modal ***/
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Ensures the modal is truly centered */
+  height: auto;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+  max-width: 90vw; /* Ensures the modal doesn't exceed 90% of the viewport width */
+  width: 600px; /* Default width, adjusts on smaller screens */
+  margin: 0 auto; /* Centers it */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); /* Subtle glow */
+  overflow-y: auto; /* Adds scroll for long content */
+}
+
+.modal-content {
+  background: #1E1E2A;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+  max-width: 90%;
+  box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
+}
+
+.modal img {
+  width: 150px; /* Prevents image overflow */
+  height: auto;
+  border-radius: 50%;
+  border: 2px solid #FFD700;
+}
+
+.modal p {
+  max-width: 600px; /* Keeps text blocks readable */
+  margin: 0 auto; /* Centers text */
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#zodiac-name {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 1.5rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+}
+
 
 /**********************************************/
 /*   FOOTER   */
@@ -976,17 +1111,16 @@ footer nav {
 /*   MOBILE   */
 /**********************************************/
 
+
 @media (max-width: 768px) {
+  .modal {
+    width: 95vw; /* Almost full width on smaller screens */
+    padding: 15px;
+    height: 90vh; /* Prevents it from being too tall */
+  }
   .container {
     max-width: 768px; /* Adjust for tablets */
   }
-
-  /*
-  footer nav {
-      flex-direction: column;
-      gap: 10px;
-  }
-  */
 
   .footer-knot {
       width: 25px;
