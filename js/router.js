@@ -1,7 +1,7 @@
 import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate} from './components/home.js';
 import {renderCalendar, setupCalendarEvents, getCelticDate, showDayModal, convertCelticToGregorian, showModal, closeModal, enhanceCalendarTable, getFormattedMonth, getDayOfWeek, getCelticZodiac, getCustomEvents, getMysticalSuggestion, getMoonPoem} from './components/calendar.js';
-import {renderInsights} from './components/insights.js';
-import {renderSettings, setupSettingsEvents} from './components/settings.js';
+import {renderInsights, initializeTabbedNav, initializeCelticZodiac } from './components/insights.js';
+import {renderSettings, setupSettingsEvents } from './components/settings.js';
 import {renderAbout} from './components/about.js';
 import {renderPrivacy} from './components/privacy.js';
 
@@ -50,7 +50,10 @@ function highlightNav() {
         fetchPoemAndUpdate(); // Fetch Moon poem and update
         break;
       case 'insights':
-        appContainer.innerHTML = renderInsights();
+        appContainer.innerHTML = 
+        renderInsights();
+        initializeTabbedNav();
+        initializeCelticZodiac();
         break;
       case 'calendar':
         appContainer.innerHTML = 

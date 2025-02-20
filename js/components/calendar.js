@@ -43,6 +43,9 @@ export function renderCalendar() {
                  <div class="month-thumbnail" id="Aether" data-month="Aether">
                     <img src="assets/images/months/Aether-thumbnail.png" alt="Aether Month Thumbnail">
                 </div>
+                <div class="month-thumbnail" id="Mirabilis" data-month="Mirabilis">
+                    <img src="assets/images/months/mirabilis-thumbnail.png" alt="Mirabilis Thumbnail">
+                </div>
             </div>
         </section>
 
@@ -148,22 +151,45 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
 
  // Open modal window and insert HTML
  export function showModal(monthName) {
+
+    console.log("I clicked on ", monthName);
+
     if (monthName) {
         const modalContainer = document.getElementById("modal-container");
         const modalDetails = modalContainer.querySelector("#modal-details");
+        //modalContainer.classList.add("magical-modal"); // Apply new modal styling
 
         // Insert modal content, including the calendar grid
         if (modalDetails) {
-            modalDetails.innerHTML = `
-                <h2 class="month-title">${monthName}</h2>
-                
-                <div class="calendarGridBox">
-                <table class="calendar-grid"><thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr><tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr><tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr></tbody></table>
-                </div>
-                <div class="feature-image">
-                    <img src="assets/images/months/${monthName.toLowerCase()}-bg.png" alt="${monthName}" />
-                </div>
-            `;
+
+            modalContainer.classList.add("show");
+            document.body.classList.add("modal-open"); // Prevent scrolling
+
+            if (monthName == 'Mirabilis') {
+                modalDetails.innerHTML = `
+                    <h2 class="month-title">${monthName}</h2>
+                    <div class="mirabilis-image">
+                        <img src="assets/images/decor/mirabilis-modal.png" alt="Mirabilis" />
+                    </div>
+                    <div class="mirabilis-content">
+                        <p>Between the last grain of sand and the first light of dawn, Mirabilis shimmers—a moment untethered, a breath between worlds.</p>
+                        <p>Neither past nor future, neither here nor there, It is the space where dreams are whispered and destinies rewritten.</p> 
+                        <p>Pause, reflect, release. For in this fleeting eternity, you are free to reshape the stars.<p>
+                        <br />
+                    </div>
+                `;
+            } else {
+                modalDetails.innerHTML = `
+                    <h2 class="month-title">${monthName}</h2>
+                    
+                    <div class="calendarGridBox">
+                    <table class="calendar-grid"><thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr><tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr><tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr></tbody></table>
+                    </div>
+                    <div class="feature-image">
+                        <img src="assets/images/months/${monthName.toLowerCase()}-bg.png" alt="${monthName}" />
+                    </div>
+                `;
+            }
         }
         
   
@@ -278,13 +304,9 @@ export async function showDayModal(celticDay, celticMonth) {
         return;
     }
 
-    // Testing Zodiac
-    console.log(`Gregorian Date Passed: ${gregorian.gregorianMonth}-${gregorian.gregorianDay}`);
 
     const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
     const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
-
-    console.log(`Gregorian Date Passed: ${formattedMonth}-${formattedDay}`); // Debug Log
 
     const zodiac = getCelticZodiac(parseInt(gregorian.gregorianMonth, 10), parseInt(gregorian.gregorianDay, 10));
      // Get additional data
@@ -427,11 +449,9 @@ export async function getCustomEvents(gregorianMonth, gregorianDay) {
         const dayStr = String(gregorianDay).padStart(2, "0");
 
         const targetDate = `2025-${monthStr}-${dayStr}`;
-        console.log("Searching for events on:", targetDate);
 
         const filteredEvents = events.filter(event => event.date === targetDate);
 
-        console.log("Matching events found:", filteredEvents);
 
         return filteredEvents.length > 0 
             ? filteredEvents.map(e => `<p>${e.title}: ${e.notes}</p>`).join("") 
@@ -456,8 +476,6 @@ export function getMysticalSuggestion() {
 }
 
 export function getMoonPoem(moonPhase, date) {
-    console.log("The lunar phase is ", moonPhase, "on", date);
-
     // Named full moon lookup (Month-Day format)
     const fullMoonNames = {
         "01": "Wolf Moon",
@@ -479,7 +497,6 @@ export function getMoonPoem(moonPhase, date) {
         const month = date.split("-")[1]; // Extract the month (MM) from YYYY-MM-DD
         if (fullMoonNames[month]) {
             moonPhase = fullMoonNames[month]; // Replace "Full Moon" with the proper name
-            console.log(`Mapped Full Moon to: ${moonPhase}`);
         }
     }
 
@@ -507,6 +524,5 @@ export function getMoonPoem(moonPhase, date) {
         "Cold Moon": "The Cold Moon whispers of the past,\nOf trials endured and shadows cast.\nSip warm tea, let heartbeats mend,\nPrepare your soul for year’s new bend."
     };
 
-    console.log(`Poem found: ${moonPoems[moonPhase] || "No description available."}`);
     return moonPoems[moonPhase] || "No description available.";
 }
