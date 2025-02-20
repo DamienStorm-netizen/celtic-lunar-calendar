@@ -126,6 +126,39 @@ h1, .main-title {
   z-index: 0;
 }
 
+/*** UNIVERSAL MODAL ***/
+
+/*
+.magical-modal {
+  max-width: 90%;
+  width: 500px;
+  background: #1a1a1a;
+  border-radius: 15px;
+  box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.5);
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  font-family: 'Vidaloka', serif;
+}
+
+.modal-title {
+  font-size: 2rem;
+  color: #ffdf6c;
+  text-shadow: 0px 0px 8px rgba(255, 223, 108, 0.8);
+}
+
+.mystical-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background: url('../assets/images/decor/mystical-close.png') no-repeat center;
+  background-size: contain;
+  cursor: pointer;
+}
+  */
+
 
 /**********************************************/
 /* HEADER & NAVIGATION */
@@ -139,7 +172,7 @@ header {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 10;
 }
 
 .nav-list {
@@ -362,6 +395,7 @@ blockquote.moon-poem {
 /* ********************************************/
 /* CELTIC CALENDAR SCREEN */
 /**********************************************/
+
 
 /*** Modal Structure ***/
 .hidden {
@@ -629,7 +663,7 @@ blockquote.moon-poem {
 .calendar-day:hover {
   background: rgba(50, 205, 50, 0.7); /* Light green background on hover */
   color: #000;
-  transform: scale(1.05); /* Slightly enlarge on hover */
+  /*transform: scale(1.05); /* Slightly enlarge on hover */*/
 }
 
 .feature-image {
@@ -698,10 +732,43 @@ blockquote.moon-poem {
   color: #ffffff;
 }
 
+/* Mirabilis Modal */
+
+.mirabilis-image {
+  width: 300px;
+  margin: 0 auto;
+}
+
+.mirabilis-image img {
+  width: 100%;
+}
+
+.mirabilis-content {
+  margin: 0 25px 25px 25px;
+}
+
+.mirabilis-content p {
+  font-family: 'Vidaloka', serif;
+  color: #fff6ea;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.modal-container {
+  opacity: 0;
+  transform: scale(0.95);
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* Hover Effects */
 .month-thumbnail:hover {
   background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+  /*transform: scale(1.1);*/
 }
 
 /* Footer */
@@ -816,12 +883,49 @@ blockquote.moon-poem {
 
 
 /**********************************************/
-/* CELTIC ZODIAC SCREEN */
+/* INSIGHT SCREEN */
 /**********************************************/
 
-#insightsNavBar {
-  text-align: center;
-  color: white;
+.insights-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tab-button {
+  background: rgba(108, 63, 188, 0.8); /* Deep mystical purple */
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  font-family: 'Cinzel', serif;
+  color: #fff6ea;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.tab-button:hover {
+  background: rgba(108, 63, 188, 1);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.tab-button.active {
+  background: #d4af37; /* Golden highlight for selected tab */
+  color: #4b0082;
+  font-weight: bold;
+  box-shadow: 0 0 12px rgba(255, 223, 0, 0.8);
+}
+
+.tab-content {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.tab-content.active {
+  display: block;
+  opacity: 1;
 }
 
 /*** Celtic Zodiac Wheel ***/
@@ -993,6 +1097,30 @@ blockquote.moon-poem {
 
 /*** Celtic Zodiac Modal ***/
 
+
+.mystical-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: radial-gradient(circle, rgba(255, 223, 186, 0.9) 0%, rgba(255, 175, 75, 0.8) 70%, rgba(255, 140, 0, 0.6) 100%);
+  color: #4b0082; /* Deep indigo for contrast */
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  box-shadow: 0 0 10px rgba(255, 223, 186, 0.9);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.mystical-close:hover {
+  transform: scale(1.2) rotate(10deg);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+  background: radial-gradient(circle, rgba(255, 245, 186, 1) 0%, rgba(255, 200, 75, 0.9) 70%, rgba(255, 160, 0, 0.8) 100%);
+}
+
 .modal {
   position: fixed;
   top: 50%;
@@ -1008,7 +1136,7 @@ blockquote.moon-poem {
   pointer-events: none;
   transition: opacity 0.3s ease-in-out;
   max-width: 90vw; /* Ensures the modal doesn't exceed 90% of the viewport width */
-  width: 600px; /* Default width, adjusts on smaller screens */
+  width: 440px; /* Default width, adjusts on smaller screens */
   margin: 0 auto; /* Centers it */
   padding: 20px;
   border-radius: 12px;
@@ -1026,12 +1154,6 @@ blockquote.moon-poem {
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
 }
 
-.modal img {
-  width: 150px; /* Prevents image overflow */
-  height: auto;
-  border-radius: 50%;
-  border: 2px solid #FFD700;
-}
 
 .modal p {
   max-width: 600px; /* Keeps text blocks readable */
@@ -1051,11 +1173,72 @@ blockquote.moon-poem {
 #zodiac-name {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
-  font-size: 1.5rem; /* Adjust size as needed */
+  font-size: 2.5rem; /* Adjust size as needed */
   color: #f5d742; /* Your dazzling title colour! */
   text-align: center;
   filter: drop-shadow(0 0 8px #ffd700);
   margin-top: 0;
+  margin-bottom: 5px;;
+}
+
+#zodiac-date-range {
+  font-family: "Libre Baskerville", serif;
+  color: #f5d742;
+  font-size: 0.8em;
+}
+
+#zodiac-image {
+  margin: 10px auto;
+  width: 150px; /* Prevents image overflow */
+  height: auto;
+  border-radius: 50%;
+  border: 2px solid #FFD700;
+}
+
+#zodiac-modal h3 {
+  font-family: "Libre Baskerville", serif;
+  color: #f5d742;
+  font-size: 0.9em;
+  margin-bottom: 5px;
+  margin-top: 20px;;
+}
+
+#zodiac-modal #learn-more {
+  margin: 15px auto;
+}
+
+/* Learn more Button */
+.learn-more {
+  font-family: 'Vidaloka', serif;
+  background: linear-gradient(135deg, #8e44ad, #c39bd3); /* Deep purple gradient */
+  color: #fff6ea; /* Off-white text for contrast */
+  padding: 8px 16px;
+  border: none;
+  border-radius: 25px; /* Soft rounded edges */
+  font-size: 16px;
+  font-weight: 400;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-block;
+  box-shadow: 0 0 12px rgba(142, 68, 173, 0.8); /* Magical purple glow */
+  transition: all 0.3s ease-in-out;
+  margin: 20px 0;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 12px rgba(142, 68, 173, 0.8); }
+  50% { box-shadow: 0 0 18px rgba(142, 68, 173, 1); }
+  100% { box-shadow: 0 0 12px rgba(142, 68, 173, 0.8); }
+}
+
+.learn-more {
+  animation: pulseGlow 2s infinite ease-in-out; /* Smooth pulsating glow */
+}
+
+.learn-more:hover {
+  background: linear-gradient(135deg, #732d91, #af7ac5); /* A slightly darker purple */
+  box-shadow: 0 0 20px rgba(142, 68, 173, 1); /* Intensified glow on hover */
+  transform: scale(1.05); /* A subtle lift effect */
 }
 
 
