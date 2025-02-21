@@ -4,6 +4,244 @@ body {
   overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
+/**********************************************/
+/*** MODAL STRUCTURE ***/
+/**********************************************/
+
+.hidden {
+  display: none !important;
+}
+
+#modal-container {
+  position: fixed; /* Ensures it stays in place */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Full width of the viewport */
+  height: 100vh; /* Full height of the viewport */
+  background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+  display: flex; /* Flexbox for centring */
+  justify-content: center; /* Centre horizontally */
+  align-items: center; /* Centre vertically */
+  z-index: 1000; /* Ensure it appears above other content */
+}
+
+#modal-content {
+  max-width: 400px; /* Limit modal width */
+  width: 90%; /* Add some responsiveness */
+  background: #1e1e2e; /* Dark background */
+  border-radius: 10px; /* Add some rounded corners */
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow */
+}
+
+.topBar {
+  background-image: url("../assets/images/decor/celtic-knot-bg.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 29px;
+  background-color: #68468c;
+  border-radius: 10px 10px 0 0;
+  padding: 2px 5px 0 0;
+ }
+
+ /* Close Button */
+#modal-close {
+  display: block;
+  width: 25px;
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: var(--text-color, #fff);
+  cursor: pointer;
+}
+
+ .close-btn img {
+  width: 100%;
+ }
+
+ /*** Modal Header ***/
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+ #modal-details {
+  padding: 0px 5px 0 5px;
+  border-radius: 10px;
+  background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
+}
+
+/* MIRABILIS */
+.modal-container {
+  opacity: 0;
+  transform: scale(0.95);
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/*** Celtic Zodiac Modal ***/
+
+.mystical-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: radial-gradient(circle, rgba(255, 223, 186, 0.9) 0%, rgba(255, 175, 75, 0.8) 70%, rgba(255, 140, 0, 0.6) 100%);
+  color: #4b0082; /* Deep indigo for contrast */
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  box-shadow: 0 0 10px rgba(255, 223, 186, 0.9);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.mystical-close:hover {
+  transform: scale(1.2) rotate(10deg);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+  background: radial-gradient(circle, rgba(255, 245, 186, 1) 0%, rgba(255, 200, 75, 0.9) 70%, rgba(255, 160, 0, 0.8) 100%);
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Ensures the modal is truly centered */
+  height: auto;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+  max-width: 90vw; /* Ensures the modal doesn't exceed 90% of the viewport width */
+  width: 440px; /* Default width, adjusts on smaller screens */
+  margin: 0 auto; /* Centers it */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); /* Subtle glow */
+  overflow-y: auto; /* Adds scroll for long content */
+}
+
+.modal-content {
+  background: #1E1E2A;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+  max-width: 90%;
+  box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
+}
+
+
+/**********************************************/
+/* MODAL ANIMATIONS */
+/**********************************************/
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: scale(0.95);
+  }
+  to {
+      opacity: 1;
+      transform: scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+      opacity: 1;
+      transform: scale(1);
+  }
+  to {
+      opacity: 0;
+      transform: scale(0.95);
+  }
+}
+
+/* Month Transition */
+@keyframes slideIn {
+  from {
+      transform: translateX(100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateX(0);
+      opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+      transform: translateX(0);
+      opacity: 1;
+  }
+  to {
+      transform: translateX(-100%);
+      opacity: 0;
+  }
+}
+
+/* Highlight Animation */
+@keyframes highlightPulse {
+  0% {
+      box-shadow: 0 0 0 rgba(255, 255, 0, 0.5);
+  }
+  50% {
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+  }
+  100% {
+      box-shadow: 0 0 0 rgba(255, 255, 0, 0.5);
+  }
+}
+
+/* Apply to Modal */
+.modal {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal.hidden {
+  animation: fadeOut 0.3s ease-out;
+}
+
+/* Date Click Feedback */
+.calendar-day.highlight-today {
+  animation: highlightPulse 0.5s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+  }
+  to {
+      opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+      opacity: 1;
+  }
+  to {
+      opacity: 0;
+  }
+}
+
+
 
 /**********************************************/
 /* CUSTOM FONTS */
@@ -396,60 +634,6 @@ blockquote.moon-poem {
 /* CELTIC CALENDAR SCREEN */
 /**********************************************/
 
-
-/*** Modal Structure ***/
-.hidden {
-  display: none !important;
-}
-
-#modal-container {
-  position: fixed; /* Ensures it stays in place */
-  top: 0;
-  left: 0;
-  width: 100vw; /* Full width of the viewport */
-  height: 100vh; /* Full height of the viewport */
-  background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
-  display: flex; /* Flexbox for centring */
-  justify-content: center; /* Centre horizontally */
-  align-items: center; /* Centre vertically */
-  z-index: 1000; /* Ensure it appears above other content */
-}
-
-#modal-content {
-  max-width: 400px; /* Limit modal width */
-  width: 90%; /* Add some responsiveness */
-  background: #1e1e2e; /* Dark background */
-  border-radius: 10px; /* Add some rounded corners */
-  padding: 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow */
-}
-
-.topBar {
-  background-image: url("../assets/images/decor/celtic-knot-bg.png");
-  background-repeat: no-repeat;
-  background-size: 100%;
-  height: 29px;
-  background-color: #68468c;
-  border-radius: 10px 10px 0 0;
-  padding: 2px 5px 0 0;
- }
-
- /* Close Button */
-#modal-close {
-  display: block;
-  width: 25px;
-  margin-left: auto;
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: var(--text-color, #fff);
-  cursor: pointer;
-}
-
- .close-btn img {
-  width: 100%;
- }
-
  .month-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
@@ -551,18 +735,6 @@ blockquote.moon-poem {
   background-color: #55287C;
 }
 
- /*** Modal Header ***/
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
- #modal-details {
-  padding: 0px 5px 0 5px;
-  border-radius: 10px;
-  background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
-}
 
 /*** Calendar Grid ***/
 
@@ -754,12 +926,6 @@ blockquote.moon-poem {
   text-align: center;
 }
 
-.modal-container {
-  opacity: 0;
-  transform: scale(0.95);
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
@@ -776,110 +942,6 @@ blockquote.moon-poem {
   margin-top: 20px;
   text-align: center;
 }
-
-/**********************************************/
-/* MODAL ANIMATIONS */
-/**********************************************/
-
-@keyframes fadeIn {
-  from {
-      opacity: 0;
-      transform: scale(0.95);
-  }
-  to {
-      opacity: 1;
-      transform: scale(1);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-      opacity: 1;
-      transform: scale(1);
-  }
-  to {
-      opacity: 0;
-      transform: scale(0.95);
-  }
-}
-
-/* Month Transition */
-@keyframes slideIn {
-  from {
-      transform: translateX(100%);
-      opacity: 0;
-  }
-  to {
-      transform: translateX(0);
-      opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-      transform: translateX(0);
-      opacity: 1;
-  }
-  to {
-      transform: translateX(-100%);
-      opacity: 0;
-  }
-}
-
-/* Highlight Animation */
-@keyframes highlightPulse {
-  0% {
-      box-shadow: 0 0 0 rgba(255, 255, 0, 0.5);
-  }
-  50% {
-      box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
-  }
-  100% {
-      box-shadow: 0 0 0 rgba(255, 255, 0, 0.5);
-  }
-}
-
-/* Apply to Modal */
-.modal {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.modal.hidden {
-  animation: fadeOut 0.3s ease-out;
-}
-
-/* Date Click Feedback */
-.calendar-day.highlight-today {
-  animation: highlightPulse 0.5s ease-in-out;
-}
-
-.fade-in {
-  animation: fadeIn 0.3s ease-in forwards;
-}
-
-.fade-out {
-  animation: fadeOut 0.3s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from {
-      opacity: 0;
-  }
-  to {
-      opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-      opacity: 1;
-  }
-  to {
-      opacity: 0;
-  }
-}
-
-
 
 
 /**********************************************/
@@ -1095,65 +1157,7 @@ blockquote.moon-poem {
   animation: glow-fade 5s infinite alternate ease-in-out;
 }
 
-/*** Celtic Zodiac Modal ***/
-
-
-.mystical-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: radial-gradient(circle, rgba(255, 223, 186, 0.9) 0%, rgba(255, 175, 75, 0.8) 70%, rgba(255, 140, 0, 0.6) 100%);
-  color: #4b0082; /* Deep indigo for contrast */
-  font-size: 18px;
-  font-weight: bold;
-  border: none;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  box-shadow: 0 0 10px rgba(255, 223, 186, 0.9);
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  cursor: pointer;
-}
-
-.mystical-close:hover {
-  transform: scale(1.2) rotate(10deg);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 1);
-  background: radial-gradient(circle, rgba(255, 245, 186, 1) 0%, rgba(255, 200, 75, 0.9) 70%, rgba(255, 160, 0, 0.8) 100%);
-}
-
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* Ensures the modal is truly centered */
-  height: auto;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease-in-out;
-  max-width: 90vw; /* Ensures the modal doesn't exceed 90% of the viewport width */
-  width: 440px; /* Default width, adjusts on smaller screens */
-  margin: 0 auto; /* Centers it */
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); /* Subtle glow */
-  overflow-y: auto; /* Adds scroll for long content */
-}
-
-.modal-content {
-  background: #1E1E2A;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  color: white;
-  max-width: 90%;
-  box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
-}
-
+/* Insights modal */
 
 .modal p {
   max-width: 600px; /* Keeps text blocks readable */
@@ -1322,3 +1326,4 @@ footer nav {
 }
 
   
+}
