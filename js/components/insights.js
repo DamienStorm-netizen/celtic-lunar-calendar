@@ -1,6 +1,6 @@
 export function renderInsights() {
   return `
-    <h1>Insights</h1>
+    <h1 style="margin-top: 15px">Insights</h1>
 
     <div class="insights-tabs">
       <button class="tab-button active" data-tab="zodiac">Celtic Zodiac</button>
@@ -9,107 +9,146 @@ export function renderInsights() {
     </div>
 
     <!-- Content Sections -->
+
     <div id="zodiac" class="tab-content active">
-
-        <div class="celtic-zodiac">
-          <h2 class="goldNugget">Discover Your Zodiac</h2>
-          <div class="wheel-container">
-            <div id="wheel">
-              <img src="assets/images/zodiac/zodiac-wheel.png" alt="Celtic Zodiac Wheel" class="zodiac-wheel" />
-            </div>
+      
+      <div class="celtic-zodiac">
+        <h2 class="goldNugget">Discover Your Zodiac</h2>
+        <div class="wheel-container">
+          <div id="wheel">
+            <img src="assets/images/zodiac/zodiac-wheel.png" alt="Celtic Zodiac Wheel" class="zodiac-wheel" />
           </div>
+        </div>
 
-          <ul class="zodiac-list">
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-birch.png" alt="Birch"/> 
-                <p>Birch</p><span class="celtic-date">Nivis 2 to Janus 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-rowan.png" alt="Rowan" /> 
-                <p>Rowan</p><span class="celtic-date">Janus 2 to Brigid 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-ash.png" alt="Ash" /> 
-                <p>Ash</p><span class="celtic-date">Brigid 2 to Flora 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-alder.png" alt="Alder" /> 
-                <p>Alder</p><span class="celtic-date">Flora 2 to Maia 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-willow.png" alt="Willow" /> 
-                <p>Willow</p><span class="celtic-date">Maia 2 to Juno 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-hawthorn.png" alt="Hawthorn" /> 
-                <p>Hawthorn</p><span class="celtic-date">Juno 2 to Solis 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-oak.png" alt="Oak" /> 
-                <p>Oak</p><span class="celtic-date">Solis 2 to Terra 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-holly.png" alt="Holly" /> 
-                <p>Holly</p><span class="celtic-date">Terra 2 to Lugh 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-hazel.png" alt="Hazel" /> 
-                <p>Hazel</p><span class="celtic-date">Lugh 2 to Pomona 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-vine.png" alt="Vine" /> 
-                <p>Vine</p><span class="celtic-date">Pomona 2 to Autumna 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-ivy.png" alt="Ivy" /> 
-                <p>Ivy</p><span class="celtic-date">Autumna 2 to Eira 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-reed.png" alt="Reed" /> 
-                <p>Reed</p><span class="celtic-date">Eira 2 to Aether 1</span>
-            </li>
-            <li class="zodiac-item">
-                <img src="assets/images/zodiac/zodiac-elder.png" alt="Elder" /> 
-                <p>Elder</p><span class="celtic-date">Aether 2 to Nivis 1</span>
-            </li>
-          </ul>
+      <ul class="zodiac-list">
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-birch.png" alt="Birch"/> 
+            <p>Birch</p><span class="celtic-date">Nivis 2 to Janus 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-rowan.png" alt="Rowan" /> 
+            <p>Rowan</p><span class="celtic-date">Janus 2 to Brigid 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-ash.png" alt="Ash" /> 
+            <p>Ash</p><span class="celtic-date">Brigid 2 to Flora 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-alder.png" alt="Alder" /> 
+            <p>Alder</p><span class="celtic-date">Flora 2 to Maia 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-willow.png" alt="Willow" /> 
+            <p>Willow</p><span class="celtic-date">Maia 2 to Juno 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-hawthorn.png" alt="Hawthorn" /> 
+            <p>Hawthorn</p><span class="celtic-date">Juno 2 to Solis 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-oak.png" alt="Oak" /> 
+            <p>Oak</p><span class="celtic-date">Solis 2 to Terra 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-holly.png" alt="Holly" /> 
+            <p>Holly</p><span class="celtic-date">Terra 2 to Lugh 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-hazel.png" alt="Hazel" /> 
+            <p>Hazel</p><span class="celtic-date">Lugh 2 to Pomona 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-vine.png" alt="Vine" /> 
+            <p>Vine</p><span class="celtic-date">Pomona 2 to Autumna 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-ivy.png" alt="Ivy" /> 
+            <p>Ivy</p><span class="celtic-date">Autumna 2 to Eira 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-reed.png" alt="Reed" /> 
+            <p>Reed</p><span class="celtic-date">Eira 2 to Aether 1</span>
+        </li>
+        <li class="zodiac-item">
+            <img src="assets/images/zodiac/zodiac-elder.png" alt="Elder" /> 
+            <p>Elder</p><span class="celtic-date">Aether 2 to Nivis 1</span>
+        </li>
+      </ul>
+    </div>
 
-          <div id="zodiac-modal" class="modal">
-            <div class="modal-content">
-              <button id="close-modal" class="mystical-close">
-                ✦
-              </button>
-              <h2 id="zodiac-name">Zodiac Name</h2>
-              <p id="zodiac-date-range">Date Range</p>
-              <img id="zodiac-image" src="" alt="Zodiac Sign" />
-              <p id="zodiac-description">Zodiac description here...</p>
+      <div id="zodiac-modal" class="modal">
+        <div class="modal-content">
+          <button id="close-modal" class="mystical-close">
+            ✦
+          </button>
+          <h2 id="zodiac-name">Zodiac Name</h2>
+          <p id="zodiac-date-range">Date Range</p>
+          <img id="zodiac-image" src="" alt="Zodiac Sign" />
+          <p id="zodiac-description">Zodiac description here...</p>
 
-              <h3>Three Key Traits</h3>
-              <p id="zodiac-traits"></p>
+          <h3 class="subheader">Three Key Traits</h3>
+          <p id="zodiac-traits"></p>
 
-              <h3>Associated Element</h3>
-              <p id="zodiac-element"></p>
+          <h3 class="subheader">Associated Element</h3>
+          <p id="zodiac-element"></p>
 
-              <h3>Associated Animal</h3>
-              <p id="zodiac-animal"></p>
+          <h3 class="subheader">Associated Animal</h3>
+          <p id="zodiac-animal"></p>
 
-              <h3>Mythology</h3>
-              <p id="zodiac-mythology"></p>
+          <h3 class="subheader">Mythology</h3>
+          <p id="zodiac-mythology"></p>
 
-              <button class="learn-more">Learn More</button>
-            </div>
-          </div>
-
+          <button class="learn-more">Learn More</button>
+        </div>
+      </div>
+   
     </div>
 
 
-  <div id="festivals" class="tab-content"> 
-      <!-- Festival Content Here -->
-  </div>
+    <div id="festivals" class="tab-content"> 
+      <h1> Festivus for the Rest of Us</h1>
+    </div>
 
-  <div id="moon-poetry" class="tab-content"> 
-      <!-- Moon Poetry Content Here -->
-  </div>
+    <div id="moon-poetry" class="tab-content"> 
+
+      <img class="full-moon" src="assets/images/decor/full-moon.png" alt="Full Moon" />
+
+      <div class="moon-carousel">
+        <button class="carousel-prev">❮</button>
+        
+        <div class="moon-slide active" id="snow-moon">
+            <h2 class="moon-title">Snow Moon</h2>
+            <p class="moon-poem">
+                The Snow Moon casts its tranquil glow, <br>
+                Upon the earth where frost does grow. <br>
+                Wrap in warmth, let dreams ignite, <br>
+                Burn cedar’s scent in soft moonlight.
+            </p>
+        </div>
+
+        <div class="moon-slide" id="wolf-moon">
+            <h2 class="moon-title">Wolf Moon</h2>
+            <p class="moon-poem">
+                Beneath the snow and howling skies, <br>
+                The Wolf Moon watches, ancient, wise. <br>
+                A time to gather strength and rest, <br>
+                And light a candle, for what’s best.
+            </p>
+        </div>
+
+        <div class="moon-slide" id="harvest-moon">
+            <h2 class="moon-title">Harvest Moon</h2>
+            <p class="moon-poem">
+                The Harvest Moon, so round, so bright, <br>
+                Guides weary hands through autumn’s night. <br>
+                Reflect on work, both done and due, <br>
+                And thank the world for gifting you.
+            </p>
+        </div>
+
+        <button class="carousel-next">❯</button>
+      </div>
+    </div>
   `;
 }
 
@@ -333,3 +372,49 @@ export function initializeCelticZodiac() {
 
 
 };
+
+export function initializeMoonPoetry() {
+
+  const slides = document.querySelectorAll(".moon-slide");
+  const prevButton = document.querySelector(".carousel-prev");
+  const nextButton = document.querySelector(".carousel-next");
+
+  let currentSlide = 0;
+
+  function showSlide(index) {
+  slides.forEach((slide, i) => {
+      slide.classList.remove("active");
+      if (i === index) slide.classList.add("active");
+  });
+  }
+
+  prevButton.addEventListener("click", () => {
+  currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
+  showSlide(currentSlide);
+  });
+
+  nextButton.addEventListener("click", () => {
+  currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
+  showSlide(currentSlide);
+  });
+
+  // Function to set the first moon based on the current Celtic month
+  function setInitialMoon(celticMonth) {
+  const moonMapping = {
+      "Janus": "snow-moon",
+      "Flora": "pink-moon",
+      "Litha": "thunder-moon",
+      "Autumna": "harvest-moon",
+      "Eira": "cold-moon"
+  };
+
+  const firstMoon = moonMapping[celticMonth] || "snow-moon";
+  const initialIndex = [...slides].findIndex(slide => slide.id === firstMoon);
+  currentSlide = initialIndex !== -1 ? initialIndex : 0;
+  showSlide(currentSlide);
+  }
+
+  // Example: Fetch the current Celtic month dynamically
+  const currentCelticMonth = "Janus"; // Replace with real data!
+  setInitialMoon(currentCelticMonth);
+}

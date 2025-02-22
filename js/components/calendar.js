@@ -49,21 +49,10 @@ export function renderCalendar() {
             </div>
         </section>
 
-        <div id="modal-container" class="hidden">
-            
+        <div id="modal-container" class="calendar-modal">
             <div id="modal-content">
-                <div class="topBar">
-                    <span id="modal-close" class="close-btn"> 
-                        <img src="assets/images/decor/close-btn.png" alt="Close Modal" />
-                    </span>
-                </div>
-                <div id="modal-details">
-                    <!-- Display dynamic Cedltic months -->
-                </div>
-                <!-- <div class="bottomBar">
-                    <h3 id="celtic-zodiac-title">Celtic Zodiac</h3>
-                    <p id="celtic-zodiac-info">Birch / Rowan</p>
-                </div> -->
+                <button id="close-modal" class="mystical-close">✦</button>
+                <div id="modal-details"></div>
             </div>
         </div>
     `;
@@ -76,7 +65,7 @@ export function renderCalendar() {
 export async function setupCalendarEvents() {
     // Select the modal elements
     const modalContainer = document.getElementById("modal-container");
-    const modalClose = modalContainer.querySelector("#modal-close"); // Updated for your close button
+    const modalClose = modalContainer.querySelector("#close-modal"); // Updated for your close button
     const modalContent = modalContainer.querySelector("#modal-content"); // Updated for your modal content
 
     // Ensure modal elements exist before attaching listeners
@@ -103,7 +92,7 @@ export async function setupCalendarEvents() {
     };
     
     // Attach event listener to the close button
-    document.getElementById("modal-close").addEventListener("click", closeModal);
+    document.getElementById("close-modal").addEventListener("click", closeModal);
 
 
      
@@ -157,7 +146,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
     if (monthName) {
         const modalContainer = document.getElementById("modal-container");
         const modalDetails = modalContainer.querySelector("#modal-details");
-        //modalContainer.classList.add("magical-modal"); // Apply new modal styling
+
 
         // Insert modal content, including the calendar grid
         if (modalDetails) {
@@ -196,7 +185,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
         // Enhance the existing table with click and highlight behaviour
         enhanceCalendarTable(modalContainer, monthName);
 
-            // Apply fade-in effect
+        // Apply fade-in effect
         modalContainer.classList.remove("hidden");
         modalContainer.classList.add("fade-in");
 
@@ -205,7 +194,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
             modalContainer.classList.remove("fade-out");
         });
 
-        modalContainer.classList.remove("hidden");
+        //modalContainer.classList.remove("hidden");
     }
 }
 
@@ -214,23 +203,13 @@ export function closeModal() {
     console.log("Click Close Button");
     const modalContainer = document.getElementById("modal-container");
     
-    // Remove 'fade-in' class before adding 'fade-out'
-    modalContainer.classList.remove("fade-in");
-    modalContainer.classList.add("fade-out");
-
-    // Add animationend listener to handle hiding the modal
-    const onAnimationEnd = () => {
+    if (modalContainer) {
         modalContainer.classList.add("hidden");
-        modalContainer.classList.remove("fade-out");
+    }
         
-        // Clean up listener
-        modalContainer.removeEventListener("animationend", onAnimationEnd);
-    };
-
-    modalContainer.addEventListener("animationend", onAnimationEnd);
 }
 
-// Convert Celtic date to Grgorian date.
+// Convert Celtic date to Gregorian date.
 export function convertCelticToGregorian(celticMonth, celticDay) {
 
     console.log("Celtic month is:", celticMonth);
