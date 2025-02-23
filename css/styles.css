@@ -1201,6 +1201,9 @@ blockquote.moon-poem {
   max-width: 90vw;
   margin: 0 auto;
   overflow: hidden;
+  background: url('/assets/images/stars-bg.png') no-repeat center;
+  background-size: cover;
+  transition: background-position 0.6s ease-in-out;
 }
 
 .full-moon {
@@ -1209,6 +1212,12 @@ blockquote.moon-poem {
   display: block;
   filter: drop-shadow(0 0 8px #ffd700);
   margin-top: 15px;
+  animation: glowMoon 2s infinite alternate ease-in-out;
+}
+
+@keyframes glowMoon {
+  0% { filter: drop-shadow(0 0 5px rgba(255, 223, 127, 0.8)); }
+  100% { filter: drop-shadow(0 0 15px rgba(255, 223, 127, 1)); }
 }
 
 .moon-slide {
@@ -1216,7 +1225,8 @@ blockquote.moon-poem {
   text-align: center;
   padding: 20px;
   width: 100%;
-  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out; /* Smooth fade */
 }
 
 .moon-slide.active {
@@ -1230,9 +1240,17 @@ blockquote.moon-poem {
   text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
 }
 
+.moon-date {
+  color: #fff6ea;
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 400;
+  line-height: 130%;
+}
+
 .moon-poem {
   font-size: 18px;
   font-style: italic;
+  font-weight: 400;
   color: #FFF6EA;
   line-height: 1.8;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);

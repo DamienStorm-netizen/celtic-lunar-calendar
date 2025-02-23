@@ -115,9 +115,21 @@ export function renderInsights() {
 
       <div class="moon-carousel">
         <button class="carousel-prev">❮</button>
+
+        <div class="moon-slide active" id="wolf-moon">
+            <h2 class="moon-title">Wolf Moon</h2>
+            <h3 class="moon-date">6th of Janus</3>
+            <p class="moon-poem">
+                Beneath the snow and howling skies, <br>
+                The Wolf Moon watches, ancient, wise. <br>
+                A time to gather strength and rest, <br>
+                And light a candle, for what’s best.
+            </p>
+        </div>
         
-        <div class="moon-slide active" id="snow-moon">
+        <div class="moon-slide" id="snow-moon">
             <h2 class="moon-title">Snow Moon</h2>
+            <h3 class="moon-date">27th of Janus</3>
             <p class="moon-poem">
                 The Snow Moon casts its tranquil glow, <br>
                 Upon the earth where frost does grow. <br>
@@ -126,23 +138,91 @@ export function renderInsights() {
             </p>
         </div>
 
-        <div class="moon-slide" id="wolf-moon">
-            <h2 class="moon-title">Wolf Moon</h2>
+        <div class="moon-slide" id="flower-moon">
+            <h2 class="moon-title">Flower Moon</h2>
+            <h3 class="moon-date">4th of Juno</3>
             <p class="moon-poem">
-                Beneath the snow and howling skies, <br>
-                The Wolf Moon watches, ancient, wise. <br>
-                A time to gather strength and rest, <br>
-                And light a candle, for what’s best.
+            Petals bloom in moonlit air,<br />
+            A fragrant world beyond compare.<br />
+            Plant your dreams in fertile ground,<br />
+            Let love and joy in all things abound.
+            </p>
+        </div>
+
+        <div class="moon-slide" id="Strawberry-moon">
+            <h2 class="moon-title">Strawberry Moon</h2>
+            <h3 class="moon-date">17th of Solis</3>
+            <p class="moon-poem">
+            The Strawberry Moon, ripe and red,<br />
+            A time to savor what’s been bred.<br />
+            Sip something sweet, give thanks, rejoice,<br />
+            And honor life with grateful voice.
+            </p>
+        </div>
+
+        <div class="moon-slide" id="thunder-moon">
+            <h2 class="moon-title">Thunder Moon</h2>
+            <h3 class="moon-date">9th of Terra</3>
+            <p class="moon-poem">
+            Thunder roars, the moon’s alive,<br />
+            With storms of passion, dreams will thrive.<br />
+            Dance in rain or light a flame,<br />
+            And cleanse your soul of doubt or shame.
+            </p>
+        </div>
+
+        <div class="moon-slide" id="grain-moon">
+            <h2 class="moon-title">Grain Moon</h2>
+            <h3 class="moon-date">12th of Lugh</3>
+            <p class="moon-poem">
+            Fields of grain in moonlight bask,<br />
+            A time to gather, a sacred task.<br />
+            Share your wealth, both bright and deep,<br />
+            And sow what’s needed for the reap.
             </p>
         </div>
 
         <div class="moon-slide" id="harvest-moon">
             <h2 class="moon-title">Harvest Moon</h2>
+            <h3 class="moon-date">25th of Pomona</h3>
             <p class="moon-poem">
-                The Harvest Moon, so round, so bright, <br>
-                Guides weary hands through autumn’s night. <br>
-                Reflect on work, both done and due, <br>
+                The Harvest Moon, so round, so bright, <br />
+                Guides weary hands through autumn’s night. <br />
+                Reflect on work, both done and due, <br />
                 And thank the world for gifting you.
+            </p>
+        </div>
+
+        <div class="moon-slide" id="hunters-moon">
+            <h2 class="moon-title">Hunter's Moon</h2>
+            <h3 class="moon-date">17th of Autumna</3>
+            <p class="moon-poem">
+            The Hunter’s Moon is sharp and keen,<br />
+            A guide through shadows yet unseen.<br />
+            Prepare your heart, your tools, your way,<br />
+            And let the moonlight mark your stay.
+            </p>
+        </div>
+
+        <div class="moon-slide" id="Frost-moon">
+            <h2 class="moon-title">Frost Moon</h2>
+            <h3 class="moon-date">20th of Eira</3>
+            <p class="moon-poem">
+            Frost-kissed trees stand still and bare,<br />
+            A quiet world in winter’s care.<br />
+            Beneath the moon’s soft silver glow,<br />
+            A time of peace, as storms lie low.
+            </p>
+        </div>
+
+        <div class="moon-slide" id="cold-moon">
+            <h2 class="moon-title">Cold Moon</h2>
+            <h3 class="moon-date">22sd of Aether</3>
+            <p class="moon-poem">
+            The Cold Moon whispers of the past,<br />
+            Of trials endured and shadows cast.<br />
+            Sip warm tea, let heartbeats mend,<br />
+            Prepare your soul for year’s new bend.
             </p>
         </div>
 
@@ -369,8 +449,6 @@ export function initializeCelticZodiac() {
     // Show the modal
     zodiacModal.classList.add("show");
   }
-
-
 };
 
 export function initializeMoonPoetry() {
@@ -382,10 +460,17 @@ export function initializeMoonPoetry() {
   let currentSlide = 0;
 
   function showSlide(index) {
-  slides.forEach((slide, i) => {
-      slide.classList.remove("active");
-      if (i === index) slide.classList.add("active");
-  });
+    slides.forEach((slide, i) => {
+        slide.classList.remove("active");
+        slide.style.opacity = 0; // Start fade out
+        if (i === index) {
+            slide.classList.add("active");
+            setTimeout(() => slide.style.opacity = 1, 100); // Fade in
+        }
+    });
+    // Move background slightly for parallax effect
+    const bgOffset = index * 5; // Adjust movement speed
+    document.querySelector(".moon-carousel").style.backgroundPosition = `${bgOffset}px ${bgOffset}px`;
   }
 
   prevButton.addEventListener("click", () => {
