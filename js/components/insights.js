@@ -76,7 +76,7 @@ export function renderInsights() {
       </ul>
     </div>
 
-      <div id="zodiac-modal" class="modal">
+      <div id="zodiac-modal" class="modal hidden">
         <div class="modal-content">
           <button id="close-modal" class="mystical-close">
             ✦
@@ -116,20 +116,9 @@ export function renderInsights() {
       <div class="moon-carousel">
         <button class="carousel-prev">❮</button>
 
-        <div class="moon-slide active" id="wolf-moon">
-            <h2 class="moon-title">Wolf Moon</h2>
-            <h3 class="moon-date">6th of Janus</3>
-            <p class="moon-poem">
-                Beneath the snow and howling skies, <br>
-                The Wolf Moon watches, ancient, wise. <br>
-                A time to gather strength and rest, <br>
-                And light a candle, for what’s best.
-            </p>
-        </div>
-        
-        <div class="moon-slide" id="snow-moon">
+         <div class="moon-slide" id="snow-moon">
             <h2 class="moon-title">Snow Moon</h2>
-            <h3 class="moon-date">27th of Janus</3>
+             <h3 class="moon-date">22sd of Nivis</3>
             <p class="moon-poem">
                 The Snow Moon casts its tranquil glow, <br>
                 Upon the earth where frost does grow. <br>
@@ -138,9 +127,42 @@ export function renderInsights() {
             </p>
         </div>
 
+        <div class="moon-slide active" id="wolf-moon">
+            <h2 class="moon-title">Wolf Moon</h2>
+            <h3 class="moon-date">24th of Janus</3>
+            <p class="moon-poem">
+                Beneath the snow and howling skies, <br>
+                The Wolf Moon watches, ancient, wise. <br>
+                A time to gather strength and rest, <br>
+                And light a candle, for what’s best.
+            </p>
+        </div>
+
+        <div class="moon-slide active" id="worm-moon">
+            <h2 class="moon-title">Worm Moon</h2>
+            <h3 class="moon-date">26th of Brigid</3>
+            <p class="moon-poem">
+               The Worm Moon stirs the thawing ground,<br />
+               Where seeds of life are newly found.<br />
+              Turn the soil of heart and mind,<br />
+              Write your dreams, and leave fear behind.
+            </p>
+        </div>
+
+        <div class="moon-slide active" id="pink-moon">
+            <h2 class="moon-title">Pink Moon</h2>
+            <h3 class="moon-date">28th of Flora</3>
+            <p class="moon-poem">
+                Blush of dawn, the earth reclaims,<br />
+                Soft pink petals call our names.<br />
+                A time for love, for hearts to rise,<br />
+                To bloom beneath the moonlit skies.
+            </p>
+        </div>
+
         <div class="moon-slide" id="flower-moon">
             <h2 class="moon-title">Flower Moon</h2>
-            <h3 class="moon-date">4th of Juno</3>
+            <h3 class="moon-date">1st of Juno</3>
             <p class="moon-poem">
             Petals bloom in moonlit air,<br />
             A fragrant world beyond compare.<br />
@@ -151,7 +173,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="Strawberry-moon">
             <h2 class="moon-title">Strawberry Moon</h2>
-            <h3 class="moon-date">17th of Solis</3>
+            <h3 class="moon-date">3rd of Solis</3>
             <p class="moon-poem">
             The Strawberry Moon, ripe and red,<br />
             A time to savor what’s been bred.<br />
@@ -162,7 +184,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="thunder-moon">
             <h2 class="moon-title">Thunder Moon</h2>
-            <h3 class="moon-date">9th of Terra</3>
+            <h3 class="moon-date">4th of Terra</3>
             <p class="moon-poem">
             Thunder roars, the moon’s alive,<br />
             With storms of passion, dreams will thrive.<br />
@@ -173,7 +195,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="grain-moon">
             <h2 class="moon-title">Grain Moon</h2>
-            <h3 class="moon-date">12th of Lugh</3>
+            <h3 class="moon-date">6th of Lugh</3>
             <p class="moon-poem">
             Fields of grain in moonlight bask,<br />
             A time to gather, a sacred task.<br />
@@ -184,7 +206,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="harvest-moon">
             <h2 class="moon-title">Harvest Moon</h2>
-            <h3 class="moon-date">25th of Pomona</h3>
+            <h3 class="moon-date">7th of Pomona</h3>
             <p class="moon-poem">
                 The Harvest Moon, so round, so bright, <br />
                 Guides weary hands through autumn’s night. <br />
@@ -195,7 +217,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="hunters-moon">
             <h2 class="moon-title">Hunter's Moon</h2>
-            <h3 class="moon-date">17th of Autumna</3>
+            <h3 class="moon-date">8th of Autumna</3>
             <p class="moon-poem">
             The Hunter’s Moon is sharp and keen,<br />
             A guide through shadows yet unseen.<br />
@@ -206,7 +228,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="Frost-moon">
             <h2 class="moon-title">Frost Moon</h2>
-            <h3 class="moon-date">20th of Eira</3>
+            <h3 class="moon-date">10th of Eira</3>
             <p class="moon-poem">
             Frost-kissed trees stand still and bare,<br />
             A quiet world in winter’s care.<br />
@@ -217,7 +239,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="cold-moon">
             <h2 class="moon-title">Cold Moon</h2>
-            <h3 class="moon-date">22sd of Aether</3>
+            <h3 class="moon-date">12th of Aether</3>
             <p class="moon-poem">
             The Cold Moon whispers of the past,<br />
             Of trials endured and shadows cast.<br />
@@ -231,6 +253,11 @@ export function renderInsights() {
     </div>
   `;
 }
+
+
+// ********************************
+// CELTIC ZODIAC  
+// ********************************
 
 // Define zodiac signs and their descriptions
 const zodiacSigns = [
@@ -255,7 +282,6 @@ export function initializeTabbedNav() {
 
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
-            console.log("Click!!!");
             // Remove active class from all tabs and contents
             tabs.forEach(t => t.classList.remove("active"));
             contents.forEach(c => c.classList.remove("active"));
@@ -302,6 +328,7 @@ export function initializeCelticZodiac() {
   zodiacItems.forEach(item => {
       item.addEventListener("click", () => {
           const zodiacName = item.querySelector("p").textContent;
+          console.log("Click!!!");
           showZodiacModal(zodiacName);
       });
   });
@@ -312,7 +339,6 @@ export function initializeCelticZodiac() {
 
   function showZodiacModal(zodiacName) {
 
-    console.log("Zodiac Modal Element:", document.getElementById("zodiac-modal"));
     // Fetch Zodiac details from a JSON or an object
     const zodiacData = {
         "Birch": {
@@ -447,59 +473,116 @@ export function initializeCelticZodiac() {
     document.getElementById("zodiac-mythology").textContent = data.mythology || "Mythology unknown.";
 
     // Show the modal
+    zodiacModal.classList.remove("hidden");
     zodiacModal.classList.add("show");
   }
 };
 
-export function initializeMoonPoetry() {
+// ********************************
+// MOON POETRY
+// ********************************
 
+export function initializeMoonPoetry() {
   const slides = document.querySelectorAll(".moon-slide");
   const prevButton = document.querySelector(".carousel-prev");
   const nextButton = document.querySelector(".carousel-next");
+  const harpSound = new Audio("assets/sound/harp.wav"); // Load sound file
 
   let currentSlide = 0;
 
   function showSlide(index) {
-    slides.forEach((slide, i) => {
-        slide.classList.remove("active");
-        slide.style.opacity = 0; // Start fade out
-        if (i === index) {
-            slide.classList.add("active");
-            setTimeout(() => slide.style.opacity = 1, 100); // Fade in
-        }
-    });
-    // Move background slightly for parallax effect
-    const bgOffset = index * 5; // Adjust movement speed
-    document.querySelector(".moon-carousel").style.backgroundPosition = `${bgOffset}px ${bgOffset}px`;
+      slides.forEach((slide, i) => {
+          slide.classList.remove("active");
+          slide.style.opacity = 0; // Start fade out
+          if (i === index) {
+              slide.classList.add("active");
+              setTimeout(() => slide.style.opacity = 1, 300); // Fade in
+          }
+      });
+
+      // Move background slightly for parallax effect
+      const bgOffset = index * 5; // Adjust movement speed
+      document.querySelector(".moon-carousel").style.backgroundPosition = `${bgOffset}px ${bgOffset}px`;
   }
 
   prevButton.addEventListener("click", () => {
-  currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
-  showSlide(currentSlide);
+    harpSound.currentTime = 0; // Reset sound for instant replay
+    harpSound.play(); // Play sound effect
+
+    currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
+    showSlide(currentSlide);
   });
 
   nextButton.addEventListener("click", () => {
-  currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
-  showSlide(currentSlide);
+    harpSound.currentTime = 0;
+    harpSound.play();
+
+    currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
+    showSlide(currentSlide);
   });
 
-  // Function to set the first moon based on the current Celtic month
-  function setInitialMoon(celticMonth) {
+  // Function to determine the current Celtic month dynamically
+  function getCurrentCelticMonth() {
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth(); // 0 = January, 1 = February, etc.
+    const year = today.getFullYear();
+  
+    // For example, use these fixed boundaries (based on your JSON):
+    const celticCalendar = [
+      // Note: For proper conversion you may need to adjust December of the previous year.
+      { name: "Janus", start: { month: 0, day: 20 }, end: { month: 1, day: 16 } },      // Jan 20 to Feb 16
+      { name: "Brigid", start: { month: 1, day: 17 }, end: { month: 2, day: 16 } },     // Feb 17 to Mar 16
+      { name: "Flora",  start: { month: 2, day: 17 }, end: { month: 3, day: 13 } },     // Mar 17 to Apr 13
+      { name: "Maia",  start: { month: 4, day: 14 }, end: { month: 5, day: 11 } },
+      { name: "Juno",  start: { month: 5, day: 12 }, end: { month: 6, day: 8 } },
+      { name: "Solis",  start: { month: 6, day: 9 }, end: { month: 7, day: 6 } },
+      { name: "Terra",  start: { month: 7, day: 7 }, end: { month: 8, day: 3 } },
+      { name: "Lugh",  start: { month: 8, day: 4 }, end: { month: 8, day: 31 } },
+      { name: "Pomona",  start: { month: 9, day: 1 }, end: { month: 9, day: 28 } },
+      { name: "Autumna",  start: { month: 9, day: 29 }, end: { month: 10, day: 26 } },
+      { name: "Eira",  start: { month: 10, day: 27 }, end: { month: 11, day: 23 } },
+      { name: "Aether",  start: { month: 11, day: 24 }, end: { month: 12, day: 21 } },
+      { name: "Nivis",  start: { month: 12, day: 23 }, end: { month: 0, day: 19 } }          
+    ];
+  
+    // Find the Celtic month that includes today's Gregorian date.
+    // (This simple approach assumes that today's month falls entirely within one Celtic month.)
+    const todayCeltic = celticCalendar.find(({ start, end }) => {
+      const afterStart = (month > start.month) || (month === start.month && day >= start.day);
+      const beforeEnd = (month < end.month) || (month === end.month && day <= end.day);
+      return afterStart && beforeEnd;
+    });
+  
+    return todayCeltic ? todayCeltic.name : "Janus"; // Default to Janus if no match
+}
+
+function setInitialMoon() {
+  const celticMonth = getCurrentCelticMonth();
   const moonMapping = {
-      "Janus": "snow-moon",
+      "Nivis": "snow-moon",
+      "Janus": "wolf-moon",
+      "Brigid": "worm-moon",
       "Flora": "pink-moon",
-      "Litha": "thunder-moon",
-      "Autumna": "harvest-moon",
-      "Eira": "cold-moon"
+      "Juno": "flower-moon",
+      "Solis": "strawberry-moon",
+      "Terra": "thunder-moon",
+      "Lugh": "grain-moon",
+      "Pomona": "harvest-moon",
+      "Autumna": "hunters-moon",
+      "Eira": "frost-moon",
+      "Aether": "cold-moon",
   };
 
+  console.log("This month is ", celticMonth);
+
   const firstMoon = moonMapping[celticMonth] || "snow-moon";
-  const initialIndex = [...slides].findIndex(slide => slide.id === firstMoon);
+  const initialIndex = [...document.querySelectorAll(".moon-slide")].findIndex(slide => slide.id === firstMoon);
   currentSlide = initialIndex !== -1 ? initialIndex : 0;
   showSlide(currentSlide);
-  }
 
-  // Example: Fetch the current Celtic month dynamically
-  const currentCelticMonth = "Janus"; // Replace with real data!
-  setInitialMoon(currentCelticMonth);
+}
+
+  // Set the correct moon when the page loads
+  setInitialMoon();
 }
