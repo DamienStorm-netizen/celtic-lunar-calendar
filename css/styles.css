@@ -234,7 +234,7 @@ h1, .main-title {
   color: #f5d742; /* Your dazzling title colour! */
   text-align: center;
   filter: drop-shadow(0 0 8px #ffd700);
-  margin-top: 0;
+  margin: 0;
 }
 
 .goldenTitle {
@@ -740,28 +740,80 @@ blockquote.moon-poem {
   transition: background 0.3s;
 }
 
-/* Today highlight */
+/*** 🔥 Today's date highlight ***/
+
 .highlight-today {
-  background: #FFD700; /* Golden glow */
-  color: #000; /* Black text for contrast */
+  background: linear-gradient(135deg, #ffdf7e 0%, #ffac33 100%);
+  color: #000;
   font-weight: bold;
-  border-radius: 50%; /* Circular highlight */
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7); /* Magical glow effect */
+  box-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+  border-radius: 5px;
+}
+
+/* 🌿 Festival day */
+.festival-day {
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+  border-radius: 5px;
+}
+
+/* 🌕 Full moon day */
+.full-moon-day {
+  background: linear-gradient(135deg, #FFC107 0%, #FFEB3B 100%);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.8);
+  border-radius: 5px;
+}
+
+/* 📜 Custom event day */
+.custom-event-day {
+  background: linear-gradient(135deg, #673AB7 0%, #9C27B0 100%);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(103, 58, 183, 0.8);
+  border-radius: 5px;
 }
 
 .calendar-day:hover {
   background: rgba(50, 205, 50, 0.7); /* Light green background on hover */
   color: #000;
-  /*transform: scale(1.05); /* Slightly enlarge on hover */*/
+  /*transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
-.feature-image {
-  width: 120px;
-  margin: 10px auto;
-}
-
-.feature-image img {
+/* Legend */
+.calendarLegend {
+  position: relative;
   width: 100%;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  margin: 25px auto 0 auto;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  background-size: cover; /* Ensures the image scales properly */
+  background-size: 60%;
+}
+
+.calendarLegendGrid {
+  width: 100%; /* Table stretches to fit modal */
+  border-collapse: separate; /* Clean up borders */
+  border-spacing: 0 10px; /* Adjust the second value for row spacing */
+}
+
+.calendarLegendGrid tr {
+  margin-bottom: 5px;
+}
+
+.calendarLegendGrid td {
+  text-align: left;
+  padding: 5px; /* Ensure all cells have the same padding */
+  border: none;
+  font-family: "Libre Baskerville", serif;
+  font-weight: 400;
+  color: #fff6ea;
+  font-size: 0.8em;
 }
 
 .bottomBar {

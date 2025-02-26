@@ -119,23 +119,106 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
     const { celticMonth, celticDay } = todayCeltic;
     const tableCells = modalContainer.querySelectorAll(".calendar-grid td");
   
-    tableCells.forEach((cell) => {
+    // Define special festival/full moon dates (adjust as needed)
+    const specialDays = {
+        "Brigid": [1, 14, 26], // Example: Imbolc Festival on Brigid 1, etc.
+        "Flora": [10, 28], // Example: Spring Festival
+        "Juno": [5, 19], // Example: Summer Solstice
+        "Lugh": [7, 20], // Example: Lughnasadh
+        "Autumna": [23, 30], // Example: Samhain
+        "Eira": [15], // Example: Winter Solstice
+    };
+  
+    // Get lunar phases dynamically
+    const lunarData = await fetchMoonPhases(monthName);
+  
+    // Assign classes for special days
+    tableCells.forEach(async (cell) => {
         const day = parseInt(cell.textContent, 10); // Get the day number from the cell
         if (!isNaN(day)) {
-            // Highlight today's Celtic date if it matches the current month and day
+            // Highlight today's Celtic date
             if (monthName === celticMonth && day === celticDay) {
                 cell.classList.add("highlight-today");
             }
   
-            // Assign click behaviour to each date cell
+            // Highlight festival days
+            if (specialDays[monthName]?.includes(day)) {
+                cell.classList.add("festival-day");
+                cell.setAttribute("title", "Festival Day 🌿✨");
+            }
+  
+            // Highlight full moon days dynamically
+            if (lunarData && lunarData.some(moon => moon.date === day)) {
+                cell.classList.add("full-moon-day");
+                cell.setAttribute("title", "Full Moon 🌕");
+            }
+  
+            // Check for custom events
+            const customEvents = await getCustomEventsForDay(monthName, day);
+            if (customEvents.length > 0) {
+                cell.classList.add("custom-event-day");
+                cell.setAttribute("title", "Custom Event 📜");
+            }
+  
+            // Assign click behavior to open modal
             cell.addEventListener("click", () => {
                 console.log(`Clicked on day ${day} in the month of ${monthName}`);
-                // Add custom logic here for the clicked date
-                showDayModal(day, monthName); // Launch the modal for the selected day
+                showDayModal(day, monthName);
             });
         }
     });
-}
+  }
+  
+  // Fetch lunar phases dynamically for a given month
+  async function fetchMoonPhases(monthName) {
+    console.log("Moon phases for this month: ", monthName);
+    try {
+        // Map Celtic months to Gregorian date ranges
+        const celticMonthMapping = {
+            "Nivis": { start: "2024-12-23", end: "2025-01-19" },
+            "Janus": { start: "2025-01-20", end: "2025-02-16" },
+            "Brigid": { start: "2025-02-17", end: "2025-03-16" },
+            "Flora": { start: "2025-03-17", end: "2025-04-13" },
+            "Maia": { start: "2025-04-14", end: "2025-05-11" },
+            "Juno": { start: "2025-05-12", end: "2025-06-08" },
+            "Solis": { start: "2025-06-09", end: "2025-07-06" },
+            "Terra": { start: "2025-07-07", end: "2025-08-03" },
+            "Lugh": { start: "2025-08-04", end: "2025-08-31" },
+            "Pomona": { start: "2025-09-01", end: "2025-09-28" },
+            "Autumna": { start: "2025-09-29", end: "2025-10-26" },
+            "Eira": { start: "2025-10-27", end: "2025-11-23" },
+            "Aether": { start: "2025-11-24", end: "2025-12-21" },
+        };
+  
+        if (!celticMonthMapping[monthName]) {
+            console.error("Invalid month name:", monthName);
+            return [];
+        }
+  
+        const { start, end } = celticMonthMapping[monthName];
+  
+        const response = await fetch(`/dynamic-moon-phases?start_date=${start}&end_date=${end}`);
+        if (!response.ok) throw new Error("Failed to fetch moon phases");
+  
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching moon phases:", error);
+        return [];
+    }
+  }
+  
+  // Fetch custom events dynamically
+  async function getCustomEventsForDay(month, day) {
+    try {
+        const response = await fetch("/api/custom-events");
+        if (!response.ok) throw new Error("Failed to fetch events");
+        const events = await response.json();
+        return events.filter(event => event.month === month && event.day === day);
+    } catch (error) {
+        console.error("Error fetching events:", error);
+        return [];
+    }
+  }
 
 
  // Open modal window and insert HTML
@@ -174,8 +257,20 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                     <div class="calendarGridBox">
                     <table class="calendar-grid"><thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr><tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr><tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr></tbody></table>
                     </div>
-                    <div class="feature-image">
-                        <img src="assets/images/months/${monthName.toLowerCase()}-bg.png" alt="${monthName}" />
+        
+                    <div class="calendarLegend" style="background-image: url(assets/images/months/${monthName.toLowerCase()}-pale-bg.png)">
+                        <h2 class="inner-title">Legend</h2>
+                        <table class="calendarLegendGrid">
+                            <tr>
+                                <td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td>
+                            </tr>
+                            <tr>
+                                <td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td>
+                            </tr>
+                            <tr>
+                                <td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td>
+                            </tr>
+                        <table>
                     </div>
                 `;
             }
