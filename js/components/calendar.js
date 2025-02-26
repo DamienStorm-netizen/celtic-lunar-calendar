@@ -111,8 +111,8 @@ export async function setupCalendarEvents() {
 // Add click events to HTML table
 export async function enhanceCalendarTable(modalContainer, monthName) {
     console.log(`Enhancing calendar for ${monthName}...`);
-
-    const todayCeltic = await getCelticDate(); // Fetch today's Celtic date
+  
+    const todayCeltic = await getCelticDate();
     if (!todayCeltic) {
         console.error("Could not fetch Celtic date. Highlight skipped.");
         return;
@@ -121,54 +121,42 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
     const { celticMonth, celticDay } = todayCeltic;
     const tableCells = modalContainer.querySelectorAll(".calendar-grid td");
   
-    // Define special festival/full moon dates (adjust as needed)
-    const specialDays = {
-        "Brigid": [1, 14, 26], // Example: Imbolc Festival on Brigid 1, etc.
-        "Flora": [10, 28], // Example: Spring Festival
-        "Juno": [5, 19], // Example: Summer Solstice
-        "Lugh": [7, 20], // Example: Lughnasadh
-        "Autumna": [23, 30], // Example: Samhain
-        "Eira": [15], // Example: Winter Solstice
-    };
-  
-    // Get lunar phases dynamically
+    // Fetch lunar phases
     const lunarData = await fetchMoonPhases(monthName);
-    console.log("Lunar data retrieved:", lunarData); // DEBUGGING
+    console.log("Lunar data retrieved:", lunarData); 
   
-    // Assign classes for special days
-    tableCells.forEach(async (cell) => {
-        const day = parseInt(cell.textContent, 10); // Get the day number from the cell
+    tableCells.forEach((cell) => {
+        const day = parseInt(cell.textContent, 10);
         if (!isNaN(day)) {
-            // Highlight today's Celtic date
-            if (monthName === celticMonth && day === celticDay) {
-                cell.classList.add("highlight-today");
+            // Convert the Celtic day back to Gregorian
+            const gregorian = convertCelticToGregorian(monthName, day);
+            if (!gregorian) {
+                console.error(`Failed to convert ${monthName} ${day} to Gregorian.`);
+                return;
             }
+            const formattedGregorianDate = `2025-${gregorian.gregorianMonth}-${gregorian.gregorianDay}`;
   
-            // Highlight festival days
-            if (specialDays[monthName]?.includes(day)) {
-                cell.classList.add("festival-day");
-                cell.setAttribute("title", "Festival Day 🌿✨");
-            }
-  
-             // Check if this day is a full moon
-            const moonEvent = lunarData.find(moon => moon.date.endsWith(`-${day.toString().padStart(2, "0")}`));
+            // Find the corresponding moon event
+            const moonEvent = lunarData.find(moon => moon.date === formattedGregorianDate);
+
+            console.log("Coverted Gregorian date is ", formattedGregorianDate);
+            
             if (moonEvent && moonEvent.phase === "Full Moon") {
-                console.log(`Marking ${day} as a Full Moon (${moonEvent.moonName})`);
+                console.log(`Corrected: Marking ${day} (Celtic) = ${formattedGregorianDate} (Gregorian) as Full Moon (${moonEvent.moonName})`);
                 cell.classList.add("full-moon-day");
                 cell.setAttribute("title", `${moonEvent.moonName} 🌕`);
             }
-  
-            // Check for custom events
-            const customEvents = await getCustomEventsForDay(monthName, day);
-            if (customEvents.length > 0) {
-                cell.classList.add("custom-event-day");
-                cell.setAttribute("title", "Custom Event 📜");
+
+            // Highlight today's Celtic date if it matches the current month and day
+            if (monthName === celticMonth && day === celticDay) {
+                cell.classList.add("highlight-today");
             }
-  
-            // Assign click behavior to open modal
+
+            // Assign click behaviour to each date cell
             cell.addEventListener("click", () => {
                 console.log(`Clicked on day ${day} in the month of ${monthName}`);
-                showDayModal(day, monthName);
+                // Add custom logic here for the clicked date
+                showDayModal(day, monthName); // Launch the modal for the selected day
             });
         }
     });
@@ -312,9 +300,6 @@ export function closeModal() {
 
 // Convert Celtic date to Gregorian date.
 export function convertCelticToGregorian(celticMonth, celticDay) {
-
-    console.log("Celtic month is:", celticMonth);
-    // Define your Celtic-to-Gregorian mapping based on calendar_data.json
     const monthMapping = {
         "Nivis": "2024-12-23",
         "Janus": "2025-01-20",
@@ -330,20 +315,21 @@ export function convertCelticToGregorian(celticMonth, celticDay) {
         "Eira": "2025-10-27",
         "Aether": "2025-11-24"
     };
-    
+  
     const startDateStr = monthMapping[celticMonth];
     if (!startDateStr) {
         console.error("Invalid Celtic month:", celticMonth);
         return null;
     }
+  
     const startDate = new Date(startDateStr);
-    // Subtract one because Celtic day 1 corresponds to the start date.
-    const gregorianDate = new Date(startDate.getTime() + (celticDay) * 24 * 60 * 60 * 1000);
-    
-    const gregorianMonth = ("0" + (gregorianDate.getMonth() + 1)).slice(-2); // Month in MM format
-    const gregorianDay = gregorianDate.getDate();
-    return { gregorianMonth, gregorianDay };
-}
+    const gregorianDate = new Date(startDate.getTime() + (celticDay - 1) * 24 * 60 * 60 * 1000);
+  
+    return {
+        gregorianMonth: ("0" + (gregorianDate.getMonth() + 1)).slice(-2),
+        gregorianDay: gregorianDate.getDate()
+    };
+  }
     
 
 export async function getCelticDate() {
