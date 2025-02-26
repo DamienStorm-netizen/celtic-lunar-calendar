@@ -110,6 +110,8 @@ export async function setupCalendarEvents() {
 
 // Add click events to HTML table
 export async function enhanceCalendarTable(modalContainer, monthName) {
+    console.log(`Enhancing calendar for ${monthName}...`);
+
     const todayCeltic = await getCelticDate(); // Fetch today's Celtic date
     if (!todayCeltic) {
         console.error("Could not fetch Celtic date. Highlight skipped.");
@@ -131,6 +133,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   
     // Get lunar phases dynamically
     const lunarData = await fetchMoonPhases(monthName);
+    console.log("Lunar data retrieved:", lunarData); // DEBUGGING
   
     // Assign classes for special days
     tableCells.forEach(async (cell) => {
@@ -147,10 +150,12 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                 cell.setAttribute("title", "Festival Day 🌿✨");
             }
   
-            // Highlight full moon days dynamically
-            if (lunarData && lunarData.some(moon => moon.date === day)) {
+             // Check if this day is a full moon
+            const moonEvent = lunarData.find(moon => moon.date.endsWith(`-${day.toString().padStart(2, "0")}`));
+            if (moonEvent && moonEvent.phase === "Full Moon") {
+                console.log(`Marking ${day} as a Full Moon (${moonEvent.moonName})`);
                 cell.classList.add("full-moon-day");
-                cell.setAttribute("title", "Full Moon 🌕");
+                cell.setAttribute("title", `${moonEvent.moonName} 🌕`);
             }
   
             // Check for custom events
@@ -171,9 +176,8 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   
   // Fetch lunar phases dynamically for a given month
   async function fetchMoonPhases(monthName) {
-    console.log("Moon phases for this month: ", monthName);
+    console.log("Fetching moon phases for month:", monthName);
     try {
-        // Map Celtic months to Gregorian date ranges
         const celticMonthMapping = {
             "Nivis": { start: "2024-12-23", end: "2025-01-19" },
             "Janus": { start: "2025-01-20", end: "2025-02-16" },
@@ -200,7 +204,9 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
         const response = await fetch(`/dynamic-moon-phases?start_date=${start}&end_date=${end}`);
         if (!response.ok) throw new Error("Failed to fetch moon phases");
   
-        return await response.json();
+        const moonData = await response.json();
+        console.log("Moon phases retrieved:", moonData);
+        return moonData;
     } catch (error) {
         console.error("Error fetching moon phases:", error);
         return [];
