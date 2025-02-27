@@ -479,6 +479,10 @@ blockquote.moon-poem {
   align-items: center;
 }
 
+.celtic-zodiac-image {
+  width: 100px;
+}
+
 .celtic-zodiac #modal-details h3 {
   font-size: 2rem;
   color: #ffd700;
@@ -575,6 +579,7 @@ blockquote.moon-poem {
   font-family: 'Cinzel Decorative', serif;
   color: #f5d742; /* Your dazzling title colour! */
   margin: 5px;
+  font-size: 14px;
 
 }
 
@@ -768,7 +773,7 @@ blockquote.moon-poem {
   border-radius: 5px;
 }
 
-/* 📜 Custom event day */
+/* 💜 Custom Event Day */
 .custom-event-day {
   background: linear-gradient(135deg, #673AB7 0%, #9C27B0 100%);
   color: #fff;

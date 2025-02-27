@@ -123,7 +123,23 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   
     // Fetch lunar phases
     const lunarData = await fetchMoonPhases(monthName);
-    console.log("Lunar data retrieved:", lunarData); 
+    console.log("Lunar data retrieved:", lunarData);
+
+    // Fetch custom events
+    const customEvents = await fetchCustomEvents();
+    console.log("Custom events retrieved:", customEvents);
+    
+    // 🔥 Celtic Festivals Mapping
+    const festivalDays = {
+        "Brigid": [1], // Imbolc
+        "Flora": [10], // Ostara
+        "Maia": [1], // Beltaine
+        "Juno": [19], // Litha
+        "Lugh": [7], // Lammas
+        "Pomona": [15], // Mabon
+        "Autumna": [1], // Samhain
+        "Eira": [15] // Yule
+    };
   
     tableCells.forEach((cell) => {
         const day = parseInt(cell.textContent, 10);
@@ -134,13 +150,11 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                 console.error(`Failed to convert ${monthName} ${day} to Gregorian.`);
                 return;
             }
-            const formattedGregorianDate = `2025-${gregorian.gregorianMonth}-${gregorian.gregorianDay}`;
+            const formattedGregorianDate = `2025-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
   
             // Find the corresponding moon event
             const moonEvent = lunarData.find(moon => moon.date === formattedGregorianDate);
-
             console.log("Coverted Gregorian date is ", formattedGregorianDate);
-            
             if (moonEvent && moonEvent.phase === "Full Moon") {
                 console.log(`Corrected: Marking ${day} (Celtic) = ${formattedGregorianDate} (Gregorian) as Full Moon (${moonEvent.moonName})`);
                 cell.classList.add("full-moon-day");
@@ -150,6 +164,31 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
             // Highlight today's Celtic date if it matches the current month and day
             if (monthName === celticMonth && day === celticDay) {
                 cell.classList.add("highlight-today");
+            }
+
+             // 🔥 Mark Festival Days
+            if (festivalDays[monthName]?.includes(day)) {
+                console.log(`Marking ${monthName} ${day} as Festival Day.`);
+                cell.classList.add("festival-day");
+                cell.setAttribute("title", "Celtic Festival 🔥");
+            } else {
+                console.log('Festival not found');
+            }
+
+            // 💜 Highlight Custom Event Days
+            const matchingEvents = customEvents.filter(event => {
+                const eventDate = event.date; // This is in 'YYYY-MM-DD' format
+                console.log(`Checking custom event: ${event.title} on ${eventDate}`);
+
+                return eventDate === formattedGregorianDate; // Match Gregorian date format
+            });
+
+            if (matchingEvents.length > 0) {
+                console.log(`Marking ${day} as Custom Event: ${matchingEvents.map(e => e.title).join(", ")}`);
+                cell.classList.add("custom-event-day");
+                cell.setAttribute("title", `Custom Event: ${matchingEvents.map(e => e.title).join(", ")}`);
+            } else {
+                console.log(`Custom event not found for ${formattedGregorianDate}`);
             }
 
             // Assign click behaviour to each date cell
@@ -202,17 +241,16 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   }
   
   // Fetch custom events dynamically
-  async function getCustomEventsForDay(month, day) {
+  async function fetchCustomEvents() {
     try {
         const response = await fetch("/api/custom-events");
-        if (!response.ok) throw new Error("Failed to fetch events");
-        const events = await response.json();
-        return events.filter(event => event.month === month && event.day === day);
+        if (!response.ok) throw new Error("Failed to fetch custom events");
+        return await response.json();
     } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error fetching custom events:", error);
         return [];
     }
-  }
+}
 
 
  // Open modal window and insert HTML
@@ -353,6 +391,22 @@ export async function getCelticDate() {
 export async function showDayModal(celticDay, celticMonth) {
     const modalContainer = document.getElementById("modal-container");
     const modalDetails = document.getElementById("modal-details");
+
+    // Festival descriptions
+    const festivalDescriptions = {
+        "Brigid 1": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
+        "Flora 10": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
+        "Maia 1": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
+        "Juno 19": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
+        "Lugh 7": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
+        "Pomona 15": "<strong>Mabon</strong><br />A time of balance and gratitude as the harvest ends.",
+        "Autumna 1": "<strong>Samhain</strong><br />The gateway to winter, the festival of ancestors, spirits, and shadowy magic.",
+        "Eira 15": "<strong>Yule</strong><br />The rebirth of the Sun, celebrating light’s return in the darkest night."
+    };
+
+    // Convert date format for lookup
+    const formattedFestivalKey = `${celticMonth} ${celticDay}`;
+    const festivalInfo = festivalDescriptions[formattedFestivalKey] || "No festival today.";
   
     // Show loading state while fetching data
     modalDetails.innerHTML = `
@@ -370,11 +424,11 @@ export async function showDayModal(celticDay, celticMonth) {
         return;
     }
 
-
     const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
     const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
 
     const zodiac = getCelticZodiac(parseInt(gregorian.gregorianMonth, 10), parseInt(gregorian.gregorianDay, 10));
+
      // Get additional data
     const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
     //const zodiac = getCelticZodiac(celticMonth, celticDay);
@@ -415,17 +469,20 @@ export async function showDayModal(celticDay, celticMonth) {
                 <h3 class="detailsMoonPhase">${lunarData.moonName || lunarData.phase} </h3>
                 <p class="detailsMoonDescription">${moonPoem}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="detailsTitle">Celtic Zodiac</h3>
+                <h3 class="subheader">Celtic Zodiac</h3>
                 <div class="detailsCelticZodiac">
                     <img src="assets/images/zodiac/zodiac-${zodiac.toLowerCase()}.png" alt="${zodiac}" 
      onerror="this.src='assets/images/decor/treeoflife.png';" />
                     <p>${zodiac}</p>
                 </div>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="detailsTitle">Today's Events</h3>
+                <h3 class="subheader">Festivals</h3>
+                <p>${festivalInfo}</p>
+                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h3 class="subheader">Special Events</h3>
                 <p class="detailsCustomEvents">${events}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="detailsTitle">Mystical Suggestions</h3>
+                <h3 class="subheader">Mystical Suggestions</h3>
                 <p>${mysticalSuggestion}</p>
                 <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
             </div>
@@ -521,7 +578,7 @@ export async function getCustomEvents(gregorianMonth, gregorianDay) {
 
         return filteredEvents.length > 0 
             ? filteredEvents.map(e => `<p>${e.title}: ${e.notes}</p>`).join("") 
-            : "There are no events today.";
+            : "<p>There are no custom events today.</p>";
 
     } catch (error) {
         console.error("Error fetching events:", error);
