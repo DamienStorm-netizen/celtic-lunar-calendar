@@ -7,6 +7,7 @@ export function renderHome() {
             <div class="celtic-info-container">
                 <!-- Moon Phase Column -->
                 <div class="moon-column">
+                    <p class="zodiac-subheader">Lunar Phase</p>
                     <div class="moon-phase">
                         <div class="moon-graphic">
                             <p class="moon-phase-name">Loading...</p>
@@ -75,10 +76,12 @@ export async function fetchCelticZodiac() {
 
         if (zodiacContainer) {
             zodiacContainer.innerHTML = `
+                <img class="celtic-zodiac-image" src="assets/images/zodiac/zodiac-${zodiacData.zodiac_sign}.png" alt="${zodiacData.zodiac_sign}" />
                 <h3>${zodiacData.zodiac_sign}</h3>
                 <!-- <p>${zodiacData.symbolism}</p>
                 <p><strong>Animal:</strong> ${zodiacData.animal}</p>
                 <p><strong>Mythical Creature:</strong> ${zodiacData.mythical_creature}</p>
+                -->
             `;
         }
     } catch (error) {

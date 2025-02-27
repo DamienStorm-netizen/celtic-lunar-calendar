@@ -110,7 +110,9 @@ export async function setupCalendarEvents() {
 
 // Add click events to HTML table
 export async function enhanceCalendarTable(modalContainer, monthName) {
-    const todayCeltic = await getCelticDate(); // Fetch today's Celtic date
+    console.log(`Enhancing calendar for ${monthName}...`);
+  
+    const todayCeltic = await getCelticDate();
     if (!todayCeltic) {
         console.error("Could not fetch Celtic date. Highlight skipped.");
         return;
@@ -119,14 +121,76 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
     const { celticMonth, celticDay } = todayCeltic;
     const tableCells = modalContainer.querySelectorAll(".calendar-grid td");
   
+    // Fetch lunar phases
+    const lunarData = await fetchMoonPhases(monthName);
+    console.log("Lunar data retrieved:", lunarData);
+
+    // Fetch custom events
+    const customEvents = await fetchCustomEvents();
+    console.log("Custom events retrieved:", customEvents);
+    
+    // 🔥 Celtic Festivals Mapping
+    const festivalDays = {
+        "Brigid": [1], // Imbolc
+        "Flora": [10], // Ostara
+        "Maia": [1], // Beltaine
+        "Juno": [19], // Litha
+        "Lugh": [7], // Lammas
+        "Pomona": [15], // Mabon
+        "Autumna": [1], // Samhain
+        "Eira": [15] // Yule
+    };
+  
     tableCells.forEach((cell) => {
-        const day = parseInt(cell.textContent, 10); // Get the day number from the cell
+        const day = parseInt(cell.textContent, 10);
         if (!isNaN(day)) {
+            // Convert the Celtic day back to Gregorian
+            const gregorian = convertCelticToGregorian(monthName, day);
+            if (!gregorian) {
+                console.error(`Failed to convert ${monthName} ${day} to Gregorian.`);
+                return;
+            }
+            const formattedGregorianDate = `2025-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
+  
+            // Find the corresponding moon event
+            const moonEvent = lunarData.find(moon => moon.date === formattedGregorianDate);
+            console.log("Coverted Gregorian date is ", formattedGregorianDate);
+            if (moonEvent && moonEvent.phase === "Full Moon") {
+                console.log(`Corrected: Marking ${day} (Celtic) = ${formattedGregorianDate} (Gregorian) as Full Moon (${moonEvent.moonName})`);
+                cell.classList.add("full-moon-day");
+                cell.setAttribute("title", `${moonEvent.moonName} 🌕`);
+            }
+
             // Highlight today's Celtic date if it matches the current month and day
             if (monthName === celticMonth && day === celticDay) {
                 cell.classList.add("highlight-today");
             }
-  
+
+             // 🔥 Mark Festival Days
+            if (festivalDays[monthName]?.includes(day)) {
+                console.log(`Marking ${monthName} ${day} as Festival Day.`);
+                cell.classList.add("festival-day");
+                cell.setAttribute("title", "Celtic Festival 🔥");
+            } else {
+                console.log('Festival not found');
+            }
+
+            // 💜 Highlight Custom Event Days
+            const matchingEvents = customEvents.filter(event => {
+                const eventDate = event.date; // This is in 'YYYY-MM-DD' format
+                console.log(`Checking custom event: ${event.title} on ${eventDate}`);
+
+                return eventDate === formattedGregorianDate; // Match Gregorian date format
+            });
+
+            if (matchingEvents.length > 0) {
+                console.log(`Marking ${day} as Custom Event: ${matchingEvents.map(e => e.title).join(", ")}`);
+                cell.classList.add("custom-event-day");
+                cell.setAttribute("title", `Custom Event: ${matchingEvents.map(e => e.title).join(", ")}`);
+            } else {
+                console.log(`Custom event not found for ${formattedGregorianDate}`);
+            }
+
             // Assign click behaviour to each date cell
             cell.addEventListener("click", () => {
                 console.log(`Clicked on day ${day} in the month of ${monthName}`);
@@ -135,6 +199,57 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
             });
         }
     });
+  }
+  
+  // Fetch lunar phases dynamically for a given month
+  async function fetchMoonPhases(monthName) {
+    console.log("Fetching moon phases for month:", monthName);
+    try {
+        const celticMonthMapping = {
+            "Nivis": { start: "2024-12-23", end: "2025-01-19" },
+            "Janus": { start: "2025-01-20", end: "2025-02-16" },
+            "Brigid": { start: "2025-02-17", end: "2025-03-16" },
+            "Flora": { start: "2025-03-17", end: "2025-04-13" },
+            "Maia": { start: "2025-04-14", end: "2025-05-11" },
+            "Juno": { start: "2025-05-12", end: "2025-06-08" },
+            "Solis": { start: "2025-06-09", end: "2025-07-06" },
+            "Terra": { start: "2025-07-07", end: "2025-08-03" },
+            "Lugh": { start: "2025-08-04", end: "2025-08-31" },
+            "Pomona": { start: "2025-09-01", end: "2025-09-28" },
+            "Autumna": { start: "2025-09-29", end: "2025-10-26" },
+            "Eira": { start: "2025-10-27", end: "2025-11-23" },
+            "Aether": { start: "2025-11-24", end: "2025-12-21" },
+        };
+  
+        if (!celticMonthMapping[monthName]) {
+            console.error("Invalid month name:", monthName);
+            return [];
+        }
+  
+        const { start, end } = celticMonthMapping[monthName];
+  
+        const response = await fetch(`/dynamic-moon-phases?start_date=${start}&end_date=${end}`);
+        if (!response.ok) throw new Error("Failed to fetch moon phases");
+  
+        const moonData = await response.json();
+        console.log("Moon phases retrieved:", moonData);
+        return moonData;
+    } catch (error) {
+        console.error("Error fetching moon phases:", error);
+        return [];
+    }
+  }
+  
+  // Fetch custom events dynamically
+  async function fetchCustomEvents() {
+    try {
+        const response = await fetch("/api/custom-events");
+        if (!response.ok) throw new Error("Failed to fetch custom events");
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching custom events:", error);
+        return [];
+    }
 }
 
 
@@ -174,8 +289,20 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                     <div class="calendarGridBox">
                     <table class="calendar-grid"><thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr><tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr><tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr></tbody></table>
                     </div>
-                    <div class="feature-image">
-                        <img src="assets/images/months/${monthName.toLowerCase()}-bg.png" alt="${monthName}" />
+        
+                    <div class="calendarLegend" style="background-image: url(assets/images/months/${monthName.toLowerCase()}-pale-bg.png)">
+                        <h2 class="inner-title">Legend</h2>
+                        <table class="calendarLegendGrid">
+                            <tr>
+                                <td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td>
+                            </tr>
+                            <tr>
+                                <td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td>
+                            </tr>
+                            <tr>
+                                <td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td>
+                            </tr>
+                        <table>
                     </div>
                 `;
             }
@@ -211,9 +338,6 @@ export function closeModal() {
 
 // Convert Celtic date to Gregorian date.
 export function convertCelticToGregorian(celticMonth, celticDay) {
-
-    console.log("Celtic month is:", celticMonth);
-    // Define your Celtic-to-Gregorian mapping based on calendar_data.json
     const monthMapping = {
         "Nivis": "2024-12-23",
         "Janus": "2025-01-20",
@@ -229,20 +353,21 @@ export function convertCelticToGregorian(celticMonth, celticDay) {
         "Eira": "2025-10-27",
         "Aether": "2025-11-24"
     };
-    
+  
     const startDateStr = monthMapping[celticMonth];
     if (!startDateStr) {
         console.error("Invalid Celtic month:", celticMonth);
         return null;
     }
+  
     const startDate = new Date(startDateStr);
-    // Subtract one because Celtic day 1 corresponds to the start date.
-    const gregorianDate = new Date(startDate.getTime() + (celticDay) * 24 * 60 * 60 * 1000);
-    
-    const gregorianMonth = ("0" + (gregorianDate.getMonth() + 1)).slice(-2); // Month in MM format
-    const gregorianDay = gregorianDate.getDate();
-    return { gregorianMonth, gregorianDay };
-}
+    const gregorianDate = new Date(startDate.getTime() + (celticDay - 1) * 24 * 60 * 60 * 1000);
+  
+    return {
+        gregorianMonth: ("0" + (gregorianDate.getMonth() + 1)).slice(-2),
+        gregorianDay: gregorianDate.getDate()
+    };
+  }
     
 
 export async function getCelticDate() {
@@ -266,6 +391,22 @@ export async function getCelticDate() {
 export async function showDayModal(celticDay, celticMonth) {
     const modalContainer = document.getElementById("modal-container");
     const modalDetails = document.getElementById("modal-details");
+
+    // Festival descriptions
+    const festivalDescriptions = {
+        "Brigid 1": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
+        "Flora 10": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
+        "Maia 1": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
+        "Juno 19": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
+        "Lugh 7": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
+        "Pomona 15": "<strong>Mabon</strong><br />A time of balance and gratitude as the harvest ends.",
+        "Autumna 1": "<strong>Samhain</strong><br />The gateway to winter, the festival of ancestors, spirits, and shadowy magic.",
+        "Eira 15": "<strong>Yule</strong><br />The rebirth of the Sun, celebrating light’s return in the darkest night."
+    };
+
+    // Convert date format for lookup
+    const formattedFestivalKey = `${celticMonth} ${celticDay}`;
+    const festivalInfo = festivalDescriptions[formattedFestivalKey] || "No festival today.";
   
     // Show loading state while fetching data
     modalDetails.innerHTML = `
@@ -283,11 +424,11 @@ export async function showDayModal(celticDay, celticMonth) {
         return;
     }
 
-
     const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
     const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
 
     const zodiac = getCelticZodiac(parseInt(gregorian.gregorianMonth, 10), parseInt(gregorian.gregorianDay, 10));
+
      // Get additional data
     const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
     //const zodiac = getCelticZodiac(celticMonth, celticDay);
@@ -315,6 +456,9 @@ export async function showDayModal(celticDay, celticMonth) {
         // Format the Gregorian month
         const gMonth = getFormattedMonth(monthStr);
 
+        
+        //console.log("Moon Name is ", moonPoem.moonName);
+
         // Get alternative lunar descriptions
         const moonPoem = getMoonPoem(lunarData.phase, dateStr);
   
@@ -325,20 +469,23 @@ export async function showDayModal(celticDay, celticMonth) {
                 <h2 class="detailsCelticDate">${celticMonth} ${celticDay}</h2>
                 <h3 class="detailsGregorianDate">${gMonth} ${dayStr}</h3>
                 <div class="moon-phase-graphic">${lunarData.graphic}</div>
-                <h3 class="detailsMoonPhase">${lunarData.moonName || lunarData.phase} </h3>
-                <p class="detailsMoonDescription">${moonPoem}</p>
+                <h3 class="detailsMoonPhase">${moonPoem.moonName || lunarData.phase} </h3>
+                <p class="detailsMoonDescription">${moonPoem.poem}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="detailsTitle">Celtic Zodiac</h3>
+                <h3 class="subheader">Celtic Zodiac</h3>
                 <div class="detailsCelticZodiac">
                     <img src="assets/images/zodiac/zodiac-${zodiac.toLowerCase()}.png" alt="${zodiac}" 
      onerror="this.src='assets/images/decor/treeoflife.png';" />
                     <p>${zodiac}</p>
                 </div>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="detailsTitle">Today's Events</h3>
+                <h3 class="subheader">Festivals</h3>
+                <p>${festivalInfo}</p>
+                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h3 class="subheader">Special Events</h3>
                 <p class="detailsCustomEvents">${events}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="detailsTitle">Mystical Suggestions</h3>
+                <h3 class="subheader">Mystical Suggestions</h3>
                 <p>${mysticalSuggestion}</p>
                 <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
             </div>
@@ -434,7 +581,7 @@ export async function getCustomEvents(gregorianMonth, gregorianDay) {
 
         return filteredEvents.length > 0 
             ? filteredEvents.map(e => `<p>${e.title}: ${e.notes}</p>`).join("") 
-            : "There are no events today.";
+            : "<p>There are no custom events today.</p>";
 
     } catch (error) {
         console.error("Error fetching events:", error);
@@ -455,7 +602,6 @@ export function getMysticalSuggestion() {
 }
 
 export function getMoonPoem(moonPhase, date) {
-    // Named full moon lookup (Month-Day format)
     const fullMoonNames = {
         "01": "Wolf Moon",
         "02": "Snow Moon",
@@ -471,28 +617,20 @@ export function getMoonPoem(moonPhase, date) {
         "12": "Cold Moon"
     };
 
-    // If it's a Full Moon, try to find the named moon using the month
     if (moonPhase === "Full Moon" && date) {
-        const month = date.split("-")[1]; // Extract the month (MM) from YYYY-MM-DD
+        const month = date.split("-")[1]; 
+        console.log("Searching moon phase for this month: ", month);
         if (fullMoonNames[month]) {
-            moonPhase = fullMoonNames[month]; // Replace "Full Moon" with the proper name
+            moonPhase = fullMoonNames[month]; // Assign the named moon
+            console.log("🌕 Matched Full Moon:", moonPhase);
         }
     }
 
-    // Moon poems
     const moonPoems = {
-        "Waxing Crescent": "Silver sliver in the sky,\nDreams take shape as time goes by.",
-        "First Quarter": "Halfway seen, a guiding light,\nBalance found in dark and bright.",
-        "Waxing Gibbous": "Almost full, yet not quite whole,\nA time to act, fulfill your goal.",
-        "Waning Gibbous": "Light recedes, yet wisdom grows,\nHarvest knowledge as it flows.",
-        "Last Quarter": "Half in shadow, half in glow,\nRelease the past, let wisdom show.",
-        "Waning Crescent": "A whisper fades into the night,\nRest and dream ‘til new moon’s light.",
-        "New Moon": "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
-        
-        // Named Full Moons
         "Wolf Moon": "Beneath the snow and howling skies,\nThe Wolf Moon watches, ancient, wise.\nA time to gather strength and rest,\nAnd light a candle, for what’s best.",
         "Snow Moon": "The Snow Moon casts its tranquil glow,\nUpon the earth where frost does grow.\nWrap in warmth, let dreams ignite,\nBurn cedar’s scent in soft moonlight.",
         "Worm Moon": "The Worm Moon stirs the thawing ground,\nWhere seeds of life are newly found.\nTurn the soil of heart and mind,\nWrite your dreams, and leave fear behind.",
+        "Pink Moon": "Blush-lit petals drift and sway,\nCarried where the dreamers play.\nSoft as dawn and bright as air,\nA time to love, to hope, to dare.",
         "Flower Moon": "Petals bloom in moonlit air,\nA fragrant world beyond compare.\nPlant your dreams in fertile ground,\nLet love and joy in all things abound.",
         "Strawberry Moon": "The Strawberry Moon, ripe and red,\nA time to savour what’s been bred.\nSip something sweet, give thanks, rejoice,\nAnd honour life with grateful voice.",
         "Thunder Moon": "Thunder roars, the moon’s alive,\nWith storms of passion, dreams will thrive.\nDance in rain or light a flame,\nAnd cleanse your soul of doubt or shame.",
@@ -503,5 +641,9 @@ export function getMoonPoem(moonPhase, date) {
         "Cold Moon": "The Cold Moon whispers of the past,\nOf trials endured and shadows cast.\nSip warm tea, let heartbeats mend,\nPrepare your soul for year’s new bend."
     };
 
-    return moonPoems[moonPhase] || "No description available.";
+    // Return the corresponding poem
+    return {
+        moonName: moonPhase, // This should now be "Flower Moon" instead of "Full Moon"
+        poem: moonPoems[moonPhase] || "No description available."
+    };
 }

@@ -8,7 +8,7 @@ export function renderInsights() {
       <button class="tab-button" data-tab="moon-poetry">Moon Poetry</button>
     </div>
 
-    <!-- Content Sections -->
+    <!-- ************* Sections - Celtic Zodiac ************* -->
 
     <div id="zodiac" class="tab-content active">
       
@@ -104,10 +104,44 @@ export function renderInsights() {
    
     </div>
 
+     <!-- ************* Sections - Celtic Festivals ************* -->
+
 
     <div id="festivals" class="tab-content"> 
-      <h1> Festivus for the Rest of Us</h1>
+          <h1> Celtic Festivals</h1>
+
+          <div id="festival-carousel" class="carousel-container">
+            <button class="festival-carousel-prev">❮</button>
+            <div class="festival-slide active">
+                <img src="assets/images/festivals/festival-imbolc.png" alt="Imbolc" class="festival-icon" />
+                <h2 class="festival-title">Imbolc</h2>
+                <h3 class="festival-date">1st of Brigid</h3>
+                <p class="festival-description">
+                    The festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.
+                </p>
+            </div>
+            <div class="festival-slide">
+                <img src="assets/images/festivals/festival-ostara.png" alt="Ostara" class="festival-icon" />
+                <h2 class="festival-title">Ostara</h2>
+                <h3 class="festival-date">10th of Flora</h3>
+                <p class="festival-description">
+                    The Spring Equinox, when day and night stand in balance. A time of awakening and fertility.
+                </p>
+            </div>
+            <div class="festival-slide">
+                <img src="assets/images/festivals/festival-beltaine.png" alt="Beltaine" class="festival-icon" />
+                <h2 class="festival-title">Beltaine</h2>
+                <h3 class="festival-date">1st of Maia</h3>
+                <p class="festival-description">
+                    A fire festival of passion and fertility, where the veil between worlds is thin.
+                </p>
+            </div>
+            <!-- More festival slides here -->
+            <button class="festival-carousel-next">❯</button>
+        </div>
     </div>
+
+    <!-- ************* Sections - Full Moons ************* -->
 
     <div id="moon-poetry" class="tab-content"> 
 
@@ -479,6 +513,53 @@ export function initializeCelticZodiac() {
 };
 
 // ********************************
+// CELTIC FESTIVALS
+// ********************************
+
+export function initializeFestivalCarousel() {
+  const slides = document.querySelectorAll(".festival-slide");
+  const prevButton = document.querySelector(".festival-carousel-prev");
+  const nextButton = document.querySelector(".festival-carousel-next");
+
+  let currentSlide = 0;
+
+  function showSlide(index) {
+      slides.forEach((slide, i) => {
+          slide.classList.remove("active");
+          slide.style.opacity = 0;
+          if (i === index) {
+              slide.classList.add("active");
+              setTimeout(() => slide.style.opacity = 1, 300);
+          }
+      });
+  }
+
+  prevButton.addEventListener("click", () => {
+
+    console.log("prev Click");
+    harpSound.currentTime = 0; // Reset sound for instant replay
+    harpSound.play(); // Play sound effect
+
+    currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
+    showSlide(currentSlide);
+  });
+
+  nextButton.addEventListener("click", () => {
+    
+    console.log("next Click");
+    harpSound.currentTime = 0;
+    harpSound.play();
+
+    currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
+    showSlide(currentSlide);
+  });
+
+  // Start with the first festival as the default
+  showSlide(currentSlide);
+}
+
+
+// ********************************
 // MOON POETRY
 // ********************************
 
@@ -560,10 +641,10 @@ export function initializeMoonPoetry() {
 function setInitialMoon() {
   const celticMonth = getCurrentCelticMonth();
   const moonMapping = {
-      "Nivis": "snow-moon",
-      "Janus": "wolf-moon",
+      "Nivis": "wolf-moon",
+      "Janus": "snow-moon",
       "Brigid": "worm-moon",
-      "Flora": "pink-moon",
+      "Flora": "Pink-moon*",
       "Juno": "flower-moon",
       "Solis": "strawberry-moon",
       "Terra": "thunder-moon",
@@ -571,7 +652,7 @@ function setInitialMoon() {
       "Pomona": "harvest-moon",
       "Autumna": "hunters-moon",
       "Eira": "frost-moon",
-      "Aether": "cold-moon",
+      "Aether": "cold-moon"
   };
 
   console.log("This month is ", celticMonth);
