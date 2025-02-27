@@ -456,6 +456,9 @@ export async function showDayModal(celticDay, celticMonth) {
         // Format the Gregorian month
         const gMonth = getFormattedMonth(monthStr);
 
+        
+        //console.log("Moon Name is ", moonPoem.moonName);
+
         // Get alternative lunar descriptions
         const moonPoem = getMoonPoem(lunarData.phase, dateStr);
   
@@ -466,8 +469,8 @@ export async function showDayModal(celticDay, celticMonth) {
                 <h2 class="detailsCelticDate">${celticMonth} ${celticDay}</h2>
                 <h3 class="detailsGregorianDate">${gMonth} ${dayStr}</h3>
                 <div class="moon-phase-graphic">${lunarData.graphic}</div>
-                <h3 class="detailsMoonPhase">${lunarData.moonName || lunarData.phase} </h3>
-                <p class="detailsMoonDescription">${moonPoem}</p>
+                <h3 class="detailsMoonPhase">${moonPoem.moonName || lunarData.phase} </h3>
+                <p class="detailsMoonDescription">${moonPoem.poem}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Celtic Zodiac</h3>
                 <div class="detailsCelticZodiac">
@@ -599,7 +602,6 @@ export function getMysticalSuggestion() {
 }
 
 export function getMoonPoem(moonPhase, date) {
-    // Named full moon lookup (Month-Day format)
     const fullMoonNames = {
         "01": "Wolf Moon",
         "02": "Snow Moon",
@@ -615,28 +617,20 @@ export function getMoonPoem(moonPhase, date) {
         "12": "Cold Moon"
     };
 
-    // If it's a Full Moon, try to find the named moon using the month
     if (moonPhase === "Full Moon" && date) {
-        const month = date.split("-")[1]; // Extract the month (MM) from YYYY-MM-DD
+        const month = date.split("-")[1]; 
+        console.log("Searching moon phase for this month: ", month);
         if (fullMoonNames[month]) {
-            moonPhase = fullMoonNames[month]; // Replace "Full Moon" with the proper name
+            moonPhase = fullMoonNames[month]; // Assign the named moon
+            console.log("🌕 Matched Full Moon:", moonPhase);
         }
     }
 
-    // Moon poems
     const moonPoems = {
-        "Waxing Crescent": "Silver sliver in the sky,\nDreams take shape as time goes by.",
-        "First Quarter": "Halfway seen, a guiding light,\nBalance found in dark and bright.",
-        "Waxing Gibbous": "Almost full, yet not quite whole,\nA time to act, fulfill your goal.",
-        "Waning Gibbous": "Light recedes, yet wisdom grows,\nHarvest knowledge as it flows.",
-        "Last Quarter": "Half in shadow, half in glow,\nRelease the past, let wisdom show.",
-        "Waning Crescent": "A whisper fades into the night,\nRest and dream ‘til new moon’s light.",
-        "New Moon": "The New Moon hides in shadow’s care,\nA time to dream, to softly dare.\nWrite your wishes, plant them deep,\nLet whispered hopes in darkness keep.",
-        
-        // Named Full Moons
         "Wolf Moon": "Beneath the snow and howling skies,\nThe Wolf Moon watches, ancient, wise.\nA time to gather strength and rest,\nAnd light a candle, for what’s best.",
         "Snow Moon": "The Snow Moon casts its tranquil glow,\nUpon the earth where frost does grow.\nWrap in warmth, let dreams ignite,\nBurn cedar’s scent in soft moonlight.",
         "Worm Moon": "The Worm Moon stirs the thawing ground,\nWhere seeds of life are newly found.\nTurn the soil of heart and mind,\nWrite your dreams, and leave fear behind.",
+        "Pink Moon": "Blush-lit petals drift and sway,\nCarried where the dreamers play.\nSoft as dawn and bright as air,\nA time to love, to hope, to dare.",
         "Flower Moon": "Petals bloom in moonlit air,\nA fragrant world beyond compare.\nPlant your dreams in fertile ground,\nLet love and joy in all things abound.",
         "Strawberry Moon": "The Strawberry Moon, ripe and red,\nA time to savour what’s been bred.\nSip something sweet, give thanks, rejoice,\nAnd honour life with grateful voice.",
         "Thunder Moon": "Thunder roars, the moon’s alive,\nWith storms of passion, dreams will thrive.\nDance in rain or light a flame,\nAnd cleanse your soul of doubt or shame.",
@@ -647,5 +641,9 @@ export function getMoonPoem(moonPhase, date) {
         "Cold Moon": "The Cold Moon whispers of the past,\nOf trials endured and shadows cast.\nSip warm tea, let heartbeats mend,\nPrepare your soul for year’s new bend."
     };
 
-    return moonPoems[moonPhase] || "No description available.";
+    // Return the corresponding poem
+    return {
+        moonName: moonPhase, // This should now be "Flower Moon" instead of "Full Moon"
+        poem: moonPoems[moonPhase] || "No description available."
+    };
 }

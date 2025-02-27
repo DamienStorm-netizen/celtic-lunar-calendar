@@ -964,7 +964,9 @@ blockquote.moon-poem {
   opacity: 1;
 }
 
-/*** Celtic Zodiac Wheel ***/
+/**********************************************/
+/*** CELTIC ZODIAC WHEEL ***/
+/**********************************************/
 
 /* Ensure the container is centred */
 .wheel-container {
@@ -1245,6 +1247,81 @@ blockquote.moon-poem {
   box-shadow: 0 0 20px rgba(142, 68, 173, 1); /* Intensified glow on hover */
   transform: scale(1.05); /* A subtle lift effect */
 }
+
+/**********************************************/
+/* CELTIC FESTIVALS */
+/**********************************************/
+
+.carousel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  width: 90%;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.festival-slide {
+  display: none;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.festival-slide.active {
+  display: block;
+  opacity: 1;
+}
+
+.festival-icon {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
+  transition: transform 0.3s ease-in-out;
+}
+
+.festival-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(255, 255, 127, 1);
+}
+
+.festival-title {
+  font-size: 2rem;
+  color: gold;
+  text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+}
+
+.festival-date {
+  font-size: 1.2rem;
+  color: #fff6ea;
+}
+
+.festival-description {
+  font-family: 'Vidaloka', serif;
+  font-size: 1.1rem;
+  color: #fff;
+  max-width: 80%;
+  margin: 10px auto;
+}
+
+.carousel-prev, .carousel-next {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: gold;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.festival-carousel-prev:hover, .festival-carousel-next:hover {
+  transform: scale(1.2);
+  color: #fff6ea;
+}
+
 
 /**********************************************/
 /* MOON POETRY */
