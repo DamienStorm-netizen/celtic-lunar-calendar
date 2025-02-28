@@ -36,12 +36,15 @@ body {
   padding: 20px;
   text-align: center;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
+  max-height: 90vh; /* Prevents the modal from exceeding 90% of the viewport height */
+  overflow-y: auto; /* Enables scrolling inside the modal if content overflows */
+  scrollbar-width: thin; /* Ensures a minimal, non-intrusive scrollbar */
 }
 
 .mystical-close {
   position: absolute;
-  top: -15px;
-  right: -18px;
+  top: 10px;
+  right: 12px;
   background: radial-gradient(circle, rgba(255, 223, 186, 0.9) 0%, rgba(255, 175, 75, 0.8) 70%, rgba(255, 140, 0, 0.6) 100%);
   color: #4b0082; /* Deep indigo for contrast */
   font-size: 18px;

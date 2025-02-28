@@ -438,8 +438,8 @@ export async function showDayModal(celticDay, celticMonth) {
   
     // Construct an ISO date string
     const year = "2025";
-    const monthStr = gregorian.gregorianMonth.padStart(2, "0");
-    const dayStr = gregorian.gregorianDay < 10 ? "0" + gregorian.gregorianDay : gregorian.gregorianDay;
+    const monthStr = String(gregorian.gregorianMonth).padStart(2, "0");
+    const dayStr = String(gregorian.gregorianDay).padStart(2, "0"); 
     const dateStr = `${year}-${monthStr}-${dayStr}`;
   
     try {
@@ -501,6 +501,8 @@ export async function showDayModal(celticDay, celticMonth) {
         console.error("Error fetching lunar phase:", error);
         modalDetails.innerHTML = `<p>Failed to load moon phase data.</p>`;
     }
+
+    console.log("Final Gregorian Date:", dateStr);
   }
 
 export function getFormattedMonth(monthNum) {
