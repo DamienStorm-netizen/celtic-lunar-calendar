@@ -1277,8 +1277,8 @@ blockquote.moon-poem {
 }
 
 .festival-icon {
-  width: 150px;
-  height: 150px;
+  width: 250px;
+  height: 250px;
   border-radius: 50%;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
   transition: transform 0.3s ease-in-out;
@@ -1308,18 +1308,30 @@ blockquote.moon-poem {
   margin: 10px auto;
 }
 
-.carousel-prev, .carousel-next {
+.festival-carousel-prev, .festival-carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   font-size: 2rem;
   color: gold;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
+  z-index: 10; /* Make sure it is above everything else */
 }
 
+.festival-carousel-prev { left: 5%; }
+.festival-carousel-next { right: 5%; }
+
 .festival-carousel-prev:hover, .festival-carousel-next:hover {
-  transform: scale(1.2);
-  color: #fff6ea;
+  filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8));
+  animation: festivalGlow 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes festivalGlow {
+  0% { filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8)); }
+  100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
 }
 
 

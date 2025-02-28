@@ -131,14 +131,14 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
     
     // 🔥 Celtic Festivals Mapping
     const festivalDays = {
-        "Brigid": [1], // Imbolc
-        "Flora": [10], // Ostara
-        "Maia": [1], // Beltaine
-        "Juno": [19], // Litha
-        "Lugh": [7], // Lammas
-        "Pomona": [15], // Mabon
-        "Autumna": [1], // Samhain
-        "Eira": [15] // Yule
+        "Janus": [15], // Imbolc
+        "Flora": [6], // Ostara
+        "Maia": [19], // Beltaine
+        "Solis": [14], // Litha
+        "Terra": [27], // Lammas
+        "Lugh": [19], // Mabon
+        "Eira": [6], // Samhain
+        "Aether": [28] // Yule
     };
   
     tableCells.forEach((cell) => {
@@ -353,21 +353,22 @@ export function convertCelticToGregorian(celticMonth, celticDay) {
         "Eira": "2025-10-27",
         "Aether": "2025-11-24"
     };
-  
+
     const startDateStr = monthMapping[celticMonth];
     if (!startDateStr) {
         console.error("Invalid Celtic month:", celticMonth);
         return null;
     }
-  
-    const startDate = new Date(startDateStr);
+
+    // Create a UTC date instead of a local date
+    const startDate = new Date(startDateStr + "T00:00:00Z"); 
     const gregorianDate = new Date(startDate.getTime() + (celticDay - 1) * 24 * 60 * 60 * 1000);
-  
+
     return {
-        gregorianMonth: ("0" + (gregorianDate.getMonth() + 1)).slice(-2),
-        gregorianDay: gregorianDate.getDate()
+        gregorianMonth: ("0" + (gregorianDate.getUTCMonth() + 1)).slice(-2),  // Ensure UTC month
+        gregorianDay: ("0" + gregorianDate.getUTCDate()).slice(-2)  // Ensure UTC day
     };
-  }
+}
     
 
 export async function getCelticDate() {
@@ -394,14 +395,14 @@ export async function showDayModal(celticDay, celticMonth) {
 
     // Festival descriptions
     const festivalDescriptions = {
-        "Brigid 1": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
-        "Flora 10": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
-        "Maia 1": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
-        "Juno 19": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
-        "Lugh 7": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
-        "Pomona 15": "<strong>Mabon</strong><br />A time of balance and gratitude as the harvest ends.",
-        "Autumna 1": "<strong>Samhain</strong><br />The gateway to winter, the festival of ancestors, spirits, and shadowy magic.",
-        "Eira 15": "<strong>Yule</strong><br />The rebirth of the Sun, celebrating light’s return in the darkest night."
+        "Janus 15": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
+        "Flora 6": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
+        "Maia 19": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
+        "Solis 14": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
+        "Terra 27": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
+        "Lugh 19": "<strong>Mabon</strong><br />A time of balance and gratitude as the harvest ends.",
+        "Eira 6": "<strong>Samhain</strong><br />The gateway to winter, the festival of ancestors, spirits, and shadowy magic.",
+        "Aether 28": "<strong>Yule</strong><br />The winter solstice is a time to celebrate the return of the light and the rebirth of the sun."
     };
 
     // Convert date format for lookup
