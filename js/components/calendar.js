@@ -483,6 +483,7 @@ export async function showDayModal(celticDay, celticMonth) {
                 <h3 class="subheader">Festivals</h3>
                 <p>${festivalInfo}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Special Events</h3>
                 <p class="detailsCustomEvents">${events}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />

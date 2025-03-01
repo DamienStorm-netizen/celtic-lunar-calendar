@@ -250,6 +250,28 @@
         }
     ],
 
+
+    "national_holidays": [
+        {
+            "title": "New Year's Day", 
+            "type": "USA", 
+            "date": "2025-01-01", 
+            "notes": ""
+        },
+        {
+            "title": "Martin Luther King Jr. Day", 
+            "type": "USA", 
+            "date": "2025-02-20", 
+            "notes": ""
+        },
+        {
+            "title": "Presidents’ Day", 
+            "type": "USA", 
+            "date": "2025-02-17", 
+            "notes": ""
+        }
+    ],
+
     "custom_events": [
         {
             "title": "My Birthday", 
