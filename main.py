@@ -324,6 +324,7 @@ def get_lunar_phases(month_name: str = None):
 
     return {"error": f"Month '{month_name}' not found in the Celtic Calendar"}
 
+
 # List All Custom Dates
 @app.get("/custom-dates")
 def list_custom_dates():
@@ -514,7 +515,7 @@ def get_moon_poem(phase: str = None, moon_name: str = None):
             return {"poem": moon.get("poem", "The moon whispers secrets untold...")}
     
     # Fallback poem if no match is found
-    return {"poem": "<strong class='goldNugget'>The Moon’s Gentle Whisper</strong><br />A sliver of light, a quiet song,<br />Guiding the night as dreams drift along.<br />Not yet whole, but softly bright,<br />The moon still weaves her silver light."}
+    return {"poem": "<h3>The Moon’s Gentle Whisper</h3><p>A sliver of light, a quiet song,<br />Guiding the night as dreams drift along.<br />Not yet whole, but softly bright,<br />The moon still weaves her silver light.</p>"}
 
 
 
@@ -606,3 +607,16 @@ except FileNotFoundError:
 @app.get("/api/custom-events")
 def get_custom_events():
     return custom_events
+
+# Load national holidays from a JSON file (or replace with database logic)
+national_holidays = []  # Ensure it's globally defined
+try:
+    with open("calendar_data.json", "r") as file:
+        calendar_holiday_data = json.load(file)
+        national_holidays = calendar_holiday_data.get("national_holidays", [])
+except FileNotFoundError:
+    national_holidays = []
+
+@app.get("/api/national-holidays")
+def get_national_holidays():
+    return national_holidays

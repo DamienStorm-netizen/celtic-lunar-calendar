@@ -1,6 +1,6 @@
 import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate} from './components/home.js';
-import {renderCalendar, setupCalendarEvents, getCelticDate, showDayModal, convertCelticToGregorian, showModal, enhanceCalendarTable, getFormattedMonth, getDayOfWeek, getCelticZodiac, getCustomEvents, getMysticalSuggestion, getMoonPoem, closeModal} from './components/calendar.js';
-import {renderInsights, initializeTabbedNav, initializeCelticZodiac, initializeMoonPoetry } from './components/insights.js';
+import {renderCalendar, setupCalendarEvents, getCelticDate, showDayModal, convertCelticToGregorian, showModal, enhanceCalendarTable, getFormattedMonth, getDayOfWeek, getCelticZodiac, fetchNationalHolidays, getCustomEvents, getMysticalSuggestion, getMoonPoem, closeModal} from './components/calendar.js';
+import {renderInsights, initializeTabbedNav, initializeCelticZodiac, initializeFestivalCarousel, initializeMoonPoetry } from './components/insights.js';
 import {renderSettings, setupSettingsEvents } from './components/settings.js';
 import {renderAbout} from './components/about.js';
 import {renderPrivacy} from './components/privacy.js';
@@ -54,6 +54,7 @@ function highlightNav() {
         renderInsights();
         initializeTabbedNav();
         initializeCelticZodiac();
+        initializeFestivalCarousel();
         initializeMoonPoetry();
         break;
       case 'calendar':
@@ -70,6 +71,7 @@ function highlightNav() {
         getDayOfWeek();
         getCelticZodiac();
         getCustomEvents();
+        fetchNationalHolidays();
         getMysticalSuggestion();
         getMoonPoem();
         break;

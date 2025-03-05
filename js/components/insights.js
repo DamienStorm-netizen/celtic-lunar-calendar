@@ -108,35 +108,83 @@ export function renderInsights() {
 
 
     <div id="festivals" class="tab-content"> 
-          <h1> Celtic Festivals</h1>
+          <h2 class="goldNugget" style="text-align:center">Celtic Festivals</h2>
 
           <div id="festival-carousel" class="carousel-container">
             <button class="festival-carousel-prev">❮</button>
+
             <div class="festival-slide active">
                 <img src="assets/images/festivals/festival-imbolc.png" alt="Imbolc" class="festival-icon" />
                 <h2 class="festival-title">Imbolc</h2>
-                <h3 class="festival-date">1st of Brigid</h3>
+                <h3 class="festival-date">15th of Janus</h3>
                 <p class="festival-description">
-                    The festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.
+                    Imbolc marks the first signs of spring. It's a time to celebrate the return of life and the arrival of new growth. Celebrants use this time to cleanse their homes and welcome new beginnings into their lives.
                 </p>
             </div>
+
             <div class="festival-slide">
                 <img src="assets/images/festivals/festival-ostara.png" alt="Ostara" class="festival-icon" />
                 <h2 class="festival-title">Ostara</h2>
-                <h3 class="festival-date">10th of Flora</h3>
+                <h3 class="festival-date">6th of Flora</h3>
                 <p class="festival-description">
-                    The Spring Equinox, when day and night stand in balance. A time of awakening and fertility.
+                    Ostara is celebrated on the spring equinox. It's a time to celebrate the balance of light and dark and to look ahead to the growth and renewal of spring. Celebrants come together to plant seeds and watch the world come back to life.
                 </p>
             </div>
+
             <div class="festival-slide">
                 <img src="assets/images/festivals/festival-beltaine.png" alt="Beltaine" class="festival-icon" />
                 <h2 class="festival-title">Beltaine</h2>
-                <h3 class="festival-date">1st of Maia</h3>
+                <h3 class="festival-date">19th of Maia</h3>
                 <p class="festival-description">
-                    A fire festival of passion and fertility, where the veil between worlds is thin.
+                    Beltane is celebrated at the beginning of summer. It's a time to celebrate the fertility of the earth and the arrival of new life. Revelers come together to dance, sing, and make merry to mark this special day.
                 </p>
             </div>
-            <!-- More festival slides here -->
+
+            <div class="festival-slide active">
+                <img src="assets/images/festivals/festival-litha.png" alt="Litha" class="festival-icon" />
+                <h2 class="festival-title">Litha</h2>
+                <h3 class="festival-date">14th of Solis</h3>
+                <p class="festival-description">
+                    Litha is celebrated on the summer solstice. It's a time to celebrate the power of the sun and the longest day of the year. Celebrants come together to light fires, dance, and sing to mark this special day.
+                </p>
+            </div>
+
+            <div class="festival-slide">
+                <img src="assets/images/festivals/festival-lammas.png" alt="Lammas" class="festival-icon" />
+                <h2 class="festival-title">Lammas</h2>
+                <h3 class="festival-date">27th of Terra</h3>
+                <p class="festival-description">
+                     Lammas marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter. 
+                </p>
+            </div>
+
+            <div class="festival-slide">
+                <img src="assets/images/festivals/festival-mabon.png" alt="Mabon" class="festival-icon" />
+                <h2 class="festival-title">Mabon</h2>
+                <h3 class="festival-date">19th of Lugh</h3>
+                <p class="festival-description">
+                    Mabon marks the autumn equinox. It's a time to celebrate the balance of light and dark and look ahead to the chill of winter.
+                </p>
+            </div>
+
+            <div class="festival-slide">
+                <img src="assets/images/festivals/festival-samhain.png" alt="Samhain" class="festival-icon" />
+                <h2 class="festival-title">Samhain</h2>
+                <h3 class="festival-date">6th of Eira</h3>
+                <p class="festival-description">
+                    Samhain marks the end of the harvest season. It's a time to reflect on the past year and honour the ancestors who have come before us. Samhain is also a time to connect with the spirit world and seek guidance for the future.
+                </p>
+            </div>
+
+            <div class="festival-slide">
+                <img src="assets/images/festivals/festival-yule.png" alt="Yule" class="festival-icon" />
+                <h2 class="festival-title">Yule</h2>
+                <h3 class="festival-date">Mirabilis</h3>
+                <p class="festival-description">
+                    Yule marks the longest night of the year. It's a time to celebrate the return of the light and the rebirth of the sun. Celebrants come together to exchange gifts, light candles, and enjoy feasts to mark this special day.
+                </p>
+            </div>
+
             <button class="festival-carousel-next">❯</button>
         </div>
     </div>
@@ -537,8 +585,6 @@ export function initializeFestivalCarousel() {
   prevButton.addEventListener("click", () => {
 
     console.log("prev Click");
-    harpSound.currentTime = 0; // Reset sound for instant replay
-    harpSound.play(); // Play sound effect
 
     currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
     showSlide(currentSlide);
@@ -547,8 +593,6 @@ export function initializeFestivalCarousel() {
   nextButton.addEventListener("click", () => {
     
     console.log("next Click");
-    harpSound.currentTime = 0;
-    harpSound.play();
 
     currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
     showSlide(currentSlide);

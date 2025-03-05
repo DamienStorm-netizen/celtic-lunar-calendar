@@ -36,12 +36,15 @@ body {
   padding: 20px;
   text-align: center;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
+  max-height: 90vh; /* Prevents the modal from exceeding 90% of the viewport height */
+  overflow-y: auto; /* Enables scrolling inside the modal if content overflows */
+  scrollbar-width: thin; /* Ensures a minimal, non-intrusive scrollbar */
 }
 
 .mystical-close {
   position: absolute;
-  top: -15px;
-  right: -18px;
+  top: 10px;
+  right: 12px;
   background: radial-gradient(circle, rgba(255, 223, 186, 0.9) 0%, rgba(255, 175, 75, 0.8) 70%, rgba(255, 140, 0, 0.6) 100%);
   color: #4b0082; /* Deep indigo for contrast */
   font-size: 18px;
@@ -431,11 +434,28 @@ blockquote.moon-poem {
   margin: 0;
 }
 
+.tree-of-life {
+  background-image: url(../assets/images/decor/treeoflife.png);
+  background-repeat: no-repeat;
+  width: 100%;
+  background-position-x: center;
+}
+
+.poem-container {
+  text-align: center;
+}
+
+.poem-container h3 {
+  color: #f5d742; 
+  font-family: 'Cinzel Decorative', serif;
+}
+
 .poem-container p {
   margin: 0;
-  padding: 10px;
+  padding: 0 5px 0 5px;
   font-family: 'Libre Baskerville', serif;
-  font-size: .8rem !important;
+  font-size: 1rem !important;
+  font-weight: 400;
   line-height: 150%;
 }
 
@@ -782,6 +802,17 @@ blockquote.moon-poem {
   border-radius: 5px;
 }
 
+
+/* 💜 Custom Event Day */
+.custom-holiday-day {
+  background-color: rgba(30, 144, 255, 0.5) !important;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(103, 58, 183, 0.8);
+  border-radius: 5px;
+}
+
+
 .calendar-day:hover {
   background: rgba(50, 205, 50, 0.7); /* Light green background on hover */
   color: #000;
@@ -876,6 +907,21 @@ blockquote.moon-poem {
   font-size: 1.2rem;
   font-weight: bold;
   color: #ffffff;
+}
+
+/* National Holidays */
+
+.national-holiday {
+  background-color: rgba(30, 144, 255, 0.5) !important;
+  border: 2px solid #1E90FF !important;
+  color: white !important;
+  font-weight: bold;
+  text-align: center !important;
+  transition: background-color 0.3s ease-in-out !important;
+}
+
+.national-holiday:hover {
+  background-color: rgba(30, 144, 255, 0.8); /* Brighter on hover */
 }
 
 /* Mirabilis Modal */
@@ -1277,8 +1323,8 @@ blockquote.moon-poem {
 }
 
 .festival-icon {
-  width: 150px;
-  height: 150px;
+  width: 250px;
+  height: 250px;
   border-radius: 50%;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
   transition: transform 0.3s ease-in-out;
@@ -1308,18 +1354,30 @@ blockquote.moon-poem {
   margin: 10px auto;
 }
 
-.carousel-prev, .carousel-next {
+.festival-carousel-prev, .festival-carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   font-size: 2rem;
   color: gold;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
+  z-index: 10; /* Make sure it is above everything else */
 }
 
+.festival-carousel-prev { left: 5%; }
+.festival-carousel-next { right: 5%; }
+
 .festival-carousel-prev:hover, .festival-carousel-next:hover {
-  transform: scale(1.2);
-  color: #fff6ea;
+  filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8));
+  animation: festivalGlow 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes festivalGlow {
+  0% { filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8)); }
+  100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
 }
 
 

@@ -1,3 +1,5 @@
+let cachedNationalHolidays = []; // Store national holidays globally
+
 export function renderCalendar() {
     const app = document.getElementById('app');
     return `
@@ -111,6 +113,11 @@ export async function setupCalendarEvents() {
 // Add click events to HTML table
 export async function enhanceCalendarTable(modalContainer, monthName) {
     console.log(`Enhancing calendar for ${monthName}...`);
+
+    // Ensure national holidays are fetched before using them
+    if (cachedNationalHolidays.length === 0) {
+        await fetchNationalHolidays(); // Fetch if not already cached
+    }
   
     const todayCeltic = await getCelticDate();
     if (!todayCeltic) {
@@ -120,10 +127,15 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   
     const { celticMonth, celticDay } = todayCeltic;
     const tableCells = modalContainer.querySelectorAll(".calendar-grid td");
-  
-    // Fetch lunar phases
+
+    // Fetch national holidays **before using them**
+    if (!cachedNationalHolidays || cachedNationalHolidays.length === 0) {
+        console.log("Fetching national holidays...");
+        cachedNationalHolidays = await fetchNationalHolidays();
+    }
+
+    // Fetch lunar phases, festivals and national holidays
     const lunarData = await fetchMoonPhases(monthName);
-    console.log("Lunar data retrieved:", lunarData);
 
     // Fetch custom events
     const customEvents = await fetchCustomEvents();
@@ -131,14 +143,14 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
     
     // 🔥 Celtic Festivals Mapping
     const festivalDays = {
-        "Brigid": [1], // Imbolc
-        "Flora": [10], // Ostara
-        "Maia": [1], // Beltaine
-        "Juno": [19], // Litha
-        "Lugh": [7], // Lammas
-        "Pomona": [15], // Mabon
-        "Autumna": [1], // Samhain
-        "Eira": [15] // Yule
+        "Janus": [15], // Imbolc
+        "Flora": [6], // Ostara
+        "Maia": [19], // Beltaine
+        "Solis": [14], // Litha
+        "Terra": [27], // Lammas
+        "Lugh": [19], // Mabon
+        "Eira": [6], // Samhain
+        "Aether": [28] // Yule
     };
   
     tableCells.forEach((cell) => {
@@ -175,6 +187,17 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                 console.log('Festival not found');
             }
 
+            // Highlight national holidays
+            const holiday = cachedNationalHolidays.find(h => h.date === formattedGregorianDate);
+            
+            if (holiday) {
+                console.log(`Marking ${formattedGregorianDate} as National Holiday: ${holiday.title}`);
+                cell.classList.add("national-holiday");
+                cell.setAttribute("title", `${holiday.title} 🎉`);
+            } else {
+                console.log("No holiday, No marking");
+            }
+
             // 💜 Highlight Custom Event Days
             const matchingEvents = customEvents.filter(event => {
                 const eventDate = event.date; // This is in 'YYYY-MM-DD' format
@@ -193,13 +216,13 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
 
             // Assign click behaviour to each date cell
             cell.addEventListener("click", () => {
-                console.log(`Clicked on day ${day} in the month of ${monthName}`);
-                // Add custom logic here for the clicked date
-                showDayModal(day, monthName); // Launch the modal for the selected day
+                console.log(`Clicked on day ${day} in the month of ${monthName}, Gregorian: ${formattedGregorianDate}`);
+                showDayModal(day, monthName, formattedGregorianDate); // Pass formattedGregorianDate
             });
         }
     });
-  }
+
+}
   
   // Fetch lunar phases dynamically for a given month
   async function fetchMoonPhases(monthName) {
@@ -241,7 +264,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   }
   
   // Fetch custom events dynamically
-  async function fetchCustomEvents() {
+  export async function fetchCustomEvents() {
     try {
         const response = await fetch("/api/custom-events");
         if (!response.ok) throw new Error("Failed to fetch custom events");
@@ -251,6 +274,22 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
         return [];
     }
 }
+
+ // Fetch national holidays dynamically
+ export async function fetchNationalHolidays() {
+    console.log('Fetching national holidays now!!');
+    try {
+        const response = await fetch("/api/national-holidays");
+        if (!response.ok) throw new Error("Failed to fetch national holidays");
+        const data = await response.json();
+        cachedNationalHolidays = data; // Store globally for reuse
+        console.log("✅ National Holidays Fetched:", cachedNationalHolidays);
+        return data;
+    } catch (error) {
+        console.error("Error fetching national holidays:", error);
+        return [];
+    }
+} 
 
 
  // Open modal window and insert HTML
@@ -298,6 +337,9 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                             </tr>
                             <tr>
                                 <td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td>
+                            </tr>
+                            <tr>
+                                <td class="custom-holiday-day legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td>
                             </tr>
                             <tr>
                                 <td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td>
@@ -353,21 +395,22 @@ export function convertCelticToGregorian(celticMonth, celticDay) {
         "Eira": "2025-10-27",
         "Aether": "2025-11-24"
     };
-  
+
     const startDateStr = monthMapping[celticMonth];
     if (!startDateStr) {
         console.error("Invalid Celtic month:", celticMonth);
         return null;
     }
-  
-    const startDate = new Date(startDateStr);
+
+    // Create a UTC date instead of a local date
+    const startDate = new Date(startDateStr + "T00:00:00Z"); 
     const gregorianDate = new Date(startDate.getTime() + (celticDay - 1) * 24 * 60 * 60 * 1000);
-  
+
     return {
-        gregorianMonth: ("0" + (gregorianDate.getMonth() + 1)).slice(-2),
-        gregorianDay: gregorianDate.getDate()
+        gregorianMonth: ("0" + (gregorianDate.getUTCMonth() + 1)).slice(-2),  // Ensure UTC month
+        gregorianDay: ("0" + gregorianDate.getUTCDate()).slice(-2)  // Ensure UTC day
     };
-  }
+}
     
 
 export async function getCelticDate() {
@@ -388,20 +431,20 @@ export async function getCelticDate() {
 }
 
 // Function to fetch and display the details for a selected Celtic date
-export async function showDayModal(celticDay, celticMonth) {
+export async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     const modalContainer = document.getElementById("modal-container");
     const modalDetails = document.getElementById("modal-details");
 
     // Festival descriptions
     const festivalDescriptions = {
-        "Brigid 1": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
-        "Flora 10": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
-        "Maia 1": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
-        "Juno 19": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
-        "Lugh 7": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
-        "Pomona 15": "<strong>Mabon</strong><br />A time of balance and gratitude as the harvest ends.",
-        "Autumna 1": "<strong>Samhain</strong><br />The gateway to winter, the festival of ancestors, spirits, and shadowy magic.",
-        "Eira 15": "<strong>Yule</strong><br />The rebirth of the Sun, celebrating light’s return in the darkest night."
+        "Janus 15": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
+        "Flora 6": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
+        "Maia 19": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
+        "Solis 14": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
+        "Terra 27": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
+        "Lugh 19": "<strong>Mabon</strong><br />A time of balance and gratitude as the harvest ends.",
+        "Eira 6": "<strong>Samhain</strong><br />The gateway to winter, the festival of ancestors, spirits, and shadowy magic.",
+        "Aether 28": "<strong>Yule</strong><br />The winter solstice is a time to celebrate the return of the light and the rebirth of the sun."
     };
 
     // Convert date format for lookup
@@ -437,8 +480,8 @@ export async function showDayModal(celticDay, celticMonth) {
   
     // Construct an ISO date string
     const year = "2025";
-    const monthStr = gregorian.gregorianMonth.padStart(2, "0");
-    const dayStr = gregorian.gregorianDay < 10 ? "0" + gregorian.gregorianDay : gregorian.gregorianDay;
+    const monthStr = String(gregorian.gregorianMonth).padStart(2, "0");
+    const dayStr = String(gregorian.gregorianDay).padStart(2, "0"); 
     const dateStr = `${year}-${monthStr}-${dayStr}`;
   
     try {
@@ -455,12 +498,23 @@ export async function showDayModal(celticDay, celticMonth) {
   
         // Format the Gregorian month
         const gMonth = getFormattedMonth(monthStr);
-
         
         //console.log("Moon Name is ", moonPoem.moonName);
 
         // Get alternative lunar descriptions
         const moonPoem = getMoonPoem(lunarData.phase, dateStr);
+
+        // Ensure national holidays are available
+        if (cachedNationalHolidays.length === 0) {
+            await fetchNationalHolidays(); // Fetch if not already cached
+        }
+        console.log("Fetched National Holidays:", cachedNationalHolidays);        
+
+        // Find the holiday for this date
+        const holidayInfo = cachedNationalHolidays
+        .filter(h => h.date === dateStr)
+        .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
+        .join("") || "No national holidays today.";
   
         // Update modal with lunar details
         modalDetails.innerHTML = `
@@ -485,6 +539,9 @@ export async function showDayModal(celticDay, celticMonth) {
                 <h3 class="subheader">Special Events</h3>
                 <p class="detailsCustomEvents">${events}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h3 class="subheader">Holidays</h3>
+                <p class="detailsNationalHolidays">${holidayInfo}</p>
+                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Mystical Suggestions</h3>
                 <p>${mysticalSuggestion}</p>
                 <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
@@ -500,7 +557,9 @@ export async function showDayModal(celticDay, celticMonth) {
         console.error("Error fetching lunar phase:", error);
         modalDetails.innerHTML = `<p>Failed to load moon phase data.</p>`;
     }
-  }
+
+    console.log("Final Gregorian Date:", dateStr);
+}
 
 export function getFormattedMonth(monthNum) {
     const monthNames = [
