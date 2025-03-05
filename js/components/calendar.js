@@ -1,3 +1,5 @@
+let cachedNationalHolidays = []; // Store national holidays globally
+
 export function renderCalendar() {
     const app = document.getElementById('app');
     return `
@@ -111,6 +113,11 @@ export async function setupCalendarEvents() {
 // Add click events to HTML table
 export async function enhanceCalendarTable(modalContainer, monthName) {
     console.log(`Enhancing calendar for ${monthName}...`);
+
+    // Ensure national holidays are fetched before using them
+    if (cachedNationalHolidays.length === 0) {
+        await fetchNationalHolidays(); // Fetch if not already cached
+    }
   
     const todayCeltic = await getCelticDate();
     if (!todayCeltic) {
@@ -120,10 +127,15 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   
     const { celticMonth, celticDay } = todayCeltic;
     const tableCells = modalContainer.querySelectorAll(".calendar-grid td");
-  
-    // Fetch lunar phases
+
+    // Fetch national holidays **before using them**
+    if (!cachedNationalHolidays || cachedNationalHolidays.length === 0) {
+        console.log("Fetching national holidays...");
+        cachedNationalHolidays = await fetchNationalHolidays();
+    }
+
+    // Fetch lunar phases, festivals and national holidays
     const lunarData = await fetchMoonPhases(monthName);
-    console.log("Lunar data retrieved:", lunarData);
 
     // Fetch custom events
     const customEvents = await fetchCustomEvents();
@@ -175,6 +187,17 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                 console.log('Festival not found');
             }
 
+            // Highlight national holidays
+            const holiday = cachedNationalHolidays.find(h => h.date === formattedGregorianDate);
+            
+            if (holiday) {
+                console.log(`Marking ${formattedGregorianDate} as National Holiday: ${holiday.title}`);
+                cell.classList.add("national-holiday");
+                cell.setAttribute("title", `${holiday.title} 🎉`);
+            } else {
+                console.log("No holiday, No marking");
+            }
+
             // 💜 Highlight Custom Event Days
             const matchingEvents = customEvents.filter(event => {
                 const eventDate = event.date; // This is in 'YYYY-MM-DD' format
@@ -193,13 +216,13 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
 
             // Assign click behaviour to each date cell
             cell.addEventListener("click", () => {
-                console.log(`Clicked on day ${day} in the month of ${monthName}`);
-                // Add custom logic here for the clicked date
-                showDayModal(day, monthName); // Launch the modal for the selected day
+                console.log(`Clicked on day ${day} in the month of ${monthName}, Gregorian: ${formattedGregorianDate}`);
+                showDayModal(day, monthName, formattedGregorianDate); // Pass formattedGregorianDate
             });
         }
     });
-  }
+
+}
   
   // Fetch lunar phases dynamically for a given month
   async function fetchMoonPhases(monthName) {
@@ -241,7 +264,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   }
   
   // Fetch custom events dynamically
-  async function fetchCustomEvents() {
+  export async function fetchCustomEvents() {
     try {
         const response = await fetch("/api/custom-events");
         if (!response.ok) throw new Error("Failed to fetch custom events");
@@ -251,6 +274,22 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
         return [];
     }
 }
+
+ // Fetch national holidays dynamically
+ export async function fetchNationalHolidays() {
+    console.log('Fetching national holidays now!!');
+    try {
+        const response = await fetch("/api/national-holidays");
+        if (!response.ok) throw new Error("Failed to fetch national holidays");
+        const data = await response.json();
+        cachedNationalHolidays = data; // Store globally for reuse
+        console.log("✅ National Holidays Fetched:", cachedNationalHolidays);
+        return data;
+    } catch (error) {
+        console.error("Error fetching national holidays:", error);
+        return [];
+    }
+} 
 
 
  // Open modal window and insert HTML
@@ -298,6 +337,9 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                             </tr>
                             <tr>
                                 <td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td>
+                            </tr>
+                            <tr>
+                                <td class="custom-holiday-day legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td>
                             </tr>
                             <tr>
                                 <td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td>
@@ -389,7 +431,7 @@ export async function getCelticDate() {
 }
 
 // Function to fetch and display the details for a selected Celtic date
-export async function showDayModal(celticDay, celticMonth) {
+export async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     const modalContainer = document.getElementById("modal-container");
     const modalDetails = document.getElementById("modal-details");
 
@@ -456,12 +498,23 @@ export async function showDayModal(celticDay, celticMonth) {
   
         // Format the Gregorian month
         const gMonth = getFormattedMonth(monthStr);
-
         
         //console.log("Moon Name is ", moonPoem.moonName);
 
         // Get alternative lunar descriptions
         const moonPoem = getMoonPoem(lunarData.phase, dateStr);
+
+        // Ensure national holidays are available
+        if (cachedNationalHolidays.length === 0) {
+            await fetchNationalHolidays(); // Fetch if not already cached
+        }
+        console.log("Fetched National Holidays:", cachedNationalHolidays);        
+
+        // Find the holiday for this date
+        const holidayInfo = cachedNationalHolidays
+        .filter(h => h.date === dateStr)
+        .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
+        .join("") || "No national holidays today.";
   
         // Update modal with lunar details
         modalDetails.innerHTML = `
@@ -483,9 +536,11 @@ export async function showDayModal(celticDay, celticMonth) {
                 <h3 class="subheader">Festivals</h3>
                 <p>${festivalInfo}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Special Events</h3>
                 <p class="detailsCustomEvents">${events}</p>
+                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h3 class="subheader">Holidays</h3>
+                <p class="detailsNationalHolidays">${holidayInfo}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Mystical Suggestions</h3>
                 <p>${mysticalSuggestion}</p>
@@ -504,7 +559,7 @@ export async function showDayModal(celticDay, celticMonth) {
     }
 
     console.log("Final Gregorian Date:", dateStr);
-  }
+}
 
 export function getFormattedMonth(monthNum) {
     const monthNames = [

@@ -515,7 +515,7 @@ def get_moon_poem(phase: str = None, moon_name: str = None):
             return {"poem": moon.get("poem", "The moon whispers secrets untold...")}
     
     # Fallback poem if no match is found
-    return {"poem": "<strong class='goldNugget'>The Moon’s Gentle Whisper</strong><br />A sliver of light, a quiet song,<br />Guiding the night as dreams drift along.<br />Not yet whole, but softly bright,<br />The moon still weaves her silver light."}
+    return {"poem": "<h3>The Moon’s Gentle Whisper</h3><p>A sliver of light, a quiet song,<br />Guiding the night as dreams drift along.<br />Not yet whole, but softly bright,<br />The moon still weaves her silver light.</p>"}
 
 
 

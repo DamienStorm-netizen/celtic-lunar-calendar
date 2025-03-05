@@ -7,7 +7,7 @@ export function renderHome() {
             <div class="celtic-info-container">
                 <!-- Moon Phase Column -->
                 <div class="moon-column">
-                    <p class="zodiac-subheader">Lunar Phase</p>
+                    <p class="goldenTitle">Tonight's Moon</p>
                     <div class="moon-phase">
                         <div class="moon-graphic">
                             <p class="moon-phase-name">Loading...</p>
@@ -19,15 +19,47 @@ export function renderHome() {
                 <!-- Celtic Zodiac Column -->
                 <div class="zodiac-column">
                     <div class="celtic-zodiac">
-                        <p class="zodiac-subheader">Celtic Zodiac</p>
+                        <p class="goldenTitle">Celtic Zodiac</p>
                         <div class="celtic-zodiac-details">
                             <h4 class="zodiac-sign">Loading...</h4>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="poem-container">
-                <blockquote class="moon-poem">Fetching poetic wisdom...</blockquote>
+            <div class="tree-of-life">
+
+                <!-- Moon Poem -->
+                <div class="poem-container">
+                    <blockquote class="moon-poem">Fetching poetic wisdom...</blockquote>
+                </div>
+
+                <img src="assets/images/decor/divider.png" alt="divider" />
+
+                <!-- Coming Events Carousel -->
+                <div class="coming-events-container">
+                    <h3 class="ciming-events-title">Coming Events</h3>
+                     <div id="coming-events-carousel" class="tab-content"> 
+
+                        <div class="coming-events-carousel">
+                            <button class="coming-events-prev">❮</button>
+
+                            <div class="coming-event-slide" id="xxx">
+                                <h2 class="coming-events-title">Snow Moon</h2>
+                                <h3 class="coming-events-date">22sd of Nivis</3>
+                                <p class="cimig-event">
+                                    The Snow Moon casts its tranquil glow, <br>
+                                    Upon the earth where frost does grow. <br>
+                                    Wrap in warmth, let dreams ignite, <br>
+                                    Burn cedar’s scent in soft moonlight.
+                                </p>
+                            </div>
+
+                            <button class="coming-events-next">)</button>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
     `;
@@ -135,7 +167,7 @@ export async function fetchPoemAndUpdate() {
 
         if (poemContainer) {
             poemContainer.innerHTML = `
-                <p>${data.poem}</p>
+                ${data.poem}
             `;
         }
     } catch (error) {
