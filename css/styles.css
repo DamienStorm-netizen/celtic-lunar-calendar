@@ -567,6 +567,14 @@ blockquote.moon-poem {
   padding-left: 1rem;
 }
 
+/**** */
+/* Coming Events */
+
+#coming-events-container {
+  margin-top: 10px;
+}
+
+
 /* ********************************************/
 /* CELTIC CALENDAR SCREEN */
 /**********************************************/

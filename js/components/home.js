@@ -36,33 +36,26 @@ export function renderHome() {
                 <img src="assets/images/decor/divider.png" alt="divider" />
 
                 <!-- Coming Events Carousel -->
-                <div class="coming-events-container">
-                    <h3 class="ciming-events-title">Coming Events</h3>
-                     <div id="coming-events-carousel" class="tab-content"> 
-
-                        <div class="coming-events-carousel">
-                            <button class="coming-events-prev">❮</button>
-
-                            <div class="coming-event-slide" id="xxx">
-                                <h2 class="coming-events-title">Snow Moon</h2>
-                                <h3 class="coming-events-date">22sd of Nivis</3>
-                                <p class="cimig-event">
-                                    The Snow Moon casts its tranquil glow, <br>
-                                    Upon the earth where frost does grow. <br>
-                                    Wrap in warmth, let dreams ignite, <br>
-                                    Burn cedar’s scent in soft moonlight.
-                                </p>
-                            </div>
-
-                            <button class="coming-events-next">)</button>
-
+                <div id="coming-events-container">
+                    <h3 class="inner-title" style="text-align:center">Coming Events</h3>
+                    <div id="coming-events-carousel" class="carousel-container">
+                        <button class="events-carousel-prev">❮</button>
+                        <div class="event-slide active">
+                            <p>Loading events...</p>
                         </div>
+                        <button class="events-carousel-next">❯</button>
                     </div>
                 </div>
 
             </div>
         </section>
     `;
+
+    async function setupHomeScreen() {
+        //await fetchCelticDate(); // Fetch the Celtic date and update UI
+        await fetchComingEvents(); // Fetch upcoming events separately
+        console.log("Fetching Coming Events from renderHome");
+    }
 }
 
 // Fetch the Celtic date dynamically and update the home screen
@@ -74,22 +67,33 @@ export async function fetchCelticDate() {
         }
 
         const data = await response.json();
+        console.log("Fetched Celtic Date:", data);
 
-        // Select the main date container in the home section
+        // Ensure the data contains the necessary values
+        if (!data || !data.month || !data.celtic_day) {
+            throw new Error("Incomplete Celtic date data received.");
+        }
+
+        // Update the home screen UI
         const dateContainer = document.querySelector('.celtic-date');
         if (dateContainer) {
             dateContainer.innerHTML = `
                 <h1 id="celtic-day">${data.day}</h1>
                 <p><span id="celtic-month">${data.month} ${data.celtic_day}</span> / <span id="gregorian-month">${data.gregorian_date}</span></p>
-
             `;
-        } else {
-            console.error('Date container not found in the DOM.');
         }
+
+        // ✅ Return structured data so other functions can use it
+        return {
+            celticMonth: data.month,
+            celticDay: parseInt(data.celtic_day, 10),
+            gregorianDate: data.gregorian_date
+        };
+
     } catch (error) {
-        console.error('Failed to fetch Celtic date:', error);
+        console.error("Failed to fetch Celtic date:", error);
+        return null; // Return null instead of breaking execution
     }
-    console.log('Home rendered:', document.querySelector('.celtic-date'));
 }
 
 // Fetch the Celtic Zodiac sign for the day
@@ -173,4 +177,393 @@ export async function fetchPoemAndUpdate() {
     } catch (error) {
         console.error('Error fetching the moon poem:', error);
     }
+}
+
+// Fetch upcoming events for the next 3 days
+export async function fetchComingEvents() {
+    console.log("Fetching coming events...");
+
+    try {
+        // Get the current Celtic date
+        const todayCeltic = await fetchCelticDate();
+        if (!todayCeltic) {
+            console.error("Could not fetch Celtic date. No upcoming events displayed.");
+            return;
+        }
+
+        const { celticMonth, celticDay, gregorianDate } = todayCeltic;
+        console.log(`Today's Celtic Date: ${celticMonth} ${celticDay} | Gregorian Date: ${gregorianDate}`);
+
+        // ✅ Ensure fetchComingEvents waits for a valid date before proceeding
+        if (!celticMonth || !celticDay) {
+            console.error("Celtic date is incomplete. Stopping fetchComingEvents.");
+            return;
+        }
+
+        // Use the Gregorian date directly from fetchCelticDate()
+        if (!gregorianDate || typeof gregorianDate !== "string") {
+            console.error("🚨 gregorianDate is missing or not a string!", gregorianDate);
+            return;
+        }
+        
+        const [monthName, day] = gregorianDate.split(" "); // Example: "March 06" -> ["March", "06"]
+        const gregorianMonth = getMonthNumber(monthName);
+        const gregorianDay = day.padStart(2, "0");
+        
+        if (!gregorianMonth || !gregorianDay) {
+            console.error("🚨 Gregorian conversion failed. Month or Day is undefined.", gregorianMonth, gregorianDay);
+            return;
+        }
+        
+        const gregorianToday = {
+            gregorianMonth,
+            gregorianDay
+        };
+        
+        console.log("✅ Finalized Gregorian Today:", gregorianToday);
+        console.log(`Using Gregorian Date: ${gregorianToday}`);
+
+        const todayDate = new Date(`2025-${String(gregorianToday.gregorianMonth).padStart(2, "0")}-${String(gregorianToday.gregorianDay).padStart(2, "0")}`);
+        const upcomingDates = [];
+
+        // Generate the next 3 days in Gregorian format
+        for (let i = 0; i < 3; i++) {
+            const futureDate = new Date(todayDate);
+            futureDate.setDate(todayDate.getDate() + i);
+
+            const formattedFutureDate = `2025-${String(futureDate.getMonth() + 1).padStart(2, "0")}-${String(futureDate.getDate()).padStart(2, "0")}`;
+            upcomingDates.push(formattedFutureDate);
+        }
+
+        console.log("📅 Fixed Upcoming Gregorian Dates:", upcomingDates);
+
+        // Fetch all event types
+        const [festivals, lunarData, holidays, customEvents] = await Promise.all([
+            fetchFestivals(),
+            fetchMoonPhases(celticMonth),
+            fetchNationalHolidays(),
+            fetchCustomEvents()
+        ]);
+
+        console.log("Fetched Festivals:", festivals);
+        console.log("Fetched Moon Phases:", lunarData);
+        console.log("Fetched Holidays:", holidays);
+        console.log("Fetched Custom Events:", customEvents);
+
+        // Filter upcoming events
+        const upcomingEvents = [];
+        
+
+        // Add Festivals
+        upcomingDates.forEach(date => {
+            const festival = festivals.find(f => f.date === date);
+            if (festival) {
+                upcomingEvents.push({
+                    type: "festival",
+                    title: festival.title,
+                    description: festival.notes || "A sacred celebration.",
+                    date
+                });
+            }
+        });
+
+        // Add Full Moons
+        upcomingDates.forEach(date => {
+            const moonEvent = lunarData.find(moon => moon.date === date && moon.phase === "Full Moon");
+            if (moonEvent) {
+                upcomingEvents.push({
+                    type: "full-moon",
+                    title: moonEvent.moonName || "Full Moon",
+                    description: moonEvent.description || "A night of celestial power.",
+                    date
+                });
+            }
+        });
+
+        // Add National Holidays for the next 3 days
+        console.log("Checking holidays for upcoming dates:", upcomingDates);
+
+        upcomingDates.forEach(upcomingDate => {
+            console.log(`🔍 Checking holiday for: ${upcomingDate}`);
+            
+            const holiday = holidays.find(h => h.date === upcomingDate);
+            
+            if (holiday) {
+                console.log(`🎉 Found upcoming holiday: ${holiday.title} on ${holiday.date}`);
+                upcomingEvents.push({
+                    type: "holiday",
+                    title: holiday.title,
+                    description: holiday.notes || "A recognized holiday.",
+                    date: upcomingDate // ✅ Ensure we're passing the correct date
+                });
+            }
+        });
+
+
+        // Add Custom Events
+        upcomingDates.forEach(date => {
+            const event = customEvents.find(e => e.date === date);
+            if (event) {
+                upcomingEvents.push({
+                    type: "custom-event",
+                    title: event.title,
+                    description: event.notes || "A personal milestone.",
+                    date
+                });
+            }
+        });
+
+        console.log("Final Upcoming Events:", upcomingEvents);
+        
+        // Populate the Carousel
+        populateComingEventsCarousel(upcomingEvents);
+
+    } catch (error) {
+        console.error("Error fetching coming events:", error);
+    }
+}
+
+// Fetch upcoming festivals based on the Celtic calendar
+export async function fetchFestivals() {
+    console.log("Fetching festival data...");
+
+    // 🎉 Define static festival dates (Celtic Calendar)
+    const festivalDays = {
+        "Janus": { day: 15, name: "Imbolc", description: "A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire." },
+        //"Flora": { day: 6, name: "Ostara", description: "The balance of light and dark, celebrating new beginnings." },
+        "Brigid": { day: 19, name: "Ostara", description: "The balance of light and dark, celebrating new beginnings." },
+        "Maia": { day: 19, name: "Beltaine", description: "The fire festival of passion and fertility, where the veil between worlds is thin." },
+        "Solis": { day: 14, name: "Litha", description: "The longest day of the year, honoring the Sun’s peak." },
+        "Terra": { day: 27, name: "Lammas", description: "A festival of the harvest, honoring the god Lugh and the first fruits of the land." },
+        "Lugh": { day: 19, name: "Mabon", description: "A time of balance and gratitude as the harvest ends." },
+        "Eira": { day: 6, name: "Samhain", description: "The gateway to winter, the festival of ancestors, spirits, and shadowy magic." },
+        "Aether": { day: 28, name: "Yule", description: "The winter solstice, celebrating the return of the light and the rebirth of the sun." }
+    };
+
+    // Get today's Celtic month and day
+    const todayCeltic = await fetchCelticDate();
+    if (!todayCeltic) {
+        console.error("Could not fetch Celtic date. No festivals loaded.");
+        return [];
+    }
+
+    const { celticMonth, celticDay } = todayCeltic;
+    
+    // Look up festival for the current month
+    const festival = festivalDays[celticMonth];
+
+    if (festival && festival.day >= celticDay && festival.day <= celticDay + 3) {
+        return [{
+            title: festival.name,
+            date: `Brigid ${festival.day}`,
+            description: festival.description
+        }];
+    }
+
+    console.log("No upcoming festivals found.");
+    return [];
+}
+
+// Fetch upcoming moon phases based on the Celtic calendar
+export async function fetchMoonPhases(celticMonth) {
+    console.log(`Fetching moon phases for ${celticMonth}...`);
+
+    // 🎑 Define Celtic month-to-Gregorian range mapping
+    const celticMonthMapping = {
+        "Nivis": { start: "2024-12-23", end: "2025-01-19" },
+        "Janus": { start: "2025-01-20", end: "2025-02-16" },
+        "Brigid": { start: "2025-02-17", end: "2025-03-16" },
+        "Flora": { start: "2025-03-17", end: "2025-04-13" },
+        "Maia": { start: "2025-04-14", end: "2025-05-11" },
+        "Juno": { start: "2025-05-12", end: "2025-06-08" },
+        "Solis": { start: "2025-06-09", end: "2025-07-06" },
+        "Terra": { start: "2025-07-07", end: "2025-08-03" },
+        "Lugh": { start: "2025-08-04", end: "2025-08-31" },
+        "Pomona": { start: "2025-09-01", end: "2025-09-28" },
+        "Autumna": { start: "2025-09-29", end: "2025-10-26" },
+        "Eira": { start: "2025-10-27", end: "2025-11-23" },
+        "Aether": { start: "2025-11-24", end: "2025-12-21" }
+    };
+
+    // Ensure valid month
+    if (!celticMonthMapping[celticMonth]) {
+        console.error("Invalid Celtic month:", celticMonth);
+        return [];
+    }
+
+    // Get the Gregorian range for this Celtic month
+    const { start, end } = celticMonthMapping[celticMonth];
+
+    try {
+        // Call the API for moon phases within the given date range
+        const response = await fetch(`/dynamic-moon-phases?start_date=${start}&end_date=${end}`);
+        if (!response.ok) throw new Error("Failed to fetch moon phases");
+
+        const moonData = await response.json();
+        console.log("🌙 Moon Phases Retrieved:", moonData);
+        return moonData;
+    } catch (error) {
+        console.error("❌ Error fetching moon phases:", error);
+        return [];
+    }
+}
+
+// Fetch upcoming national holidays for the next 3 days
+export async function fetchNationalHolidays() {
+    console.log("Fetching upcoming national holidays...");
+
+    try {
+        // Fetch holiday data from API
+        const response = await fetch("/api/national-holidays");
+        if (!response.ok) throw new Error("Failed to fetch national holidays");
+
+        const holidays = await response.json();
+        console.log("🏛️ National Holidays Retrieved:", holidays);
+
+        // ✅ Get today's date in YYYY-MM-DD format
+        const today = new Date();
+        const upcomingDates = [];
+        for (let i = 0; i < 3; i++) {
+            const futureDate = new Date(today);
+            futureDate.setDate(today.getDate() + i);
+            const formattedDate = `2025-${String(futureDate.getMonth() + 1).padStart(2, "0")}-${String(futureDate.getDate()).padStart(2, "0")}`;
+            upcomingDates.push(formattedDate);
+        }
+
+        console.log("📅 Checking holidays for:", upcomingDates);
+
+        // ✅ Filter holidays that match the next 3 days
+        const upcomingHolidays = holidays.filter(h => upcomingDates.includes(h.date));
+
+        console.log("🎉 Upcoming Holidays Found:", upcomingHolidays);
+        return upcomingHolidays;
+    } catch (error) {
+        console.error("❌ Error fetching national holidays:", error);
+        return [];
+    }
+}
+
+// Fetch upcoming custom events (birthdays, anniversaries, etc.) for the next 3 days
+export async function fetchCustomEvents() {
+    console.log("Fetching upcoming custom events...");
+
+    try {
+        // Fetch all custom events from the API
+        const response = await fetch("/api/custom-events");
+        if (!response.ok) throw new Error("Failed to fetch custom events");
+
+        const customEvents = await response.json();
+        console.log("🎂 Custom Events Retrieved:", customEvents);
+
+        // ✅ Get today's date in YYYY-MM-DD format
+        const today = new Date();
+        const upcomingDates = [];
+        for (let i = 0; i < 3; i++) {
+            const futureDate = new Date(today);
+            futureDate.setDate(today.getDate() + i);
+            const formattedDate = `2025-${String(futureDate.getMonth() + 1).padStart(2, "0")}-${String(futureDate.getDate()).padStart(2, "0")}`;
+            upcomingDates.push(formattedDate);
+        }
+
+        console.log("📅 Checking custom events for:", upcomingDates);
+
+        // ✅ Filter custom events that fall within the next 3 days
+        const upcomingCustomEvents = customEvents.filter(event => upcomingDates.includes(event.date));
+
+        console.log("🎊 Upcoming Custom Events Found:", upcomingCustomEvents);
+        return upcomingCustomEvents;
+    } catch (error) {
+        console.error("❌ Error fetching custom events:", error);
+        return [];
+    }
+}
+
+// Populate the Coming Events carousel
+export function populateComingEventsCarousel(events) {
+    const carouselContainer = document.getElementById("coming-events-carousel");
+
+    if (!carouselContainer) {
+        console.error("Carousel container not found!");
+        return;
+    }
+
+    carouselContainer.innerHTML = ""; // Clear previous slides
+
+    if (events.length === 0) {
+        carouselContainer.innerHTML = "<p>No upcoming events.</p>";
+        return;
+    }
+
+    events.forEach((event, index) => {
+        const slide = document.createElement("div");
+        slide.classList.add("event-slide");
+        if (index === 0) slide.classList.add("active"); // Set the first slide as active
+
+        let icon = "";
+        switch (event.type) {
+            case "festival":
+                icon = "🔥"; // Fire for Celtic festivals
+                break;
+            case "full-moon":
+                icon = "🌕"; // Moon emoji
+                break;
+            case "holiday":
+                icon = "🎉"; // Celebration emoji
+                break;
+            case "custom-event":
+                icon = "💜"; // Custom events
+                break;
+        }
+
+        slide.innerHTML = `
+            <h3 class="event-title">${icon} ${event.title}</h3>
+            <p class="event-date">${event.date}</p>
+            <p class="event-description">${event.description}</p>
+        `;
+
+        carouselContainer.appendChild(slide);
+    });
+
+    initializeCarouselNavigation();
+}
+
+export function initializeCarouselNavigation() {
+    const slides = document.querySelectorAll(".event-slide");
+    const prevButton = document.querySelector(".events-carousel-prev");
+    const nextButton = document.querySelector(".events-carousel-next");
+
+    let currentSlide = 0;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove("active");
+            slide.style.opacity = 0;
+            if (i === index) {
+                slide.classList.add("active");
+                setTimeout(() => (slide.style.opacity = 1), 300);
+            }
+        });
+    }
+
+    prevButton.addEventListener("click", () => {
+        currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
+        showSlide(currentSlide);
+    });
+
+    nextButton.addEventListener("click", () => {
+        currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
+        showSlide(currentSlide);
+    });
+
+    // Start with the first event
+    showSlide(currentSlide);
+}
+
+export function getMonthNumber(monthName) {
+    const months = {
+        "January": "01", "February": "02", "March": "03", "April": "04",
+        "May": "05", "June": "06", "July": "07", "August": "08",
+        "September": "09", "October": "10", "November": "11", "December": "12"
+    };
+    return months[monthName] || null;
 }

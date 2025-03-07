@@ -1,4 +1,4 @@
-import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate} from './components/home.js';
+import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate, fetchComingEvents, fetchFestivals, fetchMoonPhases, fetchCustomEvents,  populateComingEventsCarousel, initializeCarouselNavigation, getMonthNumber} from './components/home.js';
 import {renderCalendar, setupCalendarEvents, getCelticDate, showDayModal, convertCelticToGregorian, showModal, enhanceCalendarTable, getFormattedMonth, getDayOfWeek, getCelticZodiac, fetchNationalHolidays, getCustomEvents, getMysticalSuggestion, getMoonPoem, closeModal} from './components/calendar.js';
 import {renderInsights, initializeTabbedNav, initializeCelticZodiac, initializeFestivalCarousel, initializeMoonPoetry } from './components/insights.js';
 import {renderSettings, setupSettingsEvents } from './components/settings.js';
@@ -48,6 +48,13 @@ function highlightNav() {
         fetchDynamicMoonPhase(); // Fetch dynamic moon phase
         fetchCelticZodiac(); // Fetch Celtic Zodiac sign
         fetchPoemAndUpdate(); // Fetch Moon poem and update
+        fetchComingEvents(); // Fetch upcoming events for the next 3 days
+        fetchFestivals();
+        fetchMoonPhases();
+        fetchCustomEvents();
+        populateComingEventsCarousel(); // Display coming events
+        initializeCarouselNavigation();
+        getMonthNumber(); 
         break;
       case 'insights':
         appContainer.innerHTML = 
