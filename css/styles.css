@@ -369,13 +369,14 @@ header {
 
 .home {
   text-align: center;
-  margin: 2rem;
+  margin: 2rem 2rem 0 2rem;
   color: #fff;
+  padding-top: 1rem;
 }
 
 .home h1 {
   font-size: 2.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .home p {
@@ -570,8 +571,116 @@ blockquote.moon-poem {
 /**** */
 /* Coming Events */
 
+#coming-events-carousel {
+  padding: 0 20px !important;
+  min-height: 250px;
+}
+
+.coming-events-header {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  filter: drop-shadow(0 0 8px #ffd700);
+  text-align: center;
+  margin: 45px 0 10px 0;
+}
+
 #coming-events-container {
+  position: relative;
   margin-top: 10px;
+  align-items: top;
+}
+
+.coming-events-carousel-container {
+  position: relative;
+  overflow: hidden;
+  width: 80%;
+  max-width: 600px;
+  margin: 5px auto;
+  padding: 20px !important;
+}
+
+.coming-events-slide {
+  display: none;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.coming-events-slide.active {
+  display: block;
+  opacity: 1;
+}
+
+.coming-events-icon {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
+  transition: transform 0.3s ease-in-out;
+}
+
+.coming-events-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(255, 255, 127, 1);
+}
+
+.coming-events-title {
+  font-size: 1.5rem; /* Adjust size as needed */
+  text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  margin: 0;
+}
+
+.coming-events-name {
+  font-size: 1.5rem;
+  color: gold;
+  text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+}
+
+
+.coming-events-date {
+  font-size: 1.2rem;
+  color: #fff6ea;
+  margin: 0;
+}
+
+.coming-events-description {
+  font-family: 'Vidaloka', serif;
+  font-size: 1.1rem;
+  color: #fff;
+  max-width: 100%;
+  margin: 10px auto;
+}
+
+.coming-events-carousel-prev, .coming-events-carousel-next {
+  position: absolute;
+  top: 20%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: gold;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  z-index: 10; /* Make sure it is above everything else */
+}
+
+.coming-events-carousel-prev { left: 1%; }
+.coming-events-carousel-next { right: 1%; }
+
+.coming-events-carousel-prev:hover, .coming-events-carousel-next:hover {
+  filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8));
+  animation: comingEventsGlow 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes comingEventsGlow {
+  0% { filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8)); }
+  100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
 }
 
 

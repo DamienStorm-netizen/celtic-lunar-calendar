@@ -33,18 +33,17 @@ export function renderHome() {
                     <blockquote class="moon-poem">Fetching poetic wisdom...</blockquote>
                 </div>
 
-                <img src="assets/images/decor/divider.png" alt="divider" />
-
                 <!-- Coming Events Carousel -->
                 <div id="coming-events-container">
-                    <h3 class="inner-title" style="text-align:center">Coming Events</h3>
-                    <div id="coming-events-carousel" class="carousel-container">
-                        <button class="events-carousel-prev">❮</button>
-                        <div class="event-slide active">
+                    <h3 class="coming-events-header">Coming Events</h3>
+                    <button class="coming-events-carousel-prev">❮</button>
+                    <div id="coming-events-carousel" class="coming-events-carousel-container">
+                        <button class="coming-events-carousel-prev">❮</button>
+                        <div class="coming-events-slide active">
                             <p>Loading events...</p>
                         </div>
-                        <button class="events-carousel-next">❯</button>
                     </div>
+                    <button class="coming-events-carousel-next">❯</button>
                 </div>
 
             </div>
@@ -226,8 +225,8 @@ export async function fetchComingEvents() {
         const todayDate = new Date(`2025-${String(gregorianToday.gregorianMonth).padStart(2, "0")}-${String(gregorianToday.gregorianDay).padStart(2, "0")}`);
         const upcomingDates = [];
 
-        // Generate the next 3 days in Gregorian format
-        for (let i = 0; i < 3; i++) {
+        // Generate the next 5 days in Gregorian format
+        for (let i = 0; i < 5; i++) {
             const futureDate = new Date(todayDate);
             futureDate.setDate(todayDate.getDate() + i);
 
@@ -313,8 +312,12 @@ export async function fetchComingEvents() {
             }
         });
 
-        console.log("Final Upcoming Events:", upcomingEvents);
+        if (!Array.isArray(upcomingEvents)) {
+            console.error("❌ upcomingEvents is not an array:", upcomingEvents);
+            upcomingEvents = []; // Fallback to an empty array to prevent crashes
+        }
         
+        console.log("✅ Final Upcoming Events Array:", upcomingEvents);
         // Populate the Carousel
         populateComingEventsCarousel(upcomingEvents);
 
@@ -330,7 +333,7 @@ export async function fetchFestivals() {
     // 🎉 Define static festival dates (Celtic Calendar)
     const festivalDays = {
         "Janus": { day: 15, name: "Imbolc", description: "A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire." },
-        //"Flora": { day: 6, name: "Ostara", description: "The balance of light and dark, celebrating new beginnings." },
+        "Flora": { day: 6, name: "Ostara", description: "The balance of light and dark, celebrating new beginnings." },
         "Brigid": { day: 19, name: "Ostara", description: "The balance of light and dark, celebrating new beginnings." },
         "Maia": { day: 19, name: "Beltaine", description: "The fire festival of passion and fertility, where the veil between worlds is thin." },
         "Solis": { day: 14, name: "Litha", description: "The longest day of the year, honoring the Sun’s peak." },
@@ -489,14 +492,15 @@ export function populateComingEventsCarousel(events) {
 
     carouselContainer.innerHTML = ""; // Clear previous slides
 
-    if (events.length === 0) {
+    if (!Array.isArray(events)) {
+        console.error("Events is not an array:", events);
         carouselContainer.innerHTML = "<p>No upcoming events.</p>";
         return;
     }
 
     events.forEach((event, index) => {
         const slide = document.createElement("div");
-        slide.classList.add("event-slide");
+        slide.classList.add("coming-events-slide");
         if (index === 0) slide.classList.add("active"); // Set the first slide as active
 
         let icon = "";
@@ -515,10 +519,13 @@ export function populateComingEventsCarousel(events) {
                 break;
         }
 
+        // Convert Gregorian date to Celtic date
+        const celticDate = convertGregorianToCeltic(event.date);
+
         slide.innerHTML = `
-            <h3 class="event-title">${icon} ${event.title}</h3>
-            <p class="event-date">${event.date}</p>
-            <p class="event-description">${event.description}</p>
+            <h3 class="coming-events-title">${icon} ${event.title}</h3>
+            <p class="coming-events-date">${celticDate}</p>
+            <p class="coming-events-description">${event.description}</p>
         `;
 
         carouselContainer.appendChild(slide);
@@ -528,35 +535,59 @@ export function populateComingEventsCarousel(events) {
 }
 
 export function initializeCarouselNavigation() {
-    const slides = document.querySelectorAll(".event-slide");
-    const prevButton = document.querySelector(".events-carousel-prev");
-    const nextButton = document.querySelector(".events-carousel-next");
-
+    const slides = document.querySelectorAll(".coming-events-slide");
+    const prevButton = document.querySelector(".coming-events-carousel-prev");
+    const nextButton = document.querySelector(".coming-events-carousel-next");
     let currentSlide = 0;
+    let autoScroll;
 
     function showSlide(index) {
         slides.forEach((slide, i) => {
             slide.classList.remove("active");
-            slide.style.opacity = 0;
+            slide.style.opacity = "0"; // Start fade out
             if (i === index) {
                 slide.classList.add("active");
-                setTimeout(() => (slide.style.opacity = 1), 300);
+                setTimeout(() => (slide.style.opacity = "1"), 300); // Fade in effect
             }
         });
     }
 
-    prevButton.addEventListener("click", () => {
-        currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
         showSlide(currentSlide);
+    }
+
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    function startAutoScroll() {
+        autoScroll = setInterval(nextSlide, 6000); // Changes slides every 6 seconds
+    }
+
+    function stopAutoScroll() {
+        clearInterval(autoScroll);
+        setTimeout(startAutoScroll, 8000); // Restart after 8 seconds if no interaction
+    }
+
+    // Attach event listeners for manual navigation
+    prevButton.addEventListener("click", () => {
+        prevSlide();
+        stopAutoScroll();
     });
 
     nextButton.addEventListener("click", () => {
-        currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
-        showSlide(currentSlide);
+        nextSlide();
+        stopAutoScroll();
     });
 
-    // Start with the first event
-    showSlide(currentSlide);
+    // Pause auto-scroll when the user hovers over the carousel
+    document.querySelector("#coming-events-carousel").addEventListener("mouseenter", stopAutoScroll);
+    document.querySelector("#coming-events-carousel").addEventListener("mouseleave", startAutoScroll);
+
+    // Start auto-scroll initially
+    startAutoScroll();
 }
 
 export function getMonthNumber(monthName) {
@@ -566,4 +597,40 @@ export function getMonthNumber(monthName) {
         "September": "09", "October": "10", "November": "11", "December": "12"
     };
     return months[monthName] || null;
+}
+
+export function convertGregorianToCeltic(gregorianDate) {
+    const monthMapping = {
+        "Nivis": { start: "2024-12-23", end: "2025-01-19" },
+        "Janus": { start: "2025-01-20", end: "2025-02-16" },
+        "Brigid": { start: "2025-02-17", end: "2025-03-16" },
+        "Flora": { start: "2025-03-17", end: "2025-04-13" },
+        "Maia": { start: "2025-04-14", end: "2025-05-11" },
+        "Juno": { start: "2025-05-12", end: "2025-06-08" },
+        "Solis": { start: "2025-06-09", end: "2025-07-06" },
+        "Terra": { start: "2025-07-07", end: "2025-08-03" },
+        "Lugh": { start: "2025-08-04", end: "2025-08-31" },
+        "Pomona": { start: "2025-09-01", end: "2025-09-28" },
+        "Autumna": { start: "2025-09-29", end: "2025-10-26" },
+        "Eira": { start: "2025-10-27", end: "2025-11-23" },
+        "Aether": { start: "2025-11-24", end: "2025-12-21" },
+    };
+
+    const inputDate = new Date(gregorianDate);
+    if (isNaN(inputDate.getTime())) {
+        console.error("Invalid Gregorian date:", gregorianDate);
+        return "Invalid Date";
+    }
+
+    for (const [celticMonth, range] of Object.entries(monthMapping)) {
+        const startDate = new Date(range.start);
+        const endDate = new Date(range.end);
+
+        if (inputDate >= startDate && inputDate <= endDate) {
+            const celticDay = Math.floor((inputDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            return `${celticMonth} ${celticDay}`;
+        }
+    }
+
+    return "Unknown Date";
 }

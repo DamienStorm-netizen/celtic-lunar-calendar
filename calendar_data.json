@@ -274,7 +274,7 @@
             "title": "Foxy Day 🦊", 
             "type": "USA", 
             "date": "2025-03-07", 
-            "notes": ""
+            "notes": "A day dedicated to Foxy!"
         }
     ],
 
@@ -296,6 +296,12 @@
             "type": "Period", 
             "date": "2025-06-01", 
             "notes": "First day of cycle."
+        },
+        {
+            "title": "Eye Exam", 
+            "type": "Health", 
+            "date": "2025-03-08", 
+            "notes": "12h30 - Baby gets her eyes checked!"
         }
     ],
 
