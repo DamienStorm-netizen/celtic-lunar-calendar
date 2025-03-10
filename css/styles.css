@@ -440,6 +440,7 @@ blockquote.moon-poem {
   background-repeat: no-repeat;
   width: 100%;
   background-position-x: center;
+  padding-bottom: 35px;;
 }
 
 .poem-container {
@@ -458,6 +459,14 @@ blockquote.moon-poem {
   font-size: 1rem !important;
   font-weight: 400;
   line-height: 150%;
+}
+
+/* Lunar & Solar Eclipse Styling */
+.event-slide.eclipse {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.8) 20%, rgba(20, 20, 20, 0.9) 80%);
+  color: #ffcc00; /* Soft glowing yellow text */
+  border: 1px solid rgba(255, 204, 0, 0.5);
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
 }
 
 /* Today's Moon Phase and Celtic Zodiac Sign */
@@ -572,8 +581,10 @@ blockquote.moon-poem {
 /* Coming Events */
 
 #coming-events-carousel {
-  padding: 0 20px !important;
-  min-height: 250px;
+  padding: 0 !important;
+  min-height: 150px;
+  background: rgba(104, 70, 140, 0.3);
+  border-radius: 15px;
 }
 
 .coming-events-header {
@@ -588,7 +599,7 @@ blockquote.moon-poem {
 
 #coming-events-container {
   position: relative;
-  margin-top: 10px;
+  margin-top: 10px 0;
   align-items: top;
 }
 
@@ -633,7 +644,7 @@ blockquote.moon-poem {
   font-weight: 400; /* Use bold for the title */
   color: #f5d742; /* Your dazzling title colour! */
   text-align: center;
-  margin: 0;
+  margin: 15px 0;
 }
 
 .coming-events-name {
@@ -659,7 +670,7 @@ blockquote.moon-poem {
 
 .coming-events-carousel-prev, .coming-events-carousel-next {
   position: absolute;
-  top: 20%;
+  top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;

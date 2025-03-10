@@ -620,3 +620,47 @@ except FileNotFoundError:
 @app.get("/api/national-holidays")
 def get_national_holidays():
     return national_holidays
+
+# Load lunar and solar eclipses
+def find_upcoming_eclipses():
+    """Finds the next solar and lunar eclipses within a given timeframe."""
+    now = ephem.now()
+    end_date = datetime.utcnow() + timedelta(days=365)  # Convert ephem.now() + 365 into a datetime
+
+    eclipses = []
+
+    print(f"🔍 Checking eclipses from {ephem.localtime(now)} to {end_date}")
+
+    try:
+        # Find the next lunar eclipse
+        next_lunar = ephem.localtime(ephem.next_full_moon(now))  # Convert to datetime
+        print(f"🌕 Next Lunar Eclipse: {next_lunar}")
+
+        if next_lunar < end_date:  # ✅ This comparison now works
+            eclipses.append({
+                "type": "Lunar Eclipse",
+                "date": next_lunar.strftime("%Y-%m-%d %H:%M:%S"),
+                "visibility": "Check local conditions"
+            })
+
+        # Find the next solar eclipse
+        next_solar = ephem.localtime(ephem.next_new_moon(now))  # Convert to datetime
+        print(f"☀️ Next Solar Eclipse: {next_solar}")
+
+        if next_solar < end_date:  # ✅ Fixed comparison
+            eclipses.append({
+                "type": "Solar Eclipse",
+                "date": next_solar.strftime("%Y-%m-%d %H:%M:%S"),
+                "visibility": "Check local conditions"
+            })
+
+    except Exception as e:
+        print(f"❌ Error fetching eclipses: {e}")
+        return {"error": str(e)}
+
+    return eclipses
+
+@app.get("/api/eclipses")
+def get_eclipses():
+    return find_upcoming_eclipses()
+
