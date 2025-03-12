@@ -462,7 +462,7 @@ blockquote.moon-poem {
 }
 
 /* Lunar & Solar Eclipse Styling */
-.event-slide.eclipse {
+.coming-events-slide.eclipse {
   background: radial-gradient(circle, rgba(0, 0, 0, 0.8) 20%, rgba(20, 20, 20, 0.9) 80%);
   color: #ffcc00; /* Soft glowing yellow text */
   border: 1px solid rgba(255, 204, 0, 0.5);
