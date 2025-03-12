@@ -621,40 +621,40 @@ except FileNotFoundError:
 def get_national_holidays():
     return national_holidays
 
+
 # Load lunar and solar eclipses
-def get_next_eclipse_events():
-    now = datetime.utcnow()
-    
-    # Calculate the next lunar eclipse.
-    next_lunar = ephem.next_lunar_eclipse(now)
-    # Ephem returns a tuple (start, maximum, end, [partial eclipse info...])
-    # We'll use the "maximum" time (index 1) as the event date.
-    lunar_max = ephem.Date(next_lunar[1]).datetime()
-    lunar_max_str = lunar_max.strftime("%Y-%m-%d")
-    
-    lunar_event = {
+def estimate_eclipses():
+    now = ephem.now()
+
+    # Find the next full moon (for lunar eclipses)
+    next_full_moon = ephem.next_full_moon(now)
+    next_full_moon_date = ephem.Date(next_full_moon).datetime()
+
+    # Find the next new moon (for solar eclipses)
+    next_new_moon = ephem.next_new_moon(now)
+    next_new_moon_date = ephem.Date(next_new_moon).datetime()
+
+    # Estimate Lunar Eclipse (assuming it happens near a full moon)
+    lunar_eclipse_event = {
         "type": "lunar-eclipse",
         "title": "Lunar Eclipse",
-        "description": "Watch as the Earth’s shadow darkens the Moon.",
-        "date": lunar_max_str
+        "description": "Shadow and light embrace in celestial dance, a moment between worlds.",
+        "date": next_full_moon_date.strftime("%Y-%m-%d %H:%M:%S")
     }
-    
-    # Calculate the next solar eclipse.
-    next_solar = ephem.next_solar_eclipse(now)
-    solar_max = ephem.Date(next_solar[1]).datetime()
-    solar_max_str = solar_max.strftime("%Y-%m-%d")
-    
-    solar_event = {
+
+    # Estimate Solar Eclipse (assuming it happens near a new moon)
+    solar_eclipse_event = {
         "type": "solar-eclipse",
         "title": "Solar Eclipse",
         "description": "A rare solar eclipse is on the horizon.",
-        "date": solar_max_str
+        "date": next_new_moon_date.strftime("%Y-%m-%d %H:%M:%S")
     }
-    
-    # Return both eclipse events
-    return [lunar_event, solar_event]
 
+    return [lunar_eclipse_event, solar_eclipse_event]
+
+# API Endpoint for Eclipses
 @app.get("/api/eclipse-events")
 def eclipse_events():
-    events = get_next_eclipse_events()
+    events = estimate_eclipses()
     return events
+

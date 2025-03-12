@@ -35,7 +35,7 @@ export function renderHome() {
 
                 <!-- What's Happening! Carousel -->
                 <div id="coming-events-container">
-                    <h3 class="coming-events-header">What's Happening!</h3>
+                    <h3 class="coming-events-header">The Journey Unfolds</h3>
                     <button class="coming-events-carousel-prev">❮</button>
                     <div id="coming-events-carousel" class="coming-events-carousel-container">
                         <button class="coming-events-carousel-prev">❮</button>
@@ -124,8 +124,6 @@ export async function fetchCelticZodiac() {
     }
 }
 
-
-
 // Fetch the Moon Phase dynamically and update the home screen
 export async function fetchDynamicMoonPhase() {
     const today = new Date().toISOString().split('T')[0]; // Today's date in ISO format
@@ -205,7 +203,7 @@ export async function fetchComingEvents() {
       const upcomingDates = [];
   
       // 3) Generate next 5 days in YYYY-MM-DD
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 7; i++) {
         const futureDate = new Date(todayDate);
         futureDate.setDate(todayDate.getDate() + i);
   
@@ -218,11 +216,12 @@ export async function fetchComingEvents() {
       console.log("Next 5 Gregorian Dates:", upcomingDates);
   
       // 4) Fetch all data in parallel
-      const [festivals, lunarData, holidays, customEvents] = await Promise.all([
+      const [festivals, lunarData, holidays, customEvents, eclipses] = await Promise.all([
         fetchFestivals(),        // now returns *all* festivals in Gregorian date
         fetchMoonPhases(celticMonth),
         fetchNationalHolidays(), // unify logic if needed
-        fetchCustomEvents()      // now returns *all* custom events
+        fetchCustomEvents(),      // now returns *all* custom events
+        fetchEclipses()  // 🌑 Fetch Eclipse Data
       ]);
   
       // 5) Prepare an empty array to store all upcoming events
@@ -265,6 +264,19 @@ export async function fetchComingEvents() {
           });
         }
       });
+
+       // 🌑 Add Lunar & Solar Eclipses (Updated)
+        eclipses.forEach(eclipse => {
+            console.log("🌘 Checking eclipse:", eclipse);
+            if (upcomingDates.includes(eclipse.date.split(" ")[0])) {
+                upcomingEvents.push({
+                    type: "eclipse",
+                    title: `${eclipse.title} 🌑`,
+                    description: getRandomEclipseDescription(),
+                    date: eclipse.date
+                });
+            }
+        });
   
       // 5C) Add national holidays
       upcomingDates.forEach(date => {
@@ -298,7 +310,7 @@ export async function fetchComingEvents() {
     } catch (error) {
       console.error("Error fetching coming events:", error);
     }
-  }
+}
 
 // Fetch upcoming festivals based on the Celtic calendar
 export async function fetchFestivals() {
@@ -370,6 +382,36 @@ export async function fetchMoonPhases(celticMonth) {
     }
 }
 
+// 🌑 Fetch upcoming eclipses
+export async function fetchEclipses() {
+    console.log("Fetching upcoming eclipse events...");
+    try {
+        const response = await fetch("/api/eclipse-events");
+        if (!response.ok) throw new Error("Failed to fetch eclipse events");
+
+        const eclipses = await response.json();
+        console.log("🌘 Eclipses Retrieved:", eclipses);
+        return eclipses;
+    } catch (error) {
+        console.error("Error fetching eclipses:", error);
+        return [];
+    }
+}
+
+ // 🌑 Array of mystical eclipse descriptions
+ const eclipseDescriptions = [
+    "Shadow and light embrace in celestial dance, a moment between worlds.",
+    "A veil of shadow whispers across the sky, heralding change and prophecy.",
+    "When the sun and moon entwine, fate's hand turns unseen pages.",
+    "A doorway of darkness, a path of light—step into the unknown.",
+    "The sky dims, the air hums—something ancient stirs in the eclipse's glow."
+];
+
+// 🔮 Get a random eclipse description
+export function getRandomEclipseDescription() {
+    return eclipseDescriptions[Math.floor(Math.random() * eclipseDescriptions.length)];
+}
+
 // Fetch upcoming national holidays for the next 3 days
 export async function fetchNationalHolidays() {
     console.log("Fetching upcoming national holidays...");
@@ -385,7 +427,7 @@ export async function fetchNationalHolidays() {
         console.error("Error fetching national holidays:", error);
         return [];
       }
-    }
+}
 
 // Fetch upcoming custom events (birthdays, anniversaries, etc.) for the next 3 days
 export async function fetchCustomEvents() {
@@ -402,7 +444,7 @@ export async function fetchCustomEvents() {
       console.error("Error fetching custom events:", error);
       return [];
     }
-  }
+}
 
 // Populate the Coming Events carousel
 export function populateComingEventsCarousel(events) {

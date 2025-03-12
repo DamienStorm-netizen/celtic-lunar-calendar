@@ -144,7 +144,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
     // 🔥 Celtic Festivals Mapping
     const festivalDays = {
         "Janus": [15], // Imbolc
-        "Flora": [6], // Ostara
+        "Flora": [4], // Ostara
         "Maia": [19], // Beltaine
         "Solis": [14], // Litha
         "Terra": [27], // Lammas
