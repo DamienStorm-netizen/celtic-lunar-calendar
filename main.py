@@ -622,45 +622,39 @@ def get_national_holidays():
     return national_holidays
 
 # Load lunar and solar eclipses
-def find_upcoming_eclipses():
-    """Finds the next solar and lunar eclipses within a given timeframe."""
-    now = ephem.now()
-    end_date = datetime.utcnow() + timedelta(days=365)  # Convert ephem.now() + 365 into a datetime
+def get_next_eclipse_events():
+    now = datetime.utcnow()
+    
+    # Calculate the next lunar eclipse.
+    next_lunar = ephem.next_lunar_eclipse(now)
+    # Ephem returns a tuple (start, maximum, end, [partial eclipse info...])
+    # We'll use the "maximum" time (index 1) as the event date.
+    lunar_max = ephem.Date(next_lunar[1]).datetime()
+    lunar_max_str = lunar_max.strftime("%Y-%m-%d")
+    
+    lunar_event = {
+        "type": "lunar-eclipse",
+        "title": "Lunar Eclipse",
+        "description": "Watch as the Earth’s shadow darkens the Moon.",
+        "date": lunar_max_str
+    }
+    
+    # Calculate the next solar eclipse.
+    next_solar = ephem.next_solar_eclipse(now)
+    solar_max = ephem.Date(next_solar[1]).datetime()
+    solar_max_str = solar_max.strftime("%Y-%m-%d")
+    
+    solar_event = {
+        "type": "solar-eclipse",
+        "title": "Solar Eclipse",
+        "description": "A rare solar eclipse is on the horizon.",
+        "date": solar_max_str
+    }
+    
+    # Return both eclipse events
+    return [lunar_event, solar_event]
 
-    eclipses = []
-
-    print(f"🔍 Checking eclipses from {ephem.localtime(now)} to {end_date}")
-
-    try:
-        # Find the next lunar eclipse
-        next_lunar = ephem.localtime(ephem.next_full_moon(now))  # Convert to datetime
-        print(f"🌕 Next Lunar Eclipse: {next_lunar}")
-
-        if next_lunar < end_date:  # ✅ This comparison now works
-            eclipses.append({
-                "type": "Lunar Eclipse",
-                "date": next_lunar.strftime("%Y-%m-%d %H:%M:%S"),
-                "visibility": "Check local conditions"
-            })
-
-        # Find the next solar eclipse
-        next_solar = ephem.localtime(ephem.next_new_moon(now))  # Convert to datetime
-        print(f"☀️ Next Solar Eclipse: {next_solar}")
-
-        if next_solar < end_date:  # ✅ Fixed comparison
-            eclipses.append({
-                "type": "Solar Eclipse",
-                "date": next_solar.strftime("%Y-%m-%d %H:%M:%S"),
-                "visibility": "Check local conditions"
-            })
-
-    except Exception as e:
-        print(f"❌ Error fetching eclipses: {e}")
-        return {"error": str(e)}
-
-    return eclipses
-
-@app.get("/api/eclipses")
-def get_eclipses():
-    return find_upcoming_eclipses()
-
+@app.get("/api/eclipse-events")
+def eclipse_events():
+    events = get_next_eclipse_events()
+    return events

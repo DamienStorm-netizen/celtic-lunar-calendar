@@ -205,7 +205,7 @@ export async function fetchComingEvents() {
       const upcomingDates = [];
   
       // 3) Generate next 5 days in YYYY-MM-DD
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         const futureDate = new Date(todayDate);
         futureDate.setDate(todayDate.getDate() + i);
   
@@ -230,16 +230,28 @@ export async function fetchComingEvents() {
   
       // 5A) Add any festivals that fall within those 5 days
       upcomingDates.forEach(date => {
+        console.log(`🔍 Checking festivals for date: ${date}`);
+        
+        festivals.forEach(festival => {
+            console.log(`   🎭 Comparing with festival: ${festival.title} | Date: ${festival.date}`);
+        });
+    
         const festival = festivals.find(f => f.date === date);
+        
         if (festival) {
-          upcomingEvents.push({
-            type: "festival",
-            title: festival.title,
-            description: festival.description || "A sacred celebration.",
-            date
-          });
+            console.log("✅ Festival match found!", festival.date, "vs", date);
+            console.log("Festival Object:", festival);
+    
+            upcomingEvents.push({
+                type: "festival",
+                title: festival.title,
+                description: festival.description || "A sacred celebration.",
+                date
+            });
+        } else {
+            console.log("❌ No festival match for", date);
         }
-      });
+    });
   
       // 5B) Add Full Moons (already works)
       upcomingDates.forEach(date => {
@@ -286,30 +298,33 @@ export async function fetchComingEvents() {
     } catch (error) {
       console.error("Error fetching coming events:", error);
     }
-}
+  }
 
 // Fetch upcoming festivals based on the Celtic calendar
 export async function fetchFestivals() {
     try {
-      // If you are serving calendar_data.json from an endpoint, do something like:
-      const response = await fetch('/festivals'); 
-      if (!response.ok) throw new Error("Failed to fetch special days");
-      
-      const specialDays = await response.json();
-      // Convert them to a consistent shape that matches your “upcoming events” logic:
-      const festivalData = specialDays.map(day => ({
-        type: "festival",
-        title: day.name,
-        description: day.description,
-        date: day.date   // <-- important: keep "YYYY-MM-DD"
-      }));
-      console.log('Festival data is: ', festivalData);
-      return festivalData;
+        // Fetch the festival data (assuming it's served from an endpoint)
+        const response = await fetch('/festivals'); 
+        if (!response.ok) throw new Error("Failed to fetch special days");
+
+        const specialDays = await response.json();
+        
+        // Normalize festival dates to YYYY-MM-DD format
+        const festivalData = specialDays.map(day => ({
+            type: "festival",
+            title: day.name,
+            description: day.description || "A sacred celebration.",
+            date: new Date(day.date).toISOString().split('T')[0]  // Normalize format
+        }));
+
+        console.log('📅 Festival data processed:', festivalData);
+        return festivalData;
+
     } catch (err) {
-      console.error("Error fetching festivals:", err);
-      return [];
+        console.error("🚨 Error fetching festivals:", err);
+        return [];
     }
-  }
+}
 
 // Fetch upcoming moon phases based on the Celtic calendar
 export async function fetchMoonPhases(celticMonth) {

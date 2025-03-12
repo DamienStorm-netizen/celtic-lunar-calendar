@@ -662,10 +662,11 @@ blockquote.moon-poem {
 
 .coming-events-description {
   font-family: 'Vidaloka', serif;
-  font-size: 1.1rem;
+  font-size: 1.1rem !important;
   color: #fff;
   max-width: 100%;
   margin: 10px auto;
+  padding: 5px;
 }
 
 .coming-events-carousel-prev, .coming-events-carousel-next {
