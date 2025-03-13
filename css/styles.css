@@ -369,13 +369,14 @@ header {
 
 .home {
   text-align: center;
-  margin: 2rem;
+  margin: 2rem 2rem 0 2rem;
   color: #fff;
+  padding-top: 1rem;
 }
 
 .home h1 {
   font-size: 2.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .home p {
@@ -439,6 +440,7 @@ blockquote.moon-poem {
   background-repeat: no-repeat;
   width: 100%;
   background-position-x: center;
+  padding-bottom: 35px;;
 }
 
 .poem-container {
@@ -457,6 +459,14 @@ blockquote.moon-poem {
   font-size: 1rem !important;
   font-weight: 400;
   line-height: 150%;
+}
+
+/* Lunar & Solar Eclipse Styling */
+.coming-events-slide.eclipse {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.8) 20%, rgba(20, 20, 20, 0.9) 80%);
+  color: #ffcc00; /* Soft glowing yellow text */
+  border: 1px solid rgba(255, 204, 0, 0.5);
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
 }
 
 /* Today's Moon Phase and Celtic Zodiac Sign */
@@ -566,6 +576,125 @@ blockquote.moon-poem {
   border-left: 4px solid #ffd700;
   padding-left: 1rem;
 }
+
+/**** */
+/* Coming Events */
+
+#coming-events-carousel {
+  padding: 0 !important;
+  min-height: 150px;
+  background: rgba(104, 70, 140, 0.3);
+  border-radius: 15px;
+}
+
+.coming-events-header {
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  filter: drop-shadow(0 0 8px #ffd700);
+  text-align: center;
+  margin: 45px 0 10px 0;
+}
+
+#coming-events-container {
+  position: relative;
+  margin-top: 10px 0;
+  align-items: top;
+}
+
+.coming-events-carousel-container {
+  position: relative;
+  overflow: hidden;
+  width: 80%;
+  max-width: 600px;
+  margin: 5px auto;
+  padding: 20px !important;
+}
+
+.coming-events-slide {
+  display: none;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.coming-events-slide.active {
+  display: block;
+  opacity: 1;
+}
+
+.coming-events-icon {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
+  transition: transform 0.3s ease-in-out;
+}
+
+.coming-events-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(255, 255, 127, 1);
+}
+
+.coming-events-title {
+  font-size: 1.5rem; /* Adjust size as needed */
+  text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+  font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  margin: 15px 0;
+}
+
+.coming-events-name {
+  font-size: 1.5rem;
+  color: gold;
+  text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+}
+
+
+.coming-events-date {
+  font-size: 1.2rem;
+  color: #fff6ea;
+  margin: 0;
+}
+
+.coming-events-description {
+  font-family: 'Vidaloka', serif;
+  font-size: 1.1rem !important;
+  color: #fff;
+  max-width: 100%;
+  margin: 10px auto;
+  padding: 5px;
+}
+
+.coming-events-carousel-prev, .coming-events-carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: gold;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  z-index: 10; /* Make sure it is above everything else */
+}
+
+.coming-events-carousel-prev { left: 1%; }
+.coming-events-carousel-next { right: 1%; }
+
+.coming-events-carousel-prev:hover, .coming-events-carousel-next:hover {
+  filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8));
+  animation: comingEventsGlow 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes comingEventsGlow {
+  0% { filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8)); }
+  100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
+}
+
 
 /* ********************************************/
 /* CELTIC CALENDAR SCREEN */
