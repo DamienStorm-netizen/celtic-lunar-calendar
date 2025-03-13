@@ -506,16 +506,27 @@ def get_lunar_visuals(month_name: str = None, start_date: str = None, end_date: 
     }
 
 # Fetch the moon poem or display a default moon poem
-@app.get("/api/lunar-phase-poem")
-def get_moon_poem(phase: str = None, moon_name: str = None):
-    # Example: Use the "phase" or "moon_name" to retrieve the poem dynamically
-    for moon in calendar_data["lunar_phases"]:
-        if (phase and moon["phase"].lower() == phase.lower()) or \
-           (moon_name and moon.get("phaseName", "").lower() == moon_name.lower()):
-            return {"poem": moon.get("poem", "The moon whispers secrets untold...")}
+import random
+
+# List of mystical moon poems
+moon_poems = [
+    "<h3>The Moon’s Gentle Whisper</h3><p>A sliver of light, a quiet song,<br />Guiding the night as dreams drift along.<br />Not yet whole, but softly bright,<br />The moon still weaves her silver light.</p>",
     
-    # Fallback poem if no match is found
-    return {"poem": "<h3>The Moon’s Gentle Whisper</h3><p>A sliver of light, a quiet song,<br />Guiding the night as dreams drift along.<br />Not yet whole, but softly bright,<br />The moon still weaves her silver light.</p>"}
+    "<h3>Silver Secrets</h3><p>She drifts in shadows, silver-bright,<br />A lantern glowing in the night.<br />Whisper your dreams, let wishes rise,<br />The moon will answer from the skies.</p>",
+
+    "<h3>Moonlit Veil</h3><p>Between the stars and midnight’s hush,<br />She weaves a veil, so soft and lush.<br />Step through the silver, lose your way,<br />And dance where spirits come to play.</p>",
+
+    "<h3>Celestial Tide</h3><p>Moonlight pulls the ocean’s breath,<br />A rhythm old as life and death.<br />Under her glow, the tide obeys,<br />As time drifts on in silver waves.</p>",
+
+    "<h3>Enchanted Glow</h3><p>She watches from her skybound throne,<br />A queen of dreams, forever known.<br />Beneath her glow, all shadows fade,<br />As magic stirs in silver shade.</p>",
+
+    "<h3>Night’s Guardian</h3><p>She keeps the secrets of the night,<br />A guardian bathed in silver light.<br />She hums in silence, soft and low,<br />A melody the dreamers know.</p>"
+]
+
+# Fetch a **random** moon poem when the user loads the home screen
+@app.get("/api/lunar-phase-poem")
+def get_random_moon_poem():
+    return {"poem": random.choice(moon_poems)}
 
 
 
