@@ -438,7 +438,7 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
     // Festival descriptions
     const festivalDescriptions = {
         "Janus 15": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
-        "Flora 6": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
+        "Flora 4": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
         "Maia 19": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
         "Solis 14": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
         "Terra 27": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
@@ -449,17 +449,14 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
 
     // Convert date format for lookup
     const formattedFestivalKey = `${celticMonth} ${celticDay}`;
-    const festivalInfo = festivalDescriptions[formattedFestivalKey] || "No festival today.";
-  
+    const festivalInfo = festivalDescriptions[formattedFestivalKey] || "";
+
     // Show loading state while fetching data
-    modalDetails.innerHTML = `
-        <h2>Celtic Calendar</h2>
-        <p>Loading...</p>
-    `;
-  
+    modalDetails.innerHTML = `<h2>Celtic Calendar</h2><p>Loading...</p>`;
+
     // Display the modal
     modalContainer.classList.remove("hidden");
-  
+
     // Convert the Celtic date to Gregorian
     const gregorian = convertCelticToGregorian(celticMonth, celticDay);
     if (!gregorian) {
@@ -469,90 +466,97 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
 
     const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
     const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
-
     const zodiac = getCelticZodiac(parseInt(gregorian.gregorianMonth, 10), parseInt(gregorian.gregorianDay, 10));
-
-     // Get additional data
     const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
-    //const zodiac = getCelticZodiac(celticMonth, celticDay);
     const events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
     const mysticalSuggestion = getMysticalSuggestion();
-  
+
     // Construct an ISO date string
     const year = "2025";
     const monthStr = String(gregorian.gregorianMonth).padStart(2, "0");
-    const dayStr = String(gregorian.gregorianDay).padStart(2, "0"); 
+    const dayStr = String(gregorian.gregorianDay).padStart(2, "0");
     const dateStr = `${year}-${monthStr}-${dayStr}`;
-  
-    try {
-        // Call the dynamic endpoint using the constructed date string
-        const response = await fetch(`/dynamic-moon-phases?start_date=${dateStr}&end_date=${dateStr}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (!data || data.length === 0) {
-            throw new Error("Invalid lunar data received");
-        }
-        const lunarData = data[0];
-  
-        // Format the Gregorian month
-        const gMonth = getFormattedMonth(monthStr);
-        
-        //console.log("Moon Name is ", moonPoem.moonName);
 
-        // Get alternative lunar descriptions
+    try {
+        const response = await fetch(`/dynamic-moon-phases?start_date=${dateStr}&end_date=${dateStr}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        if (!data || data.length === 0) throw new Error("Invalid lunar data received");
+
+        const lunarData = data[0];
+        const gMonth = getFormattedMonth(monthStr);
         const moonPoem = getMoonPoem(lunarData.phase, dateStr);
 
-        // Ensure national holidays are available
         if (cachedNationalHolidays.length === 0) {
-            await fetchNationalHolidays(); // Fetch if not already cached
+            await fetchNationalHolidays();
         }
-        console.log("Fetched National Holidays:", cachedNationalHolidays);        
 
-        // Find the holiday for this date
+        console.log("Fetched National Holidays:", cachedNationalHolidays);
         const holidayInfo = cachedNationalHolidays
-        .filter(h => h.date === dateStr)
-        .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
-        .join("") || "No national holidays today.";
-  
-        // Update modal with lunar details
-        modalDetails.innerHTML = `
+            .filter(h => h.date === dateStr)
+            .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
+            .join("") || "";
+
+        let modalContent = `
             <div style="text-align: center; padding-top: 10px; color: white">
                 <h2 class="detailsDay">${dayOfWeek}</h2>
                 <h2 class="detailsCelticDate">${celticMonth} ${celticDay}</h2>
                 <h3 class="detailsGregorianDate">${gMonth} ${dayStr}</h3>
                 <div class="moon-phase-graphic">${lunarData.graphic}</div>
-                <h3 class="detailsMoonPhase">${moonPoem.moonName || lunarData.phase} </h3>
+                <h3 class="detailsMoonPhase">${moonPoem.moonName || lunarData.phase}</h3>
                 <p class="detailsMoonDescription">${moonPoem.poem}</p>
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Celtic Zodiac</h3>
                 <div class="detailsCelticZodiac">
                     <img src="assets/images/zodiac/zodiac-${zodiac.toLowerCase()}.png" alt="${zodiac}" 
-     onerror="this.src='assets/images/decor/treeoflife.png';" />
+                    onerror="this.src='assets/images/decor/treeoflife.png';" />
                     <p>${zodiac}</p>
                 </div>
+        `;
+
+        // ✅ Only display Festivals if there is an event
+        if (festivalInfo.trim() !== "") {
+            modalContent += `
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Festivals</h3>
                 <p>${festivalInfo}</p>
+            `;
+        }
+
+        // ✅ Only display Special Events if there is an event
+        if (events.trim() !== "<p>There are no custom events today.</p>") {
+            modalContent += `
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Special Events</h3>
                 <p class="detailsCustomEvents">${events}</p>
+            `;
+        }
+
+        // ✅ Only display Holidays if there is an event
+        if (holidayInfo.trim() !== "") {
+            modalContent += `
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Holidays</h3>
                 <p class="detailsNationalHolidays">${holidayInfo}</p>
-                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="subheader">Mystical Suggestions</h3>
-                <p>${mysticalSuggestion}</p>
-                <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
-            </div>
+            `;
+        }
+
+        modalContent += `
+            <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+            <h3 class="subheader">Mystical Suggestions</h3>
+            <p>${mysticalSuggestion}</p>
+            <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
+        </div>
         `;
-  
+
+        // ✅ Inject the cleaned-up content into the modal
+        modalDetails.innerHTML = modalContent;
+
         // Add event listener for the "Back" button
         document.getElementById("back-to-month").addEventListener("click", () => {
             showModal(celticMonth);
         });
-  
+
     } catch (error) {
         console.error("Error fetching lunar phase:", error);
         modalDetails.innerHTML = `<p>Failed to load moon phase data.</p>`;
