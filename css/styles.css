@@ -922,6 +922,14 @@ blockquote.moon-poem {
   border-radius: 5px;
 }
 
+/* Eclipse Day */
+.eclipse-day {
+  background-color: #8b5cf6 !important;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
 /* 💜 Custom Event Day */
 .custom-event-day {
   background: linear-gradient(135deg, #673AB7 0%, #9C27B0 100%);

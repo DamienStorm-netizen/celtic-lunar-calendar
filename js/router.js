@@ -1,5 +1,5 @@
 import {renderHome, fetchCelticDate, fetchDynamicMoonPhase, fetchCelticZodiac, fetchPoemAndUpdate, fetchComingEvents, fetchFestivals, fetchMoonPhases, fetchEclipses, getRandomEclipseDescription, fetchCustomEvents,  populateComingEventsCarousel, initializeCarouselNavigation, getMonthNumber, convertGregorianToCeltic} from './components/home.js';
-import {renderCalendar, setupCalendarEvents, getCelticDate, showDayModal, convertCelticToGregorian, showModal, enhanceCalendarTable, getFormattedMonth, getDayOfWeek, getCelticZodiac, fetchNationalHolidays, getCustomEvents, getMysticalSuggestion, getMoonPoem, closeModal} from './components/calendar.js';
+import {renderCalendar} from './components/calendar.js';
 import {renderInsights, initializeTabbedNav, initializeCelticZodiac, initializeFestivalCarousel, initializeMoonPoetry } from './components/insights.js';
 import {renderSettings, setupSettingsEvents } from './components/settings.js';
 import {renderAbout} from './components/about.js';
@@ -68,22 +68,8 @@ function highlightNav() {
         initializeMoonPoetry();
         break;
       case 'calendar':
-        appContainer.innerHTML = 
+        appContainer.innerHTML = "";
         renderCalendar();
-        setupCalendarEvents();
-        getCelticDate();
-        showDayModal();
-        convertCelticToGregorian();
-        showModal();
-        closeModal();
-        enhanceCalendarTable();
-        getFormattedMonth();
-        getDayOfWeek();
-        getCelticZodiac();
-        getCustomEvents();
-        fetchNationalHolidays();
-        getMysticalSuggestion();
-        getMoonPoem();
         break;
       case 'about':
         appContainer.innerHTML = renderAbout();

@@ -2,7 +2,7 @@ let cachedNationalHolidays = []; // Store national holidays globally
 
 export function renderCalendar() {
     const app = document.getElementById('app');
-    return `
+    app.innerHTML = `
         <section class="calendar">
             <h1 class="calendar-title">Calendar</h1>
             <div class="calendar-grid">
@@ -51,7 +51,7 @@ export function renderCalendar() {
             </div>
         </section>
 
-        <div id="modal-container" class="calendar-modal">
+        <div id="modal-container" class="calendar-modal hidden foxy">
             <div id="modal-content">
                 <button id="close-modal" class="mystical-close">✦</button>
                 <div id="modal-details"></div>
@@ -59,16 +59,18 @@ export function renderCalendar() {
         </div>
     `;
 
-    // Enhance the table with Celtic date logic
-    enhanceCalendarTable(modalContainer, monthName);
+    console.log("✅ Running setupCalendarEvents...");
+    setupCalendarEvents();  // Ensure this runs after injecting HTML
 
 }
 
-export async function setupCalendarEvents() {
+async function setupCalendarEvents() {
+    console.log("I am running setupCalendarEvents");
+
     // Select the modal elements
     const modalContainer = document.getElementById("modal-container");
-    const modalClose = modalContainer.querySelector("#close-modal"); // Updated for your close button
-    const modalContent = modalContainer.querySelector("#modal-content"); // Updated for your modal content
+    const modalClose = modalContainer?.querySelector("#close-modal");
+    const modalContent = modalContainer?.querySelector("#modal-content");
 
     // Ensure modal elements exist before attaching listeners
     if (!modalContainer || !modalContent || !modalClose) {
@@ -76,42 +78,38 @@ export async function setupCalendarEvents() {
         return;
     }
 
-    // Month data for the modals
-    const monthsData = {
-        "Nivis": "Nivis, the snow-covered month of tranquillity and reflection.",
-        "Janus": "Janus, a time of winds and change, guided by the past and future.",
-        "Brigid": "Brigid, the fiery flame of rebirth and creativity.",
-        "Flora": "Flora, where blossoms awaken and life blooms anew in soft pastels.",
-        "Maia": "Maia, the gentle caress of spring, whispering of love and growth.",
-        "Juno": "Juno, radiant and vibrant, bathed in the scarlet hues of passion.",
-        "Solis": "Solis, where the sun reigns supreme, a golden embrace of vitality.",
-        "Terra": "Terra, the abundant earth, rich with the green promise of harvest.",
-        "Lugh": "Lugh, a time of radiant light and craftsmanship, honouring ancient skills.",
-        "Pomona": "Pomona, the fruitful season, where the orchards gift their sweetest treasures.",
-        "Autumna": "Autumna, the fiery dance of falling leaves, a farewell to warmth and light.",
-        "Eira": "Eira, the frost-kissed month of quiet, as the world prepares for slumber.",
-        "Aether": "Aether, the ethereal veil between seasons, where dreams and reality entwine."
-    };
-    
-    // Attach event listener to the close button
-    document.getElementById("close-modal").addEventListener("click", closeModal);
+    // Attach event listener to close modal
+    modalClose.addEventListener("click", closeModal);
 
-
-     
     // Attach event listeners to each month thumbnail
     const thumbnails = document.querySelectorAll(".month-thumbnail");
     thumbnails.forEach((thumbnail) => {
         thumbnail.addEventListener("click", (e) => {
             const monthName = e.target.closest(".month-thumbnail").dataset.month;
-            console.log("CLICK! for:", monthName);
-            showModal(monthName); // Call showModal to handle modal content
+            console.log(`CLICK! for: ${monthName}`);
+
+            // **Fetch Celtic Zodiac only when a month is clicked**
+            getCelticZodiac(monthName);
+
+            // Open the modal with the selected month
+            showModal(monthName);
         });
     });
 }
 
+ // Close modal
+ function closeModal() {
+    console.log("Click Close Button");
+    const modalContainer = document.getElementById("modal-container");
+
+    if (modalContainer) {
+        modalContainer.classList.add("hidden");
+    }    
+}
+
 
 // Add click events to HTML table
-export async function enhanceCalendarTable(modalContainer, monthName) {
+async function enhanceCalendarTable(modalContainer, monthName) {
     console.log(`Enhancing calendar for ${monthName}...`);
 
     // Ensure national holidays are fetched before using them
@@ -155,7 +153,11 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   
     tableCells.forEach((cell) => {
         const day = parseInt(cell.textContent, 10);
+        console.log(`📅 Checking table cell: ${day}`);
+
         if (!isNaN(day)) {
+            console.log(`✅ Table Cell Detected: ${day} in ${monthName}`);
+
             // Convert the Celtic day back to Gregorian
             const gregorian = convertCelticToGregorian(monthName, day);
             if (!gregorian) {
@@ -217,7 +219,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
             // Assign click behaviour to each date cell
             cell.addEventListener("click", () => {
                 console.log(`Clicked on day ${day} in the month of ${monthName}, Gregorian: ${formattedGregorianDate}`);
-                showDayModal(day, monthName, formattedGregorianDate); // Pass formattedGregorianDate
+                showDayModal(day, monthName,formattedGregorianDate); // Pass formattedGregorianDate
             });
         }
     });
@@ -264,7 +266,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
   }
   
   // Fetch custom events dynamically
-  export async function fetchCustomEvents() {
+  async function fetchCustomEvents() {
     try {
         const response = await fetch("/api/custom-events");
         if (!response.ok) throw new Error("Failed to fetch custom events");
@@ -276,7 +278,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
 }
 
  // Fetch national holidays dynamically
- export async function fetchNationalHolidays() {
+ async function fetchNationalHolidays() {
     console.log('Fetching national holidays now!!');
     try {
         const response = await fetch("/api/national-holidays");
@@ -293,22 +295,27 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
 
 
  // Open modal window and insert HTML
- export function showModal(monthName) {
+function showModal(monthName) {
+    const modalContainer = document.getElementById("modal-container"); // Ensure modalContainer is defined first
 
-    console.log("I clicked on ", monthName);
+    if (!modalContainer) {
+        console.error("🚨 modalContainer not found in the DOM!");
+        return;
+    }
+
+    console.log("🚨 Removing hidden class from modal-container");
+    modalContainer.classList.remove("hidden");
+
+    console.log("🚨 showModal() called for:", monthName);
 
     if (monthName) {
-        const modalContainer = document.getElementById("modal-container");
         const modalDetails = modalContainer.querySelector("#modal-details");
 
-
-        // Insert modal content, including the calendar grid
         if (modalDetails) {
-
             modalContainer.classList.add("show");
             document.body.classList.add("modal-open"); // Prevent scrolling
 
-            if (monthName == 'Mirabilis') {
+            if (monthName === 'Mirabilis') {
                 modalDetails.innerHTML = `
                     <h2 class="month-title">${monthName}</h2>
                     <div class="mirabilis-image">
@@ -316,7 +323,7 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                     </div>
                     <div class="mirabilis-content">
                         <p>Between the last grain of sand and the first light of dawn, Mirabilis shimmers—a moment untethered, a breath between worlds.</p>
-                        <p>Neither past nor future, neither here nor there, It is the space where dreams are whispered and destinies rewritten.</p> 
+                        <p>Neither past nor future, neither here nor there, it is the space where dreams are whispered and destinies rewritten.</p> 
                         <p>Pause, reflect, release. For in this fleeting eternity, you are free to reshape the stars.<p>
                         <br />
                     </div>
@@ -326,60 +333,46 @@ export async function enhanceCalendarTable(modalContainer, monthName) {
                     <h2 class="month-title">${monthName}</h2>
                     
                     <div class="calendarGridBox">
-                    <table class="calendar-grid"><thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr><tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr><tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr></tbody></table>
+                        <table class="calendar-grid">
+                            <thead>
+                                <tr>
+                                    <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+                                <tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
+                                <tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr>
+                                <tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr>
+                            </tbody>
+                        </table>
                     </div>
         
                     <div class="calendarLegend" style="background-image: url(assets/images/months/${monthName.toLowerCase()}-pale-bg.png)">
                         <h2 class="inner-title">Legend</h2>
                         <table class="calendarLegendGrid">
-                            <tr>
-                                <td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td>
-                            </tr>
-                            <tr>
-                                <td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td>
-                            </tr>
-                            <tr>
-                                <td class="custom-holiday-day legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td>
-                            </tr>
-                            <tr>
-                                <td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td>
-                            </tr>
-                        <table>
+                            <tr><td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td></tr>
+                            <tr><td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td></tr>
+                            <tr><td class="custom-holiday-day legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td></tr>
+                            <tr><td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td></tr>
+                        </table>
                     </div>
                 `;
             }
-        }
-        
-  
-        // Enhance the existing table with click and highlight behaviour
-        enhanceCalendarTable(modalContainer, monthName);
 
-        // Apply fade-in effect
-        modalContainer.classList.remove("hidden");
-        modalContainer.classList.add("fade-in");
-
-        // Remove fade-out class if present
-        modalContainer.addEventListener("animationend", () => {
+            // Apply fade-in effect
+            modalContainer.classList.add("fade-in");
             modalContainer.classList.remove("fade-out");
-        });
 
-        //modalContainer.classList.remove("hidden");
+            // ✅ Call enhancement only when the modal is displayed
+            console.log(`Enhancing calendar for: ${monthName}`);
+            enhanceCalendarTable(modalContainer, monthName);
+        }
     }
-}
-
-// Close modal
-export function closeModal() {
-    console.log("Click Close Button");
-    const modalContainer = document.getElementById("modal-container");
-    
-    if (modalContainer) {
-        modalContainer.classList.add("hidden");
-    }
-        
 }
 
 // Convert Celtic date to Gregorian date.
-export function convertCelticToGregorian(celticMonth, celticDay) {
+function convertCelticToGregorian(celticMonth, celticDay) {
     const monthMapping = {
         "Nivis": "2024-12-23",
         "Janus": "2025-01-20",
@@ -413,7 +406,7 @@ export function convertCelticToGregorian(celticMonth, celticDay) {
 }
     
 
-export async function getCelticDate() {
+async function getCelticDate() {
     try {
         const response = await fetch("/api/celtic-date");
         if (!response.ok) {
@@ -431,14 +424,24 @@ export async function getCelticDate() {
 }
 
 // Function to fetch and display the details for a selected Celtic date
-export async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
+async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
+
+     // ✅ Ensure modalContainer is defined first!
     const modalContainer = document.getElementById("modal-container");
     const modalDetails = document.getElementById("modal-details");
+
+    if (!modalContainer || !modalDetails) {
+        console.error("🚨 Modal elements not found, aborting.");
+        return;
+    }
+
+    console.log("🚨 Removing hidden class from modal-container");
+    modalContainer.classList.remove("hidden");
 
     // Festival descriptions
     const festivalDescriptions = {
         "Janus 15": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
-        "Flora 6": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
+        "Flora 4": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
         "Maia 19": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
         "Solis 14": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
         "Terra 27": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
@@ -457,6 +460,7 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
         <p>Loading...</p>
     `;
   
+    console.log("Line 458 - Contents of modalContainer: ", modalContainer);
     // Display the modal
     modalContainer.classList.remove("hidden");
   
@@ -475,7 +479,13 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
      // Get additional data
     const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
     //const zodiac = getCelticZodiac(celticMonth, celticDay);
-    const events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
+    let events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
+
+    // Ensure events is always an array
+    if (!Array.isArray(events)) {
+        events = [];  // Convert it into an empty array if it's a string or undefined
+    }
+
     const mysticalSuggestion = getMysticalSuggestion();
   
     // Construct an ISO date string
@@ -515,7 +525,26 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
         .filter(h => h.date === dateStr)
         .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
         .join("") || "No national holidays today.";
-  
+
+        let festivalHTML = festivalInfo && festivalInfo.trim() !== "" && festivalInfo !== "No festival today."
+            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3 class="subheader">Festivals</h3><p>${festivalInfo}</p>` 
+            : "";
+
+        let holidayHTML = holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today."
+            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3 class="subheader">Holidays</h3><p>${holidayInfo}</p>` 
+            : "";
+
+        // Troubleshoot Events
+        console.log("Events Data:", events);
+
+        let eventsHTML = Array.isArray(events) && events.length > 0
+        ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+          <h3 class="subheader">Special Events</h3><p>${events.join(", ")}</p>` 
+        : "";
+
+        
         // Update modal with lunar details
         modalDetails.innerHTML = `
             <div style="text-align: center; padding-top: 10px; color: white">
@@ -532,15 +561,9 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
      onerror="this.src='assets/images/decor/treeoflife.png';" />
                     <p>${zodiac}</p>
                 </div>
-                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="subheader">Festivals</h3>
-                <p>${festivalInfo}</p>
-                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="subheader">Special Events</h3>
-                <p class="detailsCustomEvents">${events}</p>
-                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="subheader">Holidays</h3>
-                <p class="detailsNationalHolidays">${holidayInfo}</p>
+                ${festivalHTML}
+                ${eventsHTML}
+                ${holidayHTML}
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Mystical Suggestions</h3>
                 <p>${mysticalSuggestion}</p>
@@ -561,7 +584,7 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
     console.log("Final Gregorian Date:", dateStr);
 }
 
-export function getFormattedMonth(monthNum) {
+function getFormattedMonth(monthNum) {
     const monthNames = [
         "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
         "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
@@ -569,14 +592,14 @@ export function getFormattedMonth(monthNum) {
     return monthNames[parseInt(monthNum, 10) - 1]; // Convert to zero-based index
 }
 
-export function getDayOfWeek(gregorianMonth, gregorianDay) {
+function getDayOfWeek(gregorianMonth, gregorianDay) {
     const date = new Date(`2025-${gregorianMonth}-${gregorianDay}`);
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     return days[date.getDay()];
 }
 
 // Get Celtic Zodiac sign
-export function getCelticZodiac(gregorianMonth, gregorianDay) {
+function getCelticZodiac(gregorianMonth, gregorianDay) {
     console.log(`Checking zodiac for: ${gregorianMonth}-${gregorianDay}`);
   
     const zodiacSigns = [
@@ -622,7 +645,7 @@ export function getCelticZodiac(gregorianMonth, gregorianDay) {
     return "Unknown";
   }
 
-export async function getCustomEvents(gregorianMonth, gregorianDay) {
+async function getCustomEvents(gregorianMonth, gregorianDay) {
     try {
         const response = await fetch("/api/custom-events");
         if (!response.ok) throw new Error("Failed to fetch events");
@@ -635,20 +658,20 @@ export async function getCustomEvents(gregorianMonth, gregorianDay) {
 
         const targetDate = `2025-${monthStr}-${dayStr}`;
 
+        // Filter events for the selected date
         const filteredEvents = events.filter(event => event.date === targetDate);
 
-
         return filteredEvents.length > 0 
-            ? filteredEvents.map(e => `<p>${e.title}: ${e.notes}</p>`).join("") 
-            : "<p>There are no custom events today.</p>";
+            ? filteredEvents.map(e => e.title)  // ✅ Return an array of event titles instead of an HTML string
+            : [];  // ✅ Ensure we return an empty array if no events exist
 
     } catch (error) {
         console.error("Error fetching events:", error);
-        return "Unable to load events.";
+        return [];  // ✅ Return an empty array on error
     }
 }
 
-export function getMysticalSuggestion() {
+function getMysticalSuggestion() {
     const suggestions = [
         "Light a candle and focus on your intentions for the day.",
         "Meditate under the moonlight and visualize your dreams.",
@@ -660,7 +683,7 @@ export function getMysticalSuggestion() {
     return suggestions[Math.floor(Math.random() * suggestions.length)];
 }
 
-export function getMoonPoem(moonPhase, date) {
+function getMoonPoem(moonPhase, date) {
     const fullMoonNames = {
         "01": "Wolf Moon",
         "02": "Snow Moon",
