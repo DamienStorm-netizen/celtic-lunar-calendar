@@ -441,7 +441,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     // Festival descriptions
     const festivalDescriptions = {
         "Janus 15": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
-        "Flora 6": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
+        "Flora 4": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
         "Maia 19": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
         "Solis 14": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
         "Terra 27": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
@@ -519,7 +519,23 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         .filter(h => h.date === dateStr)
         .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
         .join("") || "No national holidays today.";
-  
+
+        let festivalHTML = festivalInfo && festivalInfo.trim() !== "" && festivalInfo !== "No festival today."
+            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3>Festivals</h3><p>${festivalInfo}</p>` 
+            : "";
+
+        let holidayHTML = holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today."
+            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3>Holidays</h3><p>${holidayInfo}</p>` 
+            : "";
+
+        let eventsHTML = Array.isArray(events) && events.length > 0
+            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+               <h3>Special Events</h3><p>${events.join(", ")}</p>` 
+            : "";
+
+        
         // Update modal with lunar details
         modalDetails.innerHTML = `
             <div style="text-align: center; padding-top: 10px; color: white">
@@ -536,15 +552,9 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
      onerror="this.src='assets/images/decor/treeoflife.png';" />
                     <p>${zodiac}</p>
                 </div>
-                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="subheader">Festivals</h3>
-                <p>${festivalInfo}</p>
-                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="subheader">Special Events</h3>
-                <p class="detailsCustomEvents">${events}</p>
-                <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="subheader">Holidays</h3>
-                <p class="detailsNationalHolidays">${holidayInfo}</p>
+                ${festivalHTML}
+                ${eventsHTML}
+                ${holidayHTML}
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Mystical Suggestions</h3>
                 <p>${mysticalSuggestion}</p>
