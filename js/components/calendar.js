@@ -107,7 +107,6 @@ async function setupCalendarEvents() {
     }    
 }
 
-
 // Add click events to HTML table
 async function enhanceCalendarTable(modalContainer, monthName) {
     console.log(`Enhancing calendar for ${monthName}...`);
@@ -125,6 +124,10 @@ async function enhanceCalendarTable(modalContainer, monthName) {
   
     const { celticMonth, celticDay } = todayCeltic;
     const tableCells = modalContainer.querySelectorAll(".calendar-grid td");
+
+    // Fetch eclipses
+    const eclipses = await fetchEclipseEvents();
+    console.log("Fetched Eclipse Data:", eclipses);
 
     // Fetch national holidays **before using them**
     if (!cachedNationalHolidays || cachedNationalHolidays.length === 0) {
@@ -166,6 +169,15 @@ async function enhanceCalendarTable(modalContainer, monthName) {
             }
             const formattedGregorianDate = `2025-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
   
+             // Check if this date has an eclipse
+             const eclipseEvent = eclipses.find(e => e.date.startsWith(formattedGregorianDate));
+
+             if (eclipseEvent) {
+                 console.log(`🌑 Marking ${day} as Eclipse Day: ${eclipseEvent.title}`);
+                 cell.classList.add("eclipse-day");
+                 cell.setAttribute("title", `${eclipseEvent.title} 🌘`);
+             }
+
             // Find the corresponding moon event
             const moonEvent = lunarData.find(moon => moon.date === formattedGregorianDate);
             console.log("Coverted Gregorian date is ", formattedGregorianDate);
@@ -293,7 +305,6 @@ async function enhanceCalendarTable(modalContainer, monthName) {
     }
 } 
 
-
  // Open modal window and insert HTML
 function showModal(monthName) {
     const modalContainer = document.getElementById("modal-container"); // Ensure modalContainer is defined first
@@ -353,6 +364,7 @@ function showModal(monthName) {
                         <table class="calendarLegendGrid">
                             <tr><td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td></tr>
                             <tr><td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td></tr>
+                            <tr><td class="eclipse-day legendBox">&nbsp;</td><td>Lunar & Solar Eclipses</td></tr>
                             <tr><td class="custom-holiday-day legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td></tr>
                             <tr><td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td></tr>
                         </table>
@@ -405,7 +417,6 @@ function convertCelticToGregorian(celticMonth, celticDay) {
     };
 }
     
-
 async function getCelticDate() {
     try {
         const response = await fetch("/api/celtic-date");
@@ -460,7 +471,6 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         <p>Loading...</p>
     `;
   
-    console.log("Line 458 - Contents of modalContainer: ", modalContainer);
     // Display the modal
     modalContainer.classList.remove("hidden");
   
@@ -520,6 +530,17 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         }
         console.log("Fetched National Holidays:", cachedNationalHolidays);        
 
+        // Find eclipses for this date
+        const eclipses = await fetchEclipseEvents();
+        const eclipseEvent = eclipses.find(e => {
+            const eventDate = e.date.split(" ")[0];  // Extract only YYYY-MM-DD
+            console.log(`🔍 Checking Eclipse Date: ${eventDate} vs ${formattedGregorianDate}`);
+            return eventDate === formattedGregorianDate;
+        });
+
+        console.log("Formatted Gregorian date used with eclipses: ", formattedGregorianDate);
+        console.log("Today Eclipse data fetched: ", eclipseEvent);
+
         // Find the holiday for this date
         const holidayInfo = cachedNationalHolidays
         .filter(h => h.date === dateStr)
@@ -536,8 +557,12 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             <h3 class="subheader">Holidays</h3><p>${holidayInfo}</p>` 
             : "";
 
-        // Troubleshoot Events
-        console.log("Events Data:", events);
+        let eclipseHTML = eclipseEvent 
+        ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3 class="subheader">Eclipse</h3>
+            <p><strong>${eclipseEvent.title}</strong></p>
+            <p>${eclipseEvent.description}</p>`
+        : "";
 
         let eventsHTML = Array.isArray(events) && events.length > 0
         ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
@@ -557,10 +582,11 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Celtic Zodiac</h3>
                 <div class="detailsCelticZodiac">
-                    <img src="assets/images/zodiac/zodiac-${zodiac.toLowerCase()}.png" alt="${zodiac}" 
+                <img src="assets/images/zodiac/zodiac-${zodiac.toLowerCase()}.png" alt="${zodiac}" 
      onerror="this.src='assets/images/decor/treeoflife.png';" />
                     <p>${zodiac}</p>
                 </div>
+                ${eclipseHTML}
                 ${festivalHTML}
                 ${eventsHTML}
                 ${holidayHTML}
@@ -728,4 +754,23 @@ function getMoonPoem(moonPhase, date) {
         moonName: moonPhase, // This should now be "Flower Moon" instead of "Full Moon"
         poem: moonPoems[moonPhase] || "No description available."
     };
+}
+
+async function fetchEclipseEvents() {
+    try {
+        console.log("🌘 Calling fetchEclipseEvents()...");
+        const response = await fetch("/api/eclipse-events");
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const eclipseData = await response.json();
+        console.log("✅ Eclipse Data Retrieved:", eclipseData);
+
+        return eclipseData;
+    } catch (error) {
+        console.error("❌ Failed to fetch eclipse events:", error);
+        return [];
+    }
 }

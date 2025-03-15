@@ -922,13 +922,16 @@ blockquote.moon-poem {
   border-radius: 5px;
 }
 
-/* Eclipse Day */
+/* Eclipses */
+
 .eclipse-day {
-  background-color: #8b5cf6 !important;
+  background-color: rgba(255, 165, 0, 0.9); /* Orange to stand out */
   color: white;
+  border-radius: 50%;
+  text-align: center;
   font-weight: bold;
-  border-radius: 5px;
 }
+
 
 /* 💜 Custom Event Day */
 .custom-event-day {
@@ -1612,6 +1615,227 @@ blockquote.moon-poem {
   100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
 }
 
+/**********************************************/
+/*** ABOUT SCREEN ***/
+/**********************************************/
+
+/* About Container */
+.about-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent for that magical feel */
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  text-align: center;
+  color: #fff;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Section Titles */
+.about-title h1 {
+  font-size: 2rem;
+  color: #f7d794;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  margin-bottom: 15px;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* Section Titles */
+.about-section h2, .about-creators h2, .about-closing h2 {
+  font-size: 1.5rem;
+  color: #f7d794;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  margin-bottom: 15px;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* Paragraphs */
+.about-content p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  color: #fff6ea;
+  font-family: 'Libre Baskerville', serif;
+}
+
+/* Mystical Quote */
+.quote {
+  font-style: italic;
+  font-size: 1.3rem;
+  color: #d4a5a5;
+  border-left: 4px solid #f7d794;
+  padding-left: 15px;
+  margin: 20px 0;
+  opacity: 0.8;
+}
+
+/* Features List */
+.features-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.features-list li {
+  margin: 10px 0;
+  padding-left: 25px;
+  position: relative;
+}
+
+/* Mystical CTA */
+.mystical-cta {
+  font-size: 1.5rem;
+  color: #f7d794;
+  text-shadow: 0 0 15px rgba(255, 223, 186, 0.8);
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.about-creators {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(255, 223, 186, 0.3);
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Creator Wrapper */
+.creators-wrapper {
+  display: inline-block;
+  justify-content: space-between;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+/* Individual Creator Blocks */
+.creator {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Hover effect */
+.creator:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+}
+
+/* Creator Titles */
+.creator h3 {
+  font-size: 1.8rem;
+  color: #f7d794;
+  text-shadow: 0 0 8px rgba(255, 223, 186, 0.7);
+}
+
+/* Text Styling */
+
+.features-list li  {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #fff6ea;
+  font-weight: 400;
+}
+
+.creator p, .creator li {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #fff6ea;
+  font-weight: 400;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+/* Glow Effect on Scroll */
+
+.glow-effect {
+  animation: glowAppear 1s ease-in-out forwards;
+}
+
+@keyframes glowAppear {
+  from {
+      opacity: 0.5;
+      transform: scale(0.95);
+      box-shadow: none;
+  }
+  to {
+      opacity: 1;
+      transform: scale(1);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+  }
+}
+
+.glow {
+  animation: glowEffect 1.5s ease-in-out forwards;
+}
+
+@keyframes glowEffect {
+  from {
+      text-shadow: none;
+      opacity: 0.5;
+  }
+  to {
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+      opacity: 1;
+  }
+}
+
+
+/**********************************************/
+/*** PRIVACY SCREEN ***/
+/**********************************************/
+
+/* privacy Container */
+.privacy {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent for that magical feel */
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  text-align: center;
+  color: #fff;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Section Titles */
+.privacy h1 {
+  font-size: 2rem;
+  color: #f7d794;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  margin-bottom: 15px;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* Section Titles */
+.privacy h2 {
+  font-size: 1.5rem;
+  color: #f7d794;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  margin-bottom: 15px;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* Paragraphs */
+.privacy p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  color: #fff6ea;
+  font-family: 'Libre Baskerville', serif;
+}
 
 /**********************************************/
 /*   FOOTER   */
@@ -1676,6 +1900,10 @@ footer nav {
     max-width: 768px; /* Adjust for tablets */
   }
 
+  .creators-wrapper {
+    flex-direction:row;
+  }
+
   .footer-knot {
       width: 25px;
       height: 25px;
@@ -1692,5 +1920,7 @@ footer nav {
   }
 }
 
+/* Mobile Responsive */
+@media (max-width: 768px) {
   
 }
