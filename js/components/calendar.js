@@ -479,7 +479,13 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
      // Get additional data
     const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
     //const zodiac = getCelticZodiac(celticMonth, celticDay);
-    const events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
+    let events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
+
+    // Ensure events is always an array
+    if (!Array.isArray(events)) {
+        events = [];  // Convert it into an empty array if it's a string or undefined
+    }
+
     const mysticalSuggestion = getMysticalSuggestion();
   
     // Construct an ISO date string
@@ -522,18 +528,21 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
 
         let festivalHTML = festivalInfo && festivalInfo.trim() !== "" && festivalInfo !== "No festival today."
             ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3>Festivals</h3><p>${festivalInfo}</p>` 
+            <h3 class="subheader">Festivals</h3><p>${festivalInfo}</p>` 
             : "";
 
         let holidayHTML = holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today."
             ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3>Holidays</h3><p>${holidayInfo}</p>` 
+            <h3 class="subheader">Holidays</h3><p>${holidayInfo}</p>` 
             : "";
 
+        // Troubleshoot Events
+        console.log("Events Data:", events);
+
         let eventsHTML = Array.isArray(events) && events.length > 0
-            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
-               <h3>Special Events</h3><p>${events.join(", ")}</p>` 
-            : "";
+        ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+          <h3 class="subheader">Special Events</h3><p>${events.join(", ")}</p>` 
+        : "";
 
         
         // Update modal with lunar details
@@ -649,16 +658,16 @@ async function getCustomEvents(gregorianMonth, gregorianDay) {
 
         const targetDate = `2025-${monthStr}-${dayStr}`;
 
+        // Filter events for the selected date
         const filteredEvents = events.filter(event => event.date === targetDate);
 
-
         return filteredEvents.length > 0 
-            ? filteredEvents.map(e => `<p>${e.title}: ${e.notes}</p>`).join("") 
-            : "<p>There are no custom events today.</p>";
+            ? filteredEvents.map(e => e.title)  // ✅ Return an array of event titles instead of an HTML string
+            : [];  // ✅ Ensure we return an empty array if no events exist
 
     } catch (error) {
         console.error("Error fetching events:", error);
-        return "Unable to load events.";
+        return [];  // ✅ Return an empty array on error
     }
 }
 
