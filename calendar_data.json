@@ -3,67 +3,80 @@
     {
         "name": "Nivis", 
         "start_date": "2024-12-23", 
-        "end_date": "2025-01-19"
+        "end_date": "2025-01-19",
+        "tagline": "❄️ From the Latin ‘nix’ meaning snow, Nivis is the breath of winter’s hush, a month where frost writes poetry upon the earth and silence speaks in crystalline whispers."
     },
     {
         "name": "Janus", 
         "start_date": "2025-01-20", 
-        "end_date": "2025-02-16"
+        "end_date": "2025-02-16",
+        "tagline":"Named for the two-faced Roman god of doorways and transitions, Janus stands at the threshold of past and future, where winds of change stir the soul."
     },
     {
         "name": "Brigid", 
         "start_date": "2025-02-17", 
-        "end_date": "2025-03-16"
+        "end_date": "2025-03-16",
+        "tagline":"Named for the Celtic goddess of poetry, hearth, and forge, Brigid is the sacred fire of renewal and inspiration, where winter’s chill yields to the first flickers of spring."
     },
     {
         "name": "Flora", 
         "start_date": "2025-03-17", 
-        "end_date": "2025-04-13"
+        "end_date": "2025-04-13",
+        "tagline":"A tribute to the Roman goddess of blooming flowers and spring’s gentle embrace, Flora is the time when earth awakens in colour, a festival of fragrant renewal."
     },
     {
         "name": "Maia", 
         "start_date": "2025-04-14", 
-        "end_date": "2025-05-11"
+        "end_date": "2025-05-11",
+        "tagline":"Named for the nurturing Roman goddess of growth, Maia embodies the ripening warmth of spring, her name echoing ‘maius’—greater, larger, the promise of abundance."
     },
     {
         "name": "Juno", 
         "start_date": "2025-05-12", 
-        "end_date": "2025-06-08"
+        "end_date": "2025-06-08",
+        "tagline":"Honouring the Roman goddess of love and sovereignty, Juno is a month of passion and protection, where devotion burns bright and the sacred feminine reigns supreme."
     },
     {
         "name": "Solis", 
         "start_date": "2025-06-09", 
-        "end_date": "2025-07-06"
+        "end_date": "2025-07-06",
+        "tagline":"From the Latin ‘sol’ meaning sun, Solis is the golden hour of the year, when the sun stands proud at its peak, bestowing light, life, and radiant joy."
     },
     {
         "name": "Terra", 
         "start_date": "2025-07-07", 
-        "end_date": "2025-08-03"
+        "end_date": "2025-08-03",
+        "tagline":"Honouring the Roman goddess of the Earth, Terra is a celebration of fertile lands and fruitful harvests, where nature’s generosity spills forth in green abundance."
     },
     {
         "name": "Lugh", 
         "start_date": "2025-08-04", 
-        "end_date": "2025-08-31"
+        "end_date": "2025-08-31",
+        "tagline":"Named for the Celtic god of light, skill, and craftsmanship, Lugh is a forge of inspiration, where wisdom and fire unite to shape the fate of heroes."
     },
     {
         "name": "Pomona", 
         "start_date": "2025-09-01", 
-        "end_date": "2025-09-28"
+        "end_date": "2025-09-28",
+        "tagline":"A tribute to the Roman goddess of orchards and fruitfulness, Pomona is a season of rich harvests and whispered abundance, where the earth gifts its sweetest treasures."
     },
     {
         "name": "Autumma", 
         "start_date": "2025-09-29", 
-        "end_date": "2025-10-26"
+        "end_date": "2025-10-26",
+        "tagline":"From the Latin ‘autumnus’ meaning the fall, Autumna is the golden descent of the year, where leaves turn to fire and the air hums with the poetry of endings."
     },
     {
         "name": "Eira", 
         "start_date": "2025-10-27", 
-        "end_date": "2025-11-23"
+        "end_date": "2025-11-23",
+        "tagline":"From the Old Norse ‘eyrr’ and Welsh ‘eira’ meaning snow, Eira is the quiet descent of winter’s veil, where frost-kissed dreams whisper of endings and renewal."
     },
     {
         "name": "Aether", 
         "start_date": "2025-11-24", 
-        "end_date": "2025-12-21"
+        "end_date": "2025-12-21",
+        "tagline":"The celestial breath between earth and sky, Aether is the unseen force of existence, where stardust and spirit intertwine in the spaces between worlds."
     }
     ],
     
