@@ -708,6 +708,13 @@ blockquote.moon-poem {
   margin: 10px 0 10px 0;
  }
 
+ .month-tagline {
+  color: #d7e0ff;
+  font-size: 1rem;
+  font-family: 'Vidaloka', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+ }
+
 .month-poem {
   text-align: center;
   display: block;
@@ -898,7 +905,7 @@ blockquote.moon-poem {
 .calendar-tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 25px;
   margin-top: 25px;;
 }
 
@@ -994,17 +1001,21 @@ blockquote.moon-poem {
 }
 
 /* Legend */
-.calendarLegend {
-  position: relative;
-  width: 100%;
-  background-repeat: no-repeat;
-  background-position: 50% 50%;
-  margin: 25px auto 0 auto;
-  background-repeat: no-repeat;
-  background-position: bottom center;
-  background-size: cover; /* Ensures the image scales properly */
-  background-size: 60%;
+#legend-section {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.3);
+  text-align: center;
+  width: 80%;
+  margin: 10px auto;
+  transition: all 0.3s ease-in-out;
 }
+  
+#legend-section:hover {
+    box-shadow: 0px 0px 20px rgba(255, 223, 186, 0.5);
+  }
 
 .calendarLegendGrid {
   width: 100%; /* Table stretches to fit modal */
@@ -1029,7 +1040,7 @@ blockquote.moon-poem {
 /*** ADD YOUR EVENT FORM ***/
 
 /* 🔮 Magical Form Styling */
-#add-event-form {
+#add-event-section{
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 15px;
@@ -1041,7 +1052,7 @@ blockquote.moon-poem {
   transition: all 0.3s ease-in-out;
 }
 
-#add-event-form:hover {
+#add-event-section:hover {
   box-shadow: 0px 0px 20px rgba(255, 223, 186, 0.5);
 }
 
@@ -1083,9 +1094,52 @@ blockquote.moon-poem {
   box-shadow: 0px 0px 8px rgba(255, 223, 186, 0.5);
 }
 
+#add-event-form select {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px;
+  width: 90%;
+  font-size: 1.1em;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.3s;
+}
+
+#add-event-form select:focus {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0px 0px 8px rgba(255, 223, 186, 0.5);
+}
+
+#add-event-form textarea {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px;
+  width: 90%;
+  font-size: 1.1em;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.3s;
+}
+
+#add-event-form textarea:focus {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0px 0px 8px rgba(255, 223, 186, 0.5);
+}
+
+#add-type {
+    width: 200px;
+    padding: 5px;
+    font-size: 1.1em;
+}
+
 /* ✨ Add Event Button */
 .add-event-button {
   background: linear-gradient(135deg, #FFD700, #FF8C00);
+  width: 100%;
   color: #222;
   font-weight: bold;
   border: none;
@@ -1456,7 +1510,7 @@ blockquote.moon-poem {
   border-radius: 10px;
   text-align: center;
   color: white;
-  max-width: 90%;
+  max-width: 80%;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
 }
 

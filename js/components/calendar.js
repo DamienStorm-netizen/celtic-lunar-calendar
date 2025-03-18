@@ -1,4 +1,5 @@
 let cachedNationalHolidays = []; // Store national holidays globally
+let lastOpenedMonth = null; // Keep track of the last opened month modal
 
 export function renderCalendar() {
     const app = document.getElementById('app');
@@ -308,17 +309,16 @@ async function enhanceCalendarTable(modalContainer, monthName) {
  // Open modal window and insert HTML
 function showModal(monthName) {
 
+    lastOpenedMonth = monthName; // ✅ Store the last opened month
+    console.log("📅 Last opened month set to:", lastOpenedMonth);
+
     const modalContainer = document.getElementById("modal-container"); // Ensure modalContainer is defined first
 
     if (!modalContainer) {
-        console.error("🚨 modalContainer not found in the DOM!");
         return;
     }
-
-    console.log("🚨 Removing hidden class from modal-container");
+ 
     modalContainer.classList.remove("hidden");
-
-    console.log("🚨 showModal() called for:", monthName);
 
     if (monthName) {
         const modalDetails = modalContainer.querySelector("#modal-details");
@@ -343,7 +343,7 @@ function showModal(monthName) {
             } else {
                 modalDetails.innerHTML = `
                     <h2 class="month-title">${monthName}</h2>
-                    
+                    <p class="month-tagline">Loading month tagline...</p>
                     <div class="calendarGridBox">
                         <table class="calendar-grid">
                             <thead>
@@ -392,13 +392,21 @@ function showModal(monthName) {
                     <div id="add-event-section" class="tab-content">
                         <h2 class="inner-title">Add Your Event</h2>
                         <form id="add-event-form">
-                            <ul style="List-style-type: none">
+                            <ul>
                                 <li><label for="event-name">Event Name:</label>
                                     <input type="text" id="event-name" required /></li>
-                                <li>&nbsp;</li>
+                                <li><label for="event-type">Type of Event:</label>
+                                    <select id="event-type" name="event-type">
+                                        <option value="option3">🔥 Date</option>
+                                        <option value="option2">😎 Friends</option>
+                                        <option value="">🎉 Fun</option>
+                                        <option value="option1" active>💡 General</option>
+                                        <option value="">🏥 Health</option>
+                                        <option value="">💜 Romantic</option>
+                                        <option value="">🖥️ Professional</option>
+                                    </select></li>
                                  <li><label for="event-note">Event Description:</label>
-                                    <textarea id="event-note" name="note" rows="4" cols="50"></textarea>
-                                <li>&nbsp;</li>
+                                    <textarea id="event-note" name="note" rows="4" cols="35"></textarea> 
                                 <li><label for="event-date">Date:</label>
                                     <input type="date" id="event-date" required /></li>
                                 <li><button type="submit" class="add-event-button">Add Event</button></li>
@@ -407,6 +415,9 @@ function showModal(monthName) {
                 `;
             }
 
+            // Fetch tagline and update
+            fetchTagline(monthName);
+
             setupTabNavigation();
 
             // Apply fade-in effect
@@ -414,7 +425,6 @@ function showModal(monthName) {
             modalContainer.classList.remove("fade-out");
 
             // ✅ Call enhancement only when the modal is displayed
-            console.log(`Enhancing calendar for: ${monthName}`);
             enhanceCalendarTable(modalContainer, monthName);
         }
     }
@@ -841,6 +851,51 @@ async function fetchEclipseEvents() {
         return [];
     }
 }
+
+async function fetchTagline(monthName) {
+    try {
+        const response = await fetch("/api/calendar-data");  // Updated endpoint
+        if (!response.ok) throw new Error("Failed to fetch calendar data");
+
+        const data = await response.json();
+        const monthData = data.months.find(month => month.name === monthName);
+
+        if (monthData) {
+            document.querySelector(".month-tagline").textContent = monthData.tagline;
+        } else {
+            document.querySelector(".month-tagline").textContent = "A whisper of time's essence...";
+        }
+    } catch (error) {
+        console.error("Error fetching tagline:", error);
+        document.querySelector(".month-tagline").textContent = "A whisper of time's essence...";
+    }
+}
+
+async function loadCustomEvents() {
+    try {
+        const response = await fetch("/api/calendar-data");
+        if (!response.ok) {
+            throw new Error("Failed to fetch calendar data.");
+        }
+
+        const data = await response.json();
+        
+        if (data.customEvents) {
+            customEvents = data.customEvents;
+        } else {
+            console.warn("No custom events found in the fetched data.");
+        }
+
+        console.log("✅ Custom Events Loaded:", customEvents);
+    } catch (error) {
+        console.error("Error loading custom events:", error);
+    }
+}
+
+// Call the function on page load
+loadCustomEvents();
+
+let customEvents = []; // Initialize an empty array for storing custom events
 
 document.addEventListener("submit", async (event) => {
     if (event.target.id === "add-event-form") {
