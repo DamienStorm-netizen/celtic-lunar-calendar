@@ -1,4 +1,5 @@
 let cachedNationalHolidays = []; // Store national holidays globally
+let lastOpenedMonth = null; // Keep track of the last opened month modal
 
 export function renderCalendar() {
     const app = document.getElementById('app');
@@ -307,17 +308,17 @@ async function enhanceCalendarTable(modalContainer, monthName) {
 
  // Open modal window and insert HTML
 function showModal(monthName) {
+
+    lastOpenedMonth = monthName; // ✅ Store the last opened month
+    console.log("📅 Last opened month set to:", lastOpenedMonth);
+
     const modalContainer = document.getElementById("modal-container"); // Ensure modalContainer is defined first
 
     if (!modalContainer) {
-        console.error("🚨 modalContainer not found in the DOM!");
         return;
     }
-
-    console.log("🚨 Removing hidden class from modal-container");
+ 
     modalContainer.classList.remove("hidden");
-
-    console.log("🚨 showModal() called for:", monthName);
 
     if (monthName) {
         const modalDetails = modalContainer.querySelector("#modal-details");
@@ -342,7 +343,7 @@ function showModal(monthName) {
             } else {
                 modalDetails.innerHTML = `
                     <h2 class="month-title">${monthName}</h2>
-                    
+                    <p class="month-tagline">Loading month tagline...</p>
                     <div class="calendarGridBox">
                         <table class="calendar-grid">
                             <thead>
@@ -359,28 +360,104 @@ function showModal(monthName) {
                         </table>
                     </div>
         
-                    <div class="calendarLegend" style="background-image: url(assets/images/months/${monthName.toLowerCase()}-pale-bg.png)">
-                        <h2 class="inner-title">Legend</h2>
+                   <!-- Tab Navigation -->
+                    <div class="calendar-tabs">
+                        <button id="legend-tab" class="tab-button active">Legend</button>&nbsp;&nbsp;
+                        <button id="add-event-tab" class="tab-button">Add Your Event</button>
+                    </div>
+
+                    <!-- Legend Section -->
+                    <div id="legend-section" class="tab-content active">
+                    <h2 class="inner-title">Legend</h2>
                         <table class="calendarLegendGrid">
-                            <tr><td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td></tr>
-                            <tr><td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td></tr>
-                            <tr><td class="eclipse-day legendBox">&nbsp;</td><td>Lunar & Solar Eclipses</td></tr>
-                            <tr><td class="custom-holiday-day legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td></tr>
-                            <tr><td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td></tr>
+                            <tr>
+                                <td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td>
+                            </tr>
+                            <tr>
+                                <td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td>
+                            </tr>
+                            <tr>
+                                <td class="eclipse-day legendBox">&nbsp;</td><td>Lunar & Solar Eclipses</td>
+                            </tr>
+                            <tr>
+                                <td class="national-holiday legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td>
+                            </tr>
+                            <tr>
+                                <td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td>
+                            </tr>
                         </table>
+                    </div>
+
+                    <!-- Add Your Event Section (Initially Hidden) -->
+                    <div id="add-event-section" class="tab-content">
+                        <h2 class="inner-title">Add Your Event</h2>
+                        <form id="add-event-form">
+                            <ul>
+                                <li><label for="event-name">Event Name:</label>
+                                    <input type="text" id="event-name" required /></li>
+                                <li><label for="event-type">Type of Event:</label>
+                                    <select id="event-type" name="event-type">
+                                        <option value="option3">🔥 Date</option>
+                                        <option value="option2">😎 Friends</option>
+                                        <option value="">🎉 Fun</option>
+                                        <option value="option1" active>💡 General</option>
+                                        <option value="">🏥 Health</option>
+                                        <option value="">💜 Romantic</option>
+                                        <option value="">🖥️ Professional</option>
+                                    </select></li>
+                                 <li><label for="event-note">Event Description:</label>
+                                    <textarea id="event-note" name="note" rows="4" cols="35"></textarea> 
+                                <li><label for="event-date">Date:</label>
+                                    <input type="date" id="event-date" required /></li>
+                                <li><button type="submit" class="add-event-button">Add Event</button></li>
+                        </form>
                     </div>
                 `;
             }
+
+            // Fetch tagline and update
+            fetchTagline(monthName);
+
+            setupTabNavigation();
 
             // Apply fade-in effect
             modalContainer.classList.add("fade-in");
             modalContainer.classList.remove("fade-out");
 
             // ✅ Call enhancement only when the modal is displayed
-            console.log(`Enhancing calendar for: ${monthName}`);
             enhanceCalendarTable(modalContainer, monthName);
         }
     }
+}
+
+function setupTabNavigation() {
+    console.log("📜 Setting up tab navigation...");
+
+    const legendTab = document.getElementById("legend-tab");
+    const addEventTab = document.getElementById("add-event-tab");
+    const legendSection = document.getElementById("legend-section");
+    const addEventSection = document.getElementById("add-event-section");
+
+    if (!legendTab || !addEventTab || !legendSection || !addEventSection) {
+        console.warn("⚠️ Tab elements not found, skipping tab setup.");
+        return;
+    }
+
+    // Click event for Legend tab
+    legendTab.addEventListener("click", () => {
+        legendTab.classList.add("active");
+        addEventTab.classList.remove("active");
+        legendSection.classList.add("active");
+        addEventSection.classList.remove("active");
+    });
+
+    // Click event for Add Event tab
+    addEventTab.addEventListener("click", () => {
+        addEventTab.classList.add("active");
+        legendTab.classList.remove("active");
+        addEventSection.classList.add("active");
+        legendSection.classList.remove("active");
+    });
 }
 
 // Convert Celtic date to Gregorian date.
@@ -774,3 +851,75 @@ async function fetchEclipseEvents() {
         return [];
     }
 }
+
+async function fetchTagline(monthName) {
+    try {
+        const response = await fetch("/api/calendar-data");  // Updated endpoint
+        if (!response.ok) throw new Error("Failed to fetch calendar data");
+
+        const data = await response.json();
+        const monthData = data.months.find(month => month.name === monthName);
+
+        if (monthData) {
+            document.querySelector(".month-tagline").textContent = monthData.tagline;
+        } else {
+            document.querySelector(".month-tagline").textContent = "A whisper of time's essence...";
+        }
+    } catch (error) {
+        console.error("Error fetching tagline:", error);
+        document.querySelector(".month-tagline").textContent = "A whisper of time's essence...";
+    }
+}
+
+async function loadCustomEvents() {
+    try {
+        const response = await fetch("/api/calendar-data");
+        if (!response.ok) {
+            throw new Error("Failed to fetch calendar data.");
+        }
+
+        const data = await response.json();
+        
+        if (data.customEvents) {
+            customEvents = data.customEvents;
+        } else {
+            console.warn("No custom events found in the fetched data.");
+        }
+
+        console.log("✅ Custom Events Loaded:", customEvents);
+    } catch (error) {
+        console.error("Error loading custom events:", error);
+    }
+}
+
+// Call the function on page load
+loadCustomEvents();
+
+let customEvents = []; // Initialize an empty array for storing custom events
+
+document.addEventListener("submit", async (event) => {
+    if (event.target.id === "add-event-form") {
+        event.preventDefault();
+        console.log("✨ Adding new custom event...");
+
+        const eventName = document.getElementById("event-name").value.trim();
+        const eventDate = document.getElementById("event-date").value;
+
+        if (!eventName || !eventDate) {
+            alert("Please enter a valid event name and date.");
+            return;
+        }
+
+        // Convert eventDate to match Gregorian format YYYY-MM-DD
+        const formattedDate = new Date(eventDate).toISOString().split("T")[0];
+
+        // Save event (modify based on how you're storing custom events)
+        const newEvent = { title: eventName, date: formattedDate };
+        customEvents.push(newEvent);
+
+        console.log("🎉 Event Added:", newEvent);
+
+        // Refresh calendar to reflect changes
+        showModal(lastOpenedMonth);  // Reopens modal with updated event list
+    }
+});

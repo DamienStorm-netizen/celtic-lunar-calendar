@@ -30,7 +30,7 @@ body {
 
 #modal-content {
   position: relative;
-  max-width: 400px;  /* Limit modal width */
+  width: 400px;  /* Limit modal width */
   background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
   border-radius: 10px; /* Add some rounded corners */
   padding: 20px;
@@ -69,8 +69,6 @@ body {
 .hidden {
   display: none !important;
 }
-
-
 
 
 
@@ -710,6 +708,13 @@ blockquote.moon-poem {
   margin: 10px 0 10px 0;
  }
 
+ .month-tagline {
+  color: #d7e0ff;
+  font-size: 1rem;
+  font-family: 'Vidaloka', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+ }
+
 .month-poem {
   text-align: center;
   display: block;
@@ -894,6 +899,42 @@ blockquote.moon-poem {
   transition: background 0.3s;
 }
 
+/*** Tabbed Navigation ***/
+
+/* Calendar Tabs */
+.calendar-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+  margin-top: 25px;;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: 0.3s ease-in-out;
+}
+
+.tab-button.active {
+  color: #ffcc00;
+  text-decoration: underline;
+}
+
+/* Hide inactive sections */
+.tab-content {
+  display: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.tab-content.active {
+  display: block;
+  opacity: 1;
+}
+
 /*** 🔥 Today's date highlight ***/
 
 .highlight-today {
@@ -960,17 +1001,21 @@ blockquote.moon-poem {
 }
 
 /* Legend */
-.calendarLegend {
-  position: relative;
-  width: 100%;
-  background-repeat: no-repeat;
-  background-position: 50% 50%;
-  margin: 25px auto 0 auto;
-  background-repeat: no-repeat;
-  background-position: bottom center;
-  background-size: cover; /* Ensures the image scales properly */
-  background-size: 60%;
+#legend-section {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.3);
+  text-align: center;
+  width: 80%;
+  margin: 10px auto;
+  transition: all 0.3s ease-in-out;
 }
+  
+#legend-section:hover {
+    box-shadow: 0px 0px 20px rgba(255, 223, 186, 0.5);
+  }
 
 .calendarLegendGrid {
   width: 100%; /* Table stretches to fit modal */
@@ -990,6 +1035,138 @@ blockquote.moon-poem {
   font-weight: 400;
   color: #fff6ea;
   font-size: 0.8em;
+}
+
+/*** ADD YOUR EVENT FORM ***/
+
+/* 🔮 Magical Form Styling */
+#add-event-section{
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.3);
+  text-align: center;
+  width: 80%;
+  margin: 10px auto;
+  transition: all 0.3s ease-in-out;
+}
+
+#add-event-section:hover {
+  box-shadow: 0px 0px 20px rgba(255, 223, 186, 0.5);
+}
+
+/* 🌟 List Items */
+#add-event-form ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+#add-event-form li {
+  margin: 10px 0;
+}
+
+/* 🖋️ Label Styling */
+#add-event-form label {
+  font-size: 1.2em;
+  color: #FFD700;
+  font-weight: bold;
+  display: block;
+  text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+/* 📜 Input Fields */
+#add-event-form input {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px;
+  width: 90%;
+  font-size: 1.1em;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.3s;
+}
+
+#add-event-form input:focus {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0px 0px 8px rgba(255, 223, 186, 0.5);
+}
+
+#add-event-form select {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px;
+  width: 90%;
+  font-size: 1.1em;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.3s;
+}
+
+#add-event-form select:focus {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0px 0px 8px rgba(255, 223, 186, 0.5);
+}
+
+#add-event-form textarea {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px;
+  width: 90%;
+  font-size: 1.1em;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.3s;
+}
+
+#add-event-form textarea:focus {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0px 0px 8px rgba(255, 223, 186, 0.5);
+}
+
+#add-type {
+    width: 200px;
+    padding: 5px;
+    font-size: 1.1em;
+}
+
+/* ✨ Add Event Button */
+.add-event-button {
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  width: 100%;
+  color: #222;
+  font-weight: bold;
+  border: none;
+  padding: 10px 15px;
+  font-size: 1.1em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 0px 10px rgba(255, 140, 0, 0.5);
+}
+
+.add-event-button:hover {
+  background: linear-gradient(135deg, #FF8C00, #FFD700);
+  box-shadow: 0px 0px 15px rgba(255, 165, 0, 0.8);
+  transform: scale(1.05);
+}
+
+/* ✨ Smooth Tab Transition */
+.tab-content {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+.tab-content.active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .bottomBar {
@@ -1014,6 +1191,7 @@ blockquote.moon-poem {
 .calendar {
   text-align: center;
   padding: 2rem 1rem;
+  max-width: 400px;
 }
 
 /* Grid Container */
@@ -1332,7 +1510,7 @@ blockquote.moon-poem {
   border-radius: 10px;
   text-align: center;
   color: white;
-  max-width: 90%;
+  max-width: 80%;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
 }
 

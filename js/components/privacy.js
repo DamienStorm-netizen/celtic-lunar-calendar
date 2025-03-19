@@ -43,6 +43,10 @@ export function renderPrivacy() {
         <div class="privacy-footer">
             <p>✨ No tracking. No data. Just you, the moon, and the magic of time. ✨</p>
         </div>
+
+         <div>
+            <button onclick="window.history.back()" class="back-button">🔙 Back to Safety</button>
+        </div>
     </section>
     `;
     

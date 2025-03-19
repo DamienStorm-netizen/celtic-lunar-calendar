@@ -3,6 +3,7 @@ import ephem
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
 from datetime import datetime, date, timedelta
 
 moon_descriptions = {
@@ -669,3 +670,12 @@ def eclipse_events():
     events = estimate_eclipses()
     return events
 
+
+@app.get("/api/calendar-data")
+def get_calendar_data():
+    try:
+        with open("calendar_data.json", "r", encoding="utf-8") as file:
+            data = json.load(file)
+        return JSONResponse(content=data)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
