@@ -1,6 +1,6 @@
 import json
 import ephem
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
@@ -326,36 +326,73 @@ def get_lunar_phases(month_name: str = None):
     return {"error": f"Month '{month_name}' not found in the Celtic Calendar"}
 
 
-# List All Custom Dates
-@app.get("/custom-dates")
-def list_custom_dates():
-    return calendar_data.get("custom_dates", [])
+# Load the calendar data from JSON
+def load_calendar_data():
+    try:
+        with open("calendar_data.json", "r", encoding="utf-8") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {"custom_events": []}  # Default to an empty list if the file is missing
 
-# Add a New Custom Date
-@app.post("/custom-dates")
-def add_custom_date(custom_date: dict):
-    calendar_data.setdefault("custom_dates", []).append(custom_date)
-    return {"message": "Custom date added successfully!"}
+# Save the calendar data back to JSON
+def save_calendar_data(data):
+    with open("calendar_data.json", "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
 
-# Delete a Custom Date
-@app.delete("/custom-dates/{date}")
-def delete_custom_date(date: str):
-    custom_dates = calendar_data.get("custom_dates", [])
-    updated_dates = [d for d in custom_dates if d["date"] != date]
-    if len(updated_dates) < len(custom_dates):
-        calendar_data["custom_dates"] = updated_dates
-        return {"message": f"Custom date on {date} deleted successfully!"}
-    return {"error": f"No custom date found on {date}."}
+# Load data initially
+calendar_data = load_calendar_data()
 
-# Edit an Existing Custom Date
-@app.put("/custom-dates/{date}")
-def edit_custom_date(date: str, updated_data: dict):
-    custom_dates = calendar_data.get("custom_dates", [])
-    for custom_date in custom_dates:
-        if custom_date["date"] == date:
-            custom_date.update(updated_data)
-            return {"message": f"Custom date on {date} updated successfully!"}
-    return {"error": f"No custom date found on {date}."}
+# ✅ List All Custom Events
+@app.get("/custom-events")
+def list_custom_events():
+    return calendar_data.get("custom_events", [])
+
+# ✅ Add a New Custom Event
+@app.post("/custom-events")
+def add_custom_event(custom_event: dict):
+    required_fields = ["title", "date"]
+    
+    # Ensure required fields are present
+    if not all(field in custom_event for field in required_fields):
+        raise HTTPException(status_code=400, detail="Missing required fields: title, date")
+
+    # Default optional fields if missing
+    custom_event.setdefault("type", "General")
+    custom_event.setdefault("notes", "")
+
+    calendar_data.setdefault("custom_events", []).append(custom_event)
+    save_calendar_data(calendar_data)
+
+    return {
+        "message": "Custom event added successfully!",
+        "event": custom_event
+    }
+
+# ✅ Delete a Custom Event
+@app.delete("/custom-events/{date}")
+def delete_custom_event(date: str):
+    custom_events = calendar_data.get("custom_events", [])
+    updated_events = [e for e in custom_events if e["date"] != date]
+
+    if len(updated_events) < len(custom_events):
+        calendar_data["custom_events"] = updated_events
+        save_calendar_data(calendar_data)
+        return {"message": f"Custom event on {date} deleted successfully!"}
+    
+    raise HTTPException(status_code=404, detail=f"No custom event found on {date}.")
+
+# ✅ Edit an Existing Custom Event
+@app.put("/custom-events/{date}")
+def edit_custom_event(date: str, updated_data: dict):
+    custom_events = calendar_data.get("custom_events", [])
+
+    for event in custom_events:
+        if event["date"] == date:
+            event.update(updated_data)
+            save_calendar_data(calendar_data)
+            return {"message": f"Custom event on {date} updated successfully!", "event": event}
+    
+    raise HTTPException(status_code=404, detail=f"No custom event found on {date}.")
 
 
 # Retrieve the Celtic Zodiac sign for a specific date

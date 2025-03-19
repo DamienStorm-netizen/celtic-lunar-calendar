@@ -397,13 +397,13 @@ function showModal(monthName) {
                                     <input type="text" id="event-name" required /></li>
                                 <li><label for="event-type">Type of Event:</label>
                                     <select id="event-type" name="event-type">
-                                        <option value="option3">🔥 Date</option>
-                                        <option value="option2">😎 Friends</option>
-                                        <option value="">🎉 Fun</option>
-                                        <option value="option1" active>💡 General</option>
-                                        <option value="">🏥 Health</option>
-                                        <option value="">💜 Romantic</option>
-                                        <option value="">🖥️ Professional</option>
+                                        <option value="🔥 Date">🔥 Date</option>
+                                        <option value="😎 Friends">😎 Friends</option>
+                                        <option value="🎉 Fun">🎉 Fun</option>
+                                        <option value="💡 General" active>💡 General</option>
+                                        <option value="🏥 Health">🏥 Health</option>
+                                        <option value="💜 Romantic">💜 Romantic</option>
+                                        <option value="🖥️ Professional">🖥️ Professional</option>
                                     </select></li>
                                  <li><label for="event-note">Event Description:</label>
                                     <textarea id="event-note" name="note" rows="4" cols="35"></textarea> 
@@ -903,6 +903,8 @@ document.addEventListener("submit", async (event) => {
         console.log("✨ Adding new custom event...");
 
         const eventName = document.getElementById("event-name").value.trim();
+        const eventType = document.getElementById("event-type").value.trim();
+        const eventNotes = document.getElementById("event-note").value.trim();
         const eventDate = document.getElementById("event-date").value;
 
         if (!eventName || !eventDate) {
@@ -913,13 +915,36 @@ document.addEventListener("submit", async (event) => {
         // Convert eventDate to match Gregorian format YYYY-MM-DD
         const formattedDate = new Date(eventDate).toISOString().split("T")[0];
 
-        // Save event (modify based on how you're storing custom events)
-        const newEvent = { title: eventName, date: formattedDate };
-        customEvents.push(newEvent);
+        // Create new event object
+        const newEvent = {
+            title: eventName,
+            type: eventType || "General",  // Default to "General" if empty
+            notes: eventNotes || "",  // Default to empty string if no note provided
+            date: formattedDate
+        };
 
-        console.log("🎉 Event Added:", newEvent);
+        console.log("🎉 Event to be added:", newEvent);
 
-        // Refresh calendar to reflect changes
-        showModal(lastOpenedMonth);  // Reopens modal with updated event list
+        try {
+            const response = await fetch("/custom-events", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newEvent)
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to add event.");
+            }
+
+            const result = await response.json();
+            console.log("✅ Event added:", result);
+
+            // Refresh calendar to reflect changes
+            showModal(lastOpenedMonth);
+        } catch (error) {
+            console.error("❌ Error adding event:", error);
+        }
     }
 });
