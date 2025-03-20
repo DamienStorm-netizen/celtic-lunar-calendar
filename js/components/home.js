@@ -10,9 +10,9 @@ export function renderHome() {
                     <p class="goldenTitle">Tonight's Moon</p>
                     <div class="moon-phase">
                         <div class="moon-graphic">
-                            <p class="moon-phase-name">Loading...</p>
+                            <h4 class="moon-phase-name">Loading...</h4>
                         </div>
-                        <p class="moon-phase-name">Loading...</p>
+                        <h4 class="moon-phase-name">Loading...</h4>
                     </div>
                 </div>
 
@@ -457,9 +457,9 @@ export function populateComingEventsCarousel(events) {
 
     carouselContainer.innerHTML = ""; // Clear previous slides
 
-    if (!Array.isArray(events)) {
-        console.error("Events is not an array:", events);
-        carouselContainer.innerHTML = "<p>No upcoming events.</p>";
+    if (!Array.isArray(events) || events.length === 0) {
+        console.warn("No upcoming events found. Displaying mystical message...");
+        updateCarousel(); // Call updateCarousel when no events exist
         return;
     }
 
@@ -600,3 +600,47 @@ export function convertGregorianToCeltic(gregorianDate) {
 
     return "Unknown Date";
 }
+
+async function updateCarousel() {
+    console.log("Updating carousel...");
+
+    // Fetch upcoming events
+    const upcomingEvents = await fetchUpcomingEvents(); 
+
+    // Placeholder messages if no upcoming events
+    const mysticalMessages = [
+        "🌙 The stars whisper, but no great events stir. The journey continues in quiet contemplation... 💫",
+        "🌿 The wind carries no omens today, only the gentle breath of the earth. Rest in the rhythm of the moment. 🍃✨",
+        "🔮 The threads of fate are still weaving. In the quiet, new paths may emerge... 🕰️🔮",
+        "🦉 Even in stillness, the world turns. The wise ones know that the silence holds its own kind of magic. 🦉🌌",
+        "🔥 No great fires are lit, no grand feasts are planned, but the embers of time still glow beneath the surface. ⚡🔥",
+        "🌌 Tonight, the universe is quiet, waiting. Perhaps the next moment holds something unseen... 🌌✨"
+    ];
+
+    let carouselContent = "";
+
+    if (upcomingEvents.length > 0) {
+        // Populate carousel with upcoming events
+        carouselContent = upcomingEvents.map(event => `
+            <div class="carousel-item">
+                <h3>${event.title}</h3>
+                <p>${event.date}</p>
+                <p>${event.description || "A moment written in the stars... ✨"}</p>
+            </div>
+        `).join("");
+    } else {
+        // Display a random mystical message
+        const randomMessage = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
+        carouselContent = `<div class="carousel-item no-events">
+            <p>${randomMessage}</p>
+        </div>`;
+    }
+
+    document.getElementById("carousel").innerHTML = carouselContent;
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    console.log("🏡 Home screen loaded, fetching upcoming events...");
+    const upcomingEvents = await fetchUpcomingEvents();
+    populateComingEventsCarousel(upcomingEvents);
+});

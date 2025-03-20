@@ -1,60 +1,64 @@
 export function renderSettings() {
-    const app = document.getElementById('app');
     return `
-    <section class="settings">
-        <h1>Settings</h1>
-        <div id="settings-panel">
-            <label>Theme: 
-                <select>
-                    <option value="default">Default</option>
-                    <option value="dark">Dark Mode</option>
-                </select>
-            </label>
-        </div>
+        <div id="settings-container">
+            <h1 class="settings-title">Settings</h1>
 
-        <div class="modal-toggles">
-            <div>
-                <span>Show Lunar Phases:</span>
-                <button id="toggle-lunar-phases" class="toggle-button" data-active="false">No</button>
-                <button class="toggle-button">No</button>
-            </div>
-            <div>
-                <span>Show Festivals:</span>
-                <button id="toggle-festivals" class="toggle-button" data-active="false">No</button>
-                <button class="toggle-button">No</button>
-            </div>
-        </div>
+            <!-- Custom Events Management -->
+            <section id="custom-events-settings">
+                <h2>🌙 Manage Your Events</h2>
+                <p>Add, edit, or remove your custom events.</p>
+                <div id="custom-events-list"></div>
+                <button id="add-event-button" class="settings-btn">Add New Event</button>
+            </section>
 
-    </section>
+            <!-- Mystical Preferences -->
+            <section id="mystical-settings">
+                <h2>🔮 Mystical Preferences</h2>
+                <p>Fine-tune your calendar.</p>
+
+                <ul class="mystical-list">
+                    <li><label>
+                        <input type="checkbox" id="toggle-mystical" checked> Enable Mystical Suggestions
+                    </label></li>
+                    <li><label>
+                        <input type="checkbox" id="show-eclipses" checked> Show Eclipses
+                    </label></li>
+                    <li><label>
+                        <input type="checkbox" id="show-moons" checked> Show Full Moons
+                    </label></li>
+                    <li><label>
+                        <input type="checkbox" id="show-holidays" checked> Show National Holidays
+                    </label></li>
+                <ul>
+            </section>
+
+            <!-- About & Credits -->
+            <section id="about-settings">
+                <h2>📜 About This Project</h2>
+                <p>A collaborative project by <strong>Eclipsed Realities</strong> & <strong>Playground of the Senses</strong>.</p>
+                <button id="about-page-button" class="settings-btn">Read More</button>
+            </section>
+        </div>
     `;
-    
 }
 
+// Attach Event Listeners when Settings Page Loads
 export function setupSettingsEvents() {
-    const lunarToggle = document.getElementById("toggle-lunar-phases");
-    const festivalsToggle = document.getElementById("toggle-festivals");
 
-    // Load initial preferences from local storage
-    lunarToggle.dataset.active = localStorage.getItem("showLunarPhases") === "true" ? "true" : "false";
-    festivalsToggle.dataset.active = localStorage.getItem("showFestivals") === "true" ? "true" : "false";
-
-    // Update button text
-    lunarToggle.textContent = lunarToggle.dataset.active === "true" ? "Yes" : "No";
-    festivalsToggle.textContent = festivalsToggle.dataset.active === "true" ? "Yes" : "No";
-
-    // Toggle lunar phases
-    lunarToggle.addEventListener("click", () => {
-        const isActive = lunarToggle.dataset.active === "true";
-        lunarToggle.dataset.active = !isActive;
-        lunarToggle.textContent = isActive ? "No" : "Yes";
-        localStorage.setItem("showLunarPhases", !isActive);
+    // Redirect to About Page
+    document.getElementById("about-page-button").addEventListener("click", () => {
+        console.log("Clicked on About link");
+        window.location.hash = "about";
     });
 
-    // Toggle festivals
-    festivalsToggle.addEventListener("click", () => {
-        const isActive = festivalsToggle.dataset.active === "true";
-        festivalsToggle.dataset.active = !isActive;
-        festivalsToggle.textContent = isActive ? "No" : "Yes";
-        localStorage.setItem("showFestivals", !isActive);
+    // Manage Custom Events
+    document.getElementById("add-event-button").addEventListener("click", () => {
+        showAddEventModal();
     });
+}
+
+// Function to show event modal (to be created)
+function showAddEventModal() {
+    console.log("📝 Open Add Event Modal...");
+    // Logic to open and display modal for event creation
 }

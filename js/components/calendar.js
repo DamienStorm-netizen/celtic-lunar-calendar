@@ -1,5 +1,7 @@
 let cachedNationalHolidays = []; // Store national holidays globally
+let cachedFestivals = {}; // Store festivals globally
 let lastOpenedMonth = null; // Keep track of the last opened month modal
+let customEvents = []; // Initialize an empty array for storing custom events
 
 export function renderCalendar() {
     const app = document.getElementById('app');
@@ -112,6 +114,10 @@ async function setupCalendarEvents() {
 async function enhanceCalendarTable(modalContainer, monthName) {
     console.log(`Enhancing calendar for ${monthName}...`);
 
+    // Convert monthName to a zero-padded monthIndex
+    const monthNames = ["Nivis", "Janus", "Flora", "Maia", "Solis", "Terra", "Lugh", "Pomona", "Brigid", "Autumna", "Eira", "Aether"];
+    const monthIndex = String(monthNames.indexOf(monthName) + 1).padStart(2, "0");
+
     // Ensure national holidays are fetched before using them
     if (cachedNationalHolidays.length === 0) {
         await fetchNationalHolidays(); // Fetch if not already cached
@@ -142,18 +148,9 @@ async function enhanceCalendarTable(modalContainer, monthName) {
     // Fetch custom events
     const customEvents = await fetchCustomEvents();
     console.log("Custom events retrieved:", customEvents);
-    
-    // 🔥 Celtic Festivals Mapping
-    const festivalDays = {
-        "Janus": [15], // Imbolc
-        "Flora": [4], // Ostara
-        "Maia": [19], // Beltaine
-        "Solis": [14], // Litha
-        "Terra": [27], // Lammas
-        "Lugh": [19], // Mabon
-        "Eira": [6], // Samhain
-        "Aether": [28] // Yule
-    };
+
+    // Fetch festivals once before the loop
+    const festivals = await fetchFestivals(); // ✅ This runs BEFORE we start checking each cell
   
     tableCells.forEach((cell) => {
         const day = parseInt(cell.textContent, 10);
@@ -193,13 +190,19 @@ async function enhanceCalendarTable(modalContainer, monthName) {
                 cell.classList.add("highlight-today");
             }
 
-             // 🔥 Mark Festival Days
-            if (festivalDays[monthName]?.includes(day)) {
-                console.log(`Marking ${monthName} ${day} as Festival Day.`);
+            // Normalize date format for easy comparison
+            const formattedDay = String(day).padStart(2, "0");
+            const formattedDate = `2025-${monthIndex}-${formattedDay}`;
+
+            // Highlight festivals
+            const festival = cachedFestivals.find(h => h.date === formattedGregorianDate);
+        
+            if (festival) {
+                console.log(`Marking ${formattedGregorianDate} as Festival: ${festival.title}`);
                 cell.classList.add("festival-day");
-                cell.setAttribute("title", "Celtic Festival 🔥");
+                cell.setAttribute("title", `${festival.title} 🎉`);
             } else {
-                console.log('Festival not found');
+                console.log("No holfestivaliday, No marking");
             }
 
             // Highlight national holidays
@@ -291,6 +294,7 @@ async function enhanceCalendarTable(modalContainer, monthName) {
 }
 
  // Fetch national holidays dynamically
+ 
  async function fetchNationalHolidays() {
     console.log('Fetching national holidays now!!');
     try {
@@ -526,21 +530,9 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     console.log("🚨 Removing hidden class from modal-container");
     modalContainer.classList.remove("hidden");
 
-    // Festival descriptions
-    const festivalDescriptions = {
-        "Janus 15": "<strong>Imbolc</strong><br />A festival of light and renewal, honoring Brigid, goddess of poetry and hearth fire.",
-        "Flora 4": "<strong>Ostara</strong><br />The balance of light and dark, celebrating new beginnings.",
-        "Maia 19": "<strong>Beltaine</strong><br />The fire festival of passion and fertility, where the veil between worlds is thin.",
-        "Solis 14": "<strong>Litha</strong><br />The longest day of the year, honoring the Sun’s peak.",
-        "Terra 27": "<strong>Lammas</strong><br />A festival of the harvest, honoring the god Lugh and the first fruits of the land.",
-        "Lugh 19": "<strong>Mabon</strong><br />A time of balance and gratitude as the harvest ends.",
-        "Eira 6": "<strong>Samhain</strong><br />The gateway to winter, the festival of ancestors, spirits, and shadowy magic.",
-        "Aether 28": "<strong>Yule</strong><br />The winter solstice is a time to celebrate the return of the light and the rebirth of the sun."
-    };
 
     // Convert date format for lookup
     const formattedFestivalKey = `${celticMonth} ${celticDay}`;
-    const festivalInfo = festivalDescriptions[formattedFestivalKey] || "No festival today.";
   
     // Show loading state while fetching data
     modalDetails.innerHTML = `
@@ -618,16 +610,38 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         console.log("Formatted Gregorian date used with eclipses: ", formattedGregorianDate);
         console.log("Today Eclipse data fetched: ", eclipseEvent);
 
+        // Find the festival for this date
+        const festivals = await fetchFestivals();
+
+        console.log("🔍 Checking Festival Dates:");
+        festivals.forEach(f => {
+            console.log(`Festival: ${f.name} | Date in JSON: ${f.date} | Formatted: ${new Date(f.date).toISOString().split("T")[0]}`);
+        });
+
+        console.log("🧐 Formatted Gregorian Date Used for Matching:", formattedGregorianDate);
+
+        // Ensure date format consistency
+        const festivalEvent = festivals.find(f => {
+            const festivalDate = new Date(f.date).toISOString().split("T")[0]; // Normalize format
+            return festivalDate === formattedGregorianDate;
+        });
+
+        console.log("🎭 Festival Data Retrieved:", festivalEvent);
+
         // Find the holiday for this date
         const holidayInfo = cachedNationalHolidays
         .filter(h => h.date === dateStr)
         .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
         .join("") || "No national holidays today.";
 
-        let festivalHTML = festivalInfo && festivalInfo.trim() !== "" && festivalInfo !== "No festival today."
+        let festivalHTML = festivalEvent
             ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="subheader">Festivals</h3><p>${festivalInfo}</p>` 
+            <h3 class="subheader">Festivals</h3>
+            <p><span class="festival-title">${festivalEvent.name}</span></p>
+            <p class="festival-note">${festivalEvent.description}</p>`
             : "";
+
+        console.log("Festival Data Retrieved:", festivalHTML); // Debugging Log
 
         let holidayHTML = holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today."
             ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
@@ -635,18 +649,22 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             : "";
 
         let eclipseHTML = eclipseEvent 
-        ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="subheader">Eclipse</h3>
-            <p><strong>${eclipseEvent.title}</strong></p>
-            <p>${eclipseEvent.description}</p>`
-        : "";
+            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+                <h3 class="subheader">Eclipse</h3>
+                <p><strong>${eclipseEvent.title}</strong></p>
+                <p>${eclipseEvent.description}</p>`
+            : "";
 
         let eventsHTML = Array.isArray(events) && events.length > 0
-        ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
-          <h3 class="subheader">Special Events</h3><p>${events.join(", ")}</p>` 
-        : "";
+            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+                <h3 class="subheader">Special Events</h3>
+                ${events.map(event => `
+                    <p><span class="event-title">${event.title}</span><br />
+                    <span class="event-note">${event.notes || 'No additional details.'}</span><br />
+                    <span class="event-type">${event.type}</span></p>
+                `).join('')}`
+            : "";
 
-        
         // Update modal with lunar details
         modalDetails.innerHTML = `
             <div style="text-align: center; padding-top: 10px; color: white">
@@ -748,29 +766,25 @@ function getCelticZodiac(gregorianMonth, gregorianDay) {
     return "Unknown";
   }
 
-async function getCustomEvents(gregorianMonth, gregorianDay) {
+  async function getCustomEvents(gregorianMonth, gregorianDay) {
+    console.log("Fetching custom events...");
     try {
         const response = await fetch("/api/custom-events");
         if (!response.ok) throw new Error("Failed to fetch events");
 
         const events = await response.json();
 
-        // Convert numbers to strings and ensure two-digit format
         const monthStr = String(gregorianMonth).padStart(2, "0");
         const dayStr = String(gregorianDay).padStart(2, "0");
 
         const targetDate = `2025-${monthStr}-${dayStr}`;
 
-        // Filter events for the selected date
-        const filteredEvents = events.filter(event => event.date === targetDate);
-
-        return filteredEvents.length > 0 
-            ? filteredEvents.map(e => e.title)  // ✅ Return an array of event titles instead of an HTML string
-            : [];  // ✅ Ensure we return an empty array if no events exist
+        // ✅ Return full event objects instead of just titles
+        return events.filter(event => event.date === targetDate);
 
     } catch (error) {
         console.error("Error fetching events:", error);
-        return [];  // ✅ Return an empty array on error
+        return [];  // ✅ Ensure we return an empty array on error
     }
 }
 
@@ -873,17 +887,23 @@ async function fetchTagline(monthName) {
 
 async function loadCustomEvents() {
     try {
-        const response = await fetch("/api/calendar-data");
+        // 🔥 Change API Endpoint to /custom-events
+        const response = await fetch("/custom-events"); 
         if (!response.ok) {
-            throw new Error("Failed to fetch calendar data.");
+            throw new Error("Failed to fetch custom events.");
         }
 
         const data = await response.json();
+
+        // 🔥 Debugging Step: Log the raw API response
+        console.log("🛠 Raw API Response:", data);
         
-        if (data.customEvents) {
-            customEvents = data.customEvents;
+        // ✅ Store events in the correct format
+        if (Array.isArray(data)) {
+            customEvents = data;
         } else {
-            console.warn("No custom events found in the fetched data.");
+            console.warn("Unexpected response format for custom events.");
+            customEvents = [];
         }
 
         console.log("✅ Custom Events Loaded:", customEvents);
@@ -891,11 +911,24 @@ async function loadCustomEvents() {
         console.error("Error loading custom events:", error);
     }
 }
-
 // Call the function on page load
 loadCustomEvents();
 
-let customEvents = []; // Initialize an empty array for storing custom events
+// Fetch Celtic festivals dynamically
+async function fetchFestivals() {
+    console.log('Fetching Festivals now!!');
+    try {
+        const response = await fetch("/festivals");
+        if (!response.ok) throw new Error("Failed to fetch festivals");
+        const data = await response.json();
+        cachedFestivals = data; // Store globally for reuse
+        console.log("✅ Festivals Fetched:", cachedFestivals);
+        return data;
+    } catch (error) {
+        console.error("Error fetching festivals:", error);
+        return [];
+    }
+}
 
 document.addEventListener("submit", async (event) => {
     if (event.target.id === "add-event-form") {

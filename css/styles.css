@@ -246,6 +246,7 @@ h1, .main-title {
   text-align: center;
   filter: drop-shadow(0 0 8px #ffd700);
   margin-top: 0;
+  margin-bottom: 0 !important;
 }
 
 /* Used on modals */
@@ -267,6 +268,7 @@ h1, .main-title {
 
 .goldNugget {
   color: #ffd700;
+  font-family: 'Vidaloka';
 }
 
 
@@ -289,6 +291,7 @@ h1, .main-title {
   flex-direction: column;
   overflow: hidden; /* Prevent stars from spilling out */
   border-radius: 15px; /* Optional: Add rounded corners for extra charm */
+  padding: 0;
 }
 
 /* STAR LAYER */
@@ -509,6 +512,7 @@ blockquote.moon-poem {
 
 .celtic-zodiac-image {
   width: 100px;
+  margin-bottom: 0px;
 }
 
 .celtic-zodiac #modal-details h3 {
@@ -521,6 +525,13 @@ blockquote.moon-poem {
   font-size: 1rem;
   line-height: 1.5;
   color: #fff6ea; /* Magical white */
+  padding-top: 20px;
+}
+
+.celtic-zodiac-details p {
+  color: #d7e0ff;
+  font-size: 1rem;
+  font-family: 'Vidaloka', serif;
 }
 
 .zodiac-subheader {
@@ -551,11 +562,12 @@ blockquote.moon-poem {
   margin: 0;
 }
 
-.moon-phase-details p {
+.moon-phase-details p, .celtic-zodiac-details h3 {
   font-size: 1em;
   margin-top: 0px;
   text-align: center;
-  color: #fff; /* Or any colour matching your theme */
+  color: #d7e0ff; /* Or any colour matching your theme */
+  font-family: 'Vidaloka', serif;
 }
 
 .moon-phase-graphic {
@@ -954,6 +966,10 @@ blockquote.moon-poem {
   border-radius: 5px;
 }
 
+.festival-title {
+  
+}
+
 /* 🌕 Full moon day */
 .full-moon-day {
   background: linear-gradient(135deg, #FFC107 0%, #FFEB3B 100%);
@@ -973,6 +989,22 @@ blockquote.moon-poem {
   font-weight: bold;
 }
 
+/* 🌳 Celtic Festivals */
+.festival-title {
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #28A745; /* Mystical green */
+  text-transform: uppercase;
+}
+
+.festival-note {
+  font-family: "Libre Baskerville", serif;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #EDEDED;
+}
+
 
 /* 💜 Custom Event Day */
 .custom-event-day {
@@ -981,6 +1013,32 @@ blockquote.moon-poem {
   font-weight: bold;
   box-shadow: 0 0 10px rgba(103, 58, 183, 0.8);
   border-radius: 5px;
+}
+
+.event-title {
+  display: inline-block;
+  font-family: 'Cinzel Decorative', serif;
+  color: #228b22;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.event-notes {
+  display: inline-block;
+  font-family: 'Libre Baskerville', serif;
+  color: #f1f6e1;
+  font-weight: 400;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+}
+
+.event-type {
+  display: inline-block;
+  font-family: 'Libre Baskerville', serif;
+  color: #f1f6e1;
+  font-weight: 400;
+  font-size: 0.8rem;
 }
 
 
@@ -1068,9 +1126,10 @@ blockquote.moon-poem {
 
 /* 🖋️ Label Styling */
 #add-event-form label {
-  font-size: 1.2em;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1em;
   color: #FFD700;
-  font-weight: bold;
+  font-weight: 400;
   display: block;
   text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
 }
@@ -1192,6 +1251,7 @@ blockquote.moon-poem {
   text-align: center;
   padding: 2rem 1rem;
   max-width: 400px;
+  margin: 0 auto;
 }
 
 /* Grid Container */
@@ -2101,4 +2161,66 @@ footer nav {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   
+}
+
+/**********************************************/
+/*   SETTINGS   */
+/**********************************************/
+
+#settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 12px;
+  color: white;
+  font-family: 'Cinzel', serif;
+  box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+}
+
+#settings-container section {
+  margin-bottom: 35px;
+}
+
+.settings-title {
+  text-align: center;
+  font-size: 2em;
+}
+
+.mystical-list li {
+  list-style-type: none;
+  margin-bottom: 5px;
+}
+
+.settings-btn {
+  display: block;
+  margin: 10px auto;
+  padding: 8px 16px;
+  background: #9c27b0;
+  border: none;
+  color: white;
+  font-size: 1.1em;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.settings-btn:hover {
+  background: #7b1fa2;
+}
+
+h2 {
+  font-family: 'Vidaloka', serif;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 5px;
+}
+
+h3 {
+  font-family: 'Vidaloka', serif;
+  color: #ffd700;
+}
+
+p, input, label {
+  font-family: 'libre Baskerville', serif;
+  font-size: 0.9rem;
 }
