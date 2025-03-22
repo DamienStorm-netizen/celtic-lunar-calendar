@@ -2192,35 +2192,165 @@ footer nav {
   margin-bottom: 5px;
 }
 
-.settings-btn {
-  display: block;
-  margin: 10px auto;
-  padding: 8px 16px;
-  background: #9c27b0;
-  border: none;
-  color: white;
-  font-size: 1.1em;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease-in-out;
-}
-
-.settings-btn:hover {
-  background: #7b1fa2;
-}
-
-h2 {
+#settings-container h2 {
   font-family: 'Vidaloka', serif;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   padding-bottom: 5px;
 }
 
-h3 {
+#settings-container h3 {
   font-family: 'Vidaloka', serif;
   color: #ffd700;
 }
 
-p, input, label {
+#settings-container p, #settings-containerinput, #settings-container label {
   font-family: 'libre Baskerville', serif;
   font-size: 0.9rem;
+}
+
+#custom-events-list {
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.custom-event-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+}
+
+.event-details {
+  flex-grow: 1;
+}
+
+.event-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-event-btn,
+.delete-event-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.edit-event-btn {
+  background: #ff9800;
+  color: white;
+}
+
+.delete-event-btn {
+  background: #e53935;
+  color: white;
+}
+
+.settings-btn {
+  display: block;
+  margin: 15px 0;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #9c27b0, #000);
+  width: 150px;
+  color: #ffd700;
+  border: none;
+  font-size: 0.9em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 0px 10px rgba(255, 140, 0, 0.5);
+}
+
+.settings-btn:hover {
+  box-shadow: 0px 0px 15px rgba(255, 165, 0, 0.8);
+  transform: scale(1.05);
+}
+
+/* Events list to edit / delete */
+
+#event-list-container {
+  background: rgba(255, 255, 255, 0.1);
+  max-height: 300px; /* Adjust based on your available space */
+  overflow-y: auto; /* Enables vertical scrolling */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  background-color: #1a1a1a; /* Matches the dark theme in your image */
+  color: #fff; /* Matches the text color in your image */
+  border-radius: 8px; 
+  box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.3);
+  width: 80%;
+  margin: 10px 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.settings-event-list li {
+  list-style-type: none;
+  margin-bottom: 3px;
+  font-family: 'Libre Baskerville';
+  font-size: 0.9rem;
+}
+
+.event-item {
+  background: rgba(255, 255, 255, 0.1); /* Soft, translucent background */
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  position: relative;
+  transition: box-shadow 0.5s ease-in-out, transform 0.3s ease-in-out;
+  border-bottom: 1px solid #333; /* Optional: to separate items */
+}
+
+/* 🔮 Magical Glow on Hover */
+.event-item:hover {
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.3);
+  transform: scale(1.02);
+}
+
+#event-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+#event-list-container::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+#event-list-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+#event-list-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.settings-delete-event, .settings-edit-event {
+  background: linear-gradient(135deg, #9c27b0, #000);
+  width: 100px;
+  color: #ffd700;
+  border: none;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 0px 10px rgba(255, 140, 0, 0.5);
+  margin-top: 15px;
+  margin-right: 15px;
+}
+
+.settings-delete-event:hover, .settings-edit-event:hover {
+  box-shadow: 0px 0px 15px rgba(255, 165, 0, 0.8);
+  transform: scale(1.05);
+}
+
+
+#settings-container h3{
+  color: #fff6ea;
 }
