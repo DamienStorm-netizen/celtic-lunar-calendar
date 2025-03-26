@@ -54,7 +54,7 @@ export function renderCalendar() {
             </div>
         </section>
 
-        <div id="modal-container" class="calendar-modal hidden foxy">
+        <div id="modal-container" class="calendar-modal hidden">
             <div id="modal-content">
                 <button id="close-modal" class="mystical-close">✦</button>
                 <div id="modal-details"></div>

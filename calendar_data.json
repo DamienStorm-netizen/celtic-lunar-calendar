@@ -343,34 +343,10 @@
             "notes": "Vacation time! 🌴"
         },
         {
-            "title": "Cycle Start",
-            "type": "Period",
-            "date": "2025-06-01",
-            "notes": "First day of cycle."
-        },
-        {
-            "title": "Eye Exam",
-            "type": "Health",
-            "date": "2025-03-08",
-            "notes": "12h30 - Baby gets her eyes checked!"
-        },
-        {
             "title": "Wardruna Concert",
             "type": "Music",
             "date": "2025-03-14",
             "notes": "Viking time! 🌴"
-        },
-        {
-            "title": "Hello World, Babysweet",
-            "type": "💜 Romantic",
-            "notes": "Babysweet is the bestest EVER!!!!",
-            "date": "2025-03-25"
-        },
-        {
-            "title": "Last Test",
-            "type": "🎉 Fun",
-            "notes": "It works, baby!!!",
-            "date": "2025-03-20"
         }
     ],
     "zodiac": [

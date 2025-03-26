@@ -1607,7 +1607,7 @@ blockquote.moon-poem {
   pointer-events: none;
 }
 
-.modal.show {
+.show {
   opacity: 1;
   pointer-events: all;
 }
@@ -2255,7 +2255,7 @@ footer nav {
 
 .settings-btn {
   display: block;
-  margin: 15px 0;
+  margin: 15px auto;
   padding: 10px 20px;
   background: linear-gradient(135deg, #9c27b0, #000);
   width: 150px;
@@ -2271,6 +2271,63 @@ footer nav {
 .settings-btn:hover {
   box-shadow: 0px 0px 15px rgba(255, 165, 0, 0.8);
   transform: scale(1.05);
+}
+
+/* ADD Events */
+
+#add-event-modal h2 {
+    font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
+    font-weight: 400; /* Use bold for the title */
+    font-size: 1.5rem; /* Adjust size as needed */
+    color: #f5d742; /* Your dazzling title colour! */
+    text-align: center;
+    filter: drop-shadow(0 0 8px #ffd700);
+    margin-top: 0;
+}
+
+.close-modal-add {
+  position: absolute;
+  top: -10px;
+  right: -3px;
+}
+
+#add-event-modal input, #add-event-modal textarea {
+  margin-top: 5px;
+}
+
+.modal-settings {
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 400px;
+  background: #1a1a2e;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px #ffffff88;
+  color: #fff;
+  text-align: center;
+}
+
+.modal-content-add {
+  position: relative;
+  padding: 20px;
+}
+
+#add-event-modal button {
+  background: purple;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+#add-event-form label {
+  margin-bottom: 15px;
 }
 
 /* Events list to edit / delete */

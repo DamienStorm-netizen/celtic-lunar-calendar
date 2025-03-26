@@ -15,6 +15,39 @@ export function renderSettings() {
                     <p>Loading your magical events...</p>
                 </div>
 
+                <!--- ADD Custom Event --->
+                <div id="add-event-modal" class="modal-settings hidden">
+                    <div class="modal-content-add">
+                        <span class="close-modal-add">&times;</span>
+                        <h2>Add New Event</h2>
+                        <form id="add-event-form">
+                            <label for="event-name">Event Name:
+                            <input type="text" id="event-name" required /></label>
+
+                            <label for="event-type">Type of Event:
+                            <select id="event-type">
+                                <option value="🎉 Fun">🎉 Fun</option>
+                                <option value="💜 Romantic">💜 Romantic</option>
+                                <option value="🏥 Health">🏥 Health</option>
+                                <option value="🔥 Festival">🔥 Festival</option>
+                                <option value="🌕 Full Moon">🌕 Full Moon</option>
+                                <option value="🎄 Holiday">🎄 Holiday</option>
+                            </select></label>
+
+                            <label for="event-date">Date:
+                            <input type="date" id="event-date" required /></label>
+
+                            <label for="event-note">Event Description:
+                            <textarea id="event-note"></textarea></label>
+
+                            <button type="submit">Save Event</button>
+                            <button type="button" class="cancel-modal-add">Cancel</button>
+                        </form> 
+                    </div>
+                </div>
+                
+
+                <!--- EDIT Custom Event -->
                 <div id="edit-event-modal" class="modal hidden">
                     <div class="modal-content">
                         <span class="close-modal">&times;</span>
@@ -154,30 +187,52 @@ function openEditModal(eventId) {
 // Attach Event Listeners when Settings Page Loads
 export function setupSettingsEvents() {
 
-    // Redirect to About Page
-    document.getElementById("about-page-button").addEventListener("click", () => {
-        console.log("Clicked on About link");
-        window.location.hash = "about";
+   // Fetch and populate custom events list on load
+    fetchCustomEvents()
+        .then(events => populateEventList(events))
+        .catch(error => console.error("Error loading events:", error));
+}
+
+// Function to show add event modal (to be created)
+function showAddEventModal() {
+    
+    console.log("📝 Open Add Event Modal...");
+    const modal = document.getElementById("add-event-modal");
+    modal.classList.remove("hidden");
+    modal.classList.add("show");
+
+    // Close modal when clicking the close button
+    document.querySelectorAll(".close-modal-add").forEach(button => {
+        button.addEventListener("click", () => {
+            modal.classList.remove("show");
+            modal.classList.add("hidden");
+        });
     });
+
+    document.querySelectorAll(".close-modal").forEach(button => {
+        button.addEventListener("click", () => {
+            modal.classList.remove("show");
+            modal.classList.add("hidden");
+        });
+    });
+
+        // Attach event listener
+    document.getElementById("add-event-form").addEventListener("submit", handleAddEventSubmit);
+}
+
+
+function attachEventHandlers() {
 
     // Manage Custom Events
     document.getElementById("add-event-button").addEventListener("click", () => {
         showAddEventModal();
     });
 
-    // Fetch and populate custom events list on load
-    fetchCustomEvents()
-        .then(events => populateEventList(events))
-        .catch(error => console.error("Error loading events:", error));
-}
-
-// Function to show event modal (to be created)
-function showAddEventModal() {
-    console.log("📝 Open Add Event Modal...");
-    // Logic to open and display modal for event creation
-}
-
-function attachEventHandlers() {
+     // Redirect to About Page
+     document.getElementById("about-page-button").addEventListener("click", () => {
+        console.log("Clicked on About link");
+        window.location.hash = "about";
+    });
 
     document.querySelectorAll(".settings-edit-event").forEach(button => {
         button.addEventListener("click", (event) => {
@@ -187,7 +242,26 @@ function attachEventHandlers() {
 
     document.querySelectorAll(".settings-delete-event").forEach(button => {
         button.addEventListener("click", (event) => {
-            console.log("Delete button clicked!!!");  // 🔎 See if this logs!
+            console.log("Delete button clicked!!!");
+    
+            // Check if the event target is correct
+            const targetButton = event.target;
+            if (!targetButton) {
+                console.error("Error: event.target is undefined.");
+                return;
+            }
+    
+            // Ensure the data-date attribute is being read correctly
+            const eventDate = targetButton.getAttribute("data-date");
+            if (!eventDate) {
+                console.error("Error: data-date attribute not found.");
+                return;
+            }
+    
+            console.log("Attempting to delete event on:", eventDate);
+    
+            // Call the delete function
+            handleDeleteEvent(eventDate);
         });
     });
 }
@@ -206,7 +280,7 @@ function populateEventList(events) {
                 <li><h3>${event.title}</h3></li>
                 <li>${event.date}</li>
                 <li>${event.notes || "No notes added."}</li>
-                <li><button class="settings-edit-event" data-date="${event.date}">Edit</button><button class="settings-delete-event">Delete</button></li>
+                <li><button class="settings-edit-event" data-date="${event.date}">Edit</button><button class="settings-delete-event" data-date="${event.date}">Delete</button></li>
             </ul>
         `;
 
@@ -217,7 +291,101 @@ function populateEventList(events) {
     attachEventHandlers();
 }
 
+// Function to handle event submission - ADD
+async function handleAddEventSubmit(event) {
 
+    console.log("Adding an event");
+    event.preventDefault(); // Prevent default form submission behavior
 
+    // Grab form values
+    const eventName = document.getElementById("event-name").value.trim();
+    const eventType = document.getElementById("event-type").value;
+    const eventDate = document.getElementById("event-date").value;
+    const eventNotes = document.getElementById("event-note").value.trim();
 
+    // Ensure required fields are filled
+    if (!eventName || !eventDate) {
+        alert("Please enter both an event name and date.");
+        return;
+    }
+
+    // Construct event object
+    const newEvent = {
+        title: eventName,
+        type: eventType,
+        date: eventDate,
+        notes: eventNotes
+    };
+
+    console.log("📤 Sending new event:", newEvent);
+
+    // Send event data to Python backend
+    try {
+        const response = await fetch("/custom-events", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newEvent)
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to add event");
+        }
+
+        const result = await response.json();
+        console.log("✅ Event added successfully:", result);
+
+        // Close modal & refresh event list
+        document.getElementById("add-event-modal").style.display = "none";
+        fetchCustomEvents(); // Reload events
+
+    } catch (error) {
+        console.error("❌ Error adding event:", error);
+        alert("Oops! Something went wrong while adding your event.");
+    }
+}
+
+// Function to handle event deletion - DELETE
+async function handleDeleteEvent(eventDate) {
+    console.log("🚀 handleDeleteEvent function triggered!");
+
+    if (!eventDate) {
+        console.error("❌ Error: eventDate is undefined.");
+        return;
+    }
+
+    console.log(`🗑️ Attempting to delete event on: ${eventDate}`);
+
+    try {
+        const response = await fetch(`/custom-events/${eventDate}`, {
+            method: "DELETE",
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete event: ${response.statusText}`);
+        }
+
+        console.log(`✅ Event on ${eventDate} deleted successfully!`);
+
+        // 🧹 **Step 1: Clear the event list before refreshing**
+        const container = document.getElementById("event-list-container");
+        if (container) {
+            container.innerHTML = "<p>Refreshing events...</p>";
+        }
+
+        // ⏳ **Step 2: Delay fetch slightly to allow server time to reload JSON**
+        setTimeout(async () => {
+            console.log("🔄 Fetching updated events...");
+            const updatedEvents = await fetchCustomEvents();
+            populateEventList(updatedEvents);
+        }, 1000); // Small delay for a smoother experience
+
+    } catch (error) {
+        console.error("❌ Error deleting event:", error);
+    }
+}
+
+// Call this function after populating the event list
+fetchCustomEvents().then(events => {
+    populateEventList(events);
+});
 
