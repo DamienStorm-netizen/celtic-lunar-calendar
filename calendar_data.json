@@ -331,22 +331,22 @@
     ],
     "custom_events": [
         {
-            "title": "My Birthday",
-            "type": "Birthday",
-            "date": "2025-12-09",
-            "notes": "Turning 55! 🎉"
-        },
-        {
-            "title": "Hawaii Trip",
-            "type": "Holiday",
-            "date": "2025-02-12",
-            "notes": "Vacation time! 🌴"
-        },
-        {
             "title": "Wardruna Concert",
             "type": "Music",
             "date": "2025-03-14",
             "notes": "Viking time! 🌴"
+        },
+        {
+            "title": "Hello World, Baby Princess",
+            "type": "💜 Romantic",
+            "date": "2025-04-03",
+            "notes": "xxx"
+        },
+        {
+            "title": "Babysweet",
+            "type": "🔥 Date",
+            "notes": "xxx",
+            "date": "2025-05-07"
         }
     ],
     "zodiac": [

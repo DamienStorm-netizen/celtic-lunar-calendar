@@ -294,7 +294,6 @@ async function enhanceCalendarTable(modalContainer, monthName) {
 }
 
  // Fetch national holidays dynamically
- 
  async function fetchNationalHolidays() {
     console.log('Fetching national holidays now!!');
     try {
@@ -930,10 +929,14 @@ async function fetchFestivals() {
     }
 }
 
+// Add only one submit listener for calendar page
 document.addEventListener("submit", async (event) => {
-    if (event.target.id === "add-event-form") {
+    const isCalendarForm = event.target && event.target.id === "add-event-form";
+    const isOnCalendarPage = window.location.hash === "#calendar";
+
+    if (isCalendarForm && isOnCalendarPage) {
         event.preventDefault();
-        console.log("✨ Adding new custom event...");
+        console.log("✨ Adding new custom event from CALENDAR...");
 
         const eventName = document.getElementById("event-name").value.trim();
         const eventType = document.getElementById("event-type").value.trim();
@@ -945,18 +948,16 @@ document.addEventListener("submit", async (event) => {
             return;
         }
 
-        // Convert eventDate to match Gregorian format YYYY-MM-DD
         const formattedDate = new Date(eventDate).toISOString().split("T")[0];
 
-        // Create new event object
         const newEvent = {
             title: eventName,
-            type: eventType || "General",  // Default to "General" if empty
-            notes: eventNotes || "",  // Default to empty string if no note provided
+            type: eventType || "General",
+            notes: eventNotes || "",
             date: formattedDate
         };
 
-        console.log("🎉 Event to be added:", newEvent);
+        console.log("🎉 Event to be added (Calendar):", newEvent);
 
         try {
             const response = await fetch("/custom-events", {
@@ -967,17 +968,16 @@ document.addEventListener("submit", async (event) => {
                 body: JSON.stringify(newEvent)
             });
 
-            if (!response.ok) {
-                throw new Error("Failed to add event.");
-            }
+            if (!response.ok) throw new Error("Failed to add event.");
 
             const result = await response.json();
-            console.log("✅ Event added:", result);
+            console.log("✅ Event added from Calendar:", result);
 
-            // Refresh calendar to reflect changes
+            // Reopen the modal with updated info!
             showModal(lastOpenedMonth);
+
         } catch (error) {
-            console.error("❌ Error adding event:", error);
+            console.error("❌ Error adding calendar event:", error);
         }
     }
 });

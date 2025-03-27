@@ -1,7 +1,12 @@
 // Fetch all custom events
 export async function fetchCustomEvents() {
     try {
-        const response = await fetch("/api/custom-events");
+        const response = await fetch("/custom-events", {
+            cache: "no-store", // 💥 Force no-cache
+            headers: {
+                "Cache-Control": "no-store"
+            }
+        });
         if (!response.ok) throw new Error("Failed to fetch custom events");
         return await response.json();
     } catch (error) {

@@ -187,6 +187,13 @@ function openEditModal(eventId) {
 // Attach Event Listeners when Settings Page Loads
 export function setupSettingsEvents() {
 
+    console.log("☸️ Running the setupSettingsEvent function");
+
+    // Prevent duplicate listeners
+    const addEventForm = document.getElementById("add-event-form");
+    addEventForm.removeEventListener("submit", handleAddEventSubmit); // clear old
+    addEventForm.addEventListener("submit", handleAddEventSubmit);    // attach fresh
+
    // Fetch and populate custom events list on load
     fetchCustomEvents()
         .then(events => populateEventList(events))
@@ -216,10 +223,7 @@ function showAddEventModal() {
         });
     });
 
-        // Attach event listener
-    document.getElementById("add-event-form").addEventListener("submit", handleAddEventSubmit);
 }
-
 
 function attachEventHandlers() {
 
@@ -322,6 +326,7 @@ async function handleAddEventSubmit(event) {
     // Send event data to Python backend
     try {
         const response = await fetch("/custom-events", {
+            cache: 'no-store',
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(newEvent)
@@ -336,7 +341,34 @@ async function handleAddEventSubmit(event) {
 
         // Close modal & refresh event list
         document.getElementById("add-event-modal").style.display = "none";
-        fetchCustomEvents(); // Reload events
+
+        // ✨ Refresh the list with live data!
+        const updatedEvents = await fetchCustomEvents();
+        populateEventList(updatedEvents);
+
+        // 🪄 Wait a moment to let the DOM update
+        setTimeout(() => {
+            const allEvents = document.querySelectorAll(".event-item");
+            const newEventElement = Array.from(allEvents).find(el =>
+                el.textContent.includes(title) && el.textContent.includes(date)
+            );
+
+    if (newEventElement) {
+        newEventElement.classList.add("event-highlight");
+        newEventElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        // ✨ Remove highlight after a few seconds
+        setTimeout(() => {
+            newEventElement.classList.remove("event-highlight");
+        }, 3000);
+    }
+}, 200);
+
+        // ✨ Clear form
+        document.getElementById("event-name").value = "";
+        document.getElementById("event-date").value = "";
+        document.getElementById("event-type").value = "General";
+        document.getElementById("event-note").value = "";
 
     } catch (error) {
         console.error("❌ Error adding event:", error);
@@ -384,8 +416,4 @@ async function handleDeleteEvent(eventDate) {
     }
 }
 
-// Call this function after populating the event list
-fetchCustomEvents().then(events => {
-    populateEventList(events);
-});
 

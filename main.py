@@ -344,10 +344,17 @@ calendar_data = load_calendar_data()
 
 # ✅ List All Custom Events (FORCE LIVE RELOAD)
 @app.get("/custom-events")
-def list_custom_events():
-    global calendar_data
-    calendar_data = load_calendar_data()  # 🛠️ This ensures we NEVER use stale data
-    return calendar_data.get("custom_events", [])
+async def get_custom_events():
+    with open("calendar_data.json", "r") as f:
+        data = json.load(f)
+    events = data.get("custom_events", [])
+    return JSONResponse(
+        content=events,
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache"
+        }
+    )
 
 # ✅ Add a New Custom Event
 @app.post("/custom-events")

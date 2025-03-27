@@ -2330,6 +2330,12 @@ footer nav {
   margin-bottom: 15px;
 }
 
+.event-highlight {
+  background-color: #ffeeba;
+  border-left: 5px solid #f0a500;
+  transition: background-color 0.6s ease;
+}
+
 /* Events list to edit / delete */
 
 #event-list-container {
