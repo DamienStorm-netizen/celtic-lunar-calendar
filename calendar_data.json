@@ -331,46 +331,22 @@
     ],
     "custom_events": [
         {
-            "title": "My Birthday",
-            "type": "Birthday",
-            "date": "2025-12-09",
-            "notes": "Turning 55! 🎉"
-        },
-        {
-            "title": "Hawaii Trip",
-            "type": "Holiday",
-            "date": "2025-02-12",
-            "notes": "Vacation time! 🌴"
-        },
-        {
-            "title": "Cycle Start",
-            "type": "Period",
-            "date": "2025-06-01",
-            "notes": "First day of cycle."
-        },
-        {
-            "title": "Eye Exam",
-            "type": "Health",
-            "date": "2025-03-08",
-            "notes": "12h30 - Baby gets her eyes checked!"
-        },
-        {
             "title": "Wardruna Concert",
             "type": "Music",
             "date": "2025-03-14",
             "notes": "Viking time! 🌴"
         },
         {
-            "title": "Hello World, Babysweet",
+            "title": "Hello World, Baby Princess",
             "type": "💜 Romantic",
-            "notes": "Babysweet is the bestest EVER!!!!",
-            "date": "2025-03-25"
+            "date": "2025-04-03",
+            "notes": "xxx"
         },
         {
-            "title": "Last Test",
-            "type": "🎉 Fun",
-            "notes": "It works, baby!!!",
-            "date": "2025-03-20"
+            "title": "Babysweet",
+            "type": "🔥 Date",
+            "notes": "xxx",
+            "date": "2025-05-07"
         }
     ],
     "zodiac": [

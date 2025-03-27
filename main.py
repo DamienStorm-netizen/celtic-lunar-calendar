@@ -342,10 +342,19 @@ def save_calendar_data(data):
 # Load data initially
 calendar_data = load_calendar_data()
 
-# ✅ List All Custom Events
+# ✅ List All Custom Events (FORCE LIVE RELOAD)
 @app.get("/custom-events")
-def list_custom_events():
-    return calendar_data.get("custom_events", [])
+async def get_custom_events():
+    with open("calendar_data.json", "r") as f:
+        data = json.load(f)
+    events = data.get("custom_events", [])
+    return JSONResponse(
+        content=events,
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache"
+        }
+    )
 
 # ✅ Add a New Custom Event
 @app.post("/custom-events")
@@ -371,15 +380,23 @@ def add_custom_event(custom_event: dict):
 # ✅ Delete a Custom Event
 @app.delete("/custom-events/{date}")
 def delete_custom_event(date: str):
+    global calendar_data  # Ensure we modify the global variable
+
     custom_events = calendar_data.get("custom_events", [])
     updated_events = [e for e in custom_events if e["date"] != date]
 
     if len(updated_events) < len(custom_events):
+        # Update the calendar data and save
         calendar_data["custom_events"] = updated_events
         save_calendar_data(calendar_data)
+
+        # 💡 **Force reload from JSON (THIS IS THE FIX!)**
+        calendar_data = load_calendar_data()  # 🎩✨ Magic trick to refresh data!
+
         return {"message": f"Custom event on {date} deleted successfully!"}
     
     raise HTTPException(status_code=404, detail=f"No custom event found on {date}.")
+
 
 # ✅ Edit an Existing Custom Event
 @app.put("/custom-events/{date}")

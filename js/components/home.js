@@ -641,6 +641,5 @@ async function updateCarousel() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("🏡 Home screen loaded, fetching upcoming events...");
-    const upcomingEvents = await fetchUpcomingEvents();
-    populateComingEventsCarousel(upcomingEvents);
+    await fetchComingEvents(); // ✅ this already calls populateComingEventsCarousel internally
 });
