@@ -48,15 +48,13 @@ export function renderSettings() {
                 
 
                 <!--- EDIT Custom Event -->
-                <div id="edit-event-modal" class="modal hidden">
+                <div id="edit-event-modal" class="modal-settings hidden">
                     <div class="modal-content">
-                        <span class="close-modal">&times;</span>
-                        <h2>Edit Event</h2>
+                        <span class="close-modal-edit">&times;</span>
+                        <h2>Edit Your Event</h2>
                         <form id="edit-event-form">
-                            <label for="edit-event-name">Event Name:</label>
-                            <input type="text" id="edit-event-name" required />
-
-                            <label for="edit-event-type">Type:</label>
+                            <label for="edit-event-name">Event Name:<input type="text" id="edit-event-name" required /></label>
+                            <label for="edit-event-type">Type:
                             <select id="edit-event-type">
                                 <option value="General">💡 General</option>
                                 <option value="🔥 Festival">🔥 Festival</option>
@@ -65,15 +63,14 @@ export function renderSettings() {
                                 <option value="💜 Romantic">💜 Romantic</option>
                                 <option value="🏥 Health">🏥 Health</option>
                                 <option value="😎 Friends">😎 Friends</option>
-                            </select>
+                            </select></label>
 
-                            <label for="edit-event-date">Date:</label>
-                            <input type="date" id="edit-event-date" required />
+                            <label for="edit-event-date">Date:<input type="date" id="edit-event-date" required /></label>
 
-                            <label for="edit-event-notes">Notes:</label>
-                            <textarea id="edit-event-notes"></textarea>
+                            <label for="edit-event-notes">Notes:
+                            <textarea id="edit-event-notes"></textarea></label>
 
-                            <button type="submit" class="save-event-btn">Save Changes</button>
+                            <button type="submit" class="save-event-btn">Save Changes</button>&nbsp;&nbsp;<button type="button" class="cancel-modal-edit">Cancel</button>      
                         </form>
                     </div>
                 </div>
@@ -180,6 +177,26 @@ function openEditModal(eventId) {
 
             // Show the modal
             modal.classList.remove("hidden");
+            modal.classList.add("show");
+
+            // Close modal - X
+            document.querySelectorAll(".close-modal-edit").forEach(button => {
+                button.addEventListener("click", () => {
+                    const modal = document.getElementById("edit-event-modal");
+                    modal.classList.remove("show");
+                    modal.classList.add("hidden");
+                });
+            });
+
+            // Close modal - cancel button
+            document.querySelectorAll(".cancel-modal-edit").forEach(button => {
+                button.addEventListener("click", () => {
+                    const modal = document.getElementById("edit-event-modal");
+                    modal.classList.remove("show");
+                    modal.classList.add("hidden");
+                });
+            });
+            
         })
         .catch(error => console.error("Error fetching event:", error));
 }
@@ -209,14 +226,15 @@ function showAddEventModal() {
     modal.classList.add("show");
 
     // Close modal when clicking the close button
-    document.querySelectorAll(".close-modal-add").forEach(button => {
+    document.querySelectorAll(".cancel-modal-add").forEach(button => {
         button.addEventListener("click", () => {
             modal.classList.remove("show");
             modal.classList.add("hidden");
         });
     });
 
-    document.querySelectorAll(".close-modal").forEach(button => {
+    // Close modal when clicking the X link
+    document.querySelectorAll(".close-modal-add").forEach(button => {
         button.addEventListener("click", () => {
             modal.classList.remove("show");
             modal.classList.add("hidden");
@@ -227,7 +245,7 @@ function showAddEventModal() {
 
 function attachEventHandlers() {
 
-    // Manage Custom Events
+    // Add a Custom Event
     document.getElementById("add-event-button").addEventListener("click", () => {
         showAddEventModal();
     });
@@ -238,12 +256,20 @@ function attachEventHandlers() {
         window.location.hash = "about";
     });
 
+    // Edit a Custom Event 
     document.querySelectorAll(".settings-edit-event").forEach(button => {
         button.addEventListener("click", (event) => {
-            console.log("Edit button clicked!");  // 🔎 See if this logs!
+            console.log("Edit button clicked!");  // Debugging
+            const eventId = event.target.getAttribute("data-date"); // Or "data-id" if that’s how you're storing it
+            if (eventId) {
+                openEditModal(eventId); // 💫 Open the modal with the correct event info
+            } else {
+                console.error("No data-date attribute found on edit button.");
+            }
         });
     });
 
+    // Delete a Custom Event
     document.querySelectorAll(".settings-delete-event").forEach(button => {
         button.addEventListener("click", (event) => {
             console.log("Delete button clicked!!!");
