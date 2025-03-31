@@ -6,7 +6,7 @@ let customEvents = []; // Initialize an empty array for storing custom events
 export function renderCalendar() {
     const app = document.getElementById('app');
     app.innerHTML = `
-        <section class="calendar">
+        <section class="calendar" class="fade-in">
             <h1 class="calendar-title">Calendar</h1>
             <div class="calendar-grid">
                 <div class="month-thumbnail" id="nivis" data-month="Nivis">
@@ -765,7 +765,7 @@ function getCelticZodiac(gregorianMonth, gregorianDay) {
     return "Unknown";
   }
 
-  async function getCustomEvents(gregorianMonth, gregorianDay) {
+async function getCustomEvents(gregorianMonth, gregorianDay) {
     console.log("Fetching custom events...");
     try {
         const response = await fetch("/api/custom-events");
@@ -951,6 +951,7 @@ document.addEventListener("submit", async (event) => {
         const formattedDate = new Date(eventDate).toISOString().split("T")[0];
 
         const newEvent = {
+            id: Date.now().toString(), // ✨ Unique identifier based on timestamp
             title: eventName,
             type: eventType || "General",
             notes: eventNotes || "",

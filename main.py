@@ -378,12 +378,12 @@ def add_custom_event(custom_event: dict):
     }
 
 # ✅ Delete a Custom Event
-@app.delete("/custom-events/{date}")
-def delete_custom_event(date: str):
+@app.delete("/custom-events/{id}")
+def delete_custom_event(id: str):
     global calendar_data  # Ensure we modify the global variable
 
     custom_events = calendar_data.get("custom_events", [])
-    updated_events = [e for e in custom_events if e["date"] != date]
+    updated_events = [e for e in custom_events if e["id"] != id]
 
     if len(updated_events) < len(custom_events):
         # Update the calendar data and save
@@ -399,17 +399,17 @@ def delete_custom_event(date: str):
 
 
 # ✅ Edit an Existing Custom Event
-@app.put("/custom-events/{date}")
-def edit_custom_event(date: str, updated_data: dict):
+@app.put("/custom-events/{id}")
+def edit_custom_event(id: str, updated_data: dict):
     custom_events = calendar_data.get("custom_events", [])
 
     for event in custom_events:
-        if event["date"] == date:
+        if event["id"] == id:
             event.update(updated_data)
             save_calendar_data(calendar_data)
-            return {"message": f"Custom event on {date} updated successfully!", "event": event}
+            return {"message": f"Custom event on {id} updated successfully!", "event": event}
     
-    raise HTTPException(status_code=404, detail=f"No custom event found on {date}.")
+    raise HTTPException(status_code=404, detail=f"No custom event found on {id}.")
 
 
 # Retrieve the Celtic Zodiac sign for a specific date

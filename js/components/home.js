@@ -2,7 +2,7 @@
 
 export function renderHome() {
     return `
-        <section class="home">
+        <section class="home" class="fade-in">
             <div class="celtic-date"></div> <!-- Dynamic content goes here -->
             <div class="celtic-info-container">
                 <!-- Moon Phase Column -->
