@@ -1,6 +1,7 @@
 export function renderSettings() {
     return `
-        <div id="settings-container">
+        <div id="settings-container" class="fade-in">
+            <div id="modal-overlay" class="modal-overlay hidden"></div>
             <h1 class="settings-title">Settings</h1>
 
             <!-- Custom Events Management -->
@@ -8,6 +9,8 @@ export function renderSettings() {
                 <h2>🌙 Manage Your Events</h2>
                 <h3>Add your custom events.</h3>
                 <button id="add-event-button" class="settings-btn">Add New Event</button>
+
+                <br />
 
                 <h3>Edit or remove existing custom events.</h3>
                 <!-- Custom Events List -->
@@ -18,7 +21,7 @@ export function renderSettings() {
                 <!--- ADD Custom Event --->
                 <div id="add-event-modal" class="modal-settings hidden">
                     <div class="modal-content-add">
-                        <span class="close-modal-add">&times;</span>
+                        <span class="close-modal-add  mystical-close">✦</span>
                         <h2>Add New Event</h2>
                         <form id="add-event-form">
                             <label for="event-name">Event Name:
@@ -26,12 +29,13 @@ export function renderSettings() {
 
                             <label for="event-type">Type of Event:
                             <select id="event-type">
-                                <option value="🎉 Fun">🎉 Fun</option>
-                                <option value="💜 Romantic">💜 Romantic</option>
-                                <option value="🏥 Health">🏥 Health</option>
-                                <option value="🔥 Festival">🔥 Festival</option>
-                                <option value="🌕 Full Moon">🌕 Full Moon</option>
-                                <option value="🎄 Holiday">🎄 Holiday</option>
+                                <option value="🔥 Date">🔥 Date</option>
+                                        <option value="😎 Friends">😎 Friends</option>
+                                        <option value="🎉 Fun">🎉 Fun</option>
+                                        <option value="💡 General" active>💡 General</option>
+                                        <option value="🏥 Health">🏥 Health</option>
+                                        <option value="💜 Romantic">💜 Romantic</option>
+                                        <option value="🖥️ Professional">🖥️ Professional</option>
                             </select></label>
 
                             <label for="event-date">Date:
@@ -48,39 +52,32 @@ export function renderSettings() {
                 
 
                 <!--- EDIT Custom Event -->
-                <div id="edit-event-modal" class="modal hidden">
+                <div id="edit-event-modal" class="modal-settings hidden">
                     <div class="modal-content">
-                        <span class="close-modal">&times;</span>
-                        <h2>Edit Event</h2>
+                        <span class="close-modal-edit mystical-close">✦</span>
+                        <h2>Edit Your Event</h2>
                         <form id="edit-event-form">
-                            <label for="edit-event-name">Event Name:</label>
-                            <input type="text" id="edit-event-name" required />
-
-                            <label for="edit-event-type">Type:</label>
+                            <label for="edit-event-name">Event Name:<input type="text" id="edit-event-name" required /></label>
+                            <label for="edit-event-type">Type:
                             <select id="edit-event-type">
-                                <option value="General">💡 General</option>
-                                <option value="🔥 Festival">🔥 Festival</option>
-                                <option value="🌕 Full Moon">🌕 Full Moon</option>
-                                <option value="🎉 Holiday">🎉 Holiday</option>
-                                <option value="💜 Romantic">💜 Romantic</option>
-                                <option value="🏥 Health">🏥 Health</option>
+                                <option value="🔥 Date">🔥 Date</option>
                                 <option value="😎 Friends">😎 Friends</option>
-                            </select>
+                                <option value="🎉 Fun">🎉 Fun</option>
+                                <option value="💡 General" active>💡 General</option>
+                                <option value="🏥 Health">🏥 Health</option>
+                                <option value="💜 Romantic">💜 Romantic</option>
+                                <option value="🖥️ Professional">🖥️ Professional</option>
+                            </select></label>
 
-                            <label for="edit-event-date">Date:</label>
-                            <input type="date" id="edit-event-date" required />
+                            <label for="edit-event-date">Date:<input type="date" id="edit-event-date" required /></label>
 
-                            <label for="edit-event-notes">Notes:</label>
-                            <textarea id="edit-event-notes"></textarea>
+                            <label for="edit-event-notes">Notes:
+                            <textarea id="edit-event-notes"></textarea></label>
 
-                            <button type="submit" class="save-event-btn">Save Changes</button>
+                            <button type="submit" class="save-event-btn">Save Changes</button>&nbsp;&nbsp;<button type="button" class="cancel-modal-edit">Cancel</button>      
                         </form>
                     </div>
                 </div>
-
-                 
-    
-                
             </section>
 
             <!-- Mystical Preferences -->
@@ -110,6 +107,9 @@ export function renderSettings() {
                 <p>A collaborative project by <strong>Eclipsed Realities</strong> & <strong>Playground of the Senses</strong>.</p>
                 <button id="about-page-button" class="settings-btn">Read More</button>
             </section>
+
+            <!-- Shooting Stars on close overlay -->
+            <div id="shooting-stars-container"></div>
         </div>
     `;
 }
@@ -137,12 +137,12 @@ export async function loadCustomEvents() {
             eventItem.innerHTML = `
                 <div class="event-details">
                     <h3>${event.title} <span class="event-type">${event.type}</span></h3>
-                    <p><strong>Date:</strong> ${event.date}</p>
+                    <p><strong>Date:</strong> ${event.date}!!</p>
                     <p><strong>Notes:</strong> ${event.notes || "No additional details."}</p>
                 </div>
                 <div class="event-actions">
-                    <button class="edit-event-btn" data-id="${event.date}">✏️ Edit</button>
-                    <button class="delete-event-btn" data-id="${event.date}">🗑️ Delete</button>
+                    <button class="edit-event-btn" data-id="${event.id}">✏️ Edit</button>
+                    <button class="delete-event-btn" data-id="${event.id}">🗑️ Delete</button>
                 </div>
             `;
 
@@ -163,11 +163,13 @@ function openEditModal(eventId) {
     fetch(`/api/custom-events`)
         .then(response => response.json())
         .then(events => {
-            const event = events.find(e => e.date === eventId);
+            const event = events.find(e => e.id === eventId);
             if (!event) {
                 console.error("Event not found.");
                 return;
             }
+
+            console.log("Type to edit is ", event.type);
 
             // Pre-fill form with event data
             document.getElementById("edit-event-name").value = event.title;
@@ -176,10 +178,42 @@ function openEditModal(eventId) {
             document.getElementById("edit-event-notes").value = event.notes || "";
 
             // Store original event date for reference
-            form.setAttribute("data-original-date", event.date);
+            form.setAttribute("data-original-id", event.id);
 
             // Show the modal
             modal.classList.remove("hidden");
+            modal.classList.add("show");
+
+            // Show the modal overlay
+            document.getElementById("modal-overlay").classList.add("show");
+            document.getElementById("modal-overlay").classList.remove("hidden");
+
+            // Close modal - X
+            document.querySelectorAll(".close-modal-edit").forEach(button => {
+                button.addEventListener("click", () => {
+                    const modal = document.getElementById("edit-event-modal");
+                    // Hide modal
+                    modal.classList.remove("show");
+                    modal.classList.add("hidden");
+                     // Hide overlay
+                     document.getElementById("modal-overlay").classList.add("hidden");
+                     document.getElementById("modal-overlay").classList.remove("show");
+                });
+            });
+
+            // Close modal - cancel button
+            document.querySelectorAll(".cancel-modal-edit").forEach(button => {
+                button.addEventListener("click", () => {
+                    const modal = document.getElementById("edit-event-modal");
+                    // Hide modal
+                    modal.classList.remove("show");
+                    modal.classList.add("hidden");
+                    // Hide overlay
+                    document.getElementById("modal-overlay").classList.add("hidden");
+                    document.getElementById("modal-overlay").classList.remove("show");
+                });
+            });
+            
         })
         .catch(error => console.error("Error fetching event:", error));
 }
@@ -190,9 +224,33 @@ export function setupSettingsEvents() {
     console.log("☸️ Running the setupSettingsEvent function");
 
     // Prevent duplicate listeners
+    const editForm = document.getElementById("edit-event-form");
+    editForm.removeEventListener("submit", handleEditEventSubmit); // clear old if any
+    editForm.addEventListener("submit", handleEditEventSubmit);   // bind fresh ✨
+
     const addEventForm = document.getElementById("add-event-form");
     addEventForm.removeEventListener("submit", handleAddEventSubmit); // clear old
     addEventForm.addEventListener("submit", handleAddEventSubmit);    // attach fresh
+
+    // Hide overlay and make it clickable
+    document.getElementById("modal-overlay").addEventListener("click", () => {
+        const editModal = document.getElementById("edit-event-modal");
+        const addModal = document.getElementById("add-event-modal");
+    
+        if (editModal.classList.contains("show")) {
+            editModal.classList.remove("show");
+            editModal.classList.add("hidden");
+        }
+    
+        if (addModal.classList.contains("show")) {
+            addModal.classList.remove("show");
+            addModal.classList.add("hidden");
+        }
+    
+        // Hide the overlay itself
+        document.getElementById("modal-overlay").classList.remove("show");
+        document.getElementById("modal-overlay").classList.add("hidden");
+    });
 
    // Fetch and populate custom events list on load
     fetchCustomEvents()
@@ -205,21 +263,34 @@ function showAddEventModal() {
     
     console.log("📝 Open Add Event Modal...");
     const modal = document.getElementById("add-event-modal");
+    // Show Modal
     modal.classList.remove("hidden");
     modal.classList.add("show");
+    // Show the modal overlay
+    document.getElementById("modal-overlay").classList.add("show");
+    document.getElementById("modal-overlay").classList.remove("hidden");
 
-    // Close modal when clicking the close button
-    document.querySelectorAll(".close-modal-add").forEach(button => {
+    // Close modal and hide oerlay when clicking the close button
+    document.querySelectorAll(".cancel-modal-add").forEach(button => {
         button.addEventListener("click", () => {
+            // Hide modal
             modal.classList.remove("show");
             modal.classList.add("hidden");
+            // Show the modal overlay
+            document.getElementById("modal-overlay").classList.remove("show");
+            document.getElementById("modal-overlay").classList.add("hidden");
         });
     });
 
-    document.querySelectorAll(".close-modal").forEach(button => {
+    // Close modal and hide overlay when clicking the X link
+    document.querySelectorAll(".close-modal-add").forEach(button => {
         button.addEventListener("click", () => {
+            // Hide modal
             modal.classList.remove("show");
             modal.classList.add("hidden");
+            // Show the modal overlay
+            document.getElementById("modal-overlay").classList.remove("show");
+            document.getElementById("modal-overlay").classList.add("hidden");
         });
     });
 
@@ -227,7 +298,7 @@ function showAddEventModal() {
 
 function attachEventHandlers() {
 
-    // Manage Custom Events
+    // Add a Custom Event
     document.getElementById("add-event-button").addEventListener("click", () => {
         showAddEventModal();
     });
@@ -238,12 +309,20 @@ function attachEventHandlers() {
         window.location.hash = "about";
     });
 
+    // Edit a Custom Event 
     document.querySelectorAll(".settings-edit-event").forEach(button => {
         button.addEventListener("click", (event) => {
-            console.log("Edit button clicked!");  // 🔎 See if this logs!
+            console.log("Edit button clicked!");  // Debugging
+            const eventId = event.target.getAttribute("data-id"); // Or "data-id" if that’s how you're storing it
+            if (eventId) {
+                openEditModal(eventId); // 💫 Open the modal with the correct event info
+            } else {
+                console.error("No data-id attribute found on edit button.");
+            }
         });
     });
 
+    // Delete a Custom Event
     document.querySelectorAll(".settings-delete-event").forEach(button => {
         button.addEventListener("click", (event) => {
             console.log("Delete button clicked!!!");
@@ -256,16 +335,16 @@ function attachEventHandlers() {
             }
     
             // Ensure the data-date attribute is being read correctly
-            const eventDate = targetButton.getAttribute("data-date");
-            if (!eventDate) {
-                console.error("Error: data-date attribute not found.");
+            const eventId = targetButton.getAttribute("data-id");
+            if (!eventId) {
+                console.error("Error: data-id attribute not found.");
                 return;
             }
     
-            console.log("Attempting to delete event on:", eventDate);
+            console.log("Attempting to delete event on:", eventId);
     
             // Call the delete function
-            handleDeleteEvent(eventDate);
+            handleDeleteEvent(eventId);
         });
     });
 }
@@ -281,10 +360,10 @@ function populateEventList(events) {
         eventElement.classList.add("event-item");
         eventElement.innerHTML = `
             <ul class="settings-event-list">
-                <li><h3>${event.title}</h3></li>
+                <li><h3>${event.title} - ${event.type}</h3></li>
                 <li>${event.date}</li>
                 <li>${event.notes || "No notes added."}</li>
-                <li><button class="settings-edit-event" data-date="${event.date}">Edit</button><button class="settings-delete-event" data-date="${event.date}">Delete</button></li>
+                <li><button class="settings-edit-event" data-id="${event.id}">Edit</button><button class="settings-delete-event" data-id="${event.id}">Delete</button></li>
             </ul>
         `;
 
@@ -297,6 +376,10 @@ function populateEventList(events) {
 
 // Function to handle event submission - ADD
 async function handleAddEventSubmit(event) {
+
+    // Hide overlay
+    document.getElementById("modal-overlay").classList.add("hidden");
+    document.getElementById("modal-overlay").classList.remove("show");
 
     console.log("Adding an event");
     event.preventDefault(); // Prevent default form submission behavior
@@ -315,6 +398,7 @@ async function handleAddEventSubmit(event) {
 
     // Construct event object
     const newEvent = {
+        id: Date.now().toString(), // simple and unique-ish
         title: eventName,
         type: eventType,
         date: eventDate,
@@ -356,10 +440,14 @@ async function handleAddEventSubmit(event) {
     if (newEventElement) {
         newEventElement.classList.add("event-highlight");
         newEventElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Sparkle sparkle
+        newEventElement.classList.add("event-highlight-glow");
+        newEventElement.scrollIntoView({ behavior: "smooth", block: "center" });
 
         // ✨ Remove highlight after a few seconds
         setTimeout(() => {
             newEventElement.classList.remove("event-highlight");
+            newEventElement.classList.remove("event-highlight-glow");
         }, 3000);
     }
 }, 200);
@@ -377,18 +465,18 @@ async function handleAddEventSubmit(event) {
 }
 
 // Function to handle event deletion - DELETE
-async function handleDeleteEvent(eventDate) {
+async function handleDeleteEvent(eventId) {
     console.log("🚀 handleDeleteEvent function triggered!");
 
-    if (!eventDate) {
-        console.error("❌ Error: eventDate is undefined.");
+    if (!eventId) {
+        console.error("❌ Error: eventId is undefined.");
         return;
     }
 
-    console.log(`🗑️ Attempting to delete event on: ${eventDate}`);
+    console.log(`🗑️ Attempting to delete event on: ${eventId}`);
 
     try {
-        const response = await fetch(`/custom-events/${eventDate}`, {
+        const response = await fetch(`/custom-events/${eventId}`, {
             method: "DELETE",
         });
 
@@ -396,7 +484,7 @@ async function handleDeleteEvent(eventDate) {
             throw new Error(`Failed to delete event: ${response.statusText}`);
         }
 
-        console.log(`✅ Event on ${eventDate} deleted successfully!`);
+        console.log(`✅ Event on ${eventId} deleted successfully!`);
 
         // 🧹 **Step 1: Clear the event list before refreshing**
         const container = document.getElementById("event-list-container");
@@ -413,6 +501,52 @@ async function handleDeleteEvent(eventDate) {
 
     } catch (error) {
         console.error("❌ Error deleting event:", error);
+    }
+}
+
+// Function to handle Edit Event - PUT
+async function handleEditEventSubmit(event) {
+    event.preventDefault();
+
+    const form = document.getElementById("edit-event-form");
+    const originalId = form.getAttribute("data-original-id");
+
+    const updatedEvent = {
+        title: document.getElementById("edit-event-name").value.trim(),
+        type: document.getElementById("edit-event-type").value,
+        date: document.getElementById("edit-event-date").value,
+        notes: document.getElementById("edit-event-notes").value.trim()
+    };
+
+    console.log("✨ Submitting update for event ID:", originalId, updatedEvent);
+
+    try {
+        const response = await fetch(`/custom-events/${originalId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedEvent)
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to update event.");
+        }
+
+        const result = await response.json();
+        console.log("✅ Event updated:", result);
+
+        // Hide modal and overlay
+        document.getElementById("edit-event-modal").classList.remove("show");
+        document.getElementById("edit-event-modal").classList.add("hidden");
+        document.getElementById("modal-overlay").classList.add("hidden");
+        document.getElementById("modal-overlay").classList.remove("show");
+
+        // ✨ Refresh the list with updated events
+        const updatedEvents = await fetchCustomEvents();
+        populateEventList(updatedEvents);
+
+    } catch (error) {
+        console.error("❌ Error updating event:", error);
+        alert("Oops! Something went wrong while updating your event.");
     }
 }
 

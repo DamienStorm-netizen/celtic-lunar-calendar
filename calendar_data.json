@@ -331,22 +331,18 @@
     ],
     "custom_events": [
         {
-            "title": "Wardruna Concert",
-            "type": "Music",
-            "date": "2025-03-14",
-            "notes": "Viking time! 🌴"
-        },
-        {
-            "title": "Hello World, Baby Princess",
-            "type": "💜 Romantic",
-            "date": "2025-04-03",
-            "notes": "xxx"
-        },
-        {
-            "title": "Babysweet",
+            "id": "1711742214000",
+            "title": "Baby Princess Sweet!",
             "type": "🔥 Date",
-            "notes": "xxx",
-            "date": "2025-05-07"
+            "date": "2025-05-09",
+            "notes": "This is yet another amazing test!"
+        },
+        {
+            "id": "1711742214032",
+            "title": "Hello World, BabySweet",
+            "type": "💜 Romantic",
+            "date": "2025-05-02",
+            "notes": "Baby is the best!!"
         }
     ],
     "zodiac": [
