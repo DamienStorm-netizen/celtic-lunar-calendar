@@ -343,7 +343,7 @@ def save_calendar_data(data):
 calendar_data = load_calendar_data()
 
 # ✅ List All Custom Events (FORCE LIVE RELOAD)
-@app.get("/custom-events")
+@app.get("/api/custom-events")
 async def get_custom_events():
     with open("calendar_data.json", "r") as f:
         data = json.load(f)
@@ -357,7 +357,7 @@ async def get_custom_events():
     )
 
 # ✅ Add a New Custom Event
-@app.post("/custom-events")
+@app.post("/api/custom-events")
 def add_custom_event(custom_event: dict):
     required_fields = ["title", "date"]
     
@@ -378,7 +378,7 @@ def add_custom_event(custom_event: dict):
     }
 
 # ✅ Delete a Custom Event
-@app.delete("/custom-events/{id}")
+@app.delete("/api/custom-events/{id}")
 def delete_custom_event(id: str):
     global calendar_data  # Ensure we modify the global variable
 
@@ -399,7 +399,7 @@ def delete_custom_event(id: str):
 
 
 # ✅ Edit an Existing Custom Event
-@app.put("/custom-events/{id}")
+@app.put("/api/custom-events/{id}")
 def edit_custom_event(id: str, updated_data: dict):
     custom_events = calendar_data.get("custom_events", [])
 
@@ -582,8 +582,6 @@ moon_poems = [
 @app.get("/api/lunar-phase-poem")
 def get_random_moon_poem():
     return {"poem": random.choice(moon_poems)}
-
-
 
 @app.get("/api/celtic-date")
 def compute_celtic_date():

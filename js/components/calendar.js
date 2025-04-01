@@ -1,3 +1,5 @@
+import { getMysticalPrefs } from "./settings.js";
+
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
 let lastOpenedMonth = null; // Keep track of the last opened month modal
@@ -418,6 +420,9 @@ function showModal(monthName) {
                 `;
             }
 
+            // Fetch Mystical Preferences
+            applyMysticalSettings(getMysticalPrefs());
+
             // Fetch tagline and update
             fetchTagline(monthName);
 
@@ -564,7 +569,8 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         events = [];  // Convert it into an empty array if it's a string or undefined
     }
 
-    const mysticalSuggestion = getMysticalSuggestion();
+    // Apply display preferences to Mystical Preferences
+    const prefs = getMysticalPrefs();
   
     // Construct an ISO date string
     const year = "2025";
@@ -685,11 +691,17 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
                 ${eventsHTML}
                 ${holidayHTML}
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <div id="mystical-insight" class="mystical-message hidden">
                 <h3 class="subheader">Mystical Suggestions</h3>
-                <p>${mysticalSuggestion}</p>
+                <span>Loading Ancient Wisdom....</span>
+                </div>
+                <br />
                 <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
             </div>
         `;
+
+        // Apply display preferences to Mystical Preferences
+        applyMysticalSettings(prefs);
   
         // Add event listener for the "Back" button
         document.getElementById("back-to-month").addEventListener("click", () => {
@@ -787,16 +799,45 @@ async function getCustomEvents(gregorianMonth, gregorianDay) {
     }
 }
 
-function getMysticalSuggestion() {
-    const suggestions = [
-        "Light a candle and focus on your intentions for the day.",
-        "Meditate under the moonlight and visualize your dreams.",
-        "Draw a rune and interpret its meaning for guidance.",
-        "Write a letter to your future self and store it safely.",
-        "Collect a small item from nature and set an intention with it."
-    ];
+function applyMysticalSettings(prefs) {
 
-    return suggestions[Math.floor(Math.random() * suggestions.length)];
+    const showMystical = prefs.mysticalSuggestions;
+    const mysticalArea = document.getElementById("mystical-insight");
+
+    if (mysticalArea) {
+        const heading = mysticalArea.querySelector("h3");
+        const message = mysticalArea.querySelector("span");
+
+        if (showMystical && mysticalArea) {
+            const messages = [
+                "🌙 Trust your inner tides.",
+                "✨ Today is a good day to cast intentions.",
+                "🔮 The stars whisper secrets today...",
+                "🌿 Pause. Listen to nature. It knows.",
+                "🌙 Trust your inner tides.",
+                "✨ Today is a good day to cast intentions.",
+                "🔮 The stars whisper secrets today...",
+                "🪄 Cast your hopes into the universe.",
+                "🌸 A seed planted today blooms tomorrow.",
+                "🌌 Let stardust guide your heart.",
+                "🕯️ Light a candle and focus on your intentions for the day.",
+                "🌜Meditate under the moonlight and visualize your dreams.",
+                "߷ Draw a rune and interpret its meaning for guidance.",
+                "💌 Write a letter to your future self and store it safely.",
+                "🍁 Collect a small item from nature and set an intention with it."
+            ];
+            const randomIndex = Math.floor(Math.random() * messages.length);
+            heading.classList.remove("hidden");
+            message.textContent = messages[randomIndex];
+            message.classList.remove("hidden");
+            mysticalArea.classList.remove("hidden");
+        } else {
+            heading.classList.add("hidden");
+            message.textContent = "";
+            message.classList.add("hidden");
+            mysticalArea.classList.add("hidden");
+        }
+    }
 }
 
 function getMoonPoem(moonPhase, date) {
@@ -887,7 +928,7 @@ async function fetchTagline(monthName) {
 async function loadCustomEvents() {
     try {
         // 🔥 Change API Endpoint to /custom-events
-        const response = await fetch("/custom-events"); 
+        const response = await fetch("/api/custom-events"); 
         if (!response.ok) {
             throw new Error("Failed to fetch custom events.");
         }
@@ -961,7 +1002,7 @@ document.addEventListener("submit", async (event) => {
         console.log("🎉 Event to be added (Calendar):", newEvent);
 
         try {
-            const response = await fetch("/custom-events", {
+            const response = await fetch("/api/custom-events", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
