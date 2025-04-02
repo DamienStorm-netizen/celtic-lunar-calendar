@@ -118,7 +118,16 @@ export function renderSettings() {
                         <input type="checkbox" id="show-holidays" data-on="🎉" data-off="🧾" />
                         <span class="slider round"></span>
                         </label>
-                    </li><label>
+                    </li>
+
+                    <li class="mystical-toggle">
+                        <span>Show Custom Events</span>
+                        <label class="switch">
+                            <input type="checkbox" id="custom-events-toggle" checked />
+                            <span class="slider round">
+                            <span class="toggle-icon">💜</span>
+                            </span>
+                        </label>
                     </li>
                 <ul>
             </section>
@@ -260,6 +269,8 @@ export function setupSettingsEvents() {
     function saveMysticalPrefs(prefs) {
         localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
     }
+
+    showCustomEvents: true // or false, depending on initial state
 
     // Prevent duplicate listeners
     const editForm = document.getElementById("edit-event-form");

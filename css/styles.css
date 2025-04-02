@@ -521,8 +521,8 @@ blockquote.moon-poem {
 }
 
 .celtic-zodiac-image {
-  width: 100px;
-  margin-bottom: 0px;
+  width: 105px;
+  margin-bottom: 5px;
 }
 
 .celtic-zodiac #modal-details h3 {
@@ -535,7 +535,7 @@ blockquote.moon-poem {
   font-size: 1rem;
   line-height: 1.5;
   color: #fff6ea; /* Magical white */
-  padding-top: 20px;
+  padding-top: 12px;
 }
 
 .celtic-zodiac-details p {
@@ -1075,6 +1075,11 @@ blockquote.moon-poem {
   width: 80%;
   margin: 10px auto;
   transition: all 0.3s ease-in-out;
+}
+
+/* 🌑 Hideable Legend Rows */
+.legend-row-hidden {
+  display: none !important;
 }
   
 #legend-section:hover {

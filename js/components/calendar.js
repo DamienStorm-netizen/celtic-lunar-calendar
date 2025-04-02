@@ -242,6 +242,8 @@ async function enhanceCalendarTable(modalContainer, monthName) {
         }
     });
 
+    applyMysticalSettings(getMysticalPrefs());
+
 }
   
   // Fetch lunar phases dynamically for a given month
@@ -375,19 +377,19 @@ function showModal(monthName) {
                     <div id="legend-section" class="tab-content active">
                     <h2 class="inner-title">Legend</h2>
                         <table class="calendarLegendGrid">
-                            <tr>
+                            <tr class="festival-day-row">
                                 <td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td>
                             </tr>
-                            <tr>
+                            <tr class="full-moon-day-row">
                                 <td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td>
                             </tr>
-                            <tr>
+                            <tr class="eclipse-day-row">
                                 <td class="eclipse-day legendBox">&nbsp;</td><td>Lunar & Solar Eclipses</td>
                             </tr>
-                            <tr>
+                            <tr class="national-holiday-row">
                                 <td class="national-holiday legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td>
                             </tr>
-                            <tr>
+                            <tr class="custom-event-day-row">
                                 <td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td>
                             </tr>
                         </table>
@@ -654,10 +656,12 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             : "";
 
         let eclipseHTML = eclipseEvent 
-            ? `<img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
+            ? `<div class="eclipse-block">
+                <img src='assets/images/decor/divider.png' class='divider' alt='Divider' />
                 <h3 class="subheader">Eclipse</h3>
                 <p><strong>${eclipseEvent.title}</strong></p>
-                <p>${eclipseEvent.description}</p>`
+                <p>${eclipseEvent.description}</p>
+            </div>`
             : "";
 
         let eventsHTML = Array.isArray(events) && events.length > 0
@@ -801,8 +805,65 @@ async function getCustomEvents(gregorianMonth, gregorianDay) {
 
 function applyMysticalSettings(prefs) {
 
+    // 🌒 Toggle Eclipses
+    const eclipseRows = document.querySelectorAll(".eclipse-day-row");
+    eclipseRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showEclipses);
+    });
+
+    // 🌕 Toggle Full Moons
+    const moonRows = document.querySelectorAll(".full-moon-day-row");
+    moonRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showMoons);
+    });
+
+    const moonCells = document.querySelectorAll(".full-moon-day");
+    moonCells.forEach(cell => {
+        if (prefs.showMoons) {
+            cell.classList.add("full-moon-day");
+        } else {
+            cell.classList.remove("full-moon-day");
+        }
+    });
+
+    // 🎉 Toggle Holidays
+    const holidayRows = document.querySelectorAll(".national-holiday-row");
+    holidayRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showHolidays);
+    });
+
+    const holidayCells = document.querySelectorAll(".national-holiday");
+    holidayCells.forEach(cell => {
+        if (prefs.showHolidays) {
+            cell.classList.add("national-holiday");
+        } else {
+            cell.classList.remove("national-holiday");
+        }
+    });
+
+    // 💜 Toggle Custom Events
+    const customEventRows = document.querySelectorAll(".custom-event-day-row");
+    customEventRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showCustomEvents);
+    });
+
+    const customEventCells = document.querySelectorAll(".custom-event-day");
+    customEventCells.forEach(cell => {
+        if (prefs.showCustomEvents) {
+            cell.classList.add("custom-event-day");
+        } else {
+            cell.classList.remove("custom-event-day");
+        }
+    });
+
+    // ✨ Toggle Mystical Suggestions display logic
     const showMystical = prefs.mysticalSuggestions;
     const mysticalArea = document.getElementById("mystical-insight");
+
+    const eclipseBlock = document.querySelector(".eclipse-block");
+    if (eclipseBlock) {
+        eclipseBlock.style.display = prefs.showEclipses ? "block" : "none";
+    }
 
     if (mysticalArea) {
         const heading = mysticalArea.querySelector("h3");
@@ -837,6 +898,17 @@ function applyMysticalSettings(prefs) {
             message.classList.add("hidden");
             mysticalArea.classList.add("hidden");
         }
+    }
+
+    // 🌒 Control Eclipse visibility based on preferences
+    const eclipseElements = document.querySelectorAll(".eclipse-day");
+    eclipseElements.forEach(el => {
+        el.style.display = prefs.showEclipses ? "table-cell" : "none";
+    });
+
+    const eclipseSection = document.querySelector("#modal-details h3.subheader + p");
+    if (eclipseSection && eclipseSection.textContent.includes("Eclipse")) {
+        eclipseSection.parentElement.style.display = prefs.showEclipses ? "block" : "none";
     }
 }
 
