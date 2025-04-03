@@ -1,3 +1,5 @@
+import { applyMysticalSettings } from "./calendar.js"; // or wherever it's defined
+
 export function renderSettings() {
     return `
         <div id="settings-container" class="fade-in">
@@ -6,13 +8,14 @@ export function renderSettings() {
 
             <!-- Custom Events Management -->
             <section id="custom-events-settings">
-                <h2>🌙 Manage Your Events</h2>
-                <h3>Add your custom events.</h3>
+                <h2>🌙 Add an Event</h2>
+                <p class="settings-subheader">Add a custom event to your calendar.</p>
                 <button id="add-event-button" class="settings-btn">Add New Event</button>
 
                 <br />
 
-                <h3>Edit or remove existing custom events.</h3>
+                 <h2>🌓 Edit/ Delete an Event</h2>
+                <p class="settings-subheader">Edit or remove existing custom events from your calendar.</p>
                 <!-- Custom Events List -->
                 <div id="event-list-container">
                     <p>Loading your magical events...</p>
@@ -49,7 +52,6 @@ export function renderSettings() {
                         </form> 
                     </div>
                 </div>
-                
 
                 <!--- EDIT Custom Event -->
                 <div id="edit-event-modal" class="modal-settings hidden">
@@ -80,31 +82,64 @@ export function renderSettings() {
                 </div>
             </section>
 
+            <br />
+
+
             <!-- Mystical Preferences -->
             <section id="mystical-settings">
                 <h2>🔮 Mystical Preferences</h2>
-                <p>Fine-tune your calendar.</p>
+                <p class="settings-subheader">Fine-tune your calendar.</p>
 
                 <ul class="mystical-list">
-                    <li><label>
-                        <input type="checkbox" id="toggle-mystical" checked> Enable Mystical Suggestions
-                    </label></li>
-                    <li><label>
-                        <input type="checkbox" id="show-eclipses" checked> Show Eclipses
-                    </label></li>
-                    <li><label>
-                        <input type="checkbox" id="show-moons" checked> Show Full Moons
-                    </label></li>
-                    <li><label>
-                        <input type="checkbox" id="show-holidays" checked> Show National Holidays
-                    </label></li>
+                    <li class="mystical-toggle">
+                        <span>Enable Mystical Suggestions</span>
+                        <label class="switch">
+                        <input type="checkbox" id="toggle-mystical" data-on="🔮" data-off="✨" />
+                        <span class="slider round"></span>
+                        </label>
+                    </li>
+                    
+                    <li class="mystical-toggle">
+                        <span>Show Eclipses</span>
+                        <label class="switch">
+                        <input type="checkbox" id="show-eclipses" data-on="🌑" data-off="☀️" />
+                        <span class="slider round"></span>
+                        </label>
+                    </li>
+                    
+                    <li class="mystical-toggle">
+                        <span>Show Full Moons</span>
+                        <label class="switch">
+                        <input type="checkbox" id="show-moons" data-on="🌕" data-off="🌒" />
+                        <span class="slider round"></span>
+                        </label>
+                    </li>
+                    
+                    <li class="mystical-toggle">
+                        <span>Show National Holidays</span>
+                        <label class="switch">
+                        <input type="checkbox" id="show-holidays" data-on="🎉" data-off="🧾" />
+                        <span class="slider round"></span>
+                        </label>
+                    </li>
+
+                    <li class="mystical-toggle">
+                        <span>Show Custom Events</span>
+                        <label class="switch">
+                            <input type="checkbox" id="show-custom-events" data-on="💜" data-off="🖤" />
+                            <span class="slider round"></span>
+                            </span>
+                        </label>
+                    </li>
                 <ul>
             </section>
+
+            <br />
 
             <!-- About & Credits -->
             <section id="about-settings">
                 <h2>📜 About This Project</h2>
-                <p>A collaborative project by <strong>Eclipsed Realities</strong> & <strong>Playground of the Senses</strong>.</p>
+                <p class="settings-subheader">A collaborative project by <strong>Eclipsed Realities</strong> & <strong>Playground of the Senses</strong>.</p>
                 <button id="about-page-button" class="settings-btn">Read More</button>
             </section>
 
@@ -158,6 +193,8 @@ export async function loadCustomEvents() {
 function openEditModal(eventId) {
     const modal = document.getElementById("edit-event-modal");
     const form = document.getElementById("edit-event-form");
+
+    console.log("Event ID to edit is ", eventId);
 
     // Fetch the current event data
     fetch(`/api/custom-events`)
@@ -223,6 +260,19 @@ export function setupSettingsEvents() {
 
     console.log("☸️ Running the setupSettingsEvent function");
 
+    const defaultPreferences = {
+        mysticalSuggestions: true,
+        showEclipses: true,
+        showMoons: true,
+        showHolidays: true,
+        showCustomEvents: true // 💜 Add this line!
+    };
+
+    
+    function saveMysticalPrefs(prefs) {
+        localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
+    }
+
     // Prevent duplicate listeners
     const editForm = document.getElementById("edit-event-form");
     editForm.removeEventListener("submit", handleEditEventSubmit); // clear old if any
@@ -256,6 +306,37 @@ export function setupSettingsEvents() {
     fetchCustomEvents()
         .then(events => populateEventList(events))
         .catch(error => console.error("Error loading events:", error));
+
+    const prefs = getMysticalPrefs();
+    document.getElementById("toggle-mystical").checked = prefs.mysticalSuggestions;
+    document.getElementById("show-eclipses").checked = prefs.showEclipses;
+    document.getElementById("show-moons").checked = prefs.showMoons;
+    document.getElementById("show-holidays").checked = prefs.showHolidays;
+    document.getElementById("show-custom-events").checked = prefs.showCustomEvents;
+
+    function updateToggleIcons() {
+        document.querySelectorAll(".switch input[type='checkbox']").forEach(input => {
+            const slider = input.nextElementSibling;
+            const onSymbol = input.dataset.on || "🔮";
+            const offSymbol = input.dataset.off || "✨";
+    
+            // Create/update the span’s emoji content
+            slider.innerHTML = `<span class="toggle-icon">${input.checked ? onSymbol : offSymbol}</span>`;
+        });
+    }
+    
+    // Attach listener to update the icon on change
+    function initMysticalToggles() {
+        document.querySelectorAll(".switch input[type='checkbox']").forEach(input => {
+            input.addEventListener("change", updateToggleIcons);
+        });
+    
+        // Initial state
+        updateToggleIcons();
+    }
+    
+    // Call it once Settings loads
+    initMysticalToggles();
 }
 
 // Function to show add event modal (to be created)
@@ -347,6 +428,42 @@ function attachEventHandlers() {
             handleDeleteEvent(eventId);
         });
     });
+
+    // Set Mystical Preferences
+    document.getElementById("toggle-mystical").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.mysticalSuggestions = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+    });
+    
+    document.getElementById("show-eclipses").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showEclipses = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+    });
+    
+    document.getElementById("show-moons").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showMoons = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+    });
+    
+    document.getElementById("show-holidays").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showHolidays = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+    });
+
+    document.getElementById("show-custom-events").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showCustomEvents = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
+    });
 }
 
 function populateEventList(events) {
@@ -409,7 +526,7 @@ async function handleAddEventSubmit(event) {
 
     // Send event data to Python backend
     try {
-        const response = await fetch("/custom-events", {
+        const response = await fetch("/api/custom-events", {
             cache: 'no-store',
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -476,7 +593,7 @@ async function handleDeleteEvent(eventId) {
     console.log(`🗑️ Attempting to delete event on: ${eventId}`);
 
     try {
-        const response = await fetch(`/custom-events/${eventId}`, {
+        const response = await fetch(`/api/custom-events/${eventId}`, {
             method: "DELETE",
         });
 
@@ -521,7 +638,7 @@ async function handleEditEventSubmit(event) {
     console.log("✨ Submitting update for event ID:", originalId, updatedEvent);
 
     try {
-        const response = await fetch(`/custom-events/${originalId}`, {
+        const response = await fetch(`/api/custom-events/${originalId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatedEvent)
@@ -548,6 +665,24 @@ async function handleEditEventSubmit(event) {
         console.error("❌ Error updating event:", error);
         alert("Oops! Something went wrong while updating your event.");
     }
+}
+
+// 🌟 Updated: Display mystical preferences including Custom Events
+export function getMysticalPrefs() {
+    const saved = localStorage.getItem("mysticalPrefs");
+    const defaults = {
+        mysticalSuggestions: true,
+        showEclipses: true,
+        showMoons: true,
+        showHolidays: true,
+        showCustomEvents: true // ✅ This line makes all the difference
+    };
+
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+}
+
+export function saveMysticalPrefs(prefs) {
+    localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
 }
 
 

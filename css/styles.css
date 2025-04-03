@@ -263,9 +263,9 @@ h1, .main-title {
 .subheader {
   font-family: "Libre Baskerville", serif;
   color: #f5d742;
-  font-size: 0.9em;
+  font-size: 1em;
   margin-bottom: 5px;
-  margin-top: 20px;;
+  margin-top: 20px;
 }
 
 #learn-more {
@@ -362,7 +362,7 @@ header {
 .nav-icon {
   width: 30px;
   height: 30px;
-  filter: drop-shadow(0 0 4px #ffffff);
+  /*filter: drop-shadow(0 0 4px #ffffff);*/
   transition: filter 0.3s ease;
 }
 
@@ -521,8 +521,8 @@ blockquote.moon-poem {
 }
 
 .celtic-zodiac-image {
-  width: 100px;
-  margin-bottom: 0px;
+  width: 105px;
+  margin-bottom: 5px;
 }
 
 .celtic-zodiac #modal-details h3 {
@@ -535,7 +535,7 @@ blockquote.moon-poem {
   font-size: 1rem;
   line-height: 1.5;
   color: #fff6ea; /* Magical white */
-  padding-top: 20px;
+  padding-top: 12px;
 }
 
 .celtic-zodiac-details p {
@@ -1075,6 +1075,11 @@ blockquote.moon-poem {
   width: 80%;
   margin: 10px auto;
   transition: all 0.3s ease-in-out;
+}
+
+/* 🌑 Hideable Legend Rows */
+.legend-row-hidden {
+  display: none !important;
 }
   
 #legend-section:hover {
@@ -2352,6 +2357,17 @@ blockquote.moon-poem {
   color: #fff6ea;
 }
 
+.settings-subheader {
+  color: #f5d742;
+  font-weight: 400;
+  font-family: "Libre-Baskerville", serif;
+}
+
+.settings-divider {
+  display: block;
+  margin: 15px auto 25px auto;
+}
+
 /*** Edit Events ***/
 
 #edit-event-modal .modal-content {
@@ -2425,6 +2441,125 @@ blockquote.moon-poem {
   100% {
       box-shadow: 0 0 0px rgba(255, 223, 127, 0.0);
   }
+}
+
+/* Mystical Toggle Switches */
+/* Toggle Switch Base */
+.mystical-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#mystical-settings li, #mystical-settings p {
+  font-family: "Libre Baskerville", serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.mystical-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+  font-size: 1rem;
+  color: #f0eaff;
+  font-family: 'Cinzel', serif;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  margin-left: 10px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.mystical-message {
+  font-family: 'Vidaloka', serif;
+  text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+  margin-top: 10px;
+  font-style: italic;
+  font-size: 1rem;
+  color: #ffcaff;
+  margin-top: 10px;
+  transition: opacity 0.5s ease;
+  opacity: 1;
+}
+
+.mystical-message.hidden {
+  opacity: 0;
+}
+
+/* The Slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #68468c;
+  transition: 0.4s;
+  border-radius: 34px;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.slider:before {
+  position: absolute;
+  content: "✨";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  bottom: 3px;
+  background-color: #f9f3ec;
+  border-radius: 50%;
+  transition: 0.4s;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 0 2px #fff;
+}
+
+/* ON State */
+input:checked + .slider {
+  background-color: #9c27b0;
+  box-shadow: 0 0 10px #c58effaa;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+  content: "🔮";
+}
+
+/* Rounded version */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.toggle-icon {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 16px;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+/* When ON (right side) */
+input:checked + .slider .toggle-icon {
+  transform: translateX(22px);
 }
 
 

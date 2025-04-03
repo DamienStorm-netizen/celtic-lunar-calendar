@@ -1,4 +1,4 @@
-// Exported function to render the home screen
+import { getMysticalPrefs } from "./settings.js";
 
 export function renderHome() {
     return `
@@ -303,12 +303,29 @@ export async function fetchComingEvents() {
           });
         }
       });
+
+      const prefs = getMysticalPrefs();
+
+    // Mystical Troubleshooting
+    console.log("🌟 Mystical Preferences:", prefs);
+
+    /* 🎭 Apply mystical filters (Settings)*/
+    const filteredEvents = upcomingEvents.filter(event => {
+        if (event.type === "holiday" && !prefs.showHolidays) return false;
+        if (event.type === "full-moon" && !prefs.showMoons) return false;
+        if (event.type === "eclipse" && !prefs.showEclipses) return false;
+        if (event.type === "custom-event" && !prefs.showCustomEvents) return false;
+        return true; // Keep everything else
+    });
+
+    // const filteredEvents = upcomingEvents;
+    // temporarily skip filter to verify display logic
   
-      console.log("Final Upcoming Events Array:", upcomingEvents);
-      populateComingEventsCarousel(upcomingEvents);
-  
+    console.log("Final Upcoming Events Array:", upcomingEvents);
+    populateComingEventsCarousel(filteredEvents);
+
     } catch (error) {
-      console.error("Error fetching coming events:", error);
+        console.error("Error fetching coming events:", error);
     }
 }
 
@@ -457,12 +474,6 @@ export function populateComingEventsCarousel(events) {
 
     carouselContainer.innerHTML = ""; // Clear previous slides
 
-    if (!Array.isArray(events) || events.length === 0) {
-        console.warn("No upcoming events found. Displaying mystical message...");
-        updateCarousel(); // Call updateCarousel when no events exist
-        return;
-    }
-
     events.forEach((event, index) => {
         const slide = document.createElement("div");
         slide.classList.add("coming-events-slide");
@@ -495,6 +506,26 @@ export function populateComingEventsCarousel(events) {
 
         carouselContainer.appendChild(slide);
     });
+
+    //Fallback poetry for carousel
+    if (!Array.isArray(events) || events.length === 0) {
+        const mysticalMessages = [
+            "🌙 The stars whisper, but no great events stir. The journey continues in quiet contemplation... 💫",
+            "🌿 The wind carries no omens today, only the gentle breath of the earth. Rest in the rhythm of the moment. 🍃✨",
+            "🔮 The threads of fate are still weaving. In the quiet, new paths may emerge... 🕰️🔮",
+            "🦉 Even in stillness, the world turns. The wise ones know that the silence holds its own kind of magic. 🦉🌌",
+            "🔥 No great fires are lit, no grand feasts are planned, but the embers of time still glow beneath the surface. ⚡🔥",
+            "🌌 Tonight, the universe is quiet, waiting. Perhaps the next moment holds something unseen... 🌌✨"
+        ];
+        
+        const message = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
+        carouselContainer.innerHTML = `
+            <div class="coming-events-slide active">
+                <p class="mystical-message">${message}</p>
+            </div>
+        `;
+        return;
+    }
 
     initializeCarouselNavigation();
 }
@@ -599,44 +630,6 @@ export function convertGregorianToCeltic(gregorianDate) {
     }
 
     return "Unknown Date";
-}
-
-async function updateCarousel() {
-    console.log("Updating carousel...");
-
-    // Fetch upcoming events
-    const upcomingEvents = await fetchUpcomingEvents(); 
-
-    // Placeholder messages if no upcoming events
-    const mysticalMessages = [
-        "🌙 The stars whisper, but no great events stir. The journey continues in quiet contemplation... 💫",
-        "🌿 The wind carries no omens today, only the gentle breath of the earth. Rest in the rhythm of the moment. 🍃✨",
-        "🔮 The threads of fate are still weaving. In the quiet, new paths may emerge... 🕰️🔮",
-        "🦉 Even in stillness, the world turns. The wise ones know that the silence holds its own kind of magic. 🦉🌌",
-        "🔥 No great fires are lit, no grand feasts are planned, but the embers of time still glow beneath the surface. ⚡🔥",
-        "🌌 Tonight, the universe is quiet, waiting. Perhaps the next moment holds something unseen... 🌌✨"
-    ];
-
-    let carouselContent = "";
-
-    if (upcomingEvents.length > 0) {
-        // Populate carousel with upcoming events
-        carouselContent = upcomingEvents.map(event => `
-            <div class="carousel-item">
-                <h3>${event.title}</h3>
-                <p>${event.date}</p>
-                <p>${event.description || "A moment written in the stars... ✨"}</p>
-            </div>
-        `).join("");
-    } else {
-        // Display a random mystical message
-        const randomMessage = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
-        carouselContent = `<div class="carousel-item no-events">
-            <p>${randomMessage}</p>
-        </div>`;
-    }
-
-    document.getElementById("carousel").innerHTML = carouselContent;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
