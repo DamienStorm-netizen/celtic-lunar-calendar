@@ -362,7 +362,7 @@ header {
 .nav-icon {
   width: 30px;
   height: 30px;
-  filter: drop-shadow(0 0 4px #ffffff);
+  /*filter: drop-shadow(0 0 4px #ffffff);*/
   transition: filter 0.3s ease;
 }
 

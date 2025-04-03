@@ -803,7 +803,7 @@ async function getCustomEvents(gregorianMonth, gregorianDay) {
     }
 }
 
-function applyMysticalSettings(prefs) {
+export function applyMysticalSettings(prefs) {
 
     // 🌒 Toggle Eclipses
     const eclipseRows = document.querySelectorAll(".eclipse-day-row");

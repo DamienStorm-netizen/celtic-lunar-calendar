@@ -1,3 +1,5 @@
+import { applyMysticalSettings } from "./calendar.js"; // or wherever it's defined
+
 export function renderSettings() {
     return `
         <div id="settings-container" class="fade-in">
@@ -10,7 +12,7 @@ export function renderSettings() {
                 <p class="settings-subheader">Add a custom event to your calendar.</p>
                 <button id="add-event-button" class="settings-btn">Add New Event</button>
 
-                <img src="/assets/images/decor/divider.png" alt="Divider" class="settings-divider" />
+                <br />
 
                  <h2>🌓 Edit/ Delete an Event</h2>
                 <p class="settings-subheader">Edit or remove existing custom events from your calendar.</p>
@@ -80,7 +82,8 @@ export function renderSettings() {
                 </div>
             </section>
 
-             <img src="/assets/images/decor/divider.png" alt="Divider" class="settings-divider" />
+            <br />
+
 
             <!-- Mystical Preferences -->
             <section id="mystical-settings">
@@ -123,16 +126,15 @@ export function renderSettings() {
                     <li class="mystical-toggle">
                         <span>Show Custom Events</span>
                         <label class="switch">
-                            <input type="checkbox" id="custom-events-toggle" checked />
-                            <span class="slider round">
-                            <span class="toggle-icon">💜</span>
+                            <input type="checkbox" id="show-custom-events" data-on="💜" data-off="🖤" />
+                            <span class="slider round"></span>
                             </span>
                         </label>
                     </li>
                 <ul>
             </section>
 
-             <img src="/assets/images/decor/divider.png" alt="Divider" class="settings-divider" />
+            <br />
 
             <!-- About & Credits -->
             <section id="about-settings">
@@ -262,15 +264,14 @@ export function setupSettingsEvents() {
         mysticalSuggestions: true,
         showEclipses: true,
         showMoons: true,
-        showHolidays: true
+        showHolidays: true,
+        showCustomEvents: true // 💜 Add this line!
     };
 
     
     function saveMysticalPrefs(prefs) {
         localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
     }
-
-    showCustomEvents: true // or false, depending on initial state
 
     // Prevent duplicate listeners
     const editForm = document.getElementById("edit-event-form");
@@ -311,6 +312,7 @@ export function setupSettingsEvents() {
     document.getElementById("show-eclipses").checked = prefs.showEclipses;
     document.getElementById("show-moons").checked = prefs.showMoons;
     document.getElementById("show-holidays").checked = prefs.showHolidays;
+    document.getElementById("show-custom-events").checked = prefs.showCustomEvents;
 
     function updateToggleIcons() {
         document.querySelectorAll(".switch input[type='checkbox']").forEach(input => {
@@ -454,6 +456,13 @@ function attachEventHandlers() {
         prefs.showHolidays = e.target.checked;
         saveMysticalPrefs(prefs);
         applyMysticalSettings(prefs);
+    });
+
+    document.getElementById("show-custom-events").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showCustomEvents = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
     });
 }
 
@@ -658,17 +667,18 @@ async function handleEditEventSubmit(event) {
     }
 }
 
-// Display mystical preferences
+// 🌟 Updated: Display mystical preferences including Custom Events
 export function getMysticalPrefs() {
     const saved = localStorage.getItem("mysticalPrefs");
-    return saved
-        ? JSON.parse(saved)
-        : {
-              mysticalSuggestions: true,
-              showEclipses: true,
-              showMoons: true,
-              showHolidays: true
-          };
+    const defaults = {
+        mysticalSuggestions: true,
+        showEclipses: true,
+        showMoons: true,
+        showHolidays: true,
+        showCustomEvents: true // ✅ This line makes all the difference
+    };
+
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
 }
 
 export function saveMysticalPrefs(prefs) {

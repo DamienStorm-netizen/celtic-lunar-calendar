@@ -1,4 +1,4 @@
-// Exported function to render the home screen
+import { getMysticalPrefs } from "./settings.js";
 
 export function renderHome() {
     return `
@@ -303,12 +303,29 @@ export async function fetchComingEvents() {
           });
         }
       });
+
+      const prefs = getMysticalPrefs();
+
+    // Mystical Troubleshooting
+    console.log("🌟 Mystical Preferences:", prefs);
+
+    /* 🎭 Apply mystical filters (Settings)*/
+    const filteredEvents = upcomingEvents.filter(event => {
+        if (event.type === "holiday" && !prefs.showHolidays) return false;
+        if (event.type === "full-moon" && !prefs.showMoons) return false;
+        if (event.type === "eclipse" && !prefs.showEclipses) return false;
+        if (event.type === "custom-event" && !prefs.showCustomEvents) return false;
+        return true; // Keep everything else
+    });
+
+    // const filteredEvents = upcomingEvents;
+    // temporarily skip filter to verify display logic
   
-      console.log("Final Upcoming Events Array:", upcomingEvents);
-      populateComingEventsCarousel(upcomingEvents);
-  
+    console.log("Final Upcoming Events Array:", upcomingEvents);
+    populateComingEventsCarousel(filteredEvents);
+
     } catch (error) {
-      console.error("Error fetching coming events:", error);
+        console.error("Error fetching coming events:", error);
     }
 }
 
