@@ -509,13 +509,21 @@ export function populateComingEventsCarousel(events) {
 
     //Fallback poetry for carousel
     if (!Array.isArray(events) || events.length === 0) {
+        // 🔮 Hide arrows when no events exist
+        const leftArrow = document.querySelector(".coming-events-carousel-prev");
+        const rightArrow = document.querySelector(".coming-events-carousel-next");
+        if (leftArrow && rightArrow) {
+            leftArrow.classList.add("hidden");
+            rightArrow.classList.add("hidden");
+        }
+
         const mysticalMessages = [
-            "🌙 The stars whisper, but no great events stir. The journey continues in quiet contemplation... 💫",
-            "🌿 The wind carries no omens today, only the gentle breath of the earth. Rest in the rhythm of the moment. 🍃✨",
-            "🔮 The threads of fate are still weaving. In the quiet, new paths may emerge... 🕰️🔮",
-            "🦉 Even in stillness, the world turns. The wise ones know that the silence holds its own kind of magic. 🦉🌌",
-            "🔥 No great fires are lit, no grand feasts are planned, but the embers of time still glow beneath the surface. ⚡🔥",
-            "🌌 Tonight, the universe is quiet, waiting. Perhaps the next moment holds something unseen... 🌌✨"
+            "💫 The stars whisper, but no great events stir. The journey continues in quiet contemplation... 💫",
+            "✨ The wind carries no omens today, only the gentle breath of the earth. Rest in the rhythm of the moment. ✨",
+            "🔮 The threads of fate are still weaving. In the quiet, new paths may emerge... 🔮",
+            "🦉 Even in stillness, the world turns. The wise ones know that the silence holds its own kind of magic. 🦉",
+            "🔥 No great fires are lit, no grand feasts are planned, but the embers of time still glow beneath the surface. 🔥",
+            "🌟 Tonight, the universe is quiet, waiting. Perhaps the next moment holds something unseen... 🌟"
         ];
         
         const message = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
@@ -526,6 +534,18 @@ export function populateComingEventsCarousel(events) {
         `;
         return;
     }
+
+    /*
+    if (leftArrow && rightArrow) {
+        if (shouldShowArrows) {
+            leftArrow.classList.remove("hidden");
+            rightArrow.classList.remove("hidden");
+        } else {
+            leftArrow.classList.add("hidden");
+            rightArrow.classList.add("hidden");
+        }
+    }
+    */
 
     initializeCarouselNavigation();
 }

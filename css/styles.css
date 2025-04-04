@@ -208,18 +208,10 @@ body {
 }
 
 @font-face {
-  font-family: 'Vidaloka';
-  src: url('../assets/fonts/vidaloka-regular-webfont.woff2') format('woff2'),
-       url('../assets/fonts/vidaloka-regular-webfont.woff') format('woff');
-  font-weight: 400; /* Bold weight */
-  font-style: normal;
-}
-
-@font-face {
   font-family: 'Libre Baskerville';
-  src: url('../assets/fonts/librebaskerville-regular-webfont.woff2') format('woff2'),
-       url('../assets/fonts/vidaloka-regular-webfont.woff') format('woff');
-  font-weight: 700; /* Bold weight */
+  src: url('../assets/fonts/Libre Baskerville-regular-webfont.woff2') format('woff2'),
+       url('../assets/fonts/Libre Baskerville-regular-webfont.woff') format('woff');
+  font-weight: 400; /* Normal weight */
   font-style: normal;
 }
 
@@ -249,7 +241,7 @@ h1, .main-title {
 }
 
 .goldenTitle {
-  font-family: 'Vidaloka', serif; /* Fallback to serif if the font doesn’t load */
+  font-family: 'Libre Baskerville', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
   font-size: 2rem; /* Adjust size as needed */
   color: #f5d742; /* Your dazzling title colour! */
@@ -263,7 +255,7 @@ h1, .main-title {
 .subheader {
   font-family: "Libre Baskerville", serif;
   color: #f5d742;
-  font-size: 1em;
+  font-size: 1.2em;
   margin-bottom: 5px;
   margin-top: 20px;
 }
@@ -278,7 +270,7 @@ h1, .main-title {
 
 .goldNugget {
   color: #ffd700;
-  font-family: 'Vidaloka';
+  font-family: 'Libre Baskerville';
 }
 
 
@@ -467,9 +459,9 @@ blockquote.moon-poem {
   margin: 0;
   padding: 0 5px 0 5px;
   font-family: 'Libre Baskerville', serif;
-  font-size: 1rem !important;
+  font-size: 1.2rem !important;
   font-weight: 400;
-  line-height: 150%;
+  line-height: 120%;
 }
 
 /* Lunar & Solar Eclipse Styling */
@@ -520,6 +512,10 @@ blockquote.moon-poem {
   align-items: center;
 }
 
+.celtic-zodiac-date {
+  display: none;
+}
+
 .celtic-zodiac-image {
   width: 105px;
   margin-bottom: 5px;
@@ -541,7 +537,7 @@ blockquote.moon-poem {
 .celtic-zodiac-details p {
   color: #d7e0ff;
   font-size: 1rem;
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
 }
 
 .zodiac-subheader {
@@ -577,7 +573,7 @@ blockquote.moon-poem {
   margin-top: 0px;
   text-align: center;
   color: #d7e0ff; /* Or any colour matching your theme */
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
 }
 
 .moon-phase-graphic {
@@ -589,7 +585,7 @@ blockquote.moon-poem {
 }
 
 .moon-phase-details blockquote {
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
   font-style: italic;
   color: #ddd;
   margin-top: 1rem;
@@ -681,7 +677,7 @@ blockquote.moon-poem {
 }
 
 .coming-events-description {
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
   font-size: 1.1rem !important;
   color: #fff;
   max-width: 100%;
@@ -699,6 +695,7 @@ blockquote.moon-poem {
   color: gold;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
   z-index: 10; /* Make sure it is above everything else */
 }
 
@@ -708,6 +705,12 @@ blockquote.moon-poem {
 .coming-events-carousel-prev:hover, .coming-events-carousel-next:hover {
   filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8));
   animation: comingEventsGlow 0.8s infinite alternate ease-in-out;
+}
+
+.coming-events-carousel-prev.hidden,
+.coming-events-carousel-next.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @keyframes comingEventsGlow {
@@ -733,7 +736,7 @@ blockquote.moon-poem {
  .month-tagline {
   color: #d7e0ff;
   font-size: 1rem;
-  font-family: 'Vidaloka', serif; /* Fallback to serif if the font doesn’t load */
+  font-family: 'Libre Baskerville', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
  }
 
@@ -786,7 +789,7 @@ blockquote.moon-poem {
 }
 
 .detailsMoonDescription {
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
   font-weight: 400;;
   margin: 10px 15px;
 }
@@ -809,7 +812,7 @@ blockquote.moon-poem {
 
 .divider {
   display: block;
-  margin: 5px auto;
+  margin: 16px auto;
 }
 
 .back-button {
@@ -820,7 +823,7 @@ blockquote.moon-poem {
   margin-bottom: 10px;
   cursor: pointer;
   border-radius: 5px;
-  font-family: "Vidaloka", serif;
+  font-family: "Libre Baskerville", serif;
   font-size: 16px;
   transition: background-color 0.3s ease;
 }
@@ -850,13 +853,13 @@ blockquote.moon-poem {
   width: calc(100% / 7); /* Ensures all columns are evenly sized */
   padding: 13px; /* Ensure all cells have the same padding */
   border: 1px dotted #32CD32; /* Ensure borders stay aligned */
-  font-family: "Vidaloka", serif;
+  font-family: "Libre Baskerville", serif;
 }
 
 .calendar-grid th {
   padding: 11px; /* Consistent padding */
   color: #fff;
-  font-family: "Vidaloka", serif;
+  font-family: "Libre Baskerville", serif;
   font-size: 11.5px;
   font-weight: bold;
   border: none; /* Remove borders from weekday headers */
@@ -864,13 +867,13 @@ blockquote.moon-poem {
 }
 
 .calendar-grid td {
-  padding: 14.3px; /* Consistent padding */
+  padding: 15.3px; /* Consistent padding */
   color: #fff;
   background-color: rgba(255, 255, 255, 0.1); /* Subtle background for each day */
   border: 1px dotted #32CD32; /* Green dotted border for gridlines */
   border-top: none; /* Remove top border of the first row */
   border-left: none; /* Remove left border of the first column */
-  font-family: "Vidaloka", serif;
+  font-family: "Libre Baskerville", serif;
   font-size: 13px;
   transition: background-color 0.3s ease;
 }
@@ -896,7 +899,7 @@ blockquote.moon-poem {
   padding: 10px 0;
   text-align: center;
   font-size: 16px;
-  font-family: "Vidaloka", serif;
+  font-family: "Libre Baskerville", serif;
   transition: all 0.3s ease;
 }
 
@@ -925,25 +928,32 @@ blockquote.moon-poem {
 
 /* Calendar Tabs */
 .calendar-tabs {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 25px;
-  margin-top: 25px;;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+    margin-top: 25px;
+    max-width: 325px;
+    margin: 0 auto;
 }
 
 .tab-button {
-  background: none;
+  display: block;
+  margin: 15px auto;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #9c27b0, #000) !important;
+  width: 150px;
+  color: #ffd700;
   border: none;
-  font-size: 1.1em;
-  font-weight: bold;
+  font-size: 0.9em;
+  border-radius: 5px;
   cursor: pointer;
-  padding: 8px 16px;
-  transition: 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 0px 10px rgba(255, 140, 0, 0.5);
 }
 
 .tab-button.active {
-  color: #ffcc00;
-  text-decoration: underline;
+  color: #ffcc00 !important;
+  text-decoration: none;
 }
 
 /* Hide inactive sections */
@@ -1329,7 +1339,7 @@ blockquote.moon-poem {
 }
 
 .mirabilis-content p {
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
   color: #fff6ea;
   line-height: 1.8;
   text-align: center;
@@ -1361,7 +1371,7 @@ blockquote.moon-poem {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 10px;
+  margin: 10px;
 }
 
 .tab-button {
@@ -1587,7 +1597,7 @@ blockquote.moon-poem {
 
 .modal {
   position: fixed;
-  top: 50%;
+  top: 25%;
   left: 50%;
   transform: translate(-50%, -50%); /* Ensures the modal is truly centered */
   height: auto;
@@ -1595,7 +1605,7 @@ blockquote.moon-poem {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 1000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease-in-out;
@@ -1651,7 +1661,7 @@ blockquote.moon-poem {
 
 /* Learn more Button */
 .learn-more {
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
   background: linear-gradient(135deg, #8e44ad, #c39bd3); /* Deep purple gradient */
   color: #fff6ea; /* Off-white text for contrast */
   padding: 8px 16px;
@@ -1736,8 +1746,9 @@ blockquote.moon-poem {
 }
 
 .festival-description {
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
   font-size: 1.1rem;
+  font-style: italic;
   color: #fff;
   max-width: 80%;
   margin: 10px auto;
@@ -1816,7 +1827,7 @@ blockquote.moon-poem {
 }
 
 .moon-title {
-  font-size: 30px;
+  font-size: 2rem;
   color: #FFD700; /* Golden glow */
   text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
 }
@@ -1824,16 +1835,28 @@ blockquote.moon-poem {
 .moon-date {
   color: #fff6ea;
   font-family: 'Libre Baskerville', serif;
+  font-size: 1.2rem;
   font-weight: 400;
   line-height: 130%;
 }
 
-.moon-poem {
-  font-size: 18px;
+.moon-poem h3 {
+  font-style: normal;
+  font-size: 1.2rem;
+  color: #f5d742;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+.moon-poem p {
   font-style: italic;
+  font-size: 1rem;
+}
+
+.moon-poem {
+  font-size: 1.3rem;
   font-weight: 400;
   color: #FFF6EA;
-  line-height: 1.8;
+  font-style: italic;
 }
 
 /* Navigation Arrows */
@@ -1902,7 +1925,7 @@ blockquote.moon-poem {
 /* Paragraphs */
 .about-content p {
   font-size: 1.2rem;
-  line-height: 1.8;
+  line-height: 120%;
   margin-bottom: 20px;
   color: #fff6ea;
   font-family: 'Libre Baskerville', serif;
@@ -2080,7 +2103,7 @@ blockquote.moon-poem {
 /* Paragraphs */
 .privacy p {
   font-size: 1.2rem;
-  line-height: 1.8;
+  line-height: 120%;
   margin-bottom: 20px;
   color: #fff6ea;
   font-family: 'Libre Baskerville', serif;
@@ -2116,13 +2139,13 @@ blockquote.moon-poem {
 }
 
 #settings-container h2 {
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   padding-bottom: 5px;
 }
 
 #settings-container h3 {
-  font-family: 'Vidaloka', serif;
+  font-family: 'Libre Baskerville', serif;
   color: #ffd700;
 }
 
@@ -2220,9 +2243,9 @@ blockquote.moon-poem {
 
 .modal-settings {
   position: fixed;
-  z-index: 1000;
+  z-index: 999;
   left: 50%;
-  top: 50%;
+  top: 25%;
   transform: translate(-50%, -50%);
   width: 90%;
   max-width: 400px;
@@ -2265,7 +2288,7 @@ blockquote.moon-poem {
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.6); /* soft dark veil */
-  z-index: 998; /* just below the modal which is 999 */
+  z-index: 999; /* just below the modal which is 999 */
   backdrop-filter: blur(2px); /* optional shimmer */
   transition: opacity 0.3s ease-in-out;
   opacity: 0;
@@ -2482,11 +2505,12 @@ blockquote.moon-poem {
 }
 
 .mystical-message {
-  font-family: 'Vidaloka', serif;
-  text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
-  margin-top: 10px;
+  font-family: 'Libre Baskerville', serif !important;
+  font-weight: 400;
   font-style: italic;
-  font-size: 1rem;
+  /*text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);*/
+  margin-top: 10px;
+  font-size: 1.2rem !important;
   color: #ffcaff;
   margin-top: 10px;
   transition: opacity 0.5s ease;
@@ -2495,6 +2519,14 @@ blockquote.moon-poem {
 
 .mystical-message.hidden {
   opacity: 0;
+}
+
+.mystical-message h3 {
+  font-style: normal;
+}
+
+.mystical-message  span {
+  font-style: italic;
 }
 
 /* The Slider */
