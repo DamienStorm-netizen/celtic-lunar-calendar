@@ -322,7 +322,9 @@ export async function fetchComingEvents() {
     // temporarily skip filter to verify display logic
   
     console.log("Final Upcoming Events Array:", upcomingEvents);
-    populateComingEventsCarousel(filteredEvents);
+    if (document.getElementById("coming-events-container")) {
+        populateComingEventsCarousel(filteredEvents);
+      }
 
     } catch (error) {
         console.error("Error fetching coming events:", error);

@@ -4,7 +4,7 @@
             "name": "Nivis",
             "start_date": "2024-12-23",
             "end_date": "2025-01-19",
-            "tagline": "❄️ From the Latin ‘nix’ meaning snow, Nivis is the breath of winter’s hush, a month where frost writes poetry upon the earth and silence speaks in crystalline whispers."
+            "tagline": "From the Latin ‘nix’ meaning snow, Nivis is the breath of winter’s hush, a month where frost writes poetry upon the earth and silence speaks in crystalline whispers."
         },
         {
             "name": "Janus",
@@ -143,123 +143,6 @@
             "date": "2025-12-21",
             "linked_phase": "Full Moon",
             "linked_moon": "Cold Moon"
-        }
-    ],
-    "lunar_phases": [
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-01-11"
-        },
-        {
-            "phaseName": "Wolf Moon",
-            "graphic": "🌕",
-            "date": "2025-01-25"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-02-10"
-        },
-        {
-            "phaseName": "Snow Moon",
-            "graphic": "🌕",
-            "date": "2025-02-15"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-03-10"
-        },
-        {
-            "phaseName": "Worm Moon",
-            "graphic": "🌕",
-            "date": "2025-02-25"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-04-08"
-        },
-        {
-            "phaseName": "Flower Moon",
-            "graphic": "🌕",
-            "date": "2025-05-15"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-06-08"
-        },
-        {
-            "phaseName": "Strawberry Moon",
-            "graphic": "🌕",
-            "date": "2025-06-25"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-07-09"
-        },
-        {
-            "phaseName": "Thunder Moon",
-            "graphic": "🌕",
-            "date": "2025-07-15"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-08-07"
-        },
-        {
-            "phaseName": "Grain Moon",
-            "graphic": "🌕",
-            "date": "2025-08-15"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-09-05"
-        },
-        {
-            "phaseName": "Harvest Moon",
-            "graphic": "🌕",
-            "date": "2025-09-25"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-10-10"
-        },
-        {
-            "phaseName": "Hunter's Moon",
-            "graphic": "🌕",
-            "date": "2025-10-15"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-11-08"
-        },
-        {
-            "phaseName": "Frost Moon",
-            "graphic": "🌕",
-            "date": "2025-11-15"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-12-06"
-        },
-        {
-            "phaseName": "Cold Moon",
-            "graphic": "🌕",
-            "date": "2025-12-15"
-        },
-        {
-            "phaseName": "New Beginnings",
-            "graphic": "🌑",
-            "date": "2025-12-21"
         }
     ],
     "national_holidays": [
