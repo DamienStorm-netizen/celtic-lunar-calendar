@@ -101,7 +101,7 @@ export function renderInsights() {
           <h3 class="subheader">Mythology</h3>
           <p id="zodiac-mythology"></p>
 
-          <button class="learn-more">Learn More</button>
+          <button class="settings-btn">Learn More</button>
         </div>
       </div>
   
@@ -567,6 +567,10 @@ export function initializeCelticZodiac() {
 
     // Show the modal
     zodiacModal.classList.remove("hidden");
+
+    // Force a reflow to make sure layout is calculated *before* we add the transition
+    void zodiacModal.offsetWidth; 
+
     zodiacModal.classList.add("show");
 
     // Show Overlay
