@@ -79,7 +79,7 @@ export function renderInsights() {
     </div>
 
       <div id="modal-overlay" class="modal-overlay hidden"></div>
-      <div id="zodiac-modal" class="modal hidden">
+      <div id="zodiac-modal" class="modal">
         <div class="modal-content">
           <button id="close-modal" class="mystical-close">
             ✦
@@ -413,21 +413,23 @@ export function initializeCelticZodiac() {
   const closeModal = document.querySelector(".mystical-close");
   const zodiacItems = document.querySelectorAll(".zodiac-item");
 
+  // Assign click behaviour to thumbs
   zodiacItems.forEach(item => {
       item.addEventListener("click", () => {
           const zodiacName = item.querySelector("p").textContent;
-          console.log("Click!!!");
+          console.log("Modal node ID:", document.getElementById('zodiac-modal'));
           showZodiacModal(zodiacName);
       });
   });
 
+  // Close Celtic zodiac modal
   closeModal.addEventListener("click", () => {
-    console.log("Closing modal...");
     zodiacModal.classList.remove("show");
-    zodiacModal.classList.add("hidden");
-    // Hide overlay when modal closes
     overlay.classList.remove("show");
     overlay.classList.add("hidden");
+
+    // Reset transform manually (ghosts hate this)
+    zodiacModal.style.transform = 'translate(-50%, -50%) scale(0.95)';
   });
 
   function showZodiacModal(zodiacName) {
@@ -435,13 +437,14 @@ export function initializeCelticZodiac() {
     // Fetch Zodiac details from a JSON or an object
     const zodiacData = {
         "Birch": {
-            date: "Nivis 2 to Janus 1",
+            date: "Nivis 2 to Janus 1 !!!!!",
             image: "assets/images/zodiac/zodiac-birch.png",
             description: "The Birch tree stands at the threshold of new beginnings, its pale bark shimmering like moonlight on fresh snow. A symbol of renewal, resilience, and leadership, Birch is the first to take root after devastation, whispering to those who dare to embark on new journeys.",
             traits: "Leadership, ambition, resilience.",
             element: "🌬️ Air",
             animal: "White Stag - Guidance and Intuition.",
-            mythology: "The Birch tree is associated with rebirth and the dawn of new journeys."
+            mythology: "The Birch tree is associated with rebirth and the dawn of new journeys.",
+            url: ""
         },
         "Rowan": {
             date: "Janus 2 to Brigid 1",
@@ -514,7 +517,7 @@ export function initializeCelticZodiac() {
       element: "💧 Water",
       animal: "Salmon - Knowledge and divine inspiration.",
       mythology: "Salmon of Knowledge - Quest for wisdom and understanding."
-   },
+    },
     "Vine": {
       date: "Pomona 2 to Autumna 1",
       image: "assets/images/zodiac/zodiac-vine.png",
@@ -553,9 +556,33 @@ export function initializeCelticZodiac() {
    }
   };
 
-    const data = zodiacData[zodiacName] || {};
+  const modal = document.getElementById("zodiac-modal");
+  const overlay = document.getElementById("modal-overlay");
+
+  // 1. Pre-flight prep: clean transform
+  modal.style.transform = "translate(-50%, -50%) scale(0.95)";
+  modal.style.opacity = "0";
+
+  // 2. Unhide without animation
+  modal.classList.remove("hidden");
+  overlay.classList.remove("hidden");
+
+  // 3. Force a reflow to lock position *before* animation
+  modal.getBoundingClientRect(); // more reliable than offsetWidth
+
+  // 4. Show with animation via requestAnimationFrame
+  requestAnimationFrame(() => {
+    modal.classList.add("show");
+    overlay.classList.add("show");
+
+    setTimeout(() => {
+      modal.style.transform = "";
+      modal.style.opacity = "";
+    }, 300); // Match transition duration
+  });
 
     // Populate the modal with Zodiac details
+    const data = zodiacData[zodiacName] || {};
     document.getElementById("zodiac-name").textContent = zodiacName;
     document.getElementById("zodiac-date-range").textContent = data.date || "Date not found";
     document.getElementById("zodiac-image").src = data.image || "";
@@ -564,18 +591,6 @@ export function initializeCelticZodiac() {
     document.getElementById("zodiac-element").textContent = data.element || "Element unknown.";
     document.getElementById("zodiac-animal").textContent = data.animal || "Animal unknown.";
     document.getElementById("zodiac-mythology").textContent = data.mythology || "Mythology unknown.";
-
-    // Show the modal
-    zodiacModal.classList.remove("hidden");
-
-    // Force a reflow to make sure layout is calculated *before* we add the transition
-    void zodiacModal.offsetWidth; 
-
-    zodiacModal.classList.add("show");
-
-    // Show Overlay
-    overlay.classList.remove("hidden");
-    overlay.classList.add("show");
 
     console.log("Opening modal for:", zodiacName);
   }

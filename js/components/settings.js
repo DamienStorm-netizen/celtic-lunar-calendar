@@ -22,8 +22,8 @@ export function renderSettings() {
                 </div>
 
                 <!--- ADD Custom Event --->
-                <div id="add-event-modal" class="modal-settings hidden">
-                    <div class="modal-content-add">
+                <div id="add-event-modal" class="modal modal-settings">
+                    <div class="modal-content">
                         <span class="close-modal-add  mystical-close">✦</span>
                         <h2>Add New Event</h2>
                         <form id="add-event-form">
@@ -54,7 +54,7 @@ export function renderSettings() {
                 </div>
 
                 <!--- EDIT Custom Event -->
-                <div id="edit-event-modal" class="modal-settings hidden">
+                <div id="edit-event-modal" class="modal modal-settings">
                     <div class="modal-content">
                         <span class="close-modal-edit mystical-close">✦</span>
                         <h2>Edit Your Event</h2>

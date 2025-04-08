@@ -49,12 +49,12 @@ function navigateTo(hash) {
         appContainer.innerHTML = "";
         renderCalendar();
         break;
-      case 'about':
-        appContainer.innerHTML = renderAbout();
-        break;
       case 'settings':
         appContainer.innerHTML = renderSettings();
         initSettingsView(); // ✨ Clean and self-contained
+        break;
+      case 'about':
+        appContainer.innerHTML = renderAbout();
         break;
       case 'privacy':
         appContainer.innerHTML = renderPrivacy();
