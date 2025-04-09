@@ -2570,7 +2570,7 @@ blockquote.moon-poem {
   right: 0;
   bottom: 0;
   background-color: #68468c;
-  /*transition: 0.4s;*/
+  transition: 0.4s;
   border-radius: 34px;
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
@@ -2584,7 +2584,7 @@ blockquote.moon-poem {
   bottom: 3px;
   background-color: #f9f3ec;
   border-radius: 50%;
-  /*transition: 0.4s;*/
+  transition: 0.4s;
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -2599,7 +2599,7 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-  /*transform: translateX(22px);*/
+  transform: translateX(22px);
   content: "🔮";
 }
 
@@ -2618,12 +2618,12 @@ input:checked + .slider:before {
   left: 4px;
   font-size: 16px;
   pointer-events: none;
-  /*transition: transform 0.3s ease;*/
+  transition: transform 0.3s ease;
 }
 
 /* When ON (right side) */
 input:checked + .slider .toggle-icon {
-  /*transform: translateX(22px);*/
+  transform: translateX(22px);
 }
 
 

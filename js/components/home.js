@@ -264,25 +264,26 @@ export async function fetchComingEvents() {
           });
         }
       });
+      
 
-     // 🌑 Add Lunar & Solar Eclipses (Updated)
-    eclipses.forEach(eclipse => {
+    // 🌑 Add Lunar & Solar Eclipses (Updated)
+    for (const eclipse of eclipses) {
         console.log("🌘 Checking eclipse:", eclipse);
-    
-        // Remove time for consistency (e.g., "2025-04-08 18:22:00" -> "2025-04-08")
         const cleanDate = eclipse.date.split(" ")[0];
-    
-        // Match to upcomingDates list (should be date-only format)
+
         if (upcomingDates.includes(cleanDate)) {
-        upcomingEvents.push({
-            type: "eclipse",
-            title: `${eclipse.title} 🌑`,
-            description: getRandomEclipseDescription(),
-            date: cleanDate
-        });
+            const celticMonth = getCelticMonthFromDate(cleanDate);
+            const description = await getEclipseDescription(eclipse.type, celticMonth);
+
+            upcomingEvents.push({
+                type: "eclipse",
+                title: `${eclipse.title} 🌑`,
+                description,
+                date: cleanDate
+            });
         }
-    });
-  
+    }
+    
   
       // 5C) Add national holidays
       upcomingDates.forEach(date => {
@@ -336,6 +337,46 @@ export async function fetchComingEvents() {
         console.error("Error fetching coming events:", error);
     }
 }
+
+function getCelticMonthFromDate(dateStr) {
+    // Assuming your cleanDate is in format "2025-04-09"
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    const dayOfMonth = dateObj.getDate();
+    const monthIndex = dateObj.getMonth();
+  
+    // 🎑 Your Celtic mapping logic
+    const celticMap = [
+      { name: "Janus", start: [0, 20], end: [1, 16] },
+      { name: "Brigid", start: [1, 17], end: [2, 16] },
+      { name: "Flora",  start: [2, 17], end: [3, 13] },
+      { name: "Maia",   start: [4, 14], end: [5, 11] },
+      { name: "Juno",   start: [5, 12], end: [6, 8] },
+      { name: "Solis",  start: [6, 9],  end: [7, 6] },
+      { name: "Terra",  start: [7, 7],  end: [8, 3] },
+      { name: "Lugh",   start: [8, 4],  end: [8, 31] },
+      { name: "Pomona", start: [9, 1],  end: [9, 28] },
+      { name: "Autumna",start: [9, 29], end: [10, 26] },
+      { name: "Eira",   start: [10, 27], end: [11, 23] },
+      { name: "Aether", start: [11, 24], end: [12, 21] },
+      { name: "Nivis",  start: [12, 22], end: [0, 19] }
+    ];
+  
+    for (const entry of celticMap) {
+      const [startMonth, startDay] = entry.start;
+      const [endMonth, endDay] = entry.end;
+  
+      const afterStart = (monthIndex > startMonth) || (monthIndex === startMonth && dayOfMonth >= startDay);
+      const beforeEnd = (monthIndex < endMonth) || (monthIndex === endMonth && dayOfMonth <= endDay);
+  
+      if (startMonth <= endMonth ? afterStart && beforeEnd : afterStart || beforeEnd) {
+        return entry.name;
+      }
+    }
+  
+    return "Janus"; // fallback
+  }
+  
 
 // Fetch upcoming festivals based on the Celtic calendar
 export async function fetchFestivals() {
@@ -423,7 +464,7 @@ export async function fetchEclipses() {
     }
 }
 
- // 🌑 Array of mystical eclipse descriptions
+ /* 🌑 Array of mystical eclipse descriptions
  const eclipseDescriptions = [
     "Shadow and light embrace in celestial dance, a moment between worlds.",
     "A veil of shadow whispers across the sky, heralding change and prophecy.",
@@ -431,11 +472,84 @@ export async function fetchEclipses() {
     "A doorway of darkness, a path of light—step into the unknown.",
     "The sky dims, the air hums—something ancient stirs in the eclipse's glow."
 ];
+*/
 
 // 🔮 Get a random eclipse description
-export function getRandomEclipseDescription() {
-    return eclipseDescriptions[Math.floor(Math.random() * eclipseDescriptions.length)];
+export async function getEclipseDescription(type, celticMonth) {
+    const descriptions = {
+      lunar: {
+        winter: [
+          "The moon hides in frost-kissed silence, dreaming deep in the veil of Eira.",
+          "In the cold hush of Nivis, her shadow passes—old spirits whisper their truths.",
+          "A silver eclipse beneath Aether’s stars reveals secrets buried in icebound hearts."
+        ],
+        spring: [
+          "Blossoms tremble as Luna’s face fades—new beginnings stir in ancient soil.",
+          "Beneath Brigid’s breath, the moon wanes into myth, and the land leans in to listen.",
+          "A soft eclipse in Flora’s bloom—wishes bloom in the dark between stars."
+        ],
+        summer: [
+          "The summer moon weeps petals of gold—her eclipse sings of bold transformations.",
+          "Luna dances behind Solis, her mysteries wrapped in warm twilight.",
+          "In Terra’s heat, a shadow glides across the moon—prophecies awaken in dreamers."
+        ],
+        autumn: [
+          "Fallen leaves swirl as Luna dims—change ripples in Pomona’s golden hush.",
+          "Autumna’s wind carries the eclipse’s hush like a lullaby for sleeping gods.",
+          "The Hunter’s moon fades to shadow—memories stir, and the veil thins."
+        ]
+      },
+  
+      solar: {
+        winter: [
+          "In Aether's pale sky, Sol bows—light swallowed by ancient mystery.",
+          "A frozen sun in Eira’s grip—change brews beneath the silence.",
+          "The Cold Sun vanishes in Nivis, and time forgets to tick."
+        ],
+        spring: [
+          "Beltaine fire dims as Sol hides his face—hearts burn with old passion reborn.",
+          "A Flora eclipse—sunlight swirled in prophecy and pollen.",
+          "The spring sun yields—seeds of magic bloom in the shadow’s path."
+        ],
+        summer: [
+          "In Solis' blaze, the eclipse dances—a mirror of power and revelation.",
+          "The midsummer sun vanishes—truths flicker, bold and blinding.",
+          "A sun-dark hush in Terra, where gods meet in radiant stillness."
+        ],
+        autumn: [
+          "Pomona sighs as Sol is veiled—harvest halts, and fate tiptoes in.",
+          "In Autumna’s gold, the sun turns his face—the eclipse whispers of closure.",
+          "A waning sun, wrapped in ivy dreams—Lugh listens."
+        ]
+      }
+    };
+  
+    const seasonalMap = {
+        winter: ["Nivis", "Eira", "Aether"],
+        spring: ["Janus", "Brigid", "Flora"],
+        summer: ["Maia", "Juno", "Solis", "Terra"],
+        autumn: ["Lugh", "Pomona", "Autumna"]
+    };
+
+    let season = "spring"; // fallback
+    for (const [s, months] of Object.entries(seasonalMap)) {
+        if (months.includes(celticMonth)) {
+            season = s;
+            break;
+        }
+    }
+
+    const eclipseType = type?.toLowerCase();
+    const seasonPool = descriptions[eclipseType]?.[season];
+
+    if (!seasonPool) {
+        console.warn(`⚠️ No eclipse description found for type: "${type}", season: "${season}"`);
+        return "A rare celestial hush, undefined yet stirring...";
+    }
+
+    return seasonPool[Math.floor(Math.random() * seasonPool.length)];
 }
+  
 
 // Fetch upcoming national holidays for the next 3 days
 export async function fetchNationalHolidays() {

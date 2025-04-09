@@ -9,7 +9,7 @@ import {
     fetchFestivals,
     fetchMoonPhases,
     fetchEclipses,
-    getRandomEclipseDescription,
+    getEclipseDescription,
     fetchCustomEvents,
     populateComingEventsCarousel,
     initializeCarouselNavigation,
@@ -26,7 +26,6 @@ import {
     fetchFestivals();
     fetchMoonPhases();
     fetchEclipses();
-    getRandomEclipseDescription();
     fetchCustomEvents();
     populateComingEventsCarousel();
     initializeCarouselNavigation();
