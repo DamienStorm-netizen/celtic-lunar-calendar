@@ -233,118 +233,144 @@
             "name": "Birch",
             "start_date": "2024-12-24",
             "end_date": "2025-01-20",
+            "celtic_date": "Nivis 2 to Janus 1",
             "symbolism": "New beginnings, purification, and renewal.",
             "animal": "White Stag - Guidance and intuition.",
             "mythical_creature": "White Hart - Purity, power, and nobility.",
-            "url": ""
+            "element": "🌬️ Air",
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Rowan",
             "start_date": "2025-01-21",
             "end_date": "2025-02-17",
+            "celtic_date": "Janus 2 to Brigid 1",
             "symbolism": "Protection, healing, and inspiration.",
             "animal": "Crane - Longevity, wisdom, and spiritual strength.",
+            "element": "🔥 Fire",
             "mythical_creature": "Dragon - Transformation, growth, and new beginnings.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Ash",
             "start_date": "2025-02-18",
             "end_date": "2025-03-17",
+            "celtic_date": "Brigid 2 to Flora 1",
             "symbolism": "Strength, determination, and protection.",
             "animal": "Adder - Transformation and rebirth.",
+            "element": "💧 Water",
             "mythical_creature": "Sea Serpent - Hidden depths and transformation.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Alder",
             "start_date": "2025-03-18",
             "end_date": "2025-04-14",
+            "celtic_date": "Flora 2 to Maia 1",
             "symbolism": "Balance, stability, and courage.",
             "animal": "Fox - Intelligence, cunning, and adaptability.",
+            "element": "🌊 Water",
             "mythical_creature": "Firebird - Resurrection and spiritual enlightenment.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Willow",
             "start_date": "2025-04-15",
             "end_date": "2025-05-12",
+            "celtic_date": "Maia 2 to Juno 1",
             "symbolism": "Intuition, creativity, and emotions.",
             "animal": "Hawk - Intuition and sensitivity.",
+            "element": "🌊 Water",
             "mythical_creature": "Hare - Magic, fertility, and new life.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Hawthorn",
             "start_date": "2025-05-13",
             "end_date": "2025-06-09",
+            "celtic_date": "Juno 2 to Solis 1",
             "symbolism": "Balance, protection, and transformation.",
             "animal": "Owl - Wisdom, intuition, and mystery.",
+            "element": "🌬️ Air",
             "mythical_creature": "Unicorn - Purity, grace, and divine guidance.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Oak",
             "start_date": "2025-06-10",
             "end_date": "2025-07-07",
+            "celtic_date": "Solis 2 to Terra 1",
             "symbolism": "Strength, wisdom, and stability.",
             "animal": "Wren - Quick-wittedness and resourcefulness.",
+            "element": "🌎 Earth",
             "mythical_creature": "White Horse - Power, freedom, and victory.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Holly",
             "start_date": "2025-07-08",
             "end_date": "2025-08-04",
+            "celtic_date": "Terra 2 to Lugh 1",
             "symbolism": "Protection, balance, and transformation.",
             "animal": "Horse - Freedom, courage, and adventure.",
+            "element": "🔥 Fire",
             "mythical_creature": "Pegasus - Creativity and spiritual enlightenment.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Hazel",
             "start_date": "2025-08-05",
             "end_date": "2025-09-01",
+            "celtic_date": "Lugh 2 to Pomona 1",
             "symbolism": "Wisdom, creativity, and inspiration.",
             "animal": "Salmon - Knowledge and divine inspiration.",
+            "element": "💧 Water",
             "mythical_creature": "Salmon of Knowledge - Quest for wisdom and understanding.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Vine",
             "start_date": "2025-09-02",
             "end_date": "2025-09-29",
+            "celtic_date": "Pomona 2 to Autumna 1",
             "symbolism": "Growth, fun, and celebration.",
             "animal": "Swan - Grace and transformation.",
+            "element": "🌎 Earth",
             "mythical_creature": "Selkie - Adaptability and emotional depth.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Ivy",
             "start_date": "2025-09-30",
             "end_date": "2025-10-27",
+            "celtic_date": "Autumna 2 to Eira 1",
             "symbolism": "Connection, loyalty, and perseverance.",
             "animal": "Butterfly - Endurance and adaptability.",
+            "element": "🌬️ Air",
             "mythical_creature": "Faerie - Magic and the hidden realms of nature.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Reed",
             "start_date": "2025-10-28",
             "end_date": "2025-11-24",
+            "celtic_date": "Eira 2 to Aether 1",
             "symbolism": "Adaptability, flexibility, and protection.",
             "animal": "Cat - Independence and curiosity.",
+            "element": "🌊 Water",
             "mythical_creature": "Mermaid - Transformation, healing, and rebirth.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         },
         {
             "name": "Elder",
             "start_date": "2025-11-25",
             "end_date": "2025-12-23",
+            "celtic_date": "Aether 2 to Nivis 1",
             "symbolism": "Protection, renewal, and transformation.",
             "animal": "Badger - Magic and intelligence.",
+            "element": "🔥 Fire",
             "mythical_creature": "Phoenix - Rebirth and spiritual transformation.",
-            "url": ""
+            "url": "http://playgroundofthesenses.com"
         }
     ]
 }
