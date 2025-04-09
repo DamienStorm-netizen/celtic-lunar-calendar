@@ -265,18 +265,24 @@ export async function fetchComingEvents() {
         }
       });
 
-       // 🌑 Add Lunar & Solar Eclipses (Updated)
-        eclipses.forEach(eclipse => {
-            console.log("🌘 Checking eclipse:", eclipse);
-            if (upcomingDates.includes(eclipse.date.split(" ")[0])) {
-                upcomingEvents.push({
-                    type: "eclipse",
-                    title: `${eclipse.title} 🌑`,
-                    description: getRandomEclipseDescription(),
-                    date: eclipse.date
-                });
-            }
+     // 🌑 Add Lunar & Solar Eclipses (Updated)
+    eclipses.forEach(eclipse => {
+        console.log("🌘 Checking eclipse:", eclipse);
+    
+        // Remove time for consistency (e.g., "2025-04-08 18:22:00" -> "2025-04-08")
+        const cleanDate = eclipse.date.split(" ")[0];
+    
+        // Match to upcomingDates list (should be date-only format)
+        if (upcomingDates.includes(cleanDate)) {
+        upcomingEvents.push({
+            type: "eclipse",
+            title: `${eclipse.title} 🌑`,
+            description: getRandomEclipseDescription(),
+            date: cleanDate
         });
+        }
+    });
+  
   
       // 5C) Add national holidays
       upcomingDates.forEach(date => {
