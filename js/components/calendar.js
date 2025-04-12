@@ -9,6 +9,8 @@ export function renderCalendar() {
     const app = document.getElementById('app');
     app.innerHTML = `
         <section class="calendar" class="fade-in">
+        <div id="modal-overlay" class="modal-overlay hidden"></div>
+
             <h1 class="calendar-title">Calendar</h1>
             <div class="calendar-grid">
                 <div class="month-thumbnail" id="nivis" data-month="Nivis">
@@ -110,6 +112,10 @@ async function setupCalendarEvents() {
     if (modalContainer) {
         modalContainer.classList.add("hidden");
     }    
+
+    // Show the modal overlay
+    document.getElementById("modal-overlay").classList.add("hidden");
+    document.getElementById("modal-overlay").classList.remove("show");
 }
 
 // Add click events to HTML table
@@ -324,6 +330,19 @@ function showModal(monthName) {
     if (!modalContainer) {
         return;
     }
+
+    // Show the modal overlay
+    document.getElementById("modal-overlay").classList.add("show");
+    document.getElementById("modal-overlay").classList.remove("hidden");
+
+    // Make overlay clickable
+    document.getElementById("modal-overlay").addEventListener("click", () => {
+        console.log("Click on overlay");
+        // Hide the overlay itself
+        document.getElementById("modal-overlay").classList.remove("show");
+        document.getElementById("modal-overlay").classList.add("hidden");
+    });
+
  
     modalContainer.classList.remove("hidden");
 
@@ -369,7 +388,7 @@ function showModal(monthName) {
         
                    <!-- Tab Navigation -->
                     <div class="calendar-tabs">
-                        <button id="legend-tab" class="tab-button active">Legend</button>&nbsp;&nbsp;
+                        <button id="legend-tab" class="tab-button active">Legend</button>
                         <button id="add-event-tab" class="tab-button">Add Your Event</button>
                     </div>
 
@@ -400,9 +419,9 @@ function showModal(monthName) {
                         <h2 class="inner-title">Add Your Event</h2>
                         <form id="add-event-form">
                             <ul>
-                                <li><label for="event-name">Event Name:</label>
+                                <li><label for="event-name">Event Name</label>
                                     <input type="text" id="event-name" required /></li>
-                                <li><label for="event-type">Type of Event:</label>
+                                <li><label for="event-type">Type of Event</label>
                                     <select id="event-type" name="event-type">
                                         <option value="🔥 Date">🔥 Date</option>
                                         <option value="😎 Friends">😎 Friends</option>
@@ -412,9 +431,9 @@ function showModal(monthName) {
                                         <option value="💜 Romantic">💜 Romantic</option>
                                         <option value="🖥️ Professional">🖥️ Professional</option>
                                     </select></li>
-                                 <li><label for="event-note">Event Description:</label>
+                                 <li><label for="event-note">Event Description</label>
                                     <textarea id="event-note" name="note" rows="4" cols="35"></textarea> 
-                                <li><label for="event-date">Date:</label>
+                                <li><label for="event-date">Date</label>
                                     <input type="date" id="event-date" required /></li>
                                 <li><button type="submit" class="add-event-button">Add Event</button></li>
                         </form>
@@ -682,7 +701,9 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
                 <h3 class="detailsGregorianDate">${gMonth} ${dayStr}</h3>
                 <div class="moon-phase-graphic">${lunarData.graphic}</div>
                 <h3 class="detailsMoonPhase">${moonPoem.moonName || lunarData.phase} </h3>
-                <p class="detailsMoonDescription">${moonPoem.poem}</p>
+                ${moonPoem.poem && moonPoem.poem !== "No description available." 
+                    ? `<p class="detailsMoonDescription">${moonPoem.poem}</p>` 
+                    : ""}
                 <img src="assets/images/decor/divider.png" class="divider" alt="Divider" />
                 <h3 class="subheader">Celtic Zodiac</h3>
                 <div class="detailsCelticZodiac">

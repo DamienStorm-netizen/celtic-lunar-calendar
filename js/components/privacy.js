@@ -45,7 +45,7 @@ export function renderPrivacy() {
         </div>
 
          <div>
-            <button onclick="window.history.back()" class="back-button">🔙 Back to Safety</button>
+            <button onclick="window.history.back()" class="back-button">Back to Safety</button>
         </div>
     </section>
     `;
