@@ -3,6 +3,7 @@ import { getMysticalPrefs } from "./settings.js";
 export function renderHome() {
     return `
         <section class="home" class="fade-in">
+            <div id="modal-overlay" class="modal-overlay hidden"></div>
             <div class="celtic-date"></div> <!-- Dynamic content goes here -->
             <div class="celtic-info-container">
                 <!-- Moon Phase Column -->
@@ -52,22 +53,31 @@ export function renderHome() {
 
             <!-- Move modal INSIDE the home section -->
             <div id="home-zodiac-modal" class="modal hidden">
-                <div class="modal-content">
-                <span class="close-button">&times;</span>
+                <div class="modal-content scrollable-content">
+                <span class="close-button-home mystical-close">✦</span>
                 <div id="home-zodiac-modal-details">
                     <p>Loading sign info...</p>
                 </div>
-                </div>
             </div>
+       
     </section>
 
     `;
 
-    async function setupHomeScreen() {
-        //await fetchCelticDate(); // Fetch the Celtic date and update UI
-        await fetchComingEvents(); // Fetch upcoming events separately
-        console.log("Fetching Coming Events from renderHome");
-    }
+    // After calling renderHome() or inserting modal HTML:
+    setTimeout(() => {
+        const overlay = document.getElementById("modal-overlay");
+        if (overlay) {
+        overlay.addEventListener("click", () => {
+            console.log("🌫️ Overlay clicked – closing modal...");
+            document.getElementById("home-zodiac-modal")?.classList.remove("show");
+            document.getElementById("home-zodiac-modal")?.classList.add("hidden");
+    
+            overlay.classList.remove("show");
+            overlay.classList.add("hidden");
+        });
+        }
+    }, 0);
 }
 
 // Fetch the Celtic date dynamically and update the home screen
@@ -672,18 +682,6 @@ export function populateComingEventsCarousel(events) {
         return;
     }
 
-    /*
-    if (leftArrow && rightArrow) {
-        if (shouldShowArrows) {
-            leftArrow.classList.remove("hidden");
-            rightArrow.classList.remove("hidden");
-        } else {
-            leftArrow.classList.add("hidden");
-            rightArrow.classList.add("hidden");
-        }
-    }
-    */
-
     initializeCarouselNavigation();
 }
 
@@ -794,39 +792,67 @@ document.addEventListener("DOMContentLoaded", async () => {
     await fetchComingEvents(); // ✅ this already calls populateComingEventsCarousel internally
 });
 
-// Use event delegation to handle dynamically added zodiac triggers
+// 🌟 Attach modal close handler only once
+document.addEventListener('click', (e) => {
+    if (
+      e.target.classList.contains('close-button-home') ||
+      e.target.classList.contains('mystical-close') ||
+      e.target.id === 'modal-overlay'
+    ) {
+      console.log("✨ Closing the Zodiac Modal...");
+      document.getElementById('home-zodiac-modal').classList.remove('show');
+      document.getElementById('home-zodiac-modal').classList.add('hidden');
+
+      document.body.classList.remove('modal-open');
+  
+      const overlay = document.getElementById('modal-overlay');
+      if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('show');
+      } else {
+        console.log("🌫️ Cannot find overlay");
+      }
+    }
+  });
+
+// 🌟 Zodiac modal trigger
 document.addEventListener('click', async (e) => {
     if (e.target.closest('.zodiac-modal-trigger')) {
       const trigger = e.target.closest('.zodiac-modal-trigger');
       const signName = trigger.dataset.zodiac;
-
-      if (trigger) {
-        console.log("🔮 Zodiac Trigger Clicked!", trigger.dataset.zodiac);
-      }
+  
+      console.log("🔮 Zodiac Trigger Clicked!", signName);
   
       try {
         const res = await fetch(`/zodiac/insights/${signName}`);
         const data = await res.json();
   
+        // Inject modal content
         document.getElementById('home-zodiac-modal-details').innerHTML = `
-          <h2>${data.name}</h2>
-          <p><strong>Dates:</strong> ${data.start_date} to ${data.end_date}</p>
-          <p><strong>Symbolism:</strong> ${data.symbolism}</p>
-          <p><strong>Animal:</strong> ${data.animal}</p>
-          <p><strong>Mythical Creature:</strong> ${data.mythical_creature}</p>
+          <h2 id="zodiac-name">${data.name}</h2>
+          <p id="zodiac-date-range">${data.celtic_date}</p>
+          <img id="zodiac-image" src="static/assets/images/zodiac/zodiac-${data.name.toLowerCase()}.png" alt="${data.name}" />
+          <h3 class="subheader">Three Key Traits</h3>
+          <p id="zodiac-traits">${data.symbolism}</p>
+          <h3 class="subheader">Associated Element</h3>
+          <p id="zodiac-element">${data.element}</p>
+          <h3 class="subheader">Associated Animal</h3>
+          <p id="zodiac-animal">${data.animal}</p>
+          <a class="home-modal-btn" href="${data.url || '#'}" target="_blank" style="${data.url ? '' : 'display:none;'}">Learn More</a>
         `;
   
-        document.getElementById('home-zodiac-modal').classList.remove('hidden');
-        document.getElementById('home-zodiac-modal').classList.add('show');
+        // Show modal + overlay
+        const modal = document.getElementById('home-zodiac-modal');
+        const overlay = document.getElementById('modal-overlay');
+        modal.classList.remove('hidden');
+        modal.classList.add('show');
+        overlay?.classList.remove('hidden');
+        overlay?.classList.add('show');
+
+        document.body.classList.add('modal-open');
+  
       } catch (err) {
         console.error("Failed to load zodiac insight:", err);
       }
-    }
-  });
-
-  document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('close-button')) {
-      document.getElementById('home-zodiac-modal').classList.add('hidden');
-      document.getElementById('home-zodiac-modal').classList.remove('show');
     }
   });

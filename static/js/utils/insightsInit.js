@@ -4,7 +4,8 @@ import {
     initializeTabbedNav,
     initializeCelticZodiac,
     initializeFestivalCarousel,
-    initializeMoonPoetry
+    initializeMoonPoetry,
+    revealZodiacOnScroll // ✨ New import
   } from '../components/insights.js';
   
   export function initInsightsView() {
@@ -12,4 +13,5 @@ import {
     initializeCelticZodiac();
     initializeFestivalCarousel();
     initializeMoonPoetry();
+    revealZodiacOnScroll(); // 🌟 Add this here
   }

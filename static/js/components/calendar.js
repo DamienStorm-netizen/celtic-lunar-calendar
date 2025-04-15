@@ -373,7 +373,7 @@ function showModal(monthName) {
                 modalDetails.innerHTML = `
                     <h2 class="month-title">${monthName}</h2>
                     <div class="mirabilis-image">
-                        <img src="assets/images/decor/mirabilis-modal.png" alt="Mirabilis" />
+                        <img src="static/assets/images/decor/mirabilis-modal.png" alt="Mirabilis" />
                     </div>
                     <div class="mirabilis-content">
                         <p>Between the last grain of sand and the first light of dawn, Mirabilis shimmers—a moment untethered, a breath between worlds.</p>
@@ -410,7 +410,7 @@ function showModal(monthName) {
 
                     <!-- Legend Section -->
                     <div id="legend-section" class="tab-content active">
-                    <h2 class="inner-title">Legend</h2>
+                    <!-- <h2 class="inner-title">Legend</h2> -->
                         <table class="calendarLegendGrid">
                             <tr class="festival-day-row">
                                 <td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td>
@@ -432,7 +432,7 @@ function showModal(monthName) {
 
                     <!-- Add Your Event Section (Initially Hidden) -->
                     <div id="add-event-section" class="tab-content">
-                        <h2 class="inner-title">Add Your Event</h2>
+                        <!-- <h2 class="inner-title">Add Your Event</h2> -->
                         <form id="add-event-form">
                             <ul>
                                 <li><label for="event-name">Event Name</label>
@@ -448,7 +448,7 @@ function showModal(monthName) {
                                         <option value="🖥️ Professional">🖥️ Professional</option>
                                     </select></li>
                                  <li><label for="event-note">Event Description</label>
-                                    <textarea id="event-note" name="note" rows="4" cols="35"></textarea> 
+                                    <textarea id="event-note" name="note" rows="1" cols="35"></textarea> 
                                 <li><label for="event-date">Date</label>
                                     <input type="date" id="event-date" required /></li>
                                 <li><button type="submit" class="add-event-button">Add Event</button></li>

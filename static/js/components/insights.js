@@ -23,55 +23,55 @@ export function renderInsights() {
         </div>
 
       <ul class="zodiac-list">
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-birch.png" alt="Birch"/> 
             <p>Birch</p><span class="celtic-zodiac-date">Nivis 2 to Janus 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-rowan.png" alt="Rowan" /> 
             <p>Rowan</p><span class="celtic-zodiac-date">Janus 2 to Brigid 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-ash.png" alt="Ash" /> 
             <p>Ash</p><span class="celtic-zodiac-date">Brigid 2 to Flora 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-alder.png" alt="Alder" /> 
             <p>Alder</p><span class="celtic-zodiac-date">Flora 2 to Maia 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-willow.png" alt="Willow" /> 
             <p>Willow</p><span class="celtic-zodiac-date">Maia 2 to Juno 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-hawthorn.png" alt="Hawthorn" /> 
             <p>Hawthorn</p><span class="celtic-zodiac-date">Juno 2 to Solis 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-oak.png" alt="Oak" /> 
             <p>Oak</p><span class="celtic-zodiac-date">Solis 2 to Terra 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-holly.png" alt="Holly" /> 
             <p>Holly</p><span class="celtic-zodiac-date">Terra 2 to Lugh 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-hazel.png" alt="Hazel" /> 
             <p>Hazel</p><span class="celtic-zodiac-date">Lugh 2 to Pomona 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-vine.png" alt="Vine" /> 
             <p>Vine</p><span class="celtic-zodiac-date">Pomona 2 to Autumna 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-ivy.png" alt="Ivy" /> 
             <p>Ivy</p><span class="celtic-zodiac-date">Autumna 2 to Eira 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-reed.png" alt="Reed" /> 
             <p>Reed</p><span class="celtic-zodiac-date">Eira 2 to Aether 1</span>
         </li>
-        <li class="zodiac-item">
+        <li class="zodiac-item hidden">
             <img src="static/assets/images/zodiac/zodiac-elder.png" alt="Elder" /> 
             <p>Elder</p><span class="celtic-zodiac-date">Aether 2 to Nivis 1</span>
         </li>
@@ -98,8 +98,10 @@ export function renderInsights() {
           <h3 class="subheader">Associated Animal</h3>
           <p id="zodiac-animal"></p>
 
-          <h3 class="subheader">Mythology</h3>
-          <p id="zodiac-mythology"></p>
+          <br />
+
+          <!-- <h3 class="subheader">Mythology</h3>
+          <p id="zodiac-mythology"></p> -->
 
           <a class="settings-btn" href="#" target="_blank">Learn More</a>
         </div>
@@ -408,6 +410,9 @@ export function initializeCelticZodiac() {
       celticZodiacModal.classList.add("hidden");
     }
 
+    // Locate open modal to centre of viewport
+    document.body.classList.add('modal-open');
+
     // Hide the overlay itself
     document.getElementById("modal-overlay").classList.remove("show");
     document.getElementById("modal-overlay").classList.add("hidden");
@@ -427,6 +432,8 @@ export function initializeCelticZodiac() {
     zodiacModal.classList.remove("show");
     overlay.classList.remove("show");
     overlay.classList.add("hidden");
+
+    document.body.classList.remove('modal-open');
 
     // Reset transform manually (ghosts hate this)
     zodiacModal.style.transform = 'translate(-50%, -50%) scale(0.95)';
@@ -453,6 +460,14 @@ async function showZodiacModal(zodiacName) {
           modal.classList.add("show");
           overlay.classList.add("show");
       });
+
+      // 🪄 Scroll modal into centre of viewport
+      setTimeout(() => {
+        const modal = document.getElementById("zodiac-modal");
+        if (modal) {
+          modal.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100); // Delay ensures styles are applied
 
       // 🖼️ Populate modal content
       document.getElementById("zodiac-name").textContent = zodiacEntry.name;
@@ -636,3 +651,24 @@ function setInitialMoon() {
   // Set the correct moon when the page loads
   setInitialMoon();
 }
+
+export function revealZodiacOnScroll() {
+  const zodiacs = document.querySelectorAll('.zodiac-item');
+
+  const reveal = () => {
+    const triggerBottom = window.innerHeight * 0.85;
+
+    zodiacs.forEach((item) => {
+      const boxTop = item.getBoundingClientRect().top;
+      if (boxTop < triggerBottom) {
+        item.classList.add('visible');
+        item.classList.remove('hidden');
+      }
+    });
+  };
+
+  window.addEventListener('scroll', reveal);
+  reveal(); // Reveal those already in view
+}
+
+document.addEventListener("DOMContentLoaded", revealZodiacOnScroll);
