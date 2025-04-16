@@ -34,6 +34,10 @@ body, html {
 
 #modal-content { /* Calendar inner modal */
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
   width: 400px;  /* Limit modal width */
   background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
   border-radius: 10px; /* Add some rounded corners */
@@ -84,6 +88,7 @@ body, html {
   overflow-x: hidden;
   overflow-y: auto;  /*Enables scrolling inside the modal if content overflows */
   max-height: 750px;
+  padding: 5px;
 }
 
 /* ✦ Add a magical twinkle animation */
@@ -948,6 +953,8 @@ blockquote.moon-poem {
 .calendarGridBox {
   width: 314px;
   margin: 0 auto;
+  margin-top: 15px;
+  margin-bottom: 25px;
 }
 
 /* Ensure table cells don't break */
@@ -1042,40 +1049,58 @@ blockquote.moon-poem {
     justify-content: center;
     margin-bottom: 25px;
     margin-top: 25px;
-    max-width: 325px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0 auto 25px auto;
 }
 
-.tab-button {
-  display: block;
-  margin: 15px auto;
-  padding: 8px 18px;
-  background: linear-gradient(135deg, #9c27b0, #000) !important;
-  width: 150px;
-  color: #ffd700;
+.calendar-tab-button {
+  font-family: 'Cinzel Decorative', serif;
+  letter-spacing: 1px;
+  background: radial-gradient(circle at top left, #5e439b, #2a184e);
+  /*box-shadow: 0 0 12px rgba(255, 215, 160, 0.4);*/
+  transition: background 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
   border: none;
-  font-size: 0.9em;
+  color: #fff6ea;
+  padding: 5px;
   border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0px 0px 10px rgba(255, 140, 0, 0.5);
-  z-index: 10;
+  margin: auto;
 }
 
-.tab-button.active {
-  color: #ffcc00 !important;
-  text-decoration: none;
+.calendar-tab-button:hover {
+  background: radial-gradient(circle at bottom right, #8e5bd1, #3e1f7b);
+  box-shadow: 0 0 15px rgba(255, 230, 170, 0.8), 0 0 25px rgba(168, 120, 255, 0.4);
+}
+
+.calendar-tab-button.active {
+  background: linear-gradient(to right, #FFD700, #FFA500);
+  color: #000;
+  box-shadow: 0 0 20px rgba(255, 223, 127, 0.9);
+}
+
+.calendar-tab-content {
+  display: none; /* hide by default */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.calendar-tab-content.active {
+  display: block; /* show only the active tab */
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Hide inactive sections */
-.tab-content {
-  display: none;
-  transition: opacity 0.3s ease-in-out;
+.calendar-tab-content {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  will-change: opacity, transform;
 }
 
-.tab-content.active {
-  display: block;
+.calendar-tab-content.active {
   opacity: 1;
+  transform: translateY(0);
 }
 
 /*** 🔥 Today's date highlight ***/
@@ -1227,10 +1252,19 @@ blockquote.moon-poem {
   font-size: 0.8em;
 }
 
+.legendBox {
+  width: 25px;
+  height: 25px;
+}
+
 /*** ADD YOUR EVENT FORM ***/
 
 /* 🔮 Magical Form Styling */
 #add-event-section{
+  max-height: 55vh; /* Keep this visually contained */
+  overflow-y: auto; /* Allow scroll if it grows too tall */
+  padding: 10px 15px;
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 15px;
@@ -1247,6 +1281,12 @@ blockquote.moon-poem {
 }
 
 /* 🌟 List Items */
+
+#add-event-form {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
 #add-event-form ul {
   list-style-type: none;
   padding: 0;
@@ -1350,15 +1390,37 @@ blockquote.moon-poem {
 }
 
 /* ✨ Smooth Tab Transition */
-.tab-content {
+.calendar-tab-content {
+  display: none;
   opacity: 0;
- /*transform: translateY(10px);
-  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;*/
+  transform: translateY(10px) scale(0.98);
+  transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+  will-change: opacity, transform;
+  position: relative;
+  z-index: 1;
 }
 
-.tab-content.active {
+.calendar-tab-content.active {
+  display: block;
   opacity: 1;
-  /*transform: translateY(0);*/
+  transform: translateY(0) scale(1);
+  z-index: 5;
+}
+
+.calendar-tab-content.active {
+  animation: magicalReveal 0.6s ease forwards;
+}
+
+@keyframes magicalReveal {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 223, 127, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(255, 223, 127, 0);
+  }
 }
 
 .bottomBar {
@@ -1434,6 +1496,78 @@ blockquote.moon-poem {
 
 .national-holiday:hover {
   background-color: rgba(30, 144, 255, 0.8); /* Brighter on hover */
+}
+
+/* Celestial Day Carousel */
+.day-carousel-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  padding: 10px;
+}
+
+.day-carousel {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  will-change: transform;
+}
+
+.day-slide {
+  flex: 0 0 100%;
+  padding: 15px;
+  box-sizing: border-box;
+  min-height: 350px;
+  text-align: center;
+  color: #fff6ea;
+}
+
+.day-carousel-prev,
+.day-carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ffd700;
+  color: #000;
+  font-size: 1.5rem;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 0 10px #ffd700a0;
+}
+
+.day-carousel-prev { left: -10px; }
+.day-carousel-next { right: -10px; }
+
+.day-carousel-prev:hover,
+.day-carousel-next:hover {
+  background: #ffea80;
+  box-shadow: 0 0 15px #fff4d0;
+}
+
+/* Moon Magic in carousel */
+.moon-centered {
+  font-size: 150px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.moon-phase-name {
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.2em;
+  margin-top: 5px;
+  color: var(--gold-text); /* or your moonlight colour */
+}
+
+.moon-description {
+  font-style: italic;
+  text-align: center;
+  margin-top: 8px;
+  padding: 0 20px;
 }
 
 /* Mirabilis Modal */
@@ -1725,6 +1859,12 @@ blockquote.moon-poem {
   max-width: 80%;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
   margin: 0 auto;
+  box-shadow: 0 0 25px rgba(173, 216, 230, 0.4), 0 0 50px rgba(138, 43, 226, 0.2);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+#modal-content:hover {
+  box-shadow: 0 0 35px rgba(255, 255, 240, 0.5), 0 0 60px rgba(186, 85, 211, 0.6);
 }
 
 .modal {
@@ -2327,7 +2467,7 @@ body.modal-open {
 
 .settings-btn {
   display: block;
-  max-width: 108px;
+  max-width: 151px;
   margin: 15px auto;
   text-align: center;
   white-space: nowrap;

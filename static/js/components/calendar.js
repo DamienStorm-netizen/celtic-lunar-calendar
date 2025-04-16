@@ -1,5 +1,6 @@
 import { getMysticalPrefs } from "./settings.js";
 import { saveCustomEvents } from "../utils/localStorage.js";
+import { mysticalMessages } from "../constants/mysticalMessages.js";
 
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
@@ -168,6 +169,7 @@ async function enhanceCalendarTable(modalContainer, monthName) {
 
     // Fetch lunar phases, festivals and national holidays
     const lunarData = await fetchMoonPhases(monthName);
+    console.log("Fetch moon graphic", lunarData.graphic);
 
     // Fetch custom events
     const customEvents = await fetchCustomEvents();
@@ -384,75 +386,73 @@ function showModal(monthName) {
                 `;
             } else {
                 modalDetails.innerHTML = `
+                    <!-- Inside modalDetails.innerHTML -->
                     <h2 class="month-title">${monthName}</h2>
                     <p class="month-tagline">Loading month tagline...</p>
+
+                    <!-- 🌟 Magical Tabs -->
+                    <div class="calendar-tabs">
+                    <button id="tab-calendar" class="calendar-tab-button active">Calendar</button>
+                    <button id="tab-legend" class="calendar-tab-button" style="margin: 0 15px 0 5px">Legend</button>
+                    <button id="tab-add" class="calendar-tab-button">Add Your Event</button>
+                    </div>
+
+                    <!-- 🌿 Calendar View -->
+                    <div id="tab-content-calendar" class="calendar-tab-content active">
                     <div class="calendarGridBox">
                         <table class="calendar-grid">
-                            <thead>
-                                <tr>
-                                    <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
-                                <tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
-                                <tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr>
-                                <tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr>
-                            </tbody>
+                        <thead>
+                            <tr>
+                            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+                            <tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
+                            <tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr>
+                            <tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr>
+                        </tbody>
                         </table>
                     </div>
-        
-                   <!-- Tab Navigation -->
-                    <div class="calendar-tabs">
-                        <button id="legend-tab" class="tab-button active">Legend</button>
-                        <button id="add-event-tab" class="tab-button">Add Your Event</button>
                     </div>
 
-                    <!-- Legend Section -->
-                    <div id="legend-section" class="tab-content active">
-                    <!-- <h2 class="inner-title">Legend</h2> -->
-                        <table class="calendarLegendGrid">
-                            <tr class="festival-day-row">
-                                <td class="festival-day legendBox">&nbsp;</td><td>Festival Day (ie. Beltaine)</td>
-                            </tr>
-                            <tr class="full-moon-day-row">
-                                <td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon Day (ie. Wolf Moon)</td>
-                            </tr>
-                            <tr class="eclipse-day-row">
-                                <td class="eclipse-day legendBox">&nbsp;</td><td>Lunar & Solar Eclipses</td>
-                            </tr>
-                            <tr class="national-holiday-row">
-                                <td class="national-holiday legendBox">&nbsp;</td><td>National Holidays (ie. New Year's Eve)</td>
-                            </tr>
-                            <tr class="custom-event-day-row">
-                                <td class="custom-event-day legendBox">&nbsp;</td><td>Custom Event (ie. Your Birthday!)</td>
-                            </tr>
-                        </table>
+                    <!-- 🧚 Legend -->
+                    <div id="tab-content-legend" class="calendar-tab-content">
+                        <h3 class="goldenTitle">Legend</h3>
+                        <div id="legend-section">
+                            <table class="calendarLegendGrid">
+                                <tr class="festival-day-row"><td class="festival-day legendBox">&nbsp;</td><td>Festival Day</td></tr>
+                                <tr class="full-moon-day-row"><td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon</td></tr>
+                                <tr class="eclipse-day-row"><td class="eclipse-day legendBox">&nbsp;</td><td>Eclipse</td></tr>
+                                <tr class="national-holiday-row"><td class="national-holiday legendBox">&nbsp;</td><td>Holiday</td></tr>
+                                <tr class="custom-event-day-row"><td class="custom-event-day legendBox">&nbsp;</td><td>Your Event</td></tr>
+                            </table>
+                        </div>
                     </div>
 
-                    <!-- Add Your Event Section (Initially Hidden) -->
-                    <div id="add-event-section" class="tab-content">
-                        <!-- <h2 class="inner-title">Add Your Event</h2> -->
-                        <form id="add-event-form">
-                            <ul>
-                                <li><label for="event-name">Event Name</label>
-                                    <input type="text" id="event-name" required /></li>
-                                <li><label for="event-type">Type of Event</label>
-                                    <select id="event-type" name="event-type">
-                                        <option value="🔥 Date">🔥 Date</option>
-                                        <option value="😎 Friends">😎 Friends</option>
-                                        <option value="🎉 Fun">🎉 Fun</option>
-                                        <option value="💡 General" active>💡 General</option>
-                                        <option value="🏥 Health">🏥 Health</option>
-                                        <option value="💜 Romantic">💜 Romantic</option>
-                                        <option value="🖥️ Professional">🖥️ Professional</option>
-                                    </select></li>
-                                 <li><label for="event-note">Event Description</label>
-                                    <textarea id="event-note" name="note" rows="1" cols="35"></textarea> 
-                                <li><label for="event-date">Date</label>
-                                    <input type="date" id="event-date" required /></li>
-                                <li><button type="submit" class="add-event-button">Add Event</button></li>
-                        </form>
+                    <!-- 💌 Add Event Form -->
+                    <div id="tab-content-add" class="calendar-tab-content">
+                    <h3 class="goldenTitle">Add Your Event</h3>
+                    <form id="add-event-form">
+                        <ul>
+                        <li><label for="event-name">Event Name</label>
+                            <input type="text" id="event-name" required /></li>
+                        <li><label for="event-type">Type of Event</label>
+                            <select id="event-type" name="event-type">
+                                <option value="😎 Friends">😎 Friends</option>
+                                <option value="🎉 Fun">🎉 Fun</option>
+                                <option value="💡 General" active>💡 General</option>
+                                <option value="🏥 Health">🏥 Health</option>
+                                <option value="💜 Romantic">💜 Romantic</option>
+                                <option value="🖥️ Professional">🖥️ Professional</option>
+                            </select></li>
+                        <li><label for="event-note">Event Description</label>
+                            <textarea id="event-note" rows="1" cols="35"></textarea></li>
+                        <li><label for="event-date">Date</label>
+                            <input type="date" id="event-date" required /></li>
+                        <li><button type="submit" class="add-event-button">Add Event</button></li>
+                        </ul>
+                    </form>
                     </div>
                 `;
             }
@@ -463,7 +463,8 @@ function showModal(monthName) {
             // Fetch tagline and update
             fetchTagline(monthName);
 
-            setupTabNavigation();
+            // Setup tabbed navigation
+            setupCalendarTabNavigation();
 
             // Apply fade-in effect
             modalContainer.classList.add("fade-in");
@@ -471,39 +472,37 @@ function showModal(monthName) {
 
             // ✅ Call enhancement only when the modal is displayed
             enhanceCalendarTable(modalContainer, monthName);
+
+            document.getElementById("add-event-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+              
+                // 🌟 Save the event here...
+              
+                // Switch to Calendar tab
+                document.getElementById("tab-calendar").click();
+              });
         }
     }
 }
 
-function setupTabNavigation() {
-    console.log("📜 Setting up tab navigation...");
-
-    const legendTab = document.getElementById("legend-tab");
-    const addEventTab = document.getElementById("add-event-tab");
-    const legendSection = document.getElementById("legend-section");
-    const addEventSection = document.getElementById("add-event-section");
-
-    if (!legendTab || !addEventTab || !legendSection || !addEventSection) {
-        console.warn("⚠️ Tab elements not found, skipping tab setup.");
-        return;
-    }
-
-    // Click event for Legend tab
-    legendTab.addEventListener("click", () => {
-        legendTab.classList.add("active");
-        addEventTab.classList.remove("active");
-        legendSection.classList.add("active");
-        addEventSection.classList.remove("active");
+function setupCalendarTabNavigation() {
+    const tabs = document.querySelectorAll(".calendar-tab-button");
+    const contents = document.querySelectorAll(".calendar-tab-content");
+  
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const targetId = tab.id.replace("tab-", "tab-content-");
+  
+        // Deactivate all tabs
+        tabs.forEach((t) => t.classList.remove("active"));
+        contents.forEach((c) => c.classList.remove("active"));
+  
+        // Activate the clicked tab
+        tab.classList.add("active");
+        document.getElementById(targetId).classList.add("active");
+      });
     });
-
-    // Click event for Add Event tab
-    addEventTab.addEventListener("click", () => {
-        addEventTab.classList.add("active");
-        legendTab.classList.remove("active");
-        addEventSection.classList.add("active");
-        legendSection.classList.remove("active");
-    });
-}
+  }
 
 // Convert Celtic date to Gregorian date.
 function convertCelticToGregorian(celticMonth, celticDay) {
@@ -626,11 +625,11 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             throw new Error("Invalid lunar data received");
         }
         const lunarData = data[0];
+        console.log("🌙 lunarData.graphic is:", lunarData.graphic);
   
         // Format the Gregorian month
         const gMonth = getFormattedMonth(monthStr);
         
-        //console.log("Moon Name is ", moonPoem.moonName);
 
         // Get alternative lunar descriptions
         const moonPoem = getMoonPoem(lunarData.phase, dateStr);
@@ -711,35 +710,46 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
 
         // Update modal with lunar details
         modalDetails.innerHTML = `
-            <div style="text-align: center; padding-top: 10px; color: white">
-                <h2 class="detailsDay">${dayOfWeek}</h2>
-                <h2 class="detailsCelticDate">${celticMonth} ${celticDay}</h2>
-                <h3 class="detailsGregorianDate">${gMonth} ${dayStr}</h3>
-                <div class="moon-phase-graphic">${lunarData.graphic}</div>
-                <h3 class="detailsMoonPhase">${moonPoem.moonName || lunarData.phase} </h3>
-                ${moonPoem.poem && moonPoem.poem !== "No description available." 
-                    ? `<p class="detailsMoonDescription">${moonPoem.poem}</p>` 
-                    : ""}
-                <img src="static/assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <h3 class="subheader">Celtic Zodiac</h3>
-                <div class="detailsCelticZodiac">
-                <img src="static/assets/images/zodiac/zodiac-${zodiac.toLowerCase()}.png" alt="${zodiac}" 
-     onerror="this.src='assets/images/decor/treeoflife.png';" />
-                    <p>${zodiac}</p>
+            <div class="day-carousel-wrapper">
+                <button class="day-carousel-prev">←</button>
+
+                <div class="day-carousel">
+                    <div class="day-carousel">
+                        ${generateDaySlides({ lunarData, festivalHTML, holidayHTML, eclipseHTML, eventsHTML })}
+                    </div>
                 </div>
-                ${eclipseHTML}
-                ${festivalHTML}
-                ${eventsHTML}
-                ${holidayHTML}
-                <img src="static/assets/images/decor/divider.png" class="divider" alt="Divider" />
-                <div id="mystical-insight" class="mystical-message hidden">
-                <h3 class="subheader">Mystical Suggestions</h3>
-                <span>Loading Ancient Wisdom....</span>
+
+                <button class="day-carousel-next">→</button>
                 </div>
                 <br />
                 <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
             </div>
         `;
+
+        // The Celestial Day Carousel
+        // ✨ Activate the Celestial Carousel
+        let currentSlide = 0;
+        const carousel = document.querySelector('.day-carousel');
+        const slides = document.querySelectorAll('.day-slide');
+
+        document.querySelector('.day-carousel-prev').addEventListener('click', () => {
+        if (currentSlide > 0) {
+            currentSlide--;
+            updateCarousel();
+        }
+        });
+
+        document.querySelector('.day-carousel-next').addEventListener('click', () => {
+        if (currentSlide < slides.length - 1) {
+            currentSlide++;
+            updateCarousel();
+        }
+        });
+
+        function updateCarousel() {
+        const slideWidth = slides[0].offsetWidth;
+        carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+        }
 
         // Apply display preferences to Mystical Preferences
         applyMysticalSettings(prefs);
@@ -755,6 +765,43 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     }
 
     console.log("Final Gregorian Date:", dateStr);
+}
+
+function generateDaySlides({ lunarData, festivalHTML, holidayHTML, eclipseHTML, eventsHTML }) {
+
+
+    const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
+
+    const mysticalSlide = `
+    <div class="day-slide">
+        <h3 class="goldenTitle">Mystical Suggestions</h3>
+        <div class="mystical-suggestion-block">
+        <p class="mystical-message">${randomMystical}</p>
+        <img src="static/assets/images/decor/moon-sparkle.png" alt="Mystical Sparkle" class="divider" />
+        </div>
+    </div>
+    `;
+
+    const moonDescription = lunarData.description && lunarData.description !== "No description available."
+        ? lunarData.description
+        : "The moon stirs in silence tonight, her secrets cloaked.";
+
+        return `
+        <div class="day-slide">
+            <h3 class="goldenTitle">Lunar Phase</h3>
+            <div class="moon-phase-graphic moon-centered">
+                ${lunarData.graphic}
+            </div>
+            <p class="moon-phase-name">${lunarData.moonName || lunarData.phase || "Unnamed Phase"}</p>
+            <p class="moon-description">${moonDescription}</p>
+        </div>
+      
+        ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
+        ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
+        ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
+        ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
+        ${mysticalSlide}
+      `;
 }
 
 function getFormattedMonth(monthNum) {
@@ -816,7 +863,7 @@ function getCelticZodiac(gregorianMonth, gregorianDay) {
   
     console.log("❌ No zodiac match found, returning 'Unknown'");
     return "Unknown";
-  }
+}
 
 async function getCustomEvents(gregorianMonth, gregorianDay) {
     console.log("Fetching custom events...");
@@ -1078,6 +1125,9 @@ async function fetchFestivals() {
         return [];
     }
 }
+
+// Celestial Day carousel magic
+
 
 // Add only one submit listener for calendar page
 document.addEventListener("submit", async (event) => {
