@@ -5,6 +5,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
 from datetime import datetime, date, timedelta
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+from starlette.requests import Request
+import random
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 moon_descriptions = {
     "New Moon": "The start of a new lunar cycle, symbolising new beginnings and intentions.",
@@ -30,19 +38,34 @@ app = FastAPI()
 # Mount the directory containing static files
 # app.mount("/celtic_wheel", StaticFiles(directory="celtic_wheel"), name="celtic_wheel")
 
+# Serve everything in /static under the root path
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+
 # Serve the "assets", "css", "js" directories as static files
-app.mount("/assets", StaticFiles(directory="assets"), name="assets")
-app.mount("/css", StaticFiles(directory="css"), name="css")
-app.mount("/js", StaticFiles(directory="js"), name="js")
+# app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+# app.mount("/css", StaticFiles(directory="css"), name="css")
+# app.mount("/js", StaticFiles(directory="js"), name="js")
 
 # Route for the main HTML file
+# Optional: serve index.html at the root explicitly
 @app.get("/")
-async def read_root():
-    return FileResponse("index.html")
+async def root():
+    return FileResponse(os.path.join("static", "index.html"))
 
 # Load the JSON data from the file
-with open("calendar_data.json", "r") as file:
+with open(os.path.join(BASE_DIR, "static", "calendar_data.json"), "r", encoding="utf-8") as file:
     calendar_data = json.load(file)
+
+# Force browser to load fresh page
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+
+app.add_middleware(NoCacheMiddleware)
 
 # Display all 13 months
 @app.get("/calendar")
@@ -174,7 +197,17 @@ def dynamic_moon_phases(start_date: str, end_date: str):
                 phase["description"] = moon_descriptions["Full Moon"]["Flower Moon"]
             else:
                 phase["moonName"] = "Full Moon"
-                phase["description"] = "A beautiful full moon with no specific name for this month."
+                # 🌕 Mystical fallback poetry for unnamed Full Moons
+                fallback_poems = [
+                    "The moon glows gently this month, unnamed yet full of secrets.",
+                    "A nameless moon rises, wrapped in silver mystery.",
+                    "No name graces this full moon, yet it hums with quiet magic.",
+                    "This moon wears no title, only a cloak of shimmering wonder.",
+                    "A soft and silent full moon drifts through the veil, untethered by name.",
+                    "The full moon of this month remains unnamed, like a forgotten spell in the night sky."
+                ]
+                phase["description"] = random.choice(fallback_poems)
+
         else:
             # Add generic description for other phases
             phase["moonName"] = None
@@ -329,14 +362,14 @@ def get_lunar_phases(month_name: str = None):
 # Load the calendar data from JSON
 def load_calendar_data():
     try:
-        with open("calendar_data.json", "r", encoding="utf-8") as file:
+        with open(os.path.join(BASE_DIR, "static", "calendar_data.json"), "r", encoding="utf-8") as file:
             return json.load(file)
     except FileNotFoundError:
         return {"custom_events": []}  # Default to an empty list if the file is missing
 
 # Save the calendar data back to JSON
 def save_calendar_data(data):
-    with open("calendar_data.json", "w", encoding="utf-8") as file:
+   with open(os.path.join(BASE_DIR, "static", "calendar_data.json"), "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
 
 # Load data initially
@@ -345,7 +378,7 @@ calendar_data = load_calendar_data()
 # ✅ List All Custom Events (FORCE LIVE RELOAD)
 @app.get("/api/custom-events")
 async def get_custom_events():
-    with open("calendar_data.json", "r") as f:
+    with open(os.path.join(BASE_DIR, "static", "calendar_data.json"), "r", encoding="utf-8") as f:
         data = json.load(f)
     events = data.get("custom_events", [])
     return JSONResponse(
@@ -459,6 +492,13 @@ def get_zodiac_by_date(date: str):
     # No match found
     print("No match found.")
 
+
+@app.get("/zodiac/by-name")
+def get_zodiac_by_name(name: str):
+    for sign in calendar_data["zodiac"]:
+        if sign["name"].lower() == name.lower():
+            return sign
+    raise HTTPException(status_code=404, detail=f"Zodiac sign '{name}' not found.")
 
 # Display all Zodiac signs with their dates and symbolism
 @app.get("/zodiac/all")
@@ -587,32 +627,32 @@ def get_random_moon_poem():
 def compute_celtic_date():
 
     # Load the Celtic calendar data
-    with open("calendar_data.json") as f:
+   with open(os.path.join(BASE_DIR, "static", "calendar_data.json"), "r", encoding="utf-8") as f:
         celtic_calendar = json.load(f)
 
     # Current date
-    current_date = datetime.now().date()
-    weekday = current_date.strftime("%A")  # Example: "Wednesday"
-    gregorian_date = current_date.strftime("%B %d")  # Example: "January 31"
+        current_date = datetime.now().date()
+        weekday = current_date.strftime("%A")  # Example: "Wednesday"
+        gregorian_date = current_date.strftime("%B %d")  # Example: "January 31"
 
     # Loop through your Celtic calendar mapping to find the current Celtic day and month
-    for month in celtic_calendar["months"]:
-        start_date = datetime.strptime(month["start_date"], "%Y-%m-%d").date()
-        end_date = datetime.strptime(month["end_date"], "%Y-%m-%d").date()
+        for month in celtic_calendar["months"]:
+            start_date = datetime.strptime(month["start_date"], "%Y-%m-%d").date()
+            end_date = datetime.strptime(month["end_date"], "%Y-%m-%d").date()
 
-        if start_date <= current_date <= end_date:
-            # Calculate the Celtic day within this month
-            celtic_day = (current_date - start_date).days + 1
-            celtic_month = month["name"]  # Example: "Nivis"
-            return {
-                "day": weekday,
-                "celtic_day": celtic_day,
-                "month": celtic_month,
-                "gregorian_date": gregorian_date
-            }
+            if start_date <= current_date <= end_date:
+                # Calculate the Celtic day within this month
+                celtic_day = (current_date - start_date).days + 1
+                celtic_month = month["name"]  # Example: "Nivis"
+                return {
+                    "day": weekday,
+                    "celtic_day": celtic_day,
+                    "month": celtic_month,
+                    "gregorian_date": gregorian_date
+                }
 
-    # If no match is found
-    return {"error": "Celtic date not found in the current range"}
+        # If no match is found
+        return {"error": "Celtic date not found in the current range"}
 
 if __name__ == "__main__":
     app.run()
@@ -662,7 +702,7 @@ def get_events(month: str, day: int):
 
 # Load custom events from a JSON file (or replace with database logic)
 try:
-    with open("calendar_data.json", "r") as file:
+   with open(os.path.join(BASE_DIR, "static", "calendar_data.json"), "r", encoding="utf-8") as file:
         calendar_data = json.load(file)
         custom_events = calendar_data.get("custom_events", [])
 except FileNotFoundError:
@@ -675,7 +715,7 @@ def get_custom_events():
 # Load national holidays from a JSON file (or replace with database logic)
 national_holidays = []  # Ensure it's globally defined
 try:
-    with open("calendar_data.json", "r") as file:
+   with open(os.path.join(BASE_DIR, "static", "calendar_data.json"), "r", encoding="utf-8") as file:
         calendar_holiday_data = json.load(file)
         national_holidays = calendar_holiday_data.get("national_holidays", [])
 except FileNotFoundError:
@@ -726,7 +766,7 @@ def eclipse_events():
 @app.get("/api/calendar-data")
 def get_calendar_data():
     try:
-        with open("calendar_data.json", "r", encoding="utf-8") as file:
+        with open(os.path.join(BASE_DIR, "static", "calendar_data.json"), "r", encoding="utf-8") as file:
             data = json.load(file)
         return JSONResponse(content=data)
     except Exception as e:
