@@ -87,7 +87,7 @@ export function renderInsights() {
           <h2 id="zodiac-name">Zodiac Name</h2>
           <p id="zodiac-date-range">Date Range</p>
           <img id="zodiac-image" src="" alt="Zodiac Sign" />
-          <!-- <p id="zodiac-description">Zodiac description here...</p> -->
+          <p id="zodiac-description">Zodiac description here...</p>
 
           <h3 class="subheader">Three Key Traits</h3>
           <p id="zodiac-traits"></p>
@@ -473,7 +473,7 @@ async function showZodiacModal(zodiacName) {
       document.getElementById("zodiac-name").textContent = zodiacEntry.name;
       document.getElementById("zodiac-date-range").textContent = zodiacEntry.celtic_date;
       document.getElementById("zodiac-image").src = `static/assets/images/zodiac/zodiac-${zodiacName.toLowerCase()}.png`;
-      //document.getElementById("zodiac-description").textContent = zodiacEntry.symbolism;
+      document.getElementById("zodiac-description").textContent = zodiacEntry.symbolism;
       document.getElementById("zodiac-traits").textContent = zodiacEntry.symbolism;
       document.getElementById("zodiac-element").textContent = zodiacEntry.element || "Element unknown";
       document.getElementById("zodiac-animal").textContent = zodiacEntry.animal;

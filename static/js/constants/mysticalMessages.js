@@ -1,15 +1,22 @@
-// static/js/constants/mysticalMessages.js
-export const mysticalMessages = [
-    "🌙 Trust your inner tides.",
-    "✨ Today is a good day to cast intentions.",
-    "🔮 The stars whisper secrets today...",
-    "🌿 Pause. Listen to nature. It knows.",
-    "🪄 Cast your hopes into the universe.",
-    "🌸 A seed planted today blooms tomorrow.",
-    "🌌 Let stardust guide your heart.",
-    "🕯️ Light a candle and focus on your intentions for the day.",
-    "🌜 Meditate under the moonlight and visualise your dreams.",
-    "߷ Draw a rune and interpret its meaning for guidance.",
-    "💌 Write a letter to your future self and store it safely.",
-    "🍁 Collect a small item from nature and set an intention with it."
-  ];
+function generateDaySlides({ lunarData, festivalHTML, holidayHTML, eclipseHTML, eventsHTML }) {
+    const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
+  
+    const mysticalSlide = `
+      <div class="day-slide">
+          <h3 class="goldenTitle">Mystical Suggestions</h3>
+          <div class="mystical-suggestion-block">
+              <p class="mystical-message">${randomMystical}</p>
+              <img src="static/assets/images/decor/moon-sparkle.png" alt="Mystical Sparkle" class="divider" />
+          </div>
+      </div>
+    `;
+  
+    return `
+      <div class="day-slide"> ...Lunar stuff... </div>
+      ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
+      ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
+      ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
+      ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
+      ${mysticalSlide}
+    `;
+  }

@@ -253,6 +253,10 @@ body, html {
 /* TYPOGRAPHY */
 /**********************************************/
 
+p, li {
+  font-size: 1.2rem;
+}
+
 h1, .main-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
@@ -1498,29 +1502,52 @@ blockquote.moon-poem {
   background-color: rgba(30, 144, 255, 0.8); /* Brighter on hover */
 }
 
-/* Celestial Day Carousel */
+/*** Celestial Day Carousel ***/
 .day-carousel-wrapper {
+  display: flex;
+  justify-content: center;
   position: relative;
   overflow: hidden;
-  width: 100%;
-  max-width: 400px;
-  margin: auto;
+  width: 100% !important;
+  max-width: 350px !important;
+  margin: 0 auto;
   padding: 10px;
+  position: relative;
 }
 
 .day-carousel {
   display: flex;
   transition: transform 0.5s ease-in-out;
+  width: 100%;
   will-change: transform;
 }
 
 .day-slide {
   flex: 0 0 100%;
-  padding: 15px;
-  box-sizing: border-box;
-  min-height: 350px;
+  flex-direction: column;
+  align-items: center;       /* Horizontal centring */
+  justify-content: center;   /* Vertical centring */
   text-align: center;
-  color: #fff6ea;
+  padding: 20px;
+  min-height: 300px;         /* Or however tall your carousel is */
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.moon-phase-graphic,
+.mystical-suggestion-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-modal.month-mode .day-carousel-prev,
+.calendar-modal.month-mode .day-carousel-next {
+  display: none !important;
 }
 
 .day-carousel-prev,
@@ -1528,24 +1555,65 @@ blockquote.moon-poem {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: #ffd700;
-  color: #000;
-  font-size: 1.5rem;
+  background: none; /* If you're using images now */
   border: none;
-  padding: 6px 12px;
-  border-radius: 50%;
+  padding: 0;
   cursor: pointer;
   z-index: 10;
-  box-shadow: 0 0 10px #ffd700a0;
 }
 
-.day-carousel-prev { left: -10px; }
-.day-carousel-next { right: -10px; }
+/* To adjust visual centring if they still appear off */
+.day-carousel-prev img,
+.day-carousel-next img {
+  width: 40px;
+  height: 40px;
+  transform: translateY(-4px); /* Adjust as needed */
+  transition: all 0.4s ease-in-out;
+  box-shadow: 0 0 10px #ffd700;
+  border-radius: 50%;
+}
 
-.day-carousel-prev:hover,
-.day-carousel-next:hover {
-  background: #ffea80;
-  box-shadow: 0 0 15px #fff4d0;
+.day-carousel-next {
+  right: 25px;
+}
+
+.day-carousel-prev {
+  left: 6px;
+}
+
+.day-carousel-prev:hover img,
+.day-carousel-next:hover img {
+  /*background: radial-gradient(circle at center, #ffea80 30%, #ffd700 90%);*/
+  box-shadow: 0 0 20px rgba(164, 104, 214, 0.9),
+              0 0 30px rgba(104, 70, 140, 0.7),
+              0 0 40px rgba(84, 60, 120, 0.5);
+  transform: scale(1.1);
+}
+
+@keyframes moonDustFadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 8px #ffd700);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+    filter: drop-shadow(0 0 20px #ffffff00);
+  }
+}
+
+.moon-dust-fade {
+  animation: moonDustFadeOut 0.8s ease forwards;
+}
+
+@keyframes arcanePulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 223, 127, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 127, 0.9);
+  }
 }
 
 /* Moon Magic in carousel */
@@ -1558,16 +1626,18 @@ blockquote.moon-poem {
 .moon-phase-name {
   font-weight: bold;
   text-align: center;
-  font-size: 1.2em;
-  margin-top: 5px;
-  color: var(--gold-text); /* or your moonlight colour */
+  font-size: 1.2em !important;
+  margin-top: 5px !important;
+  color: #fff6ea; /* or your moonlight colour */
 }
 
 .moon-description {
+  font-size: 1rem;
   font-style: italic;
   text-align: center;
   margin-top: 8px;
   padding: 0 20px;
+  color: #fff6ea; /* or your moonlight colour */
 }
 
 /* Mirabilis Modal */
@@ -1850,7 +1920,8 @@ blockquote.moon-poem {
 }
 
 .modal-content {
-  width: 350px;
+  width: 400px; /* Make sure this is fixed for both views */
+  max-width: 90vw;
   background: #1E1E2A;
   padding: 20px;
   border-radius: 10px;
