@@ -421,7 +421,7 @@ function showModal(monthName) {
 
                     <!-- 🧚 Legend -->
                     <div id="tab-content-legend" class="calendar-tab-content">
-                        <h3 class="goldenTitle">Legend</h3>
+                        <!-- <h3 class="goldenTitle">Legend</h3> -->
                         <div id="legend-section">
                             <table class="calendarLegendGrid">
                                 <tr class="festival-day-row"><td class="festival-day legendBox">&nbsp;</td><td>Festival Day</td></tr>
@@ -435,7 +435,7 @@ function showModal(monthName) {
 
                     <!-- 💌 Add Event Form -->
                     <div id="tab-content-add" class="calendar-tab-content">
-                    <h3 class="goldenTitle">Add Your Event</h3>
+                    <!-- <h3 class="goldenTitle">Add Your Event</h3> -->
                     <form id="add-event-form">
                         <ul>
                         <li><label for="event-name">Event Name</label>
@@ -694,7 +694,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             <h3 class="subheader">Holidays</h3><p>${holidayInfo}</p>` 
             : "";
 
-        let eclipseHTML = eclipseEvent 
+        let eclipseHTML = eclipseEvent //
             ? `<div class="eclipse-block">
                 <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
                 <h3 class="subheader">Eclipse</h3>
@@ -718,10 +718,17 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             <div class="day-carousel-wrapper">
                 <button class="day-carousel-prev"><img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" /></button>
 
-
                 <div class="day-carousel">
                     <div class="day-carousel">
-                        ${generateDaySlides({ lunarData, festivalHTML, holidayHTML, eclipseHTML, eventsHTML })}
+                        ${generateDaySlides({ 
+                            lunarData, 
+                            festivalHTML, 
+                            holidayHTML, 
+                            eclipseHTML, 
+                            eventsHTML,
+                            celticMonth,
+                            celticDay,
+                            formattedGregorianDate })}
                     </div>
                 </div>
 
@@ -774,42 +781,53 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     console.log("Final Gregorian Date:", dateStr);
 }
 
-function generateDaySlides({ lunarData, festivalHTML, holidayHTML, eclipseHTML, eventsHTML }) {
-
-
+function generateDaySlides({ 
+    lunarData, 
+    festivalHTML, 
+    holidayHTML, 
+    eclipseHTML, 
+    eventsHTML, 
+    celticMonth, 
+    celticDay, 
+    formattedGregorianDate 
+  }) {
     const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
-
-    const mysticalSlide = `
-    <div class="day-slide">
-        <h3 class="goldenTitle">Mystical Suggestions</h3>
-        <div class="mystical-suggestion-block">
-        <p class="mystical-message">${randomMystical}</p>
-        <img src="static/assets/images/decor/moon-sparkle.png" alt="Mystical Sparkle" class="divider" />
-        </div>
-    </div>
-    `;
-
+  
+    // 🗓 Get day of week and formatted month
+    const dateObj = new Date(formattedGregorianDate);
+    const weekday = dateObj.toLocaleDateString("en-GB", { weekday: "long" });
+    const gMonth = dateObj.toLocaleDateString("en-GB", { month: "long" });
+    const gDay = dateObj.getDate();
+  
     const moonDescription = lunarData.description && lunarData.description !== "No description available."
         ? lunarData.description
         : "The moon stirs in silence tonight, her secrets cloaked.";
-
-        return `
-        <div class="day-slide">
-            <h3 class="goldenTitle">Lunar Phase</h3>
-            <div class="moon-phase-graphic moon-centered">
-                ${lunarData.graphic}
-            </div>
-            <p class="moon-phase-name">${lunarData.moonName || lunarData.phase || "Unnamed Phase"}</p>
-            <p class="moon-description">${moonDescription}</p>
-        </div>
+  
+    return `
+      <div class="day-slide">
+          <!-- <h3 class="goldenTitle">${weekday}</h3> -->
+          <h3 class="goldenTitle">Monday</h3>
+          <p><span class="celticDate">${celticMonth} ${celticDay}</span>/<span class="gregorianDate">${gMonth} ${gDay}</span></p>
+          <div class="moon-phase-graphic moon-centered">
+              ${lunarData.graphic}
+          </div>
+          <p class="moon-phase-name">${lunarData.moonName || lunarData.phase || "Unnamed Phase"}</p>
+          <p class="moon-description">${moonDescription}</p>
+      </div>
       
-        ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
-        ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
-        ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
-        ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
-        ${mysticalSlide}
-      `;
-}
+      ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
+      ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
+      ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
+      ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
+      <div class="day-slide">
+        <h3 class="goldenTitle">Mystical Suggestions</h3>
+        <div class="mystical-suggestion-block">
+          <p class="mystical-message">${randomMystical}</p>
+          <img src="static/assets/images/decor/moon-sparkle.png" alt="Mystical Sparkle" class="divider" />
+        </div>
+      </div>
+    `;
+  }
 
 function getFormattedMonth(monthNum) {
     const monthNames = [

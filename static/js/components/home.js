@@ -1,4 +1,4 @@
-import { getMysticalPrefs } from "./settings.js";
+import { getMysticalPrefs } from "../utils/mysticalSettings.js";
 
 export function renderHome() {
     return `
@@ -209,168 +209,167 @@ export function getUnnamedMoonPoem() {
     ];
     return poems[Math.floor(Math.random() * poems.length)];
   }
-  
 
-// Fetch upcoming events for the next 5 days
-export async function fetchComingEvents() {
-    console.log("Fetching coming events...");
-  
-    try {
-      // 1) Get the Celtic date (to figure out today’s Gregorian date).
-      const todayCeltic = await fetchCelticDate();
-      if (!todayCeltic) {
-        console.error("Could not fetch Celtic date. No upcoming events displayed.");
-        return;
-      }
-  
-      const { celticMonth, celticDay, gregorianDate } = todayCeltic;
-      if (!gregorianDate || typeof gregorianDate !== "string") {
-        console.error("🚨 gregorianDate is missing or not a string!", gregorianDate);
-        return;
-      }
-  
-      // 2) Convert “March 11” => monthName="March", day="11"
-      const [monthName, day] = gregorianDate.split(" ");
-      const gregorianMonth = getMonthNumber(monthName);  // e.g. "03"
-      const gregorianDay   = day.padStart(2, "0");       // e.g. "11"
-  
-      const todayDate = new Date(`2025-${gregorianMonth}-${gregorianDay}`);
-      const upcomingDates = [];
-  
-      // 3) Generate next 5 days in YYYY-MM-DD
-      for (let i = 0; i < 7; i++) {
-        const futureDate = new Date(todayDate);
-        futureDate.setDate(todayDate.getDate() + i);
-  
-        const y  = futureDate.getFullYear();
-        const m  = String(futureDate.getMonth() + 1).padStart(2, "0");
-        const d  = String(futureDate.getDate()).padStart(2, "0");
-        const iso = `${y}-${m}-${d}`;
-        upcomingDates.push(iso);
-      }
-      console.log("Next 5 Gregorian Dates:", upcomingDates);
-  
-      // 4) Fetch all data in parallel
-      const [festivals, lunarData, holidays, customEvents, eclipses] = await Promise.all([
-        fetchFestivals(),        // now returns *all* festivals in Gregorian date
-        fetchMoonPhases(celticMonth),
-        fetchNationalHolidays(), // unify logic if needed
-        fetchCustomEvents(),      // now returns *all* custom events
-        fetchEclipses()  // 🌑 Fetch Eclipse Data
-      ]);
-  
-      // 5) Prepare an empty array to store all upcoming events
-      const upcomingEvents = [];
-  
-      // 5A) Add any festivals that fall within those 5 days
-      upcomingDates.forEach(date => {
-        console.log(`🔍 Checking festivals for date: ${date}`);
+  // Fetch upcoming events for the next 5 days
+  export async function fetchComingEvents() {
+      console.log("Fetching coming events...");
+    
+      try {
+        // 1) Get the Celtic date (to figure out today’s Gregorian date).
+        const todayCeltic = await fetchCelticDate();
+        if (!todayCeltic) {
+          console.error("Could not fetch Celtic date. No upcoming events displayed.");
+          return;
+        }
+    
+        const { celticMonth, celticDay, gregorianDate } = todayCeltic;
+        if (!gregorianDate || typeof gregorianDate !== "string") {
+          console.error("🚨 gregorianDate is missing or not a string!", gregorianDate);
+          return;
+        }
+    
+        // 2) Convert “March 11” => monthName="March", day="11"
+        const [monthName, day] = gregorianDate.split(" ");
+        const gregorianMonth = getMonthNumber(monthName);  // e.g. "03"
+        const gregorianDay   = day.padStart(2, "0");       // e.g. "11"
+    
+        const todayDate = new Date(`2025-${gregorianMonth}-${gregorianDay}`);
+        const upcomingDates = [];
+    
+        // 3) Generate next 5 days in YYYY-MM-DD
+        for (let i = 0; i < 7; i++) {
+          const futureDate = new Date(todayDate);
+          futureDate.setDate(todayDate.getDate() + i);
+    
+          const y  = futureDate.getFullYear();
+          const m  = String(futureDate.getMonth() + 1).padStart(2, "0");
+          const d  = String(futureDate.getDate()).padStart(2, "0");
+          const iso = `${y}-${m}-${d}`;
+          upcomingDates.push(iso);
+        }
+        console.log("Next 5 Gregorian Dates:", upcomingDates);
+    
+        // 4) Fetch all data in parallel
+        const [festivals, lunarData, holidays, customEvents, eclipses] = await Promise.all([
+          fetchFestivals(),        // now returns *all* festivals in Gregorian date
+          fetchMoonPhases(celticMonth),
+          fetchNationalHolidays(), // unify logic if needed
+          fetchCustomEvents(),      // now returns *all* custom events
+          fetchEclipses()  // 🌑 Fetch Eclipse Data
+        ]);
+    
+        // 5) Prepare an empty array to store all upcoming events
+        const upcomingEvents = [];
+    
+        // 5A) Add any festivals that fall within those 5 days
+        upcomingDates.forEach(date => {
+          console.log(`🔍 Checking festivals for date: ${date}`);
+          
+          festivals.forEach(festival => {
+              console.log(`   🎭 Comparing with festival: ${festival.title} | Date: ${festival.date}`);
+          });
+      
+          const festival = festivals.find(f => f.date === date);
+          
+          if (festival) {
+              console.log("✅ Festival match found!", festival.date, "vs", date);
+              console.log("Festival Object:", festival);
+      
+              upcomingEvents.push({
+                  type: "festival",
+                  title: festival.title,
+                  description: festival.description || "A sacred celebration.",
+                  date
+              });
+          } else {
+              console.log("❌ No festival match for", date);
+          }
+      });
+    
+        // 5B) Add Full Moons (already works)
+        upcomingDates.forEach(date => {
+          const moonEvent = lunarData.find(moon => moon.date === date && moon.phase === "Full Moon");
+          if (moonEvent) {
+            upcomingEvents.push({
+              type: "full-moon",
+              title: moonEvent.moonName || "Full Moon",
+              description: moonEvent.description || "A night of celestial power.",
+              date
+            });
+          }
+        });
         
-        festivals.forEach(festival => {
-            console.log(`   🎭 Comparing with festival: ${festival.title} | Date: ${festival.date}`);
+  
+      // 🌑 Add Lunar & Solar Eclipses (Updated)
+      for (const eclipse of eclipses) {
+          console.log("🌘 Checking eclipse:", eclipse);
+          const cleanDate = eclipse.date.split(" ")[0];
+  
+          if (upcomingDates.includes(cleanDate)) {
+              const celticMonth = getCelticMonthFromDate(cleanDate);
+              const description = await getEclipseDescription(eclipse.type, celticMonth);
+  
+              upcomingEvents.push({
+                  type: "eclipse",
+                  title: `🌑 ${eclipse.title}`,
+                  description,
+                  date: cleanDate
+              });
+          }
+      }
+      
+    
+        // 5C) Add national holidays
+        upcomingDates.forEach(date => {
+          const holiday = holidays.find(h => h.date === date);
+          if (holiday) {
+            upcomingEvents.push({
+              type: "holiday",
+              title: holiday.title,
+              description: holiday.notes || "A recognized holiday.",
+              date
+            });
+          }
         });
     
-        const festival = festivals.find(f => f.date === date);
-        
-        if (festival) {
-            console.log("✅ Festival match found!", festival.date, "vs", date);
-            console.log("Festival Object:", festival);
-    
+        // 5D) Add custom events
+        upcomingDates.forEach(date => {
+          const event = customEvents.find(e => e.date === date);
+          if (event) {
             upcomingEvents.push({
-                type: "festival",
-                title: festival.title,
-                description: festival.description || "A sacred celebration.",
-                date
+              type: "custom-event",
+              title: event.title,
+              description: event.notes || "A personal milestone.",
+              date
             });
-        } else {
-            console.log("❌ No festival match for", date);
-        }
-    });
+          }
+        });
   
-      // 5B) Add Full Moons (already works)
-      upcomingDates.forEach(date => {
-        const moonEvent = lunarData.find(moon => moon.date === date && moon.phase === "Full Moon");
-        if (moonEvent) {
-          upcomingEvents.push({
-            type: "full-moon",
-            title: moonEvent.moonName || "Full Moon",
-            description: moonEvent.description || "A night of celestial power.",
-            date
-          });
-        }
+        const prefs = getMysticalPrefs();
+  
+      // Mystical Troubleshooting
+      console.log("🌟 Mystical Preferences:", prefs);
+  
+      /* 🎭 Apply mystical filters (Settings)*/
+      const filteredEvents = upcomingEvents.filter(event => {
+          if (event.type === "holiday" && !prefs.showHolidays) return false;
+          if (event.type === "full-moon" && !prefs.showMoons) return false;
+          if (event.type === "eclipse" && !prefs.showEclipses) return false;
+          if (event.type === "custom-event" && !prefs.showCustomEvents) return false;
+          return true; // Keep everything else
       });
-      
-
-    // 🌑 Add Lunar & Solar Eclipses (Updated)
-    for (const eclipse of eclipses) {
-        console.log("🌘 Checking eclipse:", eclipse);
-        const cleanDate = eclipse.date.split(" ")[0];
-
-        if (upcomingDates.includes(cleanDate)) {
-            const celticMonth = getCelticMonthFromDate(cleanDate);
-            const description = await getEclipseDescription(eclipse.type, celticMonth);
-
-            upcomingEvents.push({
-                type: "eclipse",
-                title: `🌑 ${eclipse.title}`,
-                description,
-                date: cleanDate
-            });
-        }
-    }
+  
+      // const filteredEvents = upcomingEvents;
+      // temporarily skip filter to verify display logic
     
-  
-      // 5C) Add national holidays
-      upcomingDates.forEach(date => {
-        const holiday = holidays.find(h => h.date === date);
-        if (holiday) {
-          upcomingEvents.push({
-            type: "holiday",
-            title: holiday.title,
-            description: holiday.notes || "A recognized holiday.",
-            date
-          });
+      console.log("Final Upcoming Events Array:", upcomingEvents);
+      if (document.getElementById("coming-events-container")) {
+          populateComingEventsCarousel(filteredEvents);
         }
-      });
   
-      // 5D) Add custom events
-      upcomingDates.forEach(date => {
-        const event = customEvents.find(e => e.date === date);
-        if (event) {
-          upcomingEvents.push({
-            type: "custom-event",
-            title: event.title,
-            description: event.notes || "A personal milestone.",
-            date
-          });
-        }
-      });
-
-      const prefs = getMysticalPrefs();
-
-    // Mystical Troubleshooting
-    console.log("🌟 Mystical Preferences:", prefs);
-
-    /* 🎭 Apply mystical filters (Settings)*/
-    const filteredEvents = upcomingEvents.filter(event => {
-        if (event.type === "holiday" && !prefs.showHolidays) return false;
-        if (event.type === "full-moon" && !prefs.showMoons) return false;
-        if (event.type === "eclipse" && !prefs.showEclipses) return false;
-        if (event.type === "custom-event" && !prefs.showCustomEvents) return false;
-        return true; // Keep everything else
-    });
-
-    // const filteredEvents = upcomingEvents;
-    // temporarily skip filter to verify display logic
-  
-    console.log("Final Upcoming Events Array:", upcomingEvents);
-    if (document.getElementById("coming-events-container")) {
-        populateComingEventsCarousel(filteredEvents);
+      } catch (error) {
+          console.error("Error fetching coming events:", error);
       }
-
-    } catch (error) {
-        console.error("Error fetching coming events:", error);
-    }
 }
 
 function getCelticMonthFromDate(dateStr) {
@@ -411,9 +410,8 @@ function getCelticMonthFromDate(dateStr) {
   
     return "Janus"; // fallback
   }
-  
 
-// Fetch upcoming festivals based on the Celtic calendar
+  // Fetch upcoming festivals based on the Celtic calendar
 export async function fetchFestivals() {
     try {
         // Fetch the festival data (assuming it's served from an endpoint)
@@ -574,7 +572,6 @@ export async function getEclipseDescription(type, celticMonth) {
 
     return seasonPool[Math.floor(Math.random() * seasonPool.length)];
 }
-  
 
 // Fetch upcoming national holidays for the next 3 days
 export async function fetchNationalHolidays() {

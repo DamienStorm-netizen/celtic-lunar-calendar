@@ -6,6 +6,33 @@ body, html {
 }
 
 /**********************************************/
+/*** ROUTER ***/
+/**********************************************/
+
+.error-screen {
+  padding: 2rem;
+  text-align: center;
+  color: #ffd700;
+  background: linear-gradient(to bottom, #2b2b52, #0f0f2f);
+  min-height: 100vh;
+}
+
+.retry-button {
+  background-color: #663399;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.retry-button:hover {
+  background-color: #7d44aa;
+}
+
+/**********************************************/
 /*** MODAL STRUCTURE ***/
 /**********************************************/
 
@@ -1154,9 +1181,13 @@ blockquote.moon-poem {
   text-transform: uppercase;
 }
 
+.festival-image img {
+  width: 80%;
+}
+
 .festival-note {
   font-family: "Libre Baskerville", serif;
-  font-size: 0.8rem;
+  font-size: 1.1rem;
   font-style: italic;
   color: #EDEDED;
 }
@@ -1513,6 +1544,10 @@ blockquote.moon-poem {
   margin: 0 auto;
   padding: 10px;
   position: relative;
+  background-image: url(../assets/images/decor/treeoflife.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: bottom;
 }
 
 .day-carousel {
@@ -1535,6 +1570,16 @@ blockquote.moon-poem {
   width: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.celticDate {
+  color: #ffd700;
+  font-size: 1.2rem;
+}
+
+.gregorianDate {
+  color: #fff6ea;
+  font-size: 0.8rem;
 }
 
 .moon-phase-graphic,
