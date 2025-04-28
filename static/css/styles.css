@@ -269,8 +269,8 @@ body, html {
 
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('../assets/fonts/Libre Baskerville-regular-webfont.woff2') format('woff2'),
-       url('../assets/fonts/Libre Baskerville-regular-webfont.woff') format('woff');
+  src: url('../assets/fonts/librebaskerville-regular-webfont.woff2') format('woff2'),
+       url('../assets/fonts/librebaskerville-regular-webfont.woff') format('woff');
   font-weight: 400; /* Normal weight */
   font-style: normal;
 }
@@ -997,15 +997,15 @@ blockquote.moon-poem {
 
 .calendar-grid th,
 .calendar-grid td {
+  box-sizing: border-box; /* Force padding and border inside the width */
   text-align: center;
   width: calc(100% / 7); /* Ensures all columns are evenly sized */
-  padding: 13px; /* Ensure all cells have the same padding */
   border: 1px dotted #32CD32; /* Ensure borders stay aligned */
   font-family: "Libre Baskerville", serif;
 }
 
 .calendar-grid th {
-  padding: 11px; /* Consistent padding */
+  padding: 11px; /* SAME padding for both th and td */
   color: #fff;
   font-family: "Libre Baskerville", serif;
   font-size: 11.5px;
@@ -1015,7 +1015,7 @@ blockquote.moon-poem {
 }
 
 .calendar-grid td {
-  padding: 15.3px; /* Consistent padding */
+  padding: 13px; /* SAME padding for both th and td */
   color: #fff;
   background-color: rgba(255, 255, 255, 0.1); /* Subtle background for each day */
   border: 1px dotted #32CD32; /* Green dotted border for gridlines */
