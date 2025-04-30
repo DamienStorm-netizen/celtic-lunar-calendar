@@ -274,6 +274,8 @@ function showModal(monthName) {
     console.log("Click Close Button");
     const modalContainer = document.getElementById("modal-container");
 
+    document.body.classList.remove("modal-open"); //Add scrollbars to body
+    
     if (modalContainer) {
         modalContainer.classList.add("hidden");
     }    
