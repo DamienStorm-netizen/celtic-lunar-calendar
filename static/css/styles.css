@@ -1,8 +1,8 @@
-body, html {
+html, body {
   padding-top: 5px;
   background-color: #1E1E1E;
-  overflow-x: hidden; /* Prevents horizontal scrolling */
-  max-width: 100vw; /* Ensures it never spills */
+  height: 100%;
+  overflow: auto; /* allow scrolling */
 }
 
 /**********************************************/
@@ -350,22 +350,42 @@ h1, .main-title {
   margin: 0 auto;   /* Centres the container */
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Optional: Adds a soft shadow */
   border: 1px solid #6a0dad; /* Optional: Adds a border */
-  background: rgb(94,133,148);
   background: linear-gradient(0deg, rgba(94,133,148,1) 4%, rgba(22,38,63,1) 58%);
-  min-height: 100vh; /* Ensures it takes up full screen height */
+  height: 100vh; /* Ensures it takes up full screen height */
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Prevent stars from spilling out */
   border-radius: 15px; /* Optional: Add rounded corners for extra charm */
   padding: 0;
+  overflow-y: auto; /* this handles scrolling */
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #b86bff #1d1d2b; /* Same beautiful scroll! */
+}
+
+.container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: #b86bff;
+  border-radius: 10px;
+  border: 2px solid #1d1d2b;
+  animation: shimmer-scroll 3s infinite ease-in-out;
+}
+
+@keyframes shimmer-scroll {
+  0% { background-color: #b86bff; }
+  50% { background-color: #e0aaff; }
+  100% { background-color: #b86bff; }
 }
 
 /* STAR LAYER */
-/*
+
 @keyframes twinkle {
   0%, 100% { opacity: 0.6; } /* Adjust starting/ending opacity */
-  /*50% { opacity: 0.2; }      /* Dim stars at their lowest point */
-/*}*/
+  50% { opacity: 0.2; }      /* Dim stars at their lowest point */
+}
 
 .star-layer {
   position: absolute;
@@ -3046,6 +3066,35 @@ input:checked + .slider .toggle-icon {
   transform: translateX(22px);
 }
 
+/**********************************************/
+/*   SCROLL Bar Styles   */
+/**********************************************/
+
+/* Chrome, Safari, Edge (WebKit) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1d1d2b;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b86bff, #5e30eb);
+  border-radius: 5px;
+  border: 2px solid #1d1d2b;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #e4aaff, #835bff);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b86bff #1d1d2b;
+}
 
 
 /**********************************************/

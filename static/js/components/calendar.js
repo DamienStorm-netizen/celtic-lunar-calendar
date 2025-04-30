@@ -1,3 +1,5 @@
+import { getMysticalPrefs } from "./settings.js";
+import { saveCustomEvents } from "../utils/localStorage.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
 
 let cachedNationalHolidays = []; // Store national holidays globally
@@ -240,7 +242,7 @@ function showModal(monthName) {
             }
 
             // Fetch Mystical Preferences
-            // applyMysticalSettings(getMysticalPrefs());
+            applyMysticalSettings(getMysticalPrefs());
 
             // Fetch tagline and update
             fetchTagline(monthName);
@@ -452,7 +454,7 @@ async function enhanceCalendarTable(modalContainer, monthName) {
         }
     });
 
-    //applyMysticalSettings(getMysticalPrefs());
+    applyMysticalSettings(getMysticalPrefs());
 
 }
 
@@ -816,7 +818,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         }
 
         // Apply display preferences to Mystical Preferences
-        //applyMysticalSettings(prefs);
+        applyMysticalSettings(prefs);
   
         // Add event listener for the "Back" button
         document.getElementById("back-to-month").addEventListener("click", () => {
@@ -1009,4 +1011,113 @@ function generateDaySlides({
         </div>
       </div>
     `;
+}
+
+export function applyMysticalSettings(prefs) {
+
+    // 🌒 Toggle Eclipses
+    const eclipseRows = document.querySelectorAll(".eclipse-day-row");
+    eclipseRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showEclipses);
+    });
+
+    // 🌕 Toggle Full Moons
+    const moonRows = document.querySelectorAll(".full-moon-day-row");
+    moonRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showMoons);
+    });
+
+    const moonCells = document.querySelectorAll(".full-moon-day");
+    moonCells.forEach(cell => {
+        if (prefs.showMoons) {
+            cell.classList.add("full-moon-day");
+        } else {
+            cell.classList.remove("full-moon-day");
+        }
+    });
+
+    // 🎉 Toggle Holidays
+    const holidayRows = document.querySelectorAll(".national-holiday-row");
+    holidayRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showHolidays);
+    });
+
+    const holidayCells = document.querySelectorAll(".national-holiday");
+    holidayCells.forEach(cell => {
+        if (prefs.showHolidays) {
+            cell.classList.add("national-holiday");
+        } else {
+            cell.classList.remove("national-holiday");
+        }
+    });
+
+    // 💜 Toggle Custom Events
+    const customEventRows = document.querySelectorAll(".custom-event-day-row");
+    customEventRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showCustomEvents);
+    });
+
+    const customEventCells = document.querySelectorAll(".custom-event-day");
+    customEventCells.forEach(cell => {
+        if (prefs.showCustomEvents) {
+            cell.classList.add("custom-event-day");
+        } else {
+            cell.classList.remove("custom-event-day");
+        }
+    });
+
+    // ✨ Toggle Mystical Suggestions display logic
+    const showMystical = prefs.mysticalSuggestions;
+    const mysticalArea = document.getElementById("mystical-insight");
+
+    const eclipseBlock = document.querySelector(".eclipse-block");
+    if (eclipseBlock) {
+        eclipseBlock.style.display = prefs.showEclipses ? "block" : "none";
+    }
+
+    if (mysticalArea) {
+        const heading = mysticalArea.querySelector("h3");
+        const message = mysticalArea.querySelector("span");
+
+        if (showMystical && mysticalArea) {
+            const messages = [
+                "🌙 Trust your inner tides.",
+                "✨ Today is a good day to cast intentions.",
+                "🔮 The stars whisper secrets today...",
+                "🌿 Pause. Listen to nature. It knows.",
+                "🌙 Trust your inner tides.",
+                "✨ Today is a good day to cast intentions.",
+                "🔮 The stars whisper secrets today...",
+                "🪄 Cast your hopes into the universe.",
+                "🌸 A seed planted today blooms tomorrow.",
+                "🌌 Let stardust guide your heart.",
+                "🕯️ Light a candle and focus on your intentions for the day.",
+                "🌜Meditate under the moonlight and visualize your dreams.",
+                "߷ Draw a rune and interpret its meaning for guidance.",
+                "💌 Write a letter to your future self and store it safely.",
+                "🍁 Collect a small item from nature and set an intention with it."
+            ];
+            const randomIndex = Math.floor(Math.random() * messages.length);
+            heading.classList.remove("hidden");
+            message.textContent = messages[randomIndex];
+            message.classList.remove("hidden");
+            mysticalArea.classList.remove("hidden");
+        } else {
+            heading.classList.add("hidden");
+            message.textContent = "";
+            message.classList.add("hidden");
+            mysticalArea.classList.add("hidden");
+        }
+    }
+
+    // 🌒 Control Eclipse visibility based on preferences
+    const eclipseElements = document.querySelectorAll(".eclipse-day");
+    eclipseElements.forEach(el => {
+        el.style.display = prefs.showEclipses ? "table-cell" : "none";
+    });
+
+    const eclipseSection = document.querySelector("#modal-details h3.subheader + p");
+    if (eclipseSection && eclipseSection.textContent.includes("Eclipse")) {
+        eclipseSection.parentElement.style.display = prefs.showEclipses ? "block" : "none";
+    }
 }

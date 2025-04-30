@@ -151,22 +151,46 @@ export function renderSettings() {
     `;
 }
 
-// 🌟 Updated: Display mystical preferences including Custom Events
-export function getMysticalPrefs() {
-    const saved = localStorage.getItem("mysticalPrefs");
-    const defaults = {
-        mysticalSuggestions: true,
-        showEclipses: true,
-        showMoons: true,
-        showHolidays: true,
-        showCustomEvents: true // ✅ This line makes all the difference
-    };
-
-    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
-}
-
 import { fetchCustomEvents, deleteCustomEvent } from "./eventsAPI.js";
 
+export async function loadCustomEvents() {
+    const eventListContainer = document.getElementById("custom-events-list");
+    eventListContainer.innerHTML = "<p class='loading-message'>Loading your magical events...</p>";
+
+    try {
+        const events = await fetchCustomEvents();
+        
+        if (events.length === 0) {
+            eventListContainer.innerHTML = "<p class='empty-message'>No custom events found. Add one to weave your own magic! ✨</p>";
+            return;
+        }
+
+        eventListContainer.innerHTML = ""; // Clear previous content
+
+        events.forEach(event => {
+            const eventItem = document.createElement("div");
+            eventItem.classList.add("custom-event-item");
+
+            eventItem.innerHTML = `
+                <div class="event-details">
+                    <h3>${event.title} <span class="event-type">${event.type}</span></h3>
+                    <p><strong>Date:</strong> ${event.date}!!</p>
+                    <p><strong>Notes:</strong> ${event.notes || "No additional details."}</p>
+                </div>
+                <div class="event-actions">
+                    <button class="edit-event-btn" data-id="${event.id}">✏️ Edit</button>
+                    <button class="delete-event-btn" data-id="${event.id}">🗑️ Delete</button>
+                </div>
+            `;
+
+            eventListContainer.appendChild(eventItem);
+        });
+
+    } catch (error) {
+        console.error("Error loading custom events:", error);
+        eventListContainer.innerHTML = "<p class='error-message'>Something went wrong. Try again later.</p>";
+    }
+}
 
 function openEditModal(eventId) {
     const modal = document.getElementById("edit-event-modal");
@@ -286,7 +310,6 @@ export function setupSettingsEvents() {
     fetchCustomEvents()
         .then(events => populateEventList(events))
         .catch(error => console.error("Error loading events:", error));
-        
 
     const prefs = getMysticalPrefs();
     document.getElementById("toggle-mystical").checked = prefs.mysticalSuggestions;
@@ -318,6 +341,158 @@ export function setupSettingsEvents() {
     
     // Call it once Settings loads
     initMysticalToggles();
+}
+
+// Function to show add event modal
+function showAddEventModal() {
+    
+    console.log("📝 Open Add Event Modal...");
+    const modal = document.getElementById("add-event-modal");
+    // Show Modal
+    modal.classList.remove("hidden");
+    modal.classList.add("show");
+    // Show the modal overlay
+    document.getElementById("modal-overlay").classList.add("show");
+    document.getElementById("modal-overlay").classList.remove("hidden");
+
+    // Close modal and hide overlay when clicking the close button
+    document.querySelectorAll(".cancel-modal-add").forEach(button => {
+        button.addEventListener("click", () => {
+            // Hide modal
+            modal.classList.remove("show");
+            modal.classList.add("hidden");
+            // Show the modal overlay
+            document.getElementById("modal-overlay").classList.remove("show");
+            document.getElementById("modal-overlay").classList.add("hidden");
+        });
+    });
+
+    // Close modal and hide overlay when clicking the X link
+    document.querySelectorAll(".close-modal-add").forEach(button => {
+        button.addEventListener("click", () => {
+            // Hide modal
+            modal.classList.remove("show");
+            modal.classList.add("hidden");
+            // Show the modal overlay
+            document.getElementById("modal-overlay").classList.remove("show");
+            document.getElementById("modal-overlay").classList.add("hidden");
+        });
+    });
+
+}
+
+function attachEventHandlers() {
+
+    // Add a Custom Event
+    document.getElementById("add-event-button").addEventListener("click", () => {
+        showAddEventModal();
+    });
+
+     // Redirect to About Page
+     document.getElementById("about-page-button").addEventListener("click", () => {
+        console.log("Clicked on About link");
+        window.location.hash = "about";
+    });
+
+    // Edit a Custom Event 
+    document.querySelectorAll(".settings-edit-event").forEach(button => {
+        button.addEventListener("click", (event) => {
+            console.log("Edit button clicked!");  // Debugging
+            const eventId = event.target.getAttribute("data-id"); // Or "data-id" if that’s how you're storing it
+            if (eventId) {
+                openEditModal(eventId); // 💫 Open the modal with the correct event info
+            } else {
+                console.error("No data-id attribute found on edit button.");
+            }
+        });
+    });
+
+    // Delete a Custom Event
+    document.querySelectorAll(".settings-delete-event").forEach(button => {
+        button.addEventListener("click", (event) => {
+            console.log("Delete button clicked!!!");
+    
+            // Check if the event target is correct
+            const targetButton = event.target;
+            if (!targetButton) {
+                console.error("Error: event.target is undefined.");
+                return;
+            }
+    
+            // Ensure the data-date attribute is being read correctly
+            const eventId = targetButton.getAttribute("data-id");
+            if (!eventId) {
+                console.error("Error: data-id attribute not found.");
+                return;
+            }
+    
+            console.log("Attempting to delete event on:", eventId);
+    
+            // Call the delete function
+            handleDeleteEvent(eventId);
+        });
+    });
+
+    // Set Mystical Preferences
+    document.getElementById("toggle-mystical").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.mysticalSuggestions = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+    });
+    
+    document.getElementById("show-eclipses").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showEclipses = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+    });
+    
+    document.getElementById("show-moons").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showMoons = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+    });
+    
+    document.getElementById("show-holidays").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showHolidays = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+    });
+
+    document.getElementById("show-custom-events").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showCustomEvents = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
+    });
+}
+
+function populateEventList(events) {
+    const container = document.getElementById("event-list-container");
+    container.innerHTML = ""; // Clear placeholder text
+
+    events.forEach(event => {
+        console.log("Processing event:", event); // Debugging
+
+        const eventElement = document.createElement("div");
+        eventElement.classList.add("event-item");
+        eventElement.innerHTML = `
+            <ul class="settings-event-list">
+                <li><h3>${event.title} - ${event.type}</h3></li>
+                <li>${event.date}</li>
+                <li>${event.notes || "No notes added."}</li>
+                <li><button class="settings-edit-event" data-id="${event.id}">Edit</button><button class="settings-delete-event" data-id="${event.id}">Delete</button></li>
+            </ul>
+        `;
+
+        container.appendChild(eventElement);
+    });
+
+    // ✅ Attach event handlers *after* buttons exist
+    attachEventHandlers();
 }
 
 // Function to handle event submission - ADD
@@ -422,29 +597,44 @@ async function handleAddEventSubmit(event) {
     }
 }
 
-function populateEventList(events) {
-    const container = document.getElementById("event-list-container");
-    container.innerHTML = ""; // Clear placeholder text
+// Function to handle event deletion - DELETE
+async function handleDeleteEvent(eventId) {
+    console.log("🚀 handleDeleteEvent function triggered!");
 
-    events.forEach(event => {
-        console.log("Processing event:", event); // Debugging
+    if (!eventId) {
+        console.error("❌ Error: eventId is undefined.");
+        return;
+    }
 
-        const eventElement = document.createElement("div");
-        eventElement.classList.add("event-item");
-        eventElement.innerHTML = `
-            <ul class="settings-event-list">
-                <li><h3>${event.title} - ${event.type}</h3></li>
-                <li>${event.date}</li>
-                <li>${event.notes || "No notes added."}</li>
-                <li><button class="settings-edit-event" data-id="${event.id}">Edit</button><button class="settings-delete-event" data-id="${event.id}">Delete</button></li>
-            </ul>
-        `;
+    console.log(`🗑️ Attempting to delete event on: ${eventId}`);
 
-        container.appendChild(eventElement);
-    });
+    try {
+        const response = await fetch(`/api/custom-events/${eventId}`, {
+            method: "DELETE",
+        });
 
-    // ✅ Attach event handlers *after* buttons exist
-    attachEventHandlers();
+        if (!response.ok) {
+            throw new Error(`Failed to delete event: ${response.statusText}`);
+        }
+
+        console.log(`✅ Event on ${eventId} deleted successfully!`);
+
+        // 🧹 **Step 1: Clear the event list before refreshing**
+        const container = document.getElementById("event-list-container");
+        if (container) {
+            container.innerHTML = "<p>Refreshing events...</p>";
+        }
+
+        // ⏳ **Step 2: Delay fetch slightly to allow server time to reload JSON**
+        setTimeout(async () => {
+            console.log("🔄 Fetching updated events...");
+            const updatedEvents = await fetchCustomEvents();
+            populateEventList(updatedEvents);
+        }, 1000); // Small delay for a smoother experience
+
+    } catch (error) {
+        console.error("❌ Error deleting event:", error);
+    }
 }
 
 // Function to handle Edit Event - PUT
@@ -493,131 +683,22 @@ async function handleEditEventSubmit(event) {
     }
 }
 
-async function handleDeleteEvent(eventId) {
-    console.log("🚀 handleDeleteEvent function triggered!");
+// 🌟 Updated: Display mystical preferences including Custom Events
+export function getMysticalPrefs() {
+    const saved = localStorage.getItem("mysticalPrefs");
+    const defaults = {
+        mysticalSuggestions: true,
+        showEclipses: true,
+        showMoons: true,
+        showHolidays: true,
+        showCustomEvents: true // ✅ This line makes all the difference
+    };
 
-    if (!eventId) {
-        console.error("❌ Error: eventId is undefined.");
-        return;
-    }
-
-    console.log(`🗑️ Attempting to delete event on: ${eventId}`);
-
-    try {
-        const response = await fetch(`/api/custom-events/${eventId}`, {
-            method: "DELETE",
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to delete event: ${response.statusText}`);
-        }
-
-        console.log(`✅ Event on ${eventId} deleted successfully!`);
-
-        // 🧹 **Step 1: Clear the event list before refreshing**
-        const container = document.getElementById("event-list-container");
-        if (container) {
-            container.innerHTML = "<p>Refreshing events...</p>";
-        }
-
-        // ⏳ **Step 2: Delay fetch slightly to allow server time to reload JSON**
-        setTimeout(async () => {
-            console.log("🔄 Fetching updated events...");
-            const updatedEvents = await fetchCustomEvents();
-            populateEventList(updatedEvents);
-        }, 1000); // Small delay for a smoother experience
-
-    } catch (error) {
-        console.error("❌ Error deleting event:", error);
-    }
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
 }
 
-function attachEventHandlers() {
-
-    // Add a Custom Event
-    document.getElementById("add-event-button").addEventListener("click", () => {
-        showAddEventModal();
-    });
-
-     // Redirect to About Page
-     document.getElementById("about-page-button").addEventListener("click", () => {
-        console.log("Clicked on About link");
-        window.location.hash = "about";
-    });
-
-    // Edit a Custom Event 
-    document.querySelectorAll(".settings-edit-event").forEach(button => {
-        button.addEventListener("click", (event) => {
-            console.log("Edit button clicked!");  // Debugging
-            const eventId = event.target.getAttribute("data-id"); // Or "data-id" if that’s how you're storing it
-            if (eventId) {
-                openEditModal(eventId); // 💫 Open the modal with the correct event info
-            } else {
-                console.error("No data-id attribute found on edit button.");
-            }
-        });
-    });
-
-    // Delete a Custom Event
-    document.querySelectorAll(".settings-delete-event").forEach(button => {
-        button.addEventListener("click", (event) => {
-            console.log("Delete button clicked!!!");
-    
-            // Check if the event target is correct
-            const targetButton = event.target;
-            if (!targetButton) {
-                console.error("Error: event.target is undefined.");
-                return;
-            }
-    
-            // Ensure the data-date attribute is being read correctly
-            const eventId = targetButton.getAttribute("data-id");
-            if (!eventId) {
-                console.error("Error: data-id attribute not found.");
-                return;
-            }
-    
-            console.log("Attempting to delete event on:", eventId);
-    
-            // Call the delete function
-            handleDeleteEvent(eventId);
-        });
-    });
-
-    // Set Mystical Preferences
-    document.getElementById("toggle-mystical").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.mysticalSuggestions = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
-    
-    document.getElementById("show-eclipses").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showEclipses = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
-    
-    document.getElementById("show-moons").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showMoons = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
-    
-    document.getElementById("show-holidays").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showHolidays = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
-
-    document.getElementById("show-custom-events").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showCustomEvents = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
-    });
+export function saveMysticalPrefs(prefs) {
+    localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
 }
+
 

@@ -5,8 +5,8 @@ import { renderCalendar, setupCalendarEvents } from './components/calendar.js';
 import { renderInsights} from './components/insights.js';
 import { initInsightsView } from './utils/insightsInit.js';
 
-//import {renderSettings } from './components/settings.js';
-//import { initSettingsView } from './utils/settingsInit.js';
+import {renderSettings } from './components/settings.js';
+import { initSettingsView } from './utils/settingsInit.js';
 
 import {renderAbout} from './components/about.js';
 import {renderPrivacy} from './components/privacy.js';
@@ -15,7 +15,7 @@ const routes = {
     home: renderHome,
     calendar: renderCalendar,
     insights: renderInsights,
-    //settings: renderSettings,
+    settings: renderSettings,
     about: renderAbout,
     privacy: renderPrivacy
 };
@@ -54,12 +54,10 @@ function navigateTo(hash) {
         appContainer.innerHTML = renderCalendar();
         setupCalendarEvents();
         break;
-       /*
       case 'settings':
         appContainer.innerHTML = renderSettings();
         initSettingsView(); // ✨ Clean and self-contained
         break;
-      */   
       case 'about':
         appContainer.innerHTML = renderAbout();
         break;
