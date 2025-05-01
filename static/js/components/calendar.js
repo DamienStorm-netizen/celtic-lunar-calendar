@@ -177,7 +177,7 @@ function showModal(monthName) {
                     <!-- 🌟 Magical Tabs -->
                     <div class="calendar-tabs">
                     <button id="tab-calendar" class="calendar-tab-button active">Calendar</button>
-                    <button id="tab-legend" class="calendar-tab-button" style="margin: 0 15px 0 5px">Legend</button>
+                    <button id="tab-legend" class="calendar-tab-button">Legend</button>
                     <button id="tab-add" class="calendar-tab-button">Add Your Event</button>
                     </div>
 
@@ -275,7 +275,7 @@ function showModal(monthName) {
     const modalContainer = document.getElementById("modal-container");
 
     document.body.classList.remove("modal-open"); //Add scrollbars to body
-    
+
     if (modalContainer) {
         modalContainer.classList.add("hidden");
     }    
@@ -663,7 +663,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     }
 
     // Apply display preferences to Mystical Preferences
-    //const prefs = getMysticalPrefs();
+    const prefs = getMysticalPrefs();
   
     // Construct an ISO date string
     const year = "2025";
@@ -732,7 +732,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         // Find the holiday for this date
         const holidayInfo = cachedNationalHolidays
         .filter(h => h.date === dateStr)
-        .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
+        .map(h => `<p><strong>${h.title}</strong></p><img src='static/assets/images/decor/${h.title}.png' class='holiday-img' alt='${h.title}' />`)
         .join("") || "No national holidays today.";
 
         let festivalHTML = festivalEvent
@@ -1006,10 +1006,10 @@ function generateDaySlides({
       ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
       ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
       <div class="day-slide">
-        <h3 class="goldenTitle">Mystical Suggestions</h3>
+        <h3 class="goldenTitle">Mystical Wisdom</h3>
         <div class="mystical-suggestion-block">
           <p class="mystical-message">${randomMystical}</p>
-          <img src="static/assets/images/decor/moon-sparkle.png" alt="Mystical Sparkle" class="divider" />
+          <img src="static/assets/images/decor/mystical-sparkle.png" alt="Mystical Sparkle" class="divider" />
         </div>
       </div>
     `;
@@ -1123,3 +1123,62 @@ export function applyMysticalSettings(prefs) {
         eclipseSection.parentElement.style.display = prefs.showEclipses ? "block" : "none";
     }
 }
+
+// Add only one submit listener for calendar page
+document.addEventListener("submit", async (event) => {
+    const isCalendarForm = event.target && event.target.id === "add-event-form";
+    const isOnCalendarPage = window.location.hash === "#calendar";
+
+    if (isCalendarForm && isOnCalendarPage) {
+        event.preventDefault();
+        console.log("✨ Adding new custom event from CALENDAR...");
+
+        const eventName = document.getElementById("event-name").value.trim();
+        const eventType = document.getElementById("event-type").value.trim();
+        const eventNotes = document.getElementById("event-note").value.trim();
+        const eventDate = document.getElementById("event-date").value;
+
+        if (!eventName || !eventDate) {
+            alert("Please enter a valid event name and date.");
+            return;
+        }
+
+        const formattedDate = new Date(eventDate).toISOString().split("T")[0];
+
+        const newEvent = {
+            id: Date.now().toString(), // ✨ Unique identifier based on timestamp
+            title: eventName,
+            type: eventType || "General",
+            notes: eventNotes || "",
+            date: formattedDate
+        };
+
+        console.log("🎉 Event to be added (Calendar):", newEvent);
+
+        try {
+            const response = await fetch("/api/custom-events", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newEvent)
+            });
+
+            // Fetch all events again and save them to localStorage
+            // Instantly update localStorage without refetching
+            customEvents.push(newEvent);
+            saveCustomEvents(customEvents);
+
+            if (!response.ok) throw new Error("Failed to add event.");
+
+            const result = await response.json();
+            console.log("✅ Event added from Calendar:", result);
+
+            // Reopen the modal with updated info!
+            showModal(lastOpenedMonth);
+
+        } catch (error) {
+            console.error("❌ Error adding calendar event:", error);
+        }
+    }
+});

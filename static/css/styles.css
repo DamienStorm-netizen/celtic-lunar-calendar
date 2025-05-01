@@ -119,6 +119,20 @@ html, body {
   border-radius: 10px;
 }
 
+#modal-details::-webkit-scrollbar {
+  width: 8px;
+}
+
+#modal-details::-webkit-scrollbar-thumb {
+  background-color: #ffd700;
+  border-radius: 10px;
+  border: 2px solid #1E1E1E;
+}
+
+#modal-details::-webkit-scrollbar-track {
+  background: #1E1E1E;
+}
+
 /* ✦ Add a magical twinkle animation */
 
 @keyframes twinkle {
@@ -1103,12 +1117,12 @@ blockquote.moon-poem {
 
 /* Calendar Tabs */
 .calendar-tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-    margin-top: 25px;
-    max-width: 100%;
-    margin: 0 auto 25px auto;
+  display: flex;
+  justify-content: space-around; /* Even spacing between buttons */
+  align-items: center;
+  margin: 25px auto;
+  width: 100%;
+  max-width: 400px; /* Or your preferred fixed width */
 }
 
 .calendar-tab-button {
@@ -1587,7 +1601,9 @@ blockquote.moon-poem {
   width: 100%;
   display: flex;
   flex-direction: column;
+  color: #fff6ea;
 }
+
 
 .celticDate {
   color: #ffd700;
@@ -1605,6 +1621,10 @@ blockquote.moon-poem {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.mystical-suggestion-block img {
+  width: 250px;
 }
 
 .calendar-modal.month-mode .day-carousel-prev,
@@ -1637,10 +1657,12 @@ blockquote.moon-poem {
 
 .day-carousel-next {
   right: 25px;
+  top: 300px;
 }
 
 .day-carousel-prev {
   left: 6px;
+  top: 300px;
 }
 
 .day-carousel-prev:hover img,
@@ -1923,6 +1945,10 @@ blockquote.moon-poem {
   font-family: 'Libre Baskerville', serif;
   font-size: 0.4em;
   color: #fff6ea;
+}
+
+span.celtic-zodiac-date {
+  font-size: 0.8rem;
 }
 
 /* Glow effect on hover */

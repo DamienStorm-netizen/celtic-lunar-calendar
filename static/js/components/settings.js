@@ -621,3 +621,6 @@ function attachEventHandlers() {
     });
 }
 
+export function saveMysticalPrefs(prefs) {
+    localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
+}

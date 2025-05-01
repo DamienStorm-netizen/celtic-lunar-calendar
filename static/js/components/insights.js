@@ -655,20 +655,21 @@ function setInitialMoon() {
 export function revealZodiacOnScroll() {
   const zodiacs = document.querySelectorAll('.zodiac-item');
 
-  const reveal = () => {
-    const triggerBottom = window.innerHeight * 0.85;
-
-    zodiacs.forEach((item) => {
-      const boxTop = item.getBoundingClientRect().top;
-      if (boxTop < triggerBottom) {
-        item.classList.add('visible');
-        item.classList.remove('hidden');
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        entry.target.classList.remove('hidden');
+        observer.unobserve(entry.target); // Stop observing once revealed
       }
     });
-  };
+  }, {
+    threshold: 0.15 // You can tweak this for earlier/later reveals
+  });
 
-  window.addEventListener('scroll', reveal);
-  reveal(); // Reveal those already in view
+  zodiacs.forEach(item => {
+    observer.observe(item);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", revealZodiacOnScroll);
