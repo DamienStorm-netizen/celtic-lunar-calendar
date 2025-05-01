@@ -539,7 +539,7 @@ blockquote.moon-poem {
 }
 
 .tree-of-life {
-  background-image: url(../assets/images/decor/treeoflife.png);
+  background-image: url(../assets/images/decor/treeoflife-fade.png);
   background-repeat: no-repeat;
   width: 100%;
   background-position-x: center;
@@ -1228,9 +1228,15 @@ blockquote.moon-poem {
 
 .festival-note {
   font-family: "Libre Baskerville", serif;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-style: italic;
   color: #EDEDED;
+  margin-left: 16px;
+  margin-right: 30px;
+}
+
+.festival-img {
+  width: 250px;
 }
 
 
@@ -1575,10 +1581,10 @@ blockquote.moon-poem {
   margin: 0 auto;
   padding: 10px;
   position: relative;
-  background-image: url(../assets/images/decor/treeoflife.png);
+  /*background-image: url(../assets/images/decor/treeoflife-fade.png);
   background-repeat: no-repeat;
   background-size: contain;
-  background-position: bottom;
+  background-position: bottom;*/
 }
 
 .day-carousel {
@@ -1656,7 +1662,7 @@ blockquote.moon-poem {
 }
 
 .day-carousel-next {
-  right: 25px;
+  right: 5px;
   top: 300px;
 }
 

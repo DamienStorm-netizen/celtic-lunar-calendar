@@ -1,6 +1,7 @@
 import { getMysticalPrefs } from "./settings.js";
 import { saveCustomEvents } from "../utils/localStorage.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
+import { slugifyCharm } from "../utils/slugifyCharm.js";
 
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
@@ -732,21 +733,30 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         // Find the holiday for this date
         const holidayInfo = cachedNationalHolidays
         .filter(h => h.date === dateStr)
-        .map(h => `<p><strong>${h.title}</strong></p><img src='static/assets/images/decor/${h.title}.png' class='holiday-img' alt='${h.title}' />`)
+        .map(h => {
+        const imageSlugHoliday = slugifyCharm(h.title);
+        return `<p><strong>${h.title}</strong></p>
+                <img src='static/assets/images/holidays/holiday-${imageSlugHoliday}.png' class='holiday-img' alt='${h.title}' />`;
+        })
         .join("") || "No national holidays today.";
 
-        let festivalHTML = festivalEvent
-            ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="subheader">Festivals</h3>
-            <p><span class="festival-title">${festivalEvent.name}</span></p>
-            <p class="festival-note">${festivalEvent.description}</p>`
-            : "";
+        let festivalHTML = "";
+        if (festivalEvent) {
+            const imageSlugFestival = slugifyCharm(festivalEvent.name);
+            festivalHTML = `
+                <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+                <h3 class="goldenTitle">Festivals</h3>
+                <p><span class="festival-title">${festivalEvent.name}</span></p>
+                <img src='static/assets/images/festivals/festival-${imageSlugFestival}.png' class='festival-img' alt='${festivalEvent.name}' />
+                <p class="festival-note">${festivalEvent.description}</p>
+            `;
+        }
 
         console.log("Festival Data Retrieved:", festivalHTML); // Debugging Log
 
         let holidayHTML = holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today."
             ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="subheader">Holidays</h3><p>${holidayInfo}</p>` 
+            <h3 class="goldenTitle">Holidays</h3><p>${holidayInfo}</p>` 
             : "";
 
         let eclipseHTML = eclipseEvent //
@@ -789,7 +799,6 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
 
                <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
                 </div>
-                <br />
                 <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
             </div>
         `;
@@ -993,7 +1002,7 @@ function generateDaySlides({
       <div class="day-slide">
           <!-- <h3 class="goldenTitle">${weekday}</h3> -->
           <h3 class="goldenTitle">Monday</h3>
-          <p><span class="celticDate">${celticMonth} ${celticDay}</span>/<span class="gregorianDate">${gMonth} ${gDay}</span></p>
+          <p><span class="celticDate">${celticMonth} ${celticDay}</span>/ <span class="gregorianDate">${gMonth} ${gDay}</span></p>
           <div class="moon-phase-graphic moon-centered">
               ${lunarData.graphic}
           </div>
@@ -1006,6 +1015,7 @@ function generateDaySlides({
       ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
       ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
       <div class="day-slide">
+        <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
         <h3 class="goldenTitle">Mystical Wisdom</h3>
         <div class="mystical-suggestion-block">
           <p class="mystical-message">${randomMystical}</p>
