@@ -1,3 +1,6 @@
+import { slugifyCharm } from "../utils/slugifyCharm.js";
+import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
+
 export function renderInsights() {
   return `
   <div id="insights-container" class="fade-in">  
@@ -469,10 +472,12 @@ async function showZodiacModal(zodiacName) {
         }
       }, 100); // Delay ensures styles are applied
 
+      const imageSlugZodiac = slugifyCharm(zodiacName);
+
       // 🖼️ Populate modal content
       document.getElementById("zodiac-name").textContent = zodiacEntry.name;
       document.getElementById("zodiac-date-range").textContent = zodiacEntry.celtic_date;
-      document.getElementById("zodiac-image").src = `static/assets/images/zodiac/zodiac-${zodiacName.toLowerCase()}.png`;
+      document.getElementById("zodiac-image").src = `static/assets/images/zodiac/zodiac-${imageSlugZodiac}.png`;
       document.getElementById("zodiac-description").textContent = zodiacEntry.symbolism;
       document.getElementById("zodiac-traits").textContent = zodiacEntry.symbolism;
       document.getElementById("zodiac-element").textContent = zodiacEntry.element || "Element unknown";

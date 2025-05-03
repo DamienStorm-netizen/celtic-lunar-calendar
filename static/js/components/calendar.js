@@ -2,6 +2,7 @@ import { getMysticalPrefs } from "./settings.js";
 import { saveCustomEvents } from "../utils/localStorage.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
+import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
 
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
@@ -10,6 +11,7 @@ let lastOpenedMonth = null; // Keep track of the last opened month modal
 
 export function renderCalendar() {
     return `
+    <div id="debug" style="color: white; font-size: 12px; position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 5px; z-index: 9999;"></div>
       <section class="calendar" class="fade-in">
         <div id="modal-overlay" class="modal-overlay hidden"></div>
 
@@ -75,6 +77,14 @@ export function renderCalendar() {
 
 export async function setupCalendarEvents() {
     console.log("I am running setupCalendarEvents");
+
+    function logToScreen(message) {
+        const debug = document.getElementById("debug");
+        if (debug) {
+          debug.innerHTML += `<div>${message}</div>`;
+          debug.scrollTop = debug.scrollHeight;
+        }
+      }
 
     // Select the modal elements
     const modalContainer = document.getElementById("modal-container");
@@ -784,17 +794,15 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
                 <button class="day-carousel-prev"><img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" /></button>
 
                 <div class="day-carousel">
-                    <div class="day-carousel">
-                        ${generateDaySlides({ 
-                            lunarData, 
-                            festivalHTML, 
-                            holidayHTML, 
-                            eclipseHTML, 
-                            eventsHTML,
-                            celticMonth,
-                            celticDay,
-                            formattedGregorianDate })}
-                    </div>
+                    ${generateDaySlides({ 
+                        lunarData, 
+                        festivalHTML, 
+                        holidayHTML, 
+                        eclipseHTML, 
+                        eventsHTML,
+                        celticMonth,
+                        celticDay,
+                        formattedGregorianDate })}
                 </div>
 
                <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
@@ -824,8 +832,9 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         });
 
         function updateCarousel() {
-        const slideWidth = slides[0].offsetWidth;
-        carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+            // Use the width of a single slide rather than the full container
+            const slideWidth = slides[0].clientWidth;
+            carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
         }
 
         // Apply display preferences to Mystical Preferences
@@ -835,6 +844,31 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         document.getElementById("back-to-month").addEventListener("click", () => {
             modalContainer.classList.add("month-mode");
             showModal(celticMonth);
+        });
+  
+        // 🎠 Swipe support for day carousel (delay to ensure DOM is ready)
+        requestAnimationFrame(() => {
+            const swipeTarget = document.querySelector(".day-carousel");
+            if (!swipeTarget) {
+                alert("❌ .day-carousel not found!");
+                return;
+            }
+            initSwipe(swipeTarget, {
+                onSwipeLeft: () => {
+                    // Only advance if not on the last slide
+                    if (currentSlide < slides.length - 1) {
+                        currentSlide++;
+                        updateCarousel();
+                    }
+                },
+                onSwipeRight: () => {
+                    // Only go back if not on the first slide
+                    if (currentSlide > 0) {
+                        currentSlide--;
+                        updateCarousel();
+                    }
+                }
+            });
         });
   
     } catch (error) {
