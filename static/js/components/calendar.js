@@ -818,18 +818,14 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         const slides = document.querySelectorAll('.day-slide');
 
         document.querySelector('.day-carousel-prev').addEventListener('click', () => {
-        if (currentSlide > 0) {
-            currentSlide--;
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
             updateCarousel();
-        }
-        });
-
-        document.querySelector('.day-carousel-next').addEventListener('click', () => {
-        if (currentSlide < slides.length - 1) {
-            currentSlide++;
+          });
+          
+          document.querySelector('.day-carousel-next').addEventListener('click', () => {
+            currentSlide = (currentSlide + 1) % slides.length;
             updateCarousel();
-        }
-        });
+          });
 
         function updateCarousel() {
             // Use the width of a single slide rather than the full container
@@ -855,18 +851,14 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             }
             initSwipe(swipeTarget, {
                 onSwipeLeft: () => {
-                    // Only advance if not on the last slide
-                    if (currentSlide < slides.length - 1) {
-                        currentSlide++;
-                        updateCarousel();
-                    }
+                    // Advance and wrap to first slide after the last
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    updateCarousel();
                 },
                 onSwipeRight: () => {
-                    // Only go back if not on the first slide
-                    if (currentSlide > 0) {
-                        currentSlide--;
-                        updateCarousel();
-                    }
+                    // Go back and wrap to last slide when swiping right from first
+                    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                    updateCarousel();
                 }
             });
         });

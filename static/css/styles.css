@@ -1621,6 +1621,11 @@ blockquote.moon-poem {
   flex-shrink: 0;
 }
 
+.holiday-img {
+  width: 250px;
+  margin: 0 auto;
+}
+
 
 .celticDate {
   color: #ffd700;
@@ -1743,6 +1748,7 @@ blockquote.moon-poem {
   margin-top: 8px;
   padding: 0 20px;
   color: #fff6ea; /* or your moonlight colour */
+  width: 250px;
 }
 
 /* Mirabilis Modal */
