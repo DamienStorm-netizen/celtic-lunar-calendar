@@ -1,8 +1,9 @@
 html, body {
   padding-top: 5px;
   background-color: #1E1E1E;
-  height: 100%;
-  overflow: hidden; /* allow scrolling */
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /**********************************************/
@@ -366,16 +367,21 @@ h1, .main-title {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Optional: Adds a soft shadow */
   border: 1px solid #6a0dad; /* Optional: Adds a border */
   background: linear-gradient(0deg, rgba(94,133,148,1) 4%, rgba(22,38,63,1) 58%);
-  height: 100vh; /* Ensures it takes up full screen height */
+  /* height: 100vh; */ /* removed to prevent viewport-jumping on mobile */
+  min-height: 100vh; /* ensures full screen but allows for footer scroll */
   display: flex;
   flex-direction: column;
   border-radius: 15px; /* Optional: Add rounded corners for extra charm */
   padding: 0;
   overflow-y: auto; /* this handles scrolling */
+  -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #6a0dad #1d1d2b; /* Same beautiful scroll! */
+  /* ensure scrollable content can clear the footer */
+  padding-bottom: 80px;
+  scroll-padding-bottom: 80px;
 }
 
 .container::-webkit-scrollbar {
@@ -866,27 +872,21 @@ blockquote.moon-poem {
   padding: 5px;
 }
 
-.coming-events-carousel-prev, .coming-events-carousel-next {
+.coming-events-carousel-prev,
+.coming-events-carousel-next {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 2rem;
-  color: gold;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-  transition: opacity 0.3s ease-in-out;
-  z-index: 10; /* Make sure it is above everything else */
+  transition: transform 0.2s ease-in-out, opacity 0.3s ease-in-out;
+  z-index: 10;
+  /* font-size and color removed for image-based arrows */
 }
 
 .coming-events-carousel-prev { left: 1%; }
 .coming-events-carousel-next { right: 1%; }
-
-.coming-events-carousel-prev:hover, .coming-events-carousel-next:hover {
-  filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8));
-  animation: comingEventsGlow 0.8s infinite alternate ease-in-out;
-}
 
 .coming-events-carousel-prev.hidden,
 .coming-events-carousel-next.hidden {
@@ -894,9 +894,24 @@ blockquote.moon-poem {
   pointer-events: none;
 }
 
-@keyframes comingEventsGlow {
-  0% { filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8)); }
-  100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
+/* Base size and glow for moon icons */
+.coming-events-carousel-prev img,
+.coming-events-carousel-next img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+  transition: transform 0.3s ease-in-out, box-shadow 0.4s ease-in-out;
+}
+
+/* Hover glow transitions */
+.coming-events-carousel-prev:hover img,
+.coming-events-carousel-next:hover img {
+  box-shadow:
+    0 0 20px rgba(164, 104, 214, 0.9),
+    0 0 30px rgba(104, 70, 140, 0.7),
+    0 0 40px rgba(84, 60, 120, 0.5);
+  transform: scale(1.1);
 }
 
 
@@ -1593,7 +1608,7 @@ blockquote.moon-poem {
   width: auto;
   will-change: transform;
   /*background: rgba(255, 0, 0, 0.2); */
-  touch-action: pan-y;
+  touch-action: pan-x pan-y;
   pointer-events: auto;
 }
 /*
@@ -2194,12 +2209,13 @@ body.modal-open {
 
 .festival-description {
   font-family: 'Libre Baskerville', serif;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-style: italic;
   color: #fff;
   max-width: 80%;
   margin: 10px auto;
 }
+
 
 .festival-carousel-prev, .festival-carousel-next {
   position: absolute;
@@ -2225,6 +2241,30 @@ body.modal-open {
 @keyframes festivalGlow {
   0% { filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8)); }
   100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
+}
+
+/* Match calendar glow effects on insights carousel arrows */
+.festival-carousel-prev img,
+.festival-carousel-next img,
+.carousel-prev img,
+.carousel-next img {
+  width: 40px;
+  height: 40px;
+  transform: translateY(-4px);
+  box-shadow: 0 0 10px #ffd700;
+  transition: 0.4s ease-in-out;
+  border-radius: 50%;
+}
+
+.festival-carousel-prev:hover img,
+.festival-carousel-next:hover img,
+.carousel-prev:hover img,
+.carousel-next:hover img {
+  box-shadow:
+    0 0 20px rgba(164, 104, 214, 0.9),
+    0 0 30px rgba(104, 70, 140, 0.7),
+    0 0 40px rgba(84, 60, 120, 0.5);
+  transform: scale(1.1);
 }
 
 
@@ -2302,7 +2342,7 @@ body.modal-open {
 }
 
 .moon-poem {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 400;
   color: #FFF6EA;
   font-style: italic;
@@ -2316,13 +2356,12 @@ body.modal-open {
   color: #FFD700;
   cursor: pointer;
   position: absolute;
-  top: 8%;
   /*transform: translateY(-50%);*/
   transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
 }
 
-.carousel-prev { left: 10px; }
-.carousel-next { right: 10px; }
+.carousel-prev { left: 10px; top: 75px; }
+.carousel-next { right: 10px; top: 75px; }
 
 /* New pulsing effect on hover */
 .carousel-prev:hover, .carousel-next:hover {
@@ -3234,5 +3273,36 @@ footer nav {
   .calendar-modal {
     width: 95vw;
     padding: 15px;
+  }
+}
+
+/* Home carousel arrows: use crescent images with gold & purple glow */
+.coming-events-carousel-prev img,
+.coming-events-carousel-next img {
+  width: 40px;
+  height: 40px;
+  transform: translateY(-4px);
+  box-shadow: 0 0 10px #ffd700;
+  transition: 0.4s ease-in-out;
+  border-radius: 50%;
+}
+
+.coming-events-carousel-prev:hover img,
+.coming-events-carousel-next:hover img {
+  box-shadow:
+    0 0 20px rgba(164, 104, 214, 0.9),
+    0 0 30px rgba(104, 70, 140, 0.7),
+    0 0 40px rgba(84, 60, 120, 0.5);
+  transform: scale(1.1);
+}
+
+/* Mobile-specific scroll override: restore container-based scrolling on mobile */
+@media (max-width: 768px) {
+  .container {
+    height: 100vh !important;
+    min-height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 }

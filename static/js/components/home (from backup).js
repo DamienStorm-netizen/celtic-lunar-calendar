@@ -1,12 +1,10 @@
 import { getMysticalPrefs } from "../utils/mysticalSettings.js";
-import { initSwipe } from "../utils/swipeHandler.js";
 
 export function renderHome() {
-    // Return the HTML and then in the next tick attach overlay & swipe
-    const html = `
+    return `
         <section class="home" class="fade-in">
             <div id="modal-overlay" class="modal-overlay hidden"></div>
-            <div class="celtic-date"></div>
+            <div class="celtic-date"></div> <!-- Dynamic content goes here -->
             <div class="celtic-info-container">
                 <!-- Moon Phase Column -->
                 <div class="moon-column">
@@ -18,6 +16,7 @@ export function renderHome() {
                         <h4 class="moon-phase-name">Loading...</h4>
                     </div>
                 </div>
+
                 <!-- Celtic Zodiac Column -->
                 <div class="zodiac-column">
                     <div class="celtic-zodiac">
@@ -29,67 +28,56 @@ export function renderHome() {
                 </div>
             </div>
             <div class="tree-of-life">
+
                 <!-- Moon Poem -->
                 <div class="poem-container">
                     <blockquote class="moon-poem">Fetching poetic wisdom...</blockquote>
                 </div>
+
                 <!-- What's Happening! Carousel -->
                 <div id="coming-events-container">
                     <h3 class="coming-events-header">The Journey Unfolds</h3>
-                    <button class="coming-events-carousel-prev">
-                      <img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev">
-                    </button>
+                    <button class="coming-events-carousel-prev">❮</button>
                     <div id="coming-events-carousel" class="coming-events-carousel-container">
+                        <button class="coming-events-carousel-prev">❮</button>
                         <div class="coming-events-slide active">
                             <p>Loading events...</p>
                         </div>
                     </div>
-                    <button class="coming-events-carousel-next">
-                      <img src="static/assets/images/decor/moon-crescent-next.png" alt="Next">
-                    </button>
+                    <button class="coming-events-carousel-next">❯</button>
                 </div>
+
             </div>
+
+            <!-- Include all your Moon, Zodiac, Carousel content here -->
+
+            <!-- Move modal INSIDE the home section -->
             <div id="home-zodiac-modal" class="modal hidden">
                 <div class="modal-content scrollable-content">
-                    <span class="close-button-home mystical-close">✦</span>
-                    <div id="home-zodiac-modal-details">
-                        <p>Loading sign info...</p>
-                    </div>
+                <span class="close-button-home mystical-close">✦</span>
+                <div id="home-zodiac-modal-details">
+                    <p>Loading sign info...</p>
                 </div>
             </div>
-        </section>
-    `;
-    // After the HTML is injected into the DOM, attach overlay handler and swipe listener
-    setTimeout(() => {
-        // Overlay click for modal close (existing code)…
+       
+    </section>
 
+    `;
+
+    // After calling renderHome() or inserting modal HTML:
+    setTimeout(() => {
         const overlay = document.getElementById("modal-overlay");
         if (overlay) {
-            overlay.addEventListener("click", () => {
-                document.getElementById("home-zodiac-modal")?.classList.remove("show");
-                document.getElementById("home-zodiac-modal")?.classList.add("hidden");
-                overlay.classList.remove("show");
-                overlay.classList.add("hidden");
-            });
-        }
-
-        // Step 1: Swipe listener sanity check
-        requestAnimationFrame(() => {
-          const swipeTarget = document.getElementById("coming-events-carousel");
-          if (swipeTarget) {
-            initSwipe(swipeTarget, {
-              onSwipeLeft:  () => document.querySelector('.coming-events-carousel-next')?.click(),
-              onSwipeRight: () => document.querySelector('.coming-events-carousel-prev')?.click()
-            });
-            // alert("✅ Swipe listener attached to home carousel");
-            console.log("Swipe listener attached to home carousel");
-          } else {
-            // alert("⚠️ coming-events-carousel element not found for swipe init");
-            console.warn("coming-events-carousel element not found for swipe init");
-          }
+        overlay.addEventListener("click", () => {
+            console.log("🌫️ Overlay clicked – closing modal...");
+            document.getElementById("home-zodiac-modal")?.classList.remove("show");
+            document.getElementById("home-zodiac-modal")?.classList.add("hidden");
+    
+            overlay.classList.remove("show");
+            overlay.classList.add("hidden");
         });
+        }
     }, 0);
-    return html;
 }
 
 // Fetch the Celtic date dynamically and update the home screen
@@ -375,27 +363,14 @@ export function getUnnamedMoonPoem() {
       // temporarily skip filter to verify display logic
     
       console.log("Final Upcoming Events Array:", upcomingEvents);
-      // Determine local today at midnight
-      const now = new Date();
-      const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-      // Filter out any events before today
-      const eventsFromToday = filteredEvents.filter(evt => {
-          const [eY, eM, eD] = evt.date.split('-').map(Number);
-          const evtDateObj = new Date(eY, eM - 1, eD);
-          return evtDateObj >= todayLocal;
-      });
-      console.log("Events from today onward:", eventsFromToday);
-
       if (document.getElementById("coming-events-container")) {
-          populateComingEventsCarousel(eventsFromToday);
-      }
+          populateComingEventsCarousel(filteredEvents);
+        }
   
       } catch (error) {
           console.error("Error fetching coming events:", error);
       }
 }
-
 
 function getCelticMonthFromDate(dateStr) {
     // Assuming your cleanDate is in format "2025-04-09"

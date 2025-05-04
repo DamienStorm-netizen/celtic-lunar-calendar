@@ -119,7 +119,9 @@ export function renderInsights() {
           <h2 class="goldNugget" style="text-align:center; margin-bottom: 0">The Wheel of the Year</h2>
 
           <div id="festival-carousel" class="carousel-container">
-            <button class="festival-carousel-prev">❮</button>
+            <button class="festival-carousel-prev">
+              <img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" />
+            </button>
 
             <div class="festival-slide active">
                 <img src="static/assets/images/festivals/festival-imbolc.png" alt="Imbolc" class="festival-icon" />
@@ -140,8 +142,8 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="static/assets/images/festivals/festival-beltaine.png" alt="Beltaine" class="festival-icon" />
-                <h2 class="festival-title">Beltaine</h2>
+                <img src="static/assets/images/festivals/festival-beltane.png" alt="Beltane" class="festival-icon" />
+                <h2 class="festival-title">Beltane</h2>
                 <h3 class="festival-date">19th of Maia</h3>
                 <p class="festival-description">
                     Beltane is celebrated at the beginning of summer. It's a time to celebrate the fertility of the earth and the arrival of new life. Revelers come together to dance, sing, and make merry to mark this special day.
@@ -193,7 +195,9 @@ export function renderInsights() {
                 </p>
             </div>
 
-            <button class="festival-carousel-next">❯</button>
+            <button class="festival-carousel-next">
+              <img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" />
+            </button>
         </div>
     </div>
 
@@ -205,7 +209,9 @@ export function renderInsights() {
       <img class="full-moon" src="static/assets/images/decor/full-moon.png" alt="Full Moon" />
 
       <div class="moon-carousel">
-        <button class="carousel-prev">❮</button>
+        <button class="carousel-prev">
+          <img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" />
+        </button>
 
         <div class="moon-slide" id="snow-moon">
             <h2 class="moon-title">Snow Moon</h2>
@@ -339,7 +345,9 @@ export function renderInsights() {
             </p>
         </div>
 
-        <button class="carousel-next">❯</button>
+        <button class="carousel-next">
+          <img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" />
+        </button>
       </div>
     </div>
   </div>
@@ -542,6 +550,13 @@ export function initializeFestivalCarousel() {
     showSlide(currentSlide);
   });
 
+  // 🎠 Swipe support for festival carousel
+  const festivalContainer = document.getElementById("festival-carousel");
+  initSwipe(festivalContainer, {
+    onSwipeLeft: () => nextButton.click(),
+    onSwipeRight: () => prevButton.click()
+  });
+
   // Start with the first festival as the default
   showSlide(currentSlide);
 }
@@ -589,6 +604,13 @@ export function initializeMoonPoetry() {
 
     currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
     showSlide(currentSlide);
+  });
+
+  // 🎠 Swipe support for moon poetry carousel
+  const moonContainer = document.querySelector(".moon-carousel");
+  initSwipe(moonContainer, {
+    onSwipeLeft: () => nextButton.click(),
+    onSwipeRight: () => prevButton.click()
   });
 
   // Function to determine the current Celtic month dynamically

@@ -816,32 +816,41 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         let currentSlide = 0;
         const carousel = document.querySelector('.day-carousel');
         const slides = document.querySelectorAll('.day-slide');
+        // Clone first and last slides for infinite loop
+        const firstClone = slides[0].cloneNode(true);
+        const lastClone = slides[slides.length - 1].cloneNode(true);
+        carousel.appendChild(firstClone);
+        carousel.insertBefore(lastClone, carousel.firstChild);
+        // Update slides NodeList and adjust starting index
+        const allSlides = carousel.querySelectorAll('.day-slide');
+        let indexOffset = 1; // because of the prepended clone
+        currentSlide += indexOffset;
+        carousel.style.transform = `translateX(-${currentSlide * allSlides[0].clientWidth}px)`;
 
         document.querySelector('.day-carousel-prev').addEventListener('click', () => {
-            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            currentSlide--;
             updateCarousel();
-          });
-          
-          document.querySelector('.day-carousel-next').addEventListener('click', () => {
-            currentSlide = (currentSlide + 1) % slides.length;
+        });
+        document.querySelector('.day-carousel-next').addEventListener('click', () => {
+            currentSlide++;
             updateCarousel();
-          });
+        });
 
         function updateCarousel() {
-            // Use the width of a single slide rather than the full container
-            const slideWidth = slides[0].clientWidth;
+            const slideWidth = allSlides[0].clientWidth;
+            carousel.style.transition = 'transform 0.6s ease-in-out';
             carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
         }
 
         // Apply display preferences to Mystical Preferences
         applyMysticalSettings(prefs);
-  
+
         // Add event listener for the "Back" button
         document.getElementById("back-to-month").addEventListener("click", () => {
             modalContainer.classList.add("month-mode");
             showModal(celticMonth);
         });
-  
+
         // 🎠 Swipe support for day carousel (delay to ensure DOM is ready)
         requestAnimationFrame(() => {
             const swipeTarget = document.querySelector(".day-carousel");
@@ -851,14 +860,28 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             }
             initSwipe(swipeTarget, {
                 onSwipeLeft: () => {
-                    // Advance and wrap to first slide after the last
-                    currentSlide = (currentSlide + 1) % slides.length;
+                    currentSlide++;
                     updateCarousel();
                 },
                 onSwipeRight: () => {
-                    // Go back and wrap to last slide when swiping right from first
-                    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                    currentSlide--;
                     updateCarousel();
+                }
+            });
+            // Add seamless looping on transitionend
+            carousel.addEventListener('transitionend', () => {
+                const slideWidth = allSlides[0].clientWidth;
+                // If at clone at end, jump to real first slide
+                if (currentSlide === allSlides.length - 1) {
+                    carousel.style.transition = 'none';
+                    currentSlide = 1;
+                    carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+                }
+                // If at clone at start, jump to real last slide
+                if (currentSlide === 0) {
+                    carousel.style.transition = 'none';
+                    currentSlide = allSlides.length - 2;
+                    carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
                 }
             });
         });
