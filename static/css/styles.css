@@ -379,9 +379,9 @@ h1, .main-title {
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #6a0dad #1d1d2b; /* Same beautiful scroll! */
-  /* ensure scrollable content can clear the footer */
+  /* ensure scrollable content can clear the footer 
   padding-bottom: 80px;
-  scroll-padding-bottom: 80px;
+  scroll-padding-bottom: 80px;*/
 }
 
 .container::-webkit-scrollbar {
@@ -875,7 +875,7 @@ blockquote.moon-poem {
 .coming-events-carousel-prev,
 .coming-events-carousel-next {
   position: absolute;
-  top: 50%;
+  top: 60%;
   transform: translateY(-50%);
   background: none;
   border: none;
@@ -3235,6 +3235,26 @@ footer nav {
   filter: drop-shadow(0 0 6px #ffda44);
 }
 
+/* Home carousel arrows: use crescent images with gold & purple glow */
+.coming-events-carousel-prev img,
+.coming-events-carousel-next img {
+  width: 40px;
+  height: 40px;
+  transform: translateY(-4px);
+  box-shadow: 0 0 10px #ffd700;
+  transition: 0.4s ease-in-out;
+  border-radius: 50%;
+}
+
+.coming-events-carousel-prev:hover img,
+.coming-events-carousel-next:hover img {
+  box-shadow:
+    0 0 20px rgba(164, 104, 214, 0.9),
+    0 0 30px rgba(104, 70, 140, 0.7),
+    0 0 40px rgba(84, 60, 120, 0.5);
+  transform: scale(1.1);
+}
+
 /**********************************************/
 /*   MOBILE   */
 /**********************************************/
@@ -3273,36 +3293,5 @@ footer nav {
   .calendar-modal {
     width: 95vw;
     padding: 15px;
-  }
-}
-
-/* Home carousel arrows: use crescent images with gold & purple glow */
-.coming-events-carousel-prev img,
-.coming-events-carousel-next img {
-  width: 40px;
-  height: 40px;
-  transform: translateY(-4px);
-  box-shadow: 0 0 10px #ffd700;
-  transition: 0.4s ease-in-out;
-  border-radius: 50%;
-}
-
-.coming-events-carousel-prev:hover img,
-.coming-events-carousel-next:hover img {
-  box-shadow:
-    0 0 20px rgba(164, 104, 214, 0.9),
-    0 0 30px rgba(104, 70, 140, 0.7),
-    0 0 40px rgba(84, 60, 120, 0.5);
-  transform: scale(1.1);
-}
-
-/* Mobile-specific scroll override: restore container-based scrolling on mobile */
-@media (max-width: 768px) {
-  .container {
-    height: 100vh !important;
-    min-height: auto !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
   }
 }
