@@ -60,12 +60,13 @@ export function renderAbout() {
             </div>
 
             <div class="creator">
-                <h3>Playground of the Senses 🎭</h3>
+                <h3>Playground of the Senses</h3>
+                <a href="https://playgroundofthesenses.substack.com" target="_blank"><img src="static/assets/images/decor/playground-logo.webp" alt="Playground of the Senses" class="playground-logo" /></a>
                 <p>
                     A sanctuary where <strong>myth and magic entwine</strong>, where each moment is <strong>a spell woven in ink and sound,<strong> 
                     a place where the <strong>past and future dance as one</strong>. Words shimmer, symbols awaken, and the unseen 
                     world steps into view.
-                    <p><a href="https://playgroundofthesenses.com" target="_blank">Playground of the Senses</a></p>
+                    <p><a href="https://playgroundofthesenses.substack.com" target="_blank">Playground of the Senses</a></p>
                 </p>
             </div>
     </div>

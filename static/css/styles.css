@@ -489,7 +489,7 @@ header {
 }
 
 .home p {
-  font-size: 1.25rem;
+  font-size: 1rem;
   margin-bottom: 2rem;
 }
 
@@ -536,7 +536,7 @@ header {
 }
 
 #gregorian-month {
-  font-size: 0.7em;
+  font-size: 1rem;
   font-family: 'Cinzel Decorative', serif;
 }
 
@@ -841,7 +841,7 @@ blockquote.moon-poem {
 }
 
 .coming-events-title {
-  font-size: 1.5rem; /* Adjust size as needed */
+  font-size: 1.25rem; /* Adjust size as needed */
   text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
@@ -858,9 +858,9 @@ blockquote.moon-poem {
 
 
 .coming-events-date {
-  font-size: 1.2rem;
+  font-size: 1rem !important;
   color: #fff6ea;
-  margin: 0;
+  margin: 0 !important;
 }
 
 .coming-events-description {
@@ -1245,13 +1245,15 @@ blockquote.moon-poem {
   font-family: "Libre Baskerville", serif;
   font-size: 1rem;
   font-style: italic;
-  color: #EDEDED;
-  margin-left: 16px;
-  margin-right: 30px;
+  text-align: center;
+  margin-top: 8px;
+  padding: 0 20px;
+  color: #fff6ea;
+  width: 250px;
 }
 
 .festival-img {
-  width: 250px;
+  width: 200px;
 }
 
 
@@ -1634,10 +1636,25 @@ blockquote.moon-poem {
   color: #fff6ea;
   min-width: 100%; /* Or a fixed px width */
   flex-shrink: 0;
+  /* New CSS*/
+  overflow-y: auto; /* Allow vertical scrolling */
+  max-height: 80vh; /* Prevent it from spilling off screen */
+  padding: 20px;
+  overflow-wrap: break-word; /* Ensure long words wrap */
+  white-space: normal;       /* Allow natural line breaks */
+  text-align: center;        /* Optional: Centre-align text */
+  /* Smoother Transitions
+  transform: translateX(20px);
+  transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out; */
+}
+
+.day-slide.active {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .holiday-img {
-  width: 250px;
+  width: 200px;
   margin: 0 auto;
 }
 
@@ -1757,13 +1774,14 @@ blockquote.moon-poem {
 }
 
 .moon-description {
-  font-size: 1rem;
-  font-style: italic;
-  text-align: center;
-  margin-top: 8px;
-  padding: 0 20px;
-  color: #fff6ea; /* or your moonlight colour */
-  width: 250px;
+    font-family: "Libre Baskerville", serif;
+    font-size: 1rem;
+    font-style: italic;
+    text-align: center;
+    margin-top: 8px;
+    padding: 0 20px;
+    color: #fff6ea;
+    width: 250px;
 }
 
 /* Mirabilis Modal */
@@ -2329,16 +2347,26 @@ body.modal-open {
   line-height: 130%;
 }
 
+
 .moon-poem h3 {
-  font-style: normal;
-  font-size: 1.2rem;
+  font-family: 'Libre Baskerville', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 1.25rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+  margin-bottom: 0 !important;
+  /*font-style: normal;
+  font-size: 1.25rem;
   color: #f5d742;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: 'Cinzel Decorative', serif;*/
 }
+
 
 .moon-poem p {
   font-style: italic;
-  font-size: 1rem;
+  font-size: 1rem !important;
 }
 
 .moon-poem {
@@ -2507,6 +2535,10 @@ body.modal-open {
   font-weight: 400;
 }
 
+.playground-logo {
+  width: 125px;
+}
+
 /* Fade-in Animation */
 
 @keyframes fadeIn {
@@ -2621,7 +2653,7 @@ body.modal-open {
 
 .settings-title {
   text-align: center;
-  font-size: 2em;
+  font-size: 2.5em;
 }
 
 .mystical-list li {
@@ -3293,5 +3325,13 @@ footer nav {
   .calendar-modal {
     width: 95vw;
     padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .festival-note, .moon-description {
+    font-size: 0.95rem;
+    width: 90%;
+    margin: 0 auto;
   }
 }

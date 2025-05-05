@@ -320,6 +320,44 @@ export function setupSettingsEvents() {
     initMysticalToggles();
 }
 
+// Function to show add event modal
+function showAddEventModal() {
+    
+    console.log("📝 Open Add Event Modal...");
+    const modal = document.getElementById("add-event-modal");
+    // Show Modal
+    modal.classList.remove("hidden");
+    modal.classList.add("show");
+    // Show the modal overlay
+    document.getElementById("modal-overlay").classList.add("show");
+    document.getElementById("modal-overlay").classList.remove("hidden");
+
+    // Close modal and hide overlay when clicking the close button
+    document.querySelectorAll(".cancel-modal-add").forEach(button => {
+        button.addEventListener("click", () => {
+            // Hide modal
+            modal.classList.remove("show");
+            modal.classList.add("hidden");
+            // Show the modal overlay
+            document.getElementById("modal-overlay").classList.remove("show");
+            document.getElementById("modal-overlay").classList.add("hidden");
+        });
+    });
+
+    // Close modal and hide overlay when clicking the X link
+    document.querySelectorAll(".close-modal-add").forEach(button => {
+        button.addEventListener("click", () => {
+            // Hide modal
+            modal.classList.remove("show");
+            modal.classList.add("hidden");
+            // Show the modal overlay
+            document.getElementById("modal-overlay").classList.remove("show");
+            document.getElementById("modal-overlay").classList.add("hidden");
+        });
+    });
+
+}
+
 // Function to handle event submission - ADD
 async function handleAddEventSubmit(event) {
 
