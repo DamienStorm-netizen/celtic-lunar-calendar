@@ -13,9 +13,9 @@ export function renderHome() {
                     <p class="goldenTitle">Tonight's Moon</p>
                     <div class="moon-phase">
                         <div class="moon-graphic">
-                            <h4 class="moon-phase-name">Loading...</h4>
+                            <h4 class="moon-phase-name"></h4>
                         </div>
-                        <h4 class="moon-phase-name">Loading...</h4>
+                        <h4 class="moon-phase-name"></h4>
                     </div>
                 </div>
                 <!-- Celtic Zodiac Column -->
@@ -23,7 +23,7 @@ export function renderHome() {
                     <div class="celtic-zodiac">
                         <p class="goldenTitle">Celtic Zodiac</p>
                         <div class="celtic-zodiac-details">
-                            <h4 class="zodiac-sign">Loading...</h4>
+                            <h4 class="zodiac-sign"></h4>
                         </div>
                     </div>
                 </div>

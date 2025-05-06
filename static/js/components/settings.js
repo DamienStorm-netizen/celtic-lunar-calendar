@@ -133,6 +133,15 @@ export function renderSettings() {
                             </span>
                         </label>
                     </li>
+
+                    <li class="mystical-toggle">
+                        <span>Show Past Events</span>
+                        <label class="switch">
+                            <input type="checkbox" id="show-past-events" data-on="🕰️" data-off="🚫" />
+                            <span class="slider round"></span>
+                        </label>
+                    </li>
+
                 <ul>
             </section>
 
@@ -159,7 +168,8 @@ export function getMysticalPrefs() {
         showEclipses: true,
         showMoons: true,
         showHolidays: true,
-        showCustomEvents: true // ✅ This line makes all the difference
+        showCustomEvents: true, // ✅ This line makes all the difference
+        showPastEvents: false
     };
 
     return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
@@ -259,6 +269,26 @@ export function setupSettingsEvents() {
     const addEventForm = document.getElementById("add-event-form");
     addEventForm.removeEventListener("submit", handleAddEventSubmit); // clear old
     addEventForm.addEventListener("submit", handleAddEventSubmit);    // attach fresh
+
+    document.getElementById("show-past-events").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showPastEvents = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
+        togglePastEventsVisibility(prefs.showPastEvents); // 🪄 Add this line
+    });
+
+    function togglePastEventsVisibility(show) {
+        document.querySelectorAll(".event-item").forEach(item => {
+          const dateText = item.querySelector("li:nth-child(2)")?.textContent;
+          if (!dateText) return;
+      
+          const eventDate = new Date(dateText);
+          const today = new Date();
+      
+          item.style.display = (show || eventDate >= today) ? "block" : "none";
+        });
+      }
 
     // Hide overlay and make it clickable
     document.getElementById("modal-overlay").addEventListener("click", () => {

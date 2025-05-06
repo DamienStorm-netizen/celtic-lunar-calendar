@@ -82,7 +82,7 @@
     "special_days": [
         {
             "name": "Imbolc",
-            "description": "Imbolc marks the first signs of spring. It's a time to celebrate the return of life and the arrival of new growth. Wiccans use this time to cleanse their homes and welcome new beginnings into their lives.",
+            "description": "Imbolc marks the first signs of spring. It's a time to celebrate the return of life and the arrival of new growth.",
             "poem": "Imbolc’s fire, a guiding light,\nTo cleanse the old and spark the bright.\nSweep the hearth and set your aim,\nBegin anew in Brigid’s name.",
             "date": "2025-02-01",
             "linked_phase": "Full Moon",
@@ -90,7 +90,7 @@
         },
         {
             "name": "Ostara",
-            "description": "Ostara marks the spring equinox. It's a time to celebrate the balance of light and dark and to look ahead to the growth and renewal of spring. Celebrants come together to plant seeds and watch the world come back to life.",
+            "description": "Ostara marks the spring equinox. It's a time to celebrate the balance of light and dark and to look ahead to the growth and renewal of spring.",
             "poem": "Ostara greets the dawn’s bright glow,\nAs light and dark share equal show.\nPlant a seed and watch it grow,\nSpring awakens, soft and slow.",
             "date": "2025-03-20",
             "linked_phase": "Full Moon",
@@ -98,7 +98,7 @@
         },
         {
             "name": "Beltane",
-            "description": "Beltane marks the beginning of summer. It's a time to celebrate the fertility of the earth and the arrival of new life. Wiccans come together to dance, sing, and make merry to mark this special day.",
+            "description": "Beltane marks the beginning of summer. It's a time to celebrate the fertility of the earth and the arrival of new life.",
             "poem": "Beltane fires in moonlit glade,\nMark love’s embrace and life displayed.\nDance with joy ‘neath skies so wide,\nAnd weave the threads where dreams reside.",
             "date": "2025-05-01",
             "linked_phase": "Full Moon",
@@ -106,7 +106,7 @@
         },
         {
             "name": "Litha",
-            "description": "Litha marks the summer solstice. It's a time to celebrate the power of the sun and the longest day of the year. Pagans come together to light fires, dance, and sing to mark this special day.",
+            "description": "Litha marks the summer solstice. It's a time to celebrate the power of the sun and the longest day of the year.",
             "poem": "The sun at peak, its golden flame,\nOn Litha’s day, no dark can claim.\nBathe in light, embrace its glow,\nAnd let your inner fire grow.",
             "date": "2025-06-21",
             "linked_phase": "Full Moon",
@@ -114,7 +114,7 @@
         },
         {
             "name": "Lammas",
-            "description": "Lammas marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter. Wiccans come together to exchange gifts and enjoy feasts to mark this special day.",
+            "description": "Lammas marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter.",
             "poem": "Lammas fields of amber grain,\nGive thanks for sun and summer rain.\nShare your bread, your heart, your care,\nAnd bless the earth with all you bear.",
             "date": "2025-08-01",
             "linked_phase": "Full Moon",
@@ -122,7 +122,7 @@
         },
         {
             "name": "Mabon",
-            "description": "Mabon marks the autumn equinox. It's a time to celebrate the balance of light and dark and to look ahead to the chill of winter. Wiccans come together to harvest crops, exchange gifts, and enjoy feasts to mark this special day.",
+            "description": "Mabon marks the autumn equinox. It's a time to celebrate the balance of light and dark and to look ahead to the chill of winter.",
             "poem": "Mabon’s time, the scales now sway,\nEqual hours of night and day.\nGather fruits and share the feast,\nCelebrate the earth’s increase.",
             "date": "2025-09-22",
             "linked_phase": "Full Moon",
@@ -130,7 +130,7 @@
         },
         {
             "name": "Samhain",
-            "description": "This festival marks the end of the harvest season. It's a time to reflect on the past year and honour the ancestors who have come before us. Samhain is also a time to connect with the spirit world and seek guidance for the future.",
+            "description": "This festival marks the end of the harvest season. It's a time to reflect on the past year and honour the ancestors who have come before us.",
             "poem": "The veil grows thin on Samhain night,\nA time for dreams and spirit’s sight.\nLight a flame for those once near,\nAnd seek their wisdom, calm and clear.",
             "date": "2025-10-31",
             "linked_phase": "Full Moon",
@@ -138,7 +138,7 @@
         },
         {
             "name": "Yule",
-            "description": "Yule marks the winter solstice. It's a time to celebrate the return of the light and the rebirth of the sun. Pagans come together to exchange gifts, light candles, and enjoy feasts to mark this special day.",
+            "description": "Yule marks the winter solstice. It's a time to celebrate the return of the light and the rebirth of the sun.",
             "poem": "Yule’s bright star in longest night,\nBrings hope of dawn and coming light.\nExchange your gifts, sing songs of cheer,\nThe wheel has turned; new life draws near.",
             "date": "2025-12-21",
             "linked_phase": "Full Moon",
@@ -162,7 +162,7 @@
             "date": "2025-02-14"
         },
         {
-            "title": "Presidents’ Day",
+            "title": "Presidents’s Day",
             "type": "USA",
             "date": "2025-02-17"
         },
@@ -184,8 +184,8 @@
         {
             "title": "Father's Day",
             "type": "USA",
-            "date":"2025-06-15"
-        }
+            "date":"2025-06-"
+        },
         {
             "title": "Juneteenth",
             "type": "USA",

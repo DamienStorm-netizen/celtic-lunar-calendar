@@ -444,11 +444,15 @@ async function enhanceCalendarTable(modalContainer, monthName) {
             }
 
             // 💜 Highlight Custom Event Days
-            const matchingEvents = customEvents.filter(event => {
-                const eventDate = event.date; // This is in 'YYYY-MM-DD' format
-                console.log(`Checking custom event: ${event.title} on ${eventDate}`);
+            const today = new Date();
+            const currentYear = today.getFullYear();
 
-                return eventDate === formattedGregorianDate; // Match Gregorian date format
+            const matchingEvents = customEvents.filter(event => {
+            const eventDate = new Date(event.date);
+            return (
+                eventDate.getFullYear() === currentYear &&
+                eventDate.toISOString().split("T")[0] === formattedGregorianDate
+                );
             });
 
             if (matchingEvents.length > 0) {
@@ -622,6 +626,30 @@ async function fetchFestivals() {
         console.error("Error fetching festivals:", error);
         return [];
     }
+}
+
+function waitForImagesToLoad(container, callback) {
+    const images = container.querySelectorAll("img");
+    let loaded = 0;
+  
+    if (images.length === 0) return callback();
+  
+    images.forEach((img) => {
+      if (img.complete) {
+        loaded++;
+      } else {
+        img.addEventListener("load", () => {
+          loaded++;
+          if (loaded === images.length) callback();
+        });
+        img.addEventListener("error", () => {
+          loaded++;
+          if (loaded === images.length) callback();
+        });
+      }
+    });
+  
+    if (loaded === images.length) callback();
 }
 
 // Function to fetch and display the details for a selected Celtic date
@@ -811,79 +839,33 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             </div>
         `;
 
-        // The Celestial Day Carousel
-        // ✨ Activate the Celestial Carousel
+        // 🍃 Simple Day Carousel (show/hide)
+        const allSlides = Array.from(document.querySelectorAll('.day-slide'));
         let currentSlide = 0;
-        const carousel = document.querySelector('.day-carousel');
-        const slides = document.querySelectorAll('.day-slide');
-        // Clone first and last slides for infinite loop
-        const firstClone = slides[0].cloneNode(true);
-        const lastClone = slides[slides.length - 1].cloneNode(true);
-        carousel.appendChild(firstClone);
-        carousel.insertBefore(lastClone, carousel.firstChild);
-        // Update slides NodeList and adjust starting index
-        const allSlides = carousel.querySelectorAll('.day-slide');
-        let indexOffset = 1; // because of the prepended clone
-        currentSlide += indexOffset;
-        carousel.style.transform = `translateX(-${currentSlide * allSlides[0].clientWidth}px)`;
-
-        document.querySelector('.day-carousel-prev').addEventListener('click', () => {
-            currentSlide--;
-            updateCarousel();
+        // Initialize slides: only show the first
+        allSlides.forEach((slide, i) => {
+          slide.style.display = i === currentSlide ? 'flex' : 'none';
         });
-        document.querySelector('.day-carousel-next').addEventListener('click', () => {
-            currentSlide++;
-            updateCarousel();
+        const showSlide = (index) => {
+          // hide current
+          allSlides[currentSlide].style.display = 'none';
+          // wrap index
+          currentSlide = (index + allSlides.length) % allSlides.length;
+          // show new
+          allSlides[currentSlide].style.display = 'flex';
+        };
+        // Prev/Next buttons
+        document.querySelector('.day-carousel-prev').addEventListener('click', () => showSlide(currentSlide - 1));
+        document.querySelector('.day-carousel-next').addEventListener('click', () => showSlide(currentSlide + 1));
+        // Swipe support
+        initSwipe(document.querySelector('.day-carousel'), {
+          onSwipeLeft: () => showSlide(currentSlide + 1),
+          onSwipeRight: () => showSlide(currentSlide - 1)
         });
-
-        function updateCarousel() {
-            const slideWidth = allSlides[0].clientWidth;
-            carousel.style.transition = 'transform 0.6s ease-in-out';
-            carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-        }
-
-        // Apply display preferences to Mystical Preferences
-        applyMysticalSettings(prefs);
-
         // Add event listener for the "Back" button
         document.getElementById("back-to-month").addEventListener("click", () => {
             modalContainer.classList.add("month-mode");
             showModal(celticMonth);
-        });
-
-        // 🎠 Swipe support for day carousel (delay to ensure DOM is ready)
-        requestAnimationFrame(() => {
-            const swipeTarget = document.querySelector(".day-carousel");
-            if (!swipeTarget) {
-                alert("❌ .day-carousel not found!");
-                return;
-            }
-            initSwipe(swipeTarget, {
-                onSwipeLeft: () => {
-                    currentSlide++;
-                    updateCarousel();
-                },
-                onSwipeRight: () => {
-                    currentSlide--;
-                    updateCarousel();
-                }
-            });
-            // Add seamless looping on transitionend
-            carousel.addEventListener('transitionend', () => {
-                const slideWidth = allSlides[0].clientWidth;
-                // If at clone at end, jump to real first slide
-                if (currentSlide === allSlides.length - 1) {
-                    carousel.style.transition = 'none';
-                    currentSlide = 1;
-                    carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-                }
-                // If at clone at start, jump to real last slide
-                if (currentSlide === 0) {
-                    carousel.style.transition = 'none';
-                    currentSlide = allSlides.length - 2;
-                    carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-                }
-            });
         });
   
     } catch (error) {
@@ -1072,6 +1054,23 @@ function generateDaySlides({
         </div>
       </div>
     `;
+}
+
+function initDayCarousel(carousel, allSlides, currentSlide) {
+    // Force consistent width for all slides
+    const container = carousel.parentElement; // Or use a more specific selector if needed
+    if (container) {
+        const slideWidth = container.clientWidth;
+
+        allSlides.forEach(slide => {
+            slide.style.width = `${slideWidth}px`;
+        });
+    }
+
+    waitForImagesToLoad(carousel, () => {
+        const slideWidth = allSlides[0].clientWidth;
+        carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+    });
 }
 
 export function applyMysticalSettings(prefs) {
