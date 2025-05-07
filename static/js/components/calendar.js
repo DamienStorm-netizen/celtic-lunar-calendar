@@ -235,7 +235,8 @@ function showModal(monthName) {
                         <li><label for="event-type">Type of Event</label>
                             <select id="event-type" name="event-type">
                                 <option value="😎 Friends">😎 Friends</option>
-                                <option value="🎉 Fun">🎉 Fun</option>
+                                <option value="🎉 Celebrations">🎉 Celebrations</option>
+                                <option value="🌸 My Cycle">🌸 My Cycle</option>
                                 <option value="💡 General" active>💡 General</option>
                                 <option value="🏥 Health">🏥 Health</option>
                                 <option value="💜 Romantic">💜 Romantic</option>
@@ -744,6 +745,19 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             return eventDate === formattedGregorianDate;
         });
 
+        // Generate featured icon for custom event slide
+        const iconMap = {
+            "😎 Friends": "😎",
+            "🎉 Celebrations": "🎉",
+            "🌸 My Cycle": "🌸",
+            "💡 General": "💡",
+            "🏥 Health": "🏥",
+            "💜 Romantic": "💜",
+            "🖥️ Professional": "🖥️",
+            "🔥 Date": "🔥" // If you use custom labels
+          };
+
+
         console.log("Formatted Gregorian date used with eclipses: ", formattedGregorianDate);
         console.log("Today Eclipse data fetched: ", eclipseEvent);
 
@@ -807,14 +821,18 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             : "";
 
         let eventsHTML = Array.isArray(events) && events.length > 0
-            ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-                <h3 class="subheader">Special Events</h3>
-                ${events.map(event => `
+        ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3 class="subheader">Your Event</h3>
+            ${events.map(event => {
+                const icon = iconMap[event.type] || "🌟"; // fallback
+                return `
                     <p><span class="event-title">${event.title}</span><br />
+                    <div class="custom-event-icon">${icon}</div>
                     <span class="event-note">${event.notes || 'No additional details.'}</span><br />
                     <span class="event-type">${event.type}</span></p>
-                `).join('')}`
-            : "";
+                `;
+            }).join('')}`
+        : "";
 
         // Update modal with lunar details
         modalDetails.innerHTML = `

@@ -35,7 +35,8 @@ export function renderSettings() {
                             <select id="event-type">
                                 <option value="🔥 Date">🔥 Date</option>
                                         <option value="😎 Friends">😎 Friends</option>
-                                        <option value="🎉 Fun">🎉 Fun</option>
+                                        <option value="🎉 Celebrations">🎉 Celebrations</option>
+                                        <option value="🌸 My Cycle">🌸 My Cycle</option>
                                         <option value="💡 General" active>💡 General</option>
                                         <option value="🏥 Health">🏥 Health</option>
                                         <option value="💜 Romantic">💜 Romantic</option>
@@ -65,7 +66,8 @@ export function renderSettings() {
                             <select id="edit-event-type">
                                 <option value="🔥 Date">🔥 Date</option>
                                 <option value="😎 Friends">😎 Friends</option>
-                                <option value="🎉 Fun">🎉 Fun</option>
+                                <option value="🎉 Celebrations">🎉 Celebrations</option>
+                                <option value="🌸 My Cycle">🌸 My Cycle</option>
                                 <option value="💡 General" active>💡 General</option>
                                 <option value="🏥 Health">🏥 Health</option>
                                 <option value="💜 Romantic">💜 Romantic</option>

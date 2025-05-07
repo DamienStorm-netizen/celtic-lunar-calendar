@@ -1662,9 +1662,9 @@ blockquote.moon-poem {
 
 .day-carousel {
   display: flex;
-  transition: transform 0.6s ease-in-out;
+  transition: transform 1.2s ease-in-out, opacity 0.6s ease-in-out;
+  will-change: transform, opacity;
   width: auto;
-  will-change: transform;
   /*background: rgba(255, 0, 0, 0.2); */
   touch-action: pan-x pan-y;
   pointer-events: auto;
@@ -1700,11 +1700,27 @@ blockquote.moon-poem {
   text-align: center;
   word-wrap: break-word;
   white-space: normal;
+
+  transition: opacity 0.8s ease-in-out;
 }
 
 .day-slide.active {
   opacity: 1;
   transform: translateX(0);
+}
+
+.day-carousel-prev img,
+.day-carousel-next img {
+  animation: arcanePulse 3s infinite ease-in-out;
+}
+
+@keyframes arcanePulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 223, 127, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 127, 0.9);
+  }
 }
 
 /* for DEBUGGING 
@@ -1780,6 +1796,41 @@ blockquote.moon-poem {
 
 .mystical-suggestion-block img {
   width: 250px;
+}
+
+.custom-event-icon {
+  position: relative;
+  font-size: 100px;
+  text-align: center;
+  margin: 20px auto;
+  animation: magicalPulse 2s infinite ease-in-out;
+  filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));
+}
+
+.custom-event-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(255, 255, 200, 0.4) 10%, rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%) scale(1);
+  border-radius: 50%;
+  animation: sparkleGlow 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes sparkleGlow {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.9;
+  }
 }
 
 .calendar-modal.month-mode .day-carousel-prev,
