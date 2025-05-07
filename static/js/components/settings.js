@@ -144,6 +144,13 @@ export function renderSettings() {
                         </label>
                     </li>
 
+                    <li class="mystical-toggle">
+                        <span>Show Constellations</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-constellations" checked />
+                            <span class="slider round"></span>
+                        </label>
+                    </li>
                 <ul>
             </section>
 
@@ -171,7 +178,8 @@ export function getMysticalPrefs() {
         showMoons: true,
         showHolidays: true,
         showCustomEvents: true, // ✅ This line makes all the difference
-        showPastEvents: false
+        showPastEvents: false,
+        showConstellations: true
     };
 
     return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
@@ -281,16 +289,19 @@ export function setupSettingsEvents() {
     });
 
     function togglePastEventsVisibility(show) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize today's date to midnight
+      
         document.querySelectorAll(".event-item").forEach(item => {
           const dateText = item.querySelector("li:nth-child(2)")?.textContent;
           if (!dateText) return;
       
           const eventDate = new Date(dateText);
-          const today = new Date();
+          eventDate.setHours(0, 0, 0, 0); // Normalize event date
       
           item.style.display = (show || eventDate >= today) ? "block" : "none";
         });
-      }
+    }
 
     // Hide overlay and make it clickable
     document.getElementById("modal-overlay").addEventListener("click", () => {
@@ -326,6 +337,9 @@ export function setupSettingsEvents() {
     document.getElementById("show-moons").checked = prefs.showMoons;
     document.getElementById("show-holidays").checked = prefs.showHolidays;
     document.getElementById("show-custom-events").checked = prefs.showCustomEvents;
+    document.getElementById("show-past-events").checked = prefs.showPastEvents;
+    
+    togglePastEventsVisibility(prefs.showPastEvents); // 🪄 apply immediately!
 
     function updateToggleIcons() {
         document.querySelectorAll(".switch input[type='checkbox']").forEach(input => {
@@ -689,6 +703,11 @@ function attachEventHandlers() {
         saveMysticalPrefs(prefs);
         applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
     });
+
+    document.getElementById("toggle-constellations").addEventListener("change", (e) => {
+        const layer = document.getElementById("constellation-layer");
+        layer.style.display = e.target.checked ? "block" : "none";
+      });
 }
 
 export function saveMysticalPrefs(prefs) {

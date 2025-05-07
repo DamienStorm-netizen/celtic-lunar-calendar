@@ -65,7 +65,7 @@ html, body {
   flex-direction: column;
   justify-content: flex-start;
   width: 400px;  /* Limit modal width */
-  background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, html, body  75%);
+  background: linear-gradient(to bottom, #0b0f1a 10%, #1a1a2f 100%);
   border-radius: 10px; /* Add some rounded corners */
   padding: 0px;
   text-align: center;
@@ -402,28 +402,6 @@ h1, .main-title {
   50% { background-color: #e0aaff; }
   100% { background-color: #b86bff; }
 }
-
-/* STAR LAYER */
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0.6; } /* Adjust starting/ending opacity */
-  50% { opacity: 0.2; }      /* Dim stars at their lowest point */
-}
-
-.star-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('../assets/images/decor/stars.png') repeat-x;
-  /*z-index: -1; Ensure it stays behind all content */
-  /*animation: twinkle 8s infinite ease-in-out; /* animation speed */
-  pointer-events: none; /* Prevent interaction */
-  opacity: 0.5; /* Adjust global opacity if needed */
-  z-index: 0;
-}
-
 
 /******************************************** /
 /* SPLASH SCREEN */
@@ -1905,6 +1883,81 @@ blockquote.moon-poem {
     box-shadow: 0 0 20px rgba(255, 255, 127, 0.9);
   }
 }
+
+/*** Celestial Moon Background ***/
+#constellation-layer {
+  background-color: rgba(0, 0, 0, 0.55);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+.twinkle-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.constellation-stars {
+  animation: none !important; /* No movement */
+  position: absolute;
+  top: 10%; /* Push it up visually */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 800px;
+  pointer-events: none;
+  /*animation: driftStars 120s linear infinite;*/
+}
+
+.constellation-stars circle {
+  fill: #FFD700;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 5px #FFD700);
+  animation: starTwinkle 4.5s infinite ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+.constellation-stars polyline {
+  stroke: #ffd700;
+  stroke-width: 1.2;
+  fill: none;
+  opacity: 0.9;
+}
+
+.twinkle circle {
+  animation: starTwinkle 6s infinite ease-in-out;
+  transform-origin: center;
+  filter: drop-shadow(0 0 6px #fffdd0) drop-shadow(0 0 12px #fff8b0);
+  opacity: 1;
+}
+
+.starry-sky circle {
+  animation: twinkle 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px #fff6e6);
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.orion-stars polyline { stroke: #fff6ea; }
+.brighid-stars polyline { stroke: #ff8c00; }
+.lugh-stars polyline { stroke: #ff4444; }
 
 /* Moon Magic in carousel */
 .moon-centered {

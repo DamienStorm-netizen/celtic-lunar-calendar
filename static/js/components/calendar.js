@@ -3,6 +3,7 @@ import { saveCustomEvents } from "../utils/localStorage.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
+import { starFieldSVG } from "../constants/starField.js";
 
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
@@ -11,7 +12,6 @@ let lastOpenedMonth = null; // Keep track of the last opened month modal
 
 export function renderCalendar() {
     return `
-    <div id="debug" style="color: white; font-size: 12px; position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 5px; z-index: 9999;"></div>
       <section class="calendar" class="fade-in">
         <div id="modal-overlay" class="modal-overlay hidden"></div>
 
@@ -64,6 +64,29 @@ export function renderCalendar() {
 
         <div id="modal-container" class="calendar-modal hidden">
             <div id="modal-content">
+                <!-- Add this inside #modal-container -->
+
+                <div id="constellation-layer">
+                    <!-- 🌠 Shooting star or constellation here -->
+                    <svg class="constellation-stars" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+                        ${starFieldSVG}
+                        <defs>
+                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="5" result="blur"/>
+                                <feMerge>
+                                <feMergeNode in="blur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <!-- Example Orion Constellation -->
+                        <circle cx="100" cy="120" r="2" fill="#f7e98c" filter="url(#glow)" />
+                        <circle cx="140" cy="160" r="2" fill="#f7e98c" filter="url(#glow)" />
+                        <circle cx="180" cy="200" r="2" fill="#f7e98c" filter="url(#glow)" />
+                        <polyline points="100,120 140,160 180,200" stroke="#ffd700" stroke-width="0.5" fill="none" />
+                    </svg>
+                </div>
+
                 <button id="close-modal" class="mystical-close">✦</button>
                 <!-- <button class="day-carousel-prev"><img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" /></button> -->
                 <div id="modal-details"></div>
@@ -448,12 +471,18 @@ async function enhanceCalendarTable(modalContainer, monthName) {
             const today = new Date();
             const currentYear = today.getFullYear();
 
+            const prefs = getMysticalPrefs(); // make sure this is declared above if not already
+
             const matchingEvents = customEvents.filter(event => {
-            const eventDate = new Date(event.date);
-            return (
-                eventDate.getFullYear() === currentYear &&
-                eventDate.toISOString().split("T")[0] === formattedGregorianDate
-                );
+                const eventDate = new Date(event.date);
+                const eventDateISO = eventDate.toISOString().split("T")[0];
+                const todayISO = new Date().toISOString().split("T")[0];
+
+                const isTodayOrFuture = eventDateISO >= todayISO;
+                const isSameDate = eventDateISO === formattedGregorianDate;
+
+                // Only include if past events are shown OR it's today/future
+                return isSameDate && (prefs.showPastEvents || isTodayOrFuture);
             });
 
             if (matchingEvents.length > 0) {
@@ -679,6 +708,9 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
   
     // Display the modal
     modalContainer.classList.remove("hidden");
+
+    const constellationOverlay = document.getElementById("constellation-layer");
+    constellationOverlay.className = `${celticMonth.toLowerCase()}-stars`;
   
     // Convert the Celtic date to Gregorian
     const gregorian = convertCelticToGregorian(celticMonth, celticDay);
@@ -703,7 +735,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     }
 
     // Apply display preferences to Mystical Preferences
-    const prefs = getMysticalPrefs();
+    // const prefs = getMysticalPrefs();
   
     // Construct an ISO date string
     const year = "2025";
