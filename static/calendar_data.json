@@ -145,83 +145,98 @@
             "linked_moon": "Cold Moon"
         }
     ],
-    "national_holidays": [
-        {
-            "title": "New Year's Day",
-            "type": "USA",
-            "date": "2025-01-01"
-        },
-        {
-            "title": "Martin Luther King Jr. Day",
-            "type": "USA",
-            "date": "2025-01-20"
-        },
-        {
-            "title": "Valentine's Day",
-            "type": "USA",
-            "date": "2025-02-14"
-        },
-        {
-            "title": "Presidents’s Day",
-            "type": "USA",
-            "date": "2025-02-17"
-        },
-        {
-            "title": "St. Patrick's Day",
-            "type": "USA",
-            "date": "2025-03-17"
-        },
-        {
-            "title": "Memorial Day",
-            "type": "USA",
-            "date": "2025-05-26"
-        },
-        {
-            "title": "Mother's Day",
-            "type": "USA",
-            "date": "2025-05-11"
-        },
-        {
-            "title": "Father's Day",
-            "type": "USA",
-            "date": "2025-06-"
-        },
-        {
-            "title": "Juneteenth",
-            "type": "USA",
-            "date": "2025-06-19"
-        },
-        {
-            "title": "Independence Day",
-            "type": "USA",
-            "date": "2025-07-04"
-        },
-        {
-            "title": "Labor Day",
-            "type": "USA",
-            "date": "2025-09-01"
-        },
-        {
-            "title": "Columbus Day",
-            "type": "USA",
-            "date": "2025-10-13"
-        },
-        {
-            "title": "Veterans Day",
-            "type": "USA",
-            "date": "2025-11-11"
-        },
-        {
-            "title": "Thanksgiving Day",
-            "type": "USA",
-            "date": "2025-11-27"
-        },
-        {
-            "title": "Christmas Day",
-            "type": "USA",
-            "date": "2025-12-25"
-        }
-    ],
+   "national_holidays": [
+    {
+        "title": "New Year's Day",
+        "type": "USA",
+        "date": "2025-01-01",
+        "description": "A turning of the cosmic wheel, where time is reborn in shimmering hope and stardust wishes."
+    },
+    {
+        "title": "Martin Luther King Jr. Day",
+        "type": "USA",
+        "date": "2025-01-20",
+        "description": "A day of dreaming bold and rising strong, when voices echo like thunder for justice and peace."
+    },
+    {
+        "title": "Valentine's Day",
+        "type": "USA",
+        "date": "2025-02-14",
+        "description": "A heart-shaped spell cast upon the world, where love blooms and passion lingers like rose perfume."
+    },
+    {
+        "title": "Presidents’ Day",
+        "type": "USA",
+        "date": "2025-02-17",
+        "description": "A reflection on those who shaped the nation's fate—through storms and stillness, with quill and courage."
+    },
+    {
+        "title": "St. Patrick's Day",
+        "type": "USA",
+        "date": "2025-03-17",
+        "description": "Emerald echoes and laughter rise—today the fae walk among us, cloaked in clover and mirth."
+    },
+    {
+        "title": "Memorial Day",
+        "type": "USA",
+        "date": "2025-05-26",
+        "description": "A solemn flame flickers for the fallen—where silence speaks of sacrifice and honour rides the breeze."
+    },
+    {
+        "title": "Mother's Day",
+        "type": "USA",
+        "date": "2025-05-11",
+        "description": "A day wrapped in the soft glow of nurturing spirits, where love flows from root to bloom."
+    },
+    {
+        "title": "Father's Day",
+        "type": "USA",
+        "date": "2025-06-16",
+        "description": "A tribute to guiding stars—strong, steady, and luminous as ancient oaks in summer’s sun."
+    },
+    {
+        "title": "Juneteenth",
+        "type": "USA",
+        "date": "2025-06-19",
+        "description": "Chains shattered, spirits freed—Juneteenth rings with ancestral triumph and the fire of freedom."
+    },
+    {
+        "title": "Independence Day",
+        "type": "USA",
+        "date": "2025-07-04",
+        "description": "Fireworks bloom like celestial flowers in celebration of liberty’s blazing star."
+    },
+    {
+        "title": "Labor Day",
+        "type": "USA",
+        "date": "2025-09-01",
+        "description": "A sacred pause where hands rest and hearts honour the quiet nobility of work."
+    },
+    {
+        "title": "Columbus Day",
+        "type": "USA",
+        "date": "2025-10-13",
+        "description": "Voyages remembered beneath a questioning sky—echoes of discovery and reckoning alike."
+    },
+    {
+        "title": "Veterans Day",
+        "type": "USA",
+        "date": "2025-11-11",
+        "description": "Honour walks among us, cloaked in silence and strength—today we remember the keepers of peace."
+    },
+    {
+        "title": "Thanksgiving Day",
+        "type": "USA",
+        "date": "2025-11-27",
+        "description": "A harvest of gratitude, where hearths glow with remembrance and blessings flow like mead."
+    },
+    {
+        "title": "Christmas Day",
+        "type": "USA",
+        "date": "2025-12-25",
+        "description": "A holy hush cloaks the world in wonder, where light returns through stories, stars, and song."
+    }
+],
     "custom_events": [
         {
             "id": "1711742214032",

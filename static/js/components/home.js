@@ -323,7 +323,7 @@ export function getUnnamedMoonPoem() {
   
               upcomingEvents.push({
                   type: "eclipse",
-                  title: `🌑 ${eclipse.title}`,
+                  title: ` ${eclipse.title}`,
                   description,
                   date: cleanDate
               });
@@ -338,7 +338,7 @@ export function getUnnamedMoonPoem() {
             upcomingEvents.push({
               type: "holiday",
               title: holiday.title,
-              description: holiday.notes || "A recognized holiday.",
+              description: holiday.description || "A recognized holiday.",
               date
             });
           }
@@ -349,11 +349,12 @@ export function getUnnamedMoonPoem() {
           const event = customEvents.find(e => e.date === date);
           if (event) {
             upcomingEvents.push({
-              type: "custom-event",
-              title: event.title,
-              description: event.notes || "A personal milestone.",
-              date
-            });
+                type: "custom-event",
+                category: event.type, // 👈 this is your "💜 Romantic", "🔥 Date", etc.
+                title: event.title,
+                description: event.notes || "A personal milestone.",
+                date: event.date
+              });
           }
         });
   
@@ -643,26 +644,41 @@ export function populateComingEventsCarousel(events) {
 
     carouselContainer.innerHTML = ""; // Clear previous slides
 
+    const typeIconMap = {
+        "festival": "🔥",
+        "full-moon": "🌕",
+        "eclipse": "🌑",
+        "holiday": "🎊"
+    };
+
+    // Generate featured icon for custom event slide
+    const iconMap = {
+        "😎 Friends": "😎",
+        "🎉 Celebrations": "🎉",
+        "🌸 My Cycle": "🌸",
+        "💡 General": "💡",
+        "🏥 Health": "🏥",
+        "💜 Romantic": "💜",
+        "🖥️ Professional": "🖥️",
+        "🔥 Date": "🔥" // If you use custom labels
+      };
+
     events.forEach((event, index) => {
         const slide = document.createElement("div");
         slide.classList.add("coming-events-slide");
         if (index === 0) slide.classList.add("active"); // Set the first slide as active
 
-        let icon = "";
-        switch (event.type) {
-            case "festival":
-                icon = "🔥"; // Fire for Celtic festivals
-                break;
-            case "full-moon":
-                icon = "🌕"; // Moon emoji
-                break;
-            case "holiday":
-                icon = "🎉"; // Celebration emoji
-                break;
-            case "custom-event":
-                icon = "💜"; // Custom events
-                break;
+        let icon = "✨";
+
+        if (event.type === "custom-event" && event.category) {
+            icon = iconMap[event.category] || "✨";
+        } else {
+            icon = typeIconMap[event.type] || "✨";
         }
+
+        console.log("Event category:", event.category);
+        console.log("Event type:", event.type);
+        
 
         // Convert Gregorian date to Celtic date
         const celticDate = convertGregorianToCeltic(event.date);

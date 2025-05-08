@@ -694,9 +694,6 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         return;
     }
 
-    console.log("🚨 Removing hidden class from modal-container");
-
-
     // Convert date format for lookup
     const formattedFestivalKey = `${celticMonth} ${celticDay}`;
   
@@ -826,9 +823,10 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
 
         let eclipseHTML = "";
         if (eclipseEvent) {
-        const eclipseImage = eclipseEvent.type === "Solar Eclipse"
-            ? "eclipse-solar.png"
-            : "eclipse-lunar.png";
+            console.log("Eclipse Event is:", eclipseEvent.type);
+            const eclipseImage = eclipseEvent.type === "solar-eclipse"
+                ? "eclipse-solar.png"
+                : "eclipse-lunar.png";
 
         eclipseHTML = `
             <div class="eclipse-block">
