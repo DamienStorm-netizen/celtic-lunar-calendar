@@ -184,7 +184,7 @@
         {
             "title": "Father's Day",
             "type": "USA",
-            "date":"2025-06-"
+            "date": "2025-06-"
         },
         {
             "title": "Juneteenth",
@@ -236,6 +236,27 @@
             "type": "🔥 Date",
             "date": "2025-04-12",
             "notes": "You took too much, too much...."
+        },
+        {
+            "id": "1746485879844",
+            "title": "Hello World, Baby Princess",
+            "type": "🔥 Date",
+            "notes": "Date test!",
+            "date": "2025-05-06"
+        },
+        {
+            "id": "1746575894446",
+            "title": "My First Period!",
+            "type": "🌸 My Cycle",
+            "notes": "I'm so excited!",
+            "date": "2025-05-08"
+        },
+        {
+            "id": "1746660249363",
+            "title": "Yesterday's Test",
+            "type": "🎉 Celebrations",
+            "notes": "Can you see me?",
+            "date": "2025-05-05"
         }
     ],
     "zodiac": [

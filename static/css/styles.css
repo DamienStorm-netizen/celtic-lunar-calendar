@@ -569,7 +569,7 @@ blockquote.moon-poem {
   background-repeat: no-repeat;
   width: 100%;
   background-position-x: center;
-  padding-bottom: 35px;;
+  padding-bottom: 35px;
 }
 
 .poem-container {
@@ -588,6 +588,7 @@ blockquote.moon-poem {
   font-size: 1rem !important;
   font-weight: 400;
   line-height: 120%;
+  color: rgb(215, 224, 255);
 }
 
 /* Lunar & Solar Eclipse Styling */
@@ -596,6 +597,11 @@ blockquote.moon-poem {
   color: #ffcc00; /* Soft glowing yellow text */
   border: 1px solid rgba(255, 204, 0, 0.5);
   text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+}
+
+.eclipse-img {
+  width: 150px !important;
+  margin-top: 30px;
 }
 
 /* Today's Moon Phase and Celtic Zodiac Sign */
@@ -813,7 +819,7 @@ blockquote.moon-poem {
 .coming-events-header {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
-  font-size: 2rem; /* Adjust size as needed */
+  font-size: 1.7rem; /* Adjust size as needed */
   color: #f5d742; /* Your dazzling title colour! */
   filter: drop-shadow(0 0 8px #ffd700);
   text-align: center;
@@ -867,7 +873,7 @@ blockquote.moon-poem {
   font-weight: 400; /* Use bold for the title */
   color: #f5d742; /* Your dazzling title colour! */
   text-align: center;
-  margin: 15px 0;
+  margin: 10px 0 0 0;
 }
 
 .coming-events-name {
@@ -885,11 +891,11 @@ blockquote.moon-poem {
 
 .coming-events-description {
   font-family: 'Libre Baskerville', serif;
-  font-size: 1.1rem !important;
+  font-size: 1rem !important;
   color: #fff;
   max-width: 100%;
   margin: 10px auto;
-  padding: 5px;
+  padding: 5px 10px 5px 10px;
 }
 
 .coming-events-carousel-prev,
@@ -1249,6 +1255,15 @@ blockquote.moon-poem {
   border-radius: 50%;
   text-align: center;
   font-weight: bold;
+}
+
+.eclipse-note {
+  font-family: "Libre Baskerville", serif;
+  font-size: 1rem;
+  font-style: italic;
+  text-align: center;
+  margin-top: 8px;
+  color: #fff6ea;
 }
 
 /* 🌳 Celtic Festivals */
@@ -2423,6 +2438,7 @@ body.modal-open {
 
 .festival-date {
   font-size: 1.2rem;
+  font-weight: 400;
   color: #fff6ea;
 }
 
@@ -2558,11 +2574,7 @@ body.modal-open {
   text-align: center;
   filter: drop-shadow(0 0 8px #ffd700);
   margin-top: 0;
-  margin-bottom: 0 !important;
-  /*font-style: normal;
-  font-size: 1.25rem;
-  color: #f5d742;
-  font-family: 'Cinzel Decorative', serif;*/
+  font-style: normal;
 }
 
 .moon-poem {
@@ -2570,6 +2582,7 @@ body.modal-open {
   font-weight: 400;
   color: #FFF6EA;
   font-style: italic;
+  line-height: 125%;
 }
 
 /* Navigation Arrows */
@@ -3546,6 +3559,7 @@ footer nav {
     padding: 0 10px;
     line-height: 1.4;
     word-wrap: break-word;
+    line-height: 125%;
   }
 
   .festival-slide .festival-icon {

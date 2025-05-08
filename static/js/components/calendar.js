@@ -824,6 +824,32 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         })
         .join("") || "No national holidays today.";
 
+        let eclipseHTML = "";
+        if (eclipseEvent) {
+        const eclipseImage = eclipseEvent.type === "Solar Eclipse"
+            ? "eclipse-solar.png"
+            : "eclipse-lunar.png";
+
+        eclipseHTML = `
+            <div class="eclipse-block">
+            <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3 class="goldenTitle">Eclipse</h3>
+            <img src='static/assets/images/eclipses/${eclipseImage}' class='eclipse-img' alt='${eclipseEvent.type}' />
+            <p><strong>${eclipseEvent.title}</strong></p>
+            <p class="eclipse-note">${eclipseEvent.description}</p>
+            </div>
+        `;
+        }
+
+        let holidayHTML = (holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today.")
+        ? `<div class="holiday-block">
+                <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+                <h3 class="goldenTitle">Holidays</h3>
+                <p>${holidayInfo}</p>
+        </div>`
+        : "";
+
+
         let festivalHTML = "";
         if (festivalEvent) {
             const imageSlugFestival = slugifyCharm(festivalEvent.name);
@@ -836,25 +862,9 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             `;
         }
 
-        console.log("Festival Data Retrieved:", festivalHTML); // Debugging Log
-
-        let holidayHTML = holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today."
-            ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="goldenTitle">Holidays</h3><p>${holidayInfo}</p>` 
-            : "";
-
-        let eclipseHTML = eclipseEvent //
-            ? `<div class="eclipse-block">
-                <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-                <h3 class="subheader">Eclipse</h3>
-                <p><strong>${eclipseEvent.title}</strong></p>
-                <p>${eclipseEvent.description}</p>
-            </div>`
-            : "";
-
         let eventsHTML = Array.isArray(events) && events.length > 0
         ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="subheader">Your Event</h3>
+            <h3 class="goldenTitle">Your Event</h3>
             ${events.map(event => {
                 const icon = iconMap[event.type] || "🌟"; // fallback
                 return `
@@ -1099,8 +1109,8 @@ function generateDaySlides({
         <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
         <h3 class="goldenTitle">Mystical Wisdom</h3>
         <div class="mystical-suggestion-block">
-          <p class="mystical-message">${randomMystical}</p>
-          <img src="static/assets/images/decor/mystical-sparkle.png" alt="Mystical Sparkle" class="divider" />
+            <img src="static/assets/images/decor/mystical-sparkle.png" alt="Mystical Sparkle" class="divider" />
+            <p class="mystical-message">${randomMystical}</p>
         </div>
       </div>
     `;
