@@ -324,7 +324,7 @@ h1, .main-title {
   font-family: 'Libre Baskerville', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
   font-size: 2rem; /* Adjust size as needed */
-  color: #f5d742; /* Your dazzling title colour! */
+  color: #f5d742 !important; /* Your dazzling title colour! */
   text-align: center;
   filter: drop-shadow(0 0 8px #ffd700);
   margin-top: 0;
@@ -892,7 +892,7 @@ blockquote.moon-poem {
 .coming-events-description {
   font-family: 'Libre Baskerville', serif;
   font-size: 1rem !important;
-  color: #fff;
+  color: #D7E0FF;
   max-width: 100%;
   margin: 10px auto;
   padding: 5px 10px 5px 10px;
@@ -1741,6 +1741,7 @@ blockquote.moon-poem {
   width: 100%;
   box-sizing: border-box;
   word-wrap: break-word;
+  color: #FFF6EA;
 }
 
 .day-slide h3, 
@@ -1750,6 +1751,7 @@ blockquote.moon-poem {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  color: #D7E0FF;
 }
 
 .festival-img {
@@ -2017,7 +2019,7 @@ blockquote.moon-poem {
 
 .mirabilis-content p {
   font-family: 'Libre Baskerville', serif;
-  color: #fff6ea;
+  color: #D7E0FF;
   line-height: 1.8;
   text-align: center;
 }
@@ -2290,7 +2292,7 @@ span.celtic-zodiac-date {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  color: white;
+  color: #D7E0FF;
   max-width: 80%;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
   margin: 0 auto;
@@ -2446,7 +2448,7 @@ body.modal-open {
   font-family: 'Libre Baskerville', serif;
   font-size: 1rem;
   font-style: italic;
-  color: #fff6ea;
+  color: #D7E0FF;
   max-width: 80%;
   margin: 10px auto;
   text-align: center; /* or left for better readability on small screens */
@@ -2580,7 +2582,7 @@ body.modal-open {
 .moon-poem {
   font-size: 1rem;
   font-weight: 400;
-  color: #FFF6EA;
+  color: #D7E0FF;
   font-style: italic;
   line-height: 125%;
 }
@@ -2653,7 +2655,7 @@ body.modal-open {
   font-size: 1.2rem;
   line-height: 120%;
   margin-bottom: 20px;
-  color: #fff6ea;
+  color: #D7E0FF;
   font-family: 'Libre Baskerville', serif;
 }
 
@@ -2733,14 +2735,14 @@ body.modal-open {
 .features-list li  {
   font-size: 1.2rem;
   line-height: 1.6;
-  color: #fff6ea;
+  color: #D7E0FF;
   font-weight: 400;
 }
 
 .creator p, .creator li {
   font-size: 1.2rem;
   line-height: 1.8;
-  color: #fff6ea;
+  color: #D7E0FF;
   font-weight: 400;
 }
 
@@ -2810,7 +2812,7 @@ body.modal-open {
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
   text-align: center;
-  color: #fff;
+  color: #D7E0FF;
   animation: fadeIn 1s ease-in-out;
 }
 
@@ -2837,7 +2839,7 @@ body.modal-open {
   font-size: 1.2rem;
   line-height: 120%;
   margin-bottom: 20px;
-  color: #fff6ea;
+  color: #D7E0FF;
   font-family: 'Libre Baskerville', serif;
 }
 
@@ -2851,7 +2853,7 @@ body.modal-open {
   padding: 20px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 12px;
-  color: white;
+  color: #D7E0FF;
   font-family: 'Cinzel', serif;
   box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
 }

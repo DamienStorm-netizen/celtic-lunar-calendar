@@ -1,5 +1,6 @@
 import { getMysticalPrefs } from "../utils/mysticalSettings.js";
 import { initSwipe } from "../utils/swipeHandler.js";
+import { getEventIcon } from "../utils/eventUtils.js";
 
 export function renderHome() {
     // Return the HTML and then in the next tick attach overlay & swipe
@@ -668,13 +669,7 @@ export function populateComingEventsCarousel(events) {
         slide.classList.add("coming-events-slide");
         if (index === 0) slide.classList.add("active"); // Set the first slide as active
 
-        let icon = "✨";
-
-        if (event.type === "custom-event" && event.category) {
-            icon = iconMap[event.category] || "✨";
-        } else {
-            icon = typeIconMap[event.type] || "✨";
-        }
+        const icon = getEventIcon(event);
 
         console.log("Event category:", event.category);
         console.log("Event type:", event.type);
