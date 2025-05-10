@@ -1,6 +1,7 @@
 import { getMysticalPrefs } from "../utils/mysticalSettings.js";
 import { initSwipe } from "../utils/swipeHandler.js";
 import { getEventIcon } from "../utils/eventUtils.js";
+import { getCelticWeekday, convertCelticToGregorian } from "../utils/dateUtils.js";
 
 export function renderHome() {
     // Return the HTML and then in the next tick attach overlay & swipe
@@ -102,6 +103,7 @@ export async function fetchCelticDate() {
         }
 
         const data = await response.json();
+        const weekday = getCelticWeekday(parseInt(data.celtic_day, 10));
         console.log("Fetched Celtic Date:", data);
 
         // Ensure the data contains the necessary values
@@ -113,9 +115,9 @@ export async function fetchCelticDate() {
         const dateContainer = document.querySelector('.celtic-date');
         if (dateContainer) {
             dateContainer.innerHTML = `
-                <h1 id="celtic-day">${data.day}</h1>
-                <p><span id="celtic-month">${data.month} ${data.celtic_day}</span> / <span id="gregorian-month">${data.gregorian_date}</span></p>
-            `;
+            <h1 id="celtic-day">${weekday}</h1>
+            <p><span id="celtic-month">${data.month} ${data.celtic_day}</span></p>
+        `;
         }
 
         // ✅ Return structured data so other functions can use it

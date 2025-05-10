@@ -143,7 +143,15 @@
             "date": "2025-12-21",
             "linked_phase": "Full Moon",
             "linked_moon": "Cold Moon"
-        }
+        },
+        {
+            "name": "Mirabilis",
+            "description": "Mirabilis is a breath held between endings and beginnings—a sacred pause where the wheel stands still. Neither dark nor light, it is the hush between heartbeats, the silence where soul meets sky.",
+            "poem": "Between the dusk and coming light,\nMirabilis blooms in velvet night.\nNo path to walk, no time to chase,\nJust stars and stillness, vast in space.",
+            "date": "2025-12-22",
+            "linked_phase": "Waning Gibbous",
+            "linked_moon": "Cold Moon"
+          }
     ],
    "national_holidays": [
     {

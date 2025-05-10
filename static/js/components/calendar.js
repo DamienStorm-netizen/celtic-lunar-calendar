@@ -4,6 +4,7 @@ import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
 import { starFieldSVG } from "../constants/starField.js";
+import { getCelticWeekday, convertCelticToGregorian } from '../utils/dateUtils.js';
 
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
@@ -143,14 +144,14 @@ export async function setupCalendarEvents() {
     thumbnails.forEach((thumbnail) => {
         thumbnail.addEventListener("click", (e) => {
             const monthName = e.target.closest(".month-thumbnail").dataset.month;
-            console.log(`CLICK! for: ${monthName}`);
-
-            // **Fetch Celtic Zodiac only when a month is clicked**
-            getCelticZodiac(monthName);
-
-            // Open the modal with the selected month
-            showModal(monthName);
-        });
+          
+            if (monthName === "Mirabilis") {
+                // ✨ Call as if it's a special day modal
+                showDayModal(1, "Mirabilis", "2025-12-22");
+            } else {
+                showModal(monthName);
+            }
+          });
     });
 }
 
@@ -538,40 +539,6 @@ async function getCelticDate() {
     }
 }
 
-// Convert Celtic date to Gregorian date.
-function convertCelticToGregorian(celticMonth, celticDay) {
-    const monthMapping = {
-        "Nivis": "2024-12-23",
-        "Janus": "2025-01-20",
-        "Brigid": "2025-02-17",
-        "Flora": "2025-03-17",
-        "Maia": "2025-04-14",
-        "Juno": "2025-05-12",
-        "Solis": "2025-06-09",
-        "Terra": "2025-07-07",
-        "Lugh": "2025-08-04",
-        "Pomona": "2025-09-01",
-        "Autumna": "2025-09-29",
-        "Eira": "2025-10-27",
-        "Aether": "2025-11-24"
-    };
-
-    const startDateStr = monthMapping[celticMonth];
-    if (!startDateStr) {
-        console.error("Invalid Celtic month:", celticMonth);
-        return null;
-    }
-
-    // Create a UTC date instead of a local date
-    const startDate = new Date(startDateStr + "T00:00:00Z"); 
-    const gregorianDate = new Date(startDate.getTime() + (celticDay - 1) * 24 * 60 * 60 * 1000);
-
-    return {
-        gregorianMonth: ("0" + (gregorianDate.getUTCMonth() + 1)).slice(-2),  // Ensure UTC month
-        gregorianDay: ("0" + gregorianDate.getUTCDate()).slice(-2)  // Ensure UTC day
-    };
-}
-
 async function fetchEclipseEvents() {
     try {
         console.log("🌘 Calling fetchEclipseEvents()...");
@@ -722,7 +689,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     const zodiac = getCelticZodiac(parseInt(gregorian.gregorianMonth, 10), parseInt(gregorian.gregorianDay, 10));
 
      // Get additional data
-    const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
+    //const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
     //const zodiac = getCelticZodiac(celticMonth, celticDay);
     let events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
 
@@ -893,7 +860,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
 
                <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
                 </div>
-                <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
+                ${celticMonth !== "Mirabilis" ? `<button id="back-to-month" class="back-button">Back to ${celticMonth}</button>` : ""}
             </div>
         `;
 
@@ -920,11 +887,15 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
           onSwipeLeft: () => showSlide(currentSlide + 1),
           onSwipeRight: () => showSlide(currentSlide - 1)
         });
+
         // Add event listener for the "Back" button
-        document.getElementById("back-to-month").addEventListener("click", () => {
-            modalContainer.classList.add("month-mode");
-            showModal(celticMonth);
-        });
+        const backButton = document.getElementById("back-to-month");
+        if (backButton) {
+            backButton.addEventListener("click", () => {
+                modalContainer.classList.add("month-mode");
+                showModal(celticMonth);
+            });
+        }
   
     } catch (error) {
         console.error("Error fetching lunar phase:", error);
@@ -979,12 +950,6 @@ function getCelticZodiac(gregorianMonth, gregorianDay) {
   
     console.log("❌ No zodiac match found, returning 'Unknown'");
     return "Unknown";
-}
-
-function getDayOfWeek(gregorianMonth, gregorianDay) {
-    const date = new Date(`2025-${gregorianMonth}-${gregorianDay}`);
-    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    return days[date.getDay()];
 }
 
 function getFormattedMonth(monthNum) {
@@ -1078,10 +1043,11 @@ function generateDaySlides({
     const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
   
     // 🗓 Get day of week and formatted month
-    const dateObj = new Date(formattedGregorianDate);
-    const weekday = dateObj.toLocaleDateString("en-GB", { weekday: "long" });
-    const gMonth = dateObj.toLocaleDateString("en-GB", { month: "long" });
-    const gDay = dateObj.getDate();
+    // ✨ Use the new dateUtils helper
+    const [year, month, day] = formattedGregorianDate.split("-");
+    const weekday = getCelticWeekday(celticDay);
+    const gMonth = getFormattedMonth(month); // Assuming you still want the pretty name
+    const gDay = parseInt(day, 10);
   
     const moonDescription = lunarData.description && lunarData.description !== "No description available."
         ? lunarData.description
@@ -1089,8 +1055,7 @@ function generateDaySlides({
   
     return `
       <div class="day-slide">
-          <!-- <h3 class="goldenTitle">${weekday}</h3> -->
-          <h3 class="goldenTitle">Monday</h3>
+          <h3 class="goldenTitle">${celticMonth === "Mirabilis" ? "Timeless" : weekday}</h3>
           <p><span class="celticDate">${celticMonth} ${celticDay}</span>/ <span class="gregorianDate">${gMonth} ${gDay}</span></p>
           <div class="moon-phase-graphic moon-centered">
               ${lunarData.graphic}
