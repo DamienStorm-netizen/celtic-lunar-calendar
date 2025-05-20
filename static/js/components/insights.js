@@ -1,3 +1,6 @@
+import { slugifyCharm } from "../utils/slugifyCharm.js";
+import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
+
 export function renderInsights() {
   return `
   <div id="insights-container" class="fade-in">  
@@ -116,7 +119,9 @@ export function renderInsights() {
           <h2 class="goldNugget" style="text-align:center; margin-bottom: 0">The Wheel of the Year</h2>
 
           <div id="festival-carousel" class="carousel-container">
-            <button class="festival-carousel-prev">❮</button>
+            <button class="festival-carousel-prev">
+              <img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" />
+            </button>
 
             <div class="festival-slide active">
                 <img src="static/assets/images/festivals/festival-imbolc.png" alt="Imbolc" class="festival-icon" />
@@ -137,8 +142,8 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="static/assets/images/festivals/festival-beltaine.png" alt="Beltaine" class="festival-icon" />
-                <h2 class="festival-title">Beltaine</h2>
+                <img src="static/assets/images/festivals/festival-beltane.png" alt="Beltane" class="festival-icon" />
+                <h2 class="festival-title">Beltane</h2>
                 <h3 class="festival-date">19th of Maia</h3>
                 <p class="festival-description">
                     Beltane is celebrated at the beginning of summer. It's a time to celebrate the fertility of the earth and the arrival of new life. Revelers come together to dance, sing, and make merry to mark this special day.
@@ -190,7 +195,9 @@ export function renderInsights() {
                 </p>
             </div>
 
-            <button class="festival-carousel-next">❯</button>
+            <button class="festival-carousel-next">
+              <img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" />
+            </button>
         </div>
     </div>
 
@@ -202,7 +209,9 @@ export function renderInsights() {
       <img class="full-moon" src="static/assets/images/decor/full-moon.png" alt="Full Moon" />
 
       <div class="moon-carousel">
-        <button class="carousel-prev">❮</button>
+        <button class="carousel-prev">
+          <img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" />
+        </button>
 
         <div class="moon-slide" id="snow-moon">
             <h2 class="moon-title">Snow Moon</h2>
@@ -336,7 +345,9 @@ export function renderInsights() {
             </p>
         </div>
 
-        <button class="carousel-next">❯</button>
+        <button class="carousel-next">
+          <img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" />
+        </button>
       </div>
     </div>
   </div>
@@ -469,10 +480,12 @@ async function showZodiacModal(zodiacName) {
         }
       }, 100); // Delay ensures styles are applied
 
+      const imageSlugZodiac = slugifyCharm(zodiacName);
+
       // 🖼️ Populate modal content
       document.getElementById("zodiac-name").textContent = zodiacEntry.name;
       document.getElementById("zodiac-date-range").textContent = zodiacEntry.celtic_date;
-      document.getElementById("zodiac-image").src = `static/assets/images/zodiac/zodiac-${zodiacName.toLowerCase()}.png`;
+      document.getElementById("zodiac-image").src = `static/assets/images/zodiac/zodiac-${imageSlugZodiac}.png`;
       document.getElementById("zodiac-description").textContent = zodiacEntry.symbolism;
       document.getElementById("zodiac-traits").textContent = zodiacEntry.symbolism;
       document.getElementById("zodiac-element").textContent = zodiacEntry.element || "Element unknown";
@@ -537,6 +550,13 @@ export function initializeFestivalCarousel() {
     showSlide(currentSlide);
   });
 
+  // 🎠 Swipe support for festival carousel
+  const festivalContainer = document.getElementById("festival-carousel");
+  initSwipe(festivalContainer, {
+    onSwipeLeft: () => nextButton.click(),
+    onSwipeRight: () => prevButton.click()
+  });
+
   // Start with the first festival as the default
   showSlide(currentSlide);
 }
@@ -584,6 +604,13 @@ export function initializeMoonPoetry() {
 
     currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
     showSlide(currentSlide);
+  });
+
+  // 🎠 Swipe support for moon poetry carousel
+  const moonContainer = document.querySelector(".moon-carousel");
+  initSwipe(moonContainer, {
+    onSwipeLeft: () => nextButton.click(),
+    onSwipeRight: () => prevButton.click()
   });
 
   // Function to determine the current Celtic month dynamically
@@ -655,20 +682,21 @@ function setInitialMoon() {
 export function revealZodiacOnScroll() {
   const zodiacs = document.querySelectorAll('.zodiac-item');
 
-  const reveal = () => {
-    const triggerBottom = window.innerHeight * 0.85;
-
-    zodiacs.forEach((item) => {
-      const boxTop = item.getBoundingClientRect().top;
-      if (boxTop < triggerBottom) {
-        item.classList.add('visible');
-        item.classList.remove('hidden');
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        entry.target.classList.remove('hidden');
+        observer.unobserve(entry.target); // Stop observing once revealed
       }
     });
-  };
+  }, {
+    threshold: 0.15 // You can tweak this for earlier/later reveals
+  });
 
-  window.addEventListener('scroll', reveal);
-  reveal(); // Reveal those already in view
+  zodiacs.forEach(item => {
+    observer.observe(item);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", revealZodiacOnScroll);

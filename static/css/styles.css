@@ -1,8 +1,36 @@
-body, html {
+html, body {
   padding-top: 5px;
   background-color: #1E1E1E;
-  overflow-x: hidden; /* Prevents horizontal scrolling */
-  max-width: 100vw; /* Ensures it never spills */
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/**********************************************/
+/*** ROUTER ***/
+/**********************************************/
+
+.error-screen {
+  padding: 2rem;
+  text-align: center;
+  color: #ffd700;
+  background: linear-gradient(to bottom, #2b2b52, #0f0f2f);
+  min-height: 100vh;
+}
+
+.retry-button {
+  background-color: #663399;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.retry-button:hover {
+  background-color: #7d44aa;
 }
 
 /**********************************************/
@@ -22,9 +50,8 @@ body, html {
   justify-content: center; /* Centre horizontally */
   align-items: center; /* Centre vertically */
   z-index: 1000; /* Ensure it appears above other content */
-  opacity: 0.8;
-  /*transform: scale(0.95);
-  animation: fadeIn 0.6s ease-out forwards;*/
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.4); /* If you want a semi-transparent background */
   border-radius: 10px;
   padding: 20px; /* Add some padding around the modal to prevent clipping */
   overflow: hidden; /* Stop rogue elements from overflowing */
@@ -37,9 +64,8 @@ body, html {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  overflow: hidden;
   width: 400px;  /* Limit modal width */
-  background: linear-gradient(0deg, rgba(94, 133, 148, 1) 4%, rgba(22, 38, 63, 1) 58%);
+  background: linear-gradient(to bottom, #0b0f1a 10%, #1a1a2f 100%);
   border-radius: 10px; /* Add some rounded corners */
   padding: 0px;
   text-align: center;
@@ -47,8 +73,10 @@ body, html {
   max-height: 90vh; /* Prevents the modal from exceeding 90% of the viewport height */
   /*scrollbar-width: thin;  Ensures a minimal, non-intrusive scrollbar */
   overflow: visible;
+  max-height: none;  /* Remove any scroll limit */
   /*overflow-x: hidden;
   overflow-y: auto; */ /*Enables scrolling inside the modal if content overflows */
+  box-sizing: border-box;
 }
 
 #close-modal {
@@ -83,16 +111,31 @@ body, html {
 }
 
 #modal-details {
-  scrollbar-width: thin; /* Ensures a minimal, non-intrusive scrollbar */
-  overflow: auto;
+  overflow-y: auto;
   overflow-x: hidden;
-  overflow-y: auto;  /*Enables scrolling inside the modal if content overflows */
-  max-height: 750px;
-  padding: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: #ffd700 #1E1E1E;
+  max-height: 80vh;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+#modal-details::-webkit-scrollbar {
+  width: 8px;
+}
+
+#modal-details::-webkit-scrollbar-thumb {
+  background-color: #ffd700;
+  border-radius: 10px;
+  border: 2px solid #1E1E1E;
+}
+
+#modal-details::-webkit-scrollbar-track {
+  background: #1E1E1E;
 }
 
 /* ✦ Add a magical twinkle animation */
-/*
+
 @keyframes twinkle {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.7; transform: scale(1.05); }
@@ -101,7 +144,7 @@ body, html {
 .mystical-close {
   animation: twinkle 6.5s infinite ease-in-out;
 }
-  */
+  
 
 .hidden {
   display: none;
@@ -242,8 +285,8 @@ body, html {
 
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('../assets/fonts/Libre Baskerville-regular-webfont.woff2') format('woff2'),
-       url('../assets/fonts/Libre Baskerville-regular-webfont.woff') format('woff');
+  src: url('../assets/fonts/librebaskerville-regular-webfont.woff2') format('woff2'),
+       url('../assets/fonts/librebaskerville-regular-webfont.woff') format('woff');
   font-weight: 400; /* Normal weight */
   font-style: normal;
 }
@@ -281,7 +324,7 @@ h1, .main-title {
   font-family: 'Libre Baskerville', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
   font-size: 2rem; /* Adjust size as needed */
-  color: #f5d742; /* Your dazzling title colour! */
+  color: #f5d742 !important; /* Your dazzling title colour! */
   text-align: center;
   filter: drop-shadow(0 0 8px #ffd700);
   margin-top: 0;
@@ -315,6 +358,8 @@ h1, .main-title {
 /* APP CONTAINER */
 /**********************************************/
 
+
+
 .container {
   position: relative;
   width: 100%;
@@ -323,35 +368,78 @@ h1, .main-title {
   margin: 0 auto;   /* Centres the container */
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Optional: Adds a soft shadow */
   border: 1px solid #6a0dad; /* Optional: Adds a border */
-  background: rgb(94,133,148);
   background: linear-gradient(0deg, rgba(94,133,148,1) 4%, rgba(22,38,63,1) 58%);
-  min-height: 100vh; /* Ensures it takes up full screen height */
+  /* height: 100vh; */ /* removed to prevent viewport-jumping on mobile */
+  min-height: 100vh; /* ensures full screen but allows for footer scroll */
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Prevent stars from spilling out */
   border-radius: 15px; /* Optional: Add rounded corners for extra charm */
   padding: 0;
+  overflow-y: auto; /* this handles scrolling */
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #6a0dad #1d1d2b; /* Same beautiful scroll! */
+  /* ensure scrollable content can clear the footer 
+  padding-bottom: 80px;
+  scroll-padding-bottom: 80px;*/
 }
 
-/* STAR LAYER */
-/*
-@keyframes twinkle {
-  0%, 100% { opacity: 0.6; } /* Adjust starting/ending opacity */
-  /*50% { opacity: 0.2; }      /* Dim stars at their lowest point */
-/*}*/
+.container::-webkit-scrollbar {
+  width: 8px;
+}
 
-.star-layer {
-  position: absolute;
+.container::-webkit-scrollbar-thumb {
+  background: #b86bff;
+  border-radius: 10px;
+  border: 2px solid #1d1d2b;
+  animation: shimmer-scroll 3s infinite ease-in-out;
+}
+
+@keyframes shimmer-scroll {
+  0% { background-color: #b86bff; }
+  50% { background-color: #e0aaff; }
+  100% { background-color: #b86bff; }
+}
+
+/******************************************** /
+/* SPLASH SCREEN */
+/**********************************************/
+
+#preloader {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('../assets/images/decor/stars.png') repeat-x;
-  /*z-index: -1; Ensure it stays behind all content */
-  /*animation: twinkle 8s infinite ease-in-out; /* animation speed */
-  pointer-events: none; /* Prevent interaction */
-  opacity: 0.5; /* Adjust global opacity if needed */
-  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, #1e1e1e 0%, #0e0e0e 100%); /* richer, enchanted backdrop */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.8s ease;
+}
+
+#preloader img {
+  /*width: 150px;*/
+  animation: goldenPulse 2.5s infinite ease-in-out;
+  display: block;
+  margin: 0 auto;
+}
+
+@keyframes goldenPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px #ffd700);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px #ffea80);
+  }
+}
+
+#preloader.fade-out {
+  opacity: 0;
+  pointer-events: none;
 }
 
 
@@ -421,7 +509,7 @@ header {
 }
 
 .home p {
-  font-size: 1.25rem;
+  font-size: 1rem;
   margin-bottom: 2rem;
 }
 
@@ -468,7 +556,7 @@ header {
 }
 
 #gregorian-month {
-  font-size: 0.7em;
+  font-size: 1rem;
   font-family: 'Cinzel Decorative', serif;
 }
 
@@ -477,11 +565,11 @@ blockquote.moon-poem {
 }
 
 .tree-of-life {
-  background-image: url(../assets/images/decor/treeoflife.png);
+  background-image: url(../assets/images/decor/treeoflife-fade.png);
   background-repeat: no-repeat;
   width: 100%;
   background-position-x: center;
-  padding-bottom: 35px;;
+  padding-bottom: 35px;
 }
 
 .poem-container {
@@ -497,9 +585,10 @@ blockquote.moon-poem {
   margin: 0;
   padding: 0 5px 0 5px;
   font-family: 'Libre Baskerville', serif;
-  font-size: 1.2rem !important;
+  font-size: 1rem !important;
   font-weight: 400;
   line-height: 120%;
+  color: rgb(215, 224, 255);
 }
 
 /* Lunar & Solar Eclipse Styling */
@@ -508,6 +597,11 @@ blockquote.moon-poem {
   color: #ffcc00; /* Soft glowing yellow text */
   border: 1px solid rgba(255, 204, 0, 0.5);
   text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+}
+
+.eclipse-img {
+  width: 175px !important;
+  margin-top: 30px;
 }
 
 /* Today's Moon Phase and Celtic Zodiac Sign */
@@ -525,6 +619,17 @@ blockquote.moon-poem {
   flex: 1;
   text-align: center;
   padding: 10px;
+}
+
+.zodiac-title {
+  font-family: 'Libre Baskerville', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2rem; /* Adjust size as needed */
+  color: #f5d742 !important; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+  margin-bottom: 0 !important;
 }
 
 .moon-column {
@@ -725,7 +830,7 @@ blockquote.moon-poem {
 .coming-events-header {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
-  font-size: 2rem; /* Adjust size as needed */
+  font-size: 1.7rem; /* Adjust size as needed */
   color: #f5d742; /* Your dazzling title colour! */
   filter: drop-shadow(0 0 8px #ffd700);
   text-align: center;
@@ -773,13 +878,13 @@ blockquote.moon-poem {
 }
 
 .coming-events-title {
-  font-size: 1.5rem; /* Adjust size as needed */
+  font-size: 1.25rem; /* Adjust size as needed */
   text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
   color: #f5d742; /* Your dazzling title colour! */
   text-align: center;
-  margin: 15px 0;
+  margin: 10px 0 0 0;
 }
 
 .coming-events-name {
@@ -790,41 +895,35 @@ blockquote.moon-poem {
 
 
 .coming-events-date {
-  font-size: 1.2rem;
+  font-size: 1rem !important;
   color: #fff6ea;
-  margin: 0;
+  margin: 0 !important;
 }
 
 .coming-events-description {
   font-family: 'Libre Baskerville', serif;
-  font-size: 1.1rem !important;
-  color: #fff;
+  font-size: 1rem !important;
+  color: #D7E0FF;
   max-width: 100%;
   margin: 10px auto;
-  padding: 5px;
+  padding: 5px 10px 5px 10px;
 }
 
-.coming-events-carousel-prev, .coming-events-carousel-next {
+.coming-events-carousel-prev,
+.coming-events-carousel-next {
   position: absolute;
-  top: 50%;
+  top: 60%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 2rem;
-  color: gold;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-  transition: opacity 0.3s ease-in-out;
-  z-index: 10; /* Make sure it is above everything else */
+  transition: transform 0.2s ease-in-out, opacity 0.3s ease-in-out;
+  z-index: 10;
+  /* font-size and color removed for image-based arrows */
 }
 
 .coming-events-carousel-prev { left: 1%; }
 .coming-events-carousel-next { right: 1%; }
-
-.coming-events-carousel-prev:hover, .coming-events-carousel-next:hover {
-  filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8));
-  animation: comingEventsGlow 0.8s infinite alternate ease-in-out;
-}
 
 .coming-events-carousel-prev.hidden,
 .coming-events-carousel-next.hidden {
@@ -832,9 +931,24 @@ blockquote.moon-poem {
   pointer-events: none;
 }
 
-@keyframes comingEventsGlow {
-  0% { filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8)); }
-  100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
+/* Base size and glow for moon icons */
+.coming-events-carousel-prev img,
+.coming-events-carousel-next img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
+  transition: transform 0.3s ease-in-out, box-shadow 0.4s ease-in-out;
+}
+
+/* Hover glow transitions */
+.coming-events-carousel-prev:hover img,
+.coming-events-carousel-next:hover img {
+  box-shadow:
+    0 0 20px rgba(164, 104, 214, 0.9),
+    0 0 30px rgba(104, 70, 140, 0.7),
+    0 0 40px rgba(84, 60, 120, 0.5);
+  transform: scale(1.1);
 }
 
 
@@ -927,6 +1041,9 @@ blockquote.moon-poem {
   font-family: 'Libre Baskerville', serif;
   color: #fff6ea;
   font-size: 1em; 
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 10px;
 }
 
 .divider {
@@ -966,29 +1083,36 @@ blockquote.moon-poem {
   table-layout: fixed; /* Distribute columns evenly */
   width: 100%; /* Table stretches to fit modal */
   border-collapse: collapse; /* Clean up borders */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow: hidden; /* Prevent all scrolling */
 }
 
 .calendar-grid th,
 .calendar-grid td {
+  box-sizing: border-box; /* Force padding and border inside the width */
   text-align: center;
   width: calc(100% / 7); /* Ensures all columns are evenly sized */
-  padding: 13px; /* Ensure all cells have the same padding */
   border: 1px dotted #32CD32; /* Ensure borders stay aligned */
   font-family: "Libre Baskerville", serif;
 }
 
 .calendar-grid th {
-  padding: 11px; /* Consistent padding */
-  color: #fff;
+  padding: 6px; /* SAME padding for both th and td */
+  color: rgb(215, 224, 255);
   font-family: "Libre Baskerville", serif;
-  font-size: 11.5px;
-  font-weight: bold;
+  font-size: 0.65rem;
   border: none; /* Remove borders from weekday headers */
   background-color: rgba(255, 255, 255, 0.1); /* Subtle background for headers */
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .calendar-grid td {
-  padding: 15.3px; /* Consistent padding */
+  padding: 13px; /* SAME padding for both th and td */
   color: #fff;
   background-color: rgba(255, 255, 255, 0.1); /* Subtle background for each day */
   border: 1px dotted #32CD32; /* Green dotted border for gridlines */
@@ -1049,12 +1173,12 @@ blockquote.moon-poem {
 
 /* Calendar Tabs */
 .calendar-tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-    margin-top: 25px;
-    max-width: 100%;
-    margin: 0 auto 25px auto;
+  display: flex;
+  justify-content: space-around; /* Even spacing between buttons */
+  align-items: center;
+  margin: 25px auto;
+  width: 100%;
+  max-width: 400px; /* Or your preferred fixed width */
 }
 
 .calendar-tab-button {
@@ -1145,6 +1269,15 @@ blockquote.moon-poem {
   font-weight: bold;
 }
 
+.eclipse-note {
+  font-family: "Libre Baskerville", serif;
+  font-size: 1rem;
+  font-style: italic;
+  text-align: center;
+  margin-top: 8px;
+  color: #fff6ea;
+}
+
 /* 🌳 Celtic Festivals */
 .festival-title {
   font-family: 'Cinzel Decorative', cursive;
@@ -1154,11 +1287,23 @@ blockquote.moon-poem {
   text-transform: uppercase;
 }
 
+.festival-image img {
+  width: 80%;
+}
+
 .festival-note {
   font-family: "Libre Baskerville", serif;
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-style: italic;
-  color: #EDEDED;
+  text-align: center;
+  margin-top: 8px;
+  padding: 0 20px;
+  color: #fff6ea;
+  width: 250px;
+}
+
+.festival-img {
+  width: 200px;
 }
 
 
@@ -1197,6 +1342,17 @@ blockquote.moon-poem {
   font-size: 0.8rem;
 }
 
+.event-title,
+.event-note,
+.event-type {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  text-align: center;
+  box-sizing: border-box;
+}
 
 /* 💜 Custom Event Day */
 .custom-holiday-day {
@@ -1454,16 +1610,6 @@ blockquote.moon-poem {
   margin: 0 auto;
 }
 
-/* Grid Container */
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  overflow-y: auto;
-}
-
 /* Individual Thumbnails */
 .month-thumbnail {
   display: flex;
@@ -1509,32 +1655,138 @@ blockquote.moon-poem {
   position: relative;
   overflow: hidden;
   width: 100% !important;
-  max-width: 350px !important;
+  max-width: 300px !important; /*350*/
   margin: 0 auto;
   padding: 10px;
   position: relative;
+  /*background-image: url(../assets/images/decor/treeoflife-fade.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: bottom;*/
 }
 
 .day-carousel {
   display: flex;
-  transition: transform 0.5s ease-in-out;
-  width: 100%;
-  will-change: transform;
+  transition: transform 1.2s ease-in-out, opacity 0.6s ease-in-out;
+  will-change: transform, opacity;
+  width: auto;
+  /*background: rgba(255, 0, 0, 0.2); */
+  touch-action: pan-x pan-y;
+  pointer-events: auto;
+  max-width: 100%;
+  overflow: hidden;
 }
+/*
+.day-slide {  For debugging
+  background: linear-gradient(to bottom, #2a0a47, #1a0938);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255, 223, 127, 0.2);
+}*/
 
 .day-slide {
-  flex: 0 0 100%;
-  flex-direction: column;
-  align-items: center;       /* Horizontal centring */
-  justify-content: center;   /* Vertical centring */
-  text-align: center;
-  padding: 20px;
-  min-height: 300px;         /* Or however tall your carousel is */
-  box-sizing: border-box;
-  max-width: 100%;
-  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  width: 100%;
+  max-width: 300px;
+  min-width: 300px;
+  box-sizing: border-box;
+
+  padding: 20px;
+  min-height: 300px;
+  color: #fff6ea;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+
+  text-align: center;
+  word-wrap: break-word;
+  white-space: normal;
+
+  transition: opacity 0.8s ease-in-out;
+}
+
+.day-slide.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.day-carousel-prev img,
+.day-carousel-next img {
+  animation: arcanePulse 3s infinite ease-in-out;
+}
+
+@keyframes arcanePulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 223, 127, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 127, 0.9);
+  }
+}
+
+/* for DEBUGGING 
+.day-slide * {
+  outline: 1px dashed magenta;
+  max-width: 100%; 
+  box-sizing: border-box;
+}*/ 
+
+.moon-phase-graphic img,
+.festival-img,
+.holiday-img,
+.mystical-suggestion-block img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.moon-description,
+.festival-note,
+.event-note,
+.event-title {
+  padding: 0 10px;
+  width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  color: #FFF6EA;
+}
+
+.day-slide h3, 
+.day-slide p,
+.day-slide img,
+.day-slide .moon-phase-graphic {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  color: #D7E0FF;
+}
+
+.festival-img {
+  width: 200px !important;
+  margin: 0 auto;
+}
+
+.holiday-img {
+  width: 200px !important;
+  margin: 0 auto;
+}
+
+
+.celticDate {
+  color: #ffd700;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+.gregorianDate {
+  color: #fff6ea;
+  font-size: 1rem;
+  text-transform: uppercase;
 }
 
 .moon-phase-graphic,
@@ -1543,6 +1795,49 @@ blockquote.moon-poem {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.mystical-suggestion-block {
+  max-width: 300px;
+}
+
+.mystical-suggestion-block img {
+  width: 250px;
+}
+
+.custom-event-icon {
+  position: relative;
+  font-size: 100px;
+  text-align: center;
+  margin: 20px auto;
+  animation: magicalPulse 2s infinite ease-in-out;
+  filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));
+}
+
+.custom-event-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(255, 255, 200, 0.4) 10%, rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%) scale(1);
+  border-radius: 50%;
+  animation: sparkleGlow 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes sparkleGlow {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.9;
+  }
 }
 
 .calendar-modal.month-mode .day-carousel-prev,
@@ -1574,11 +1869,13 @@ blockquote.moon-poem {
 }
 
 .day-carousel-next {
-  right: 25px;
+  right: 5px;
+  top: 300px;
 }
 
 .day-carousel-prev {
   left: 6px;
+  top: 300px;
 }
 
 .day-carousel-prev:hover img,
@@ -1616,6 +1913,81 @@ blockquote.moon-poem {
   }
 }
 
+/*** Celestial Moon Background ***/
+#constellation-layer {
+  background-color: rgba(0, 0, 0, 0.55);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+.twinkle-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.constellation-stars {
+  animation: none !important; /* No movement */
+  position: absolute;
+  top: 10%; /* Push it up visually */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 800px;
+  pointer-events: none;
+  /*animation: driftStars 120s linear infinite;*/
+}
+
+.constellation-stars circle {
+  fill: #FFD700;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 5px #FFD700);
+  animation: starTwinkle 4.5s infinite ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+.constellation-stars polyline {
+  stroke: #ffd700;
+  stroke-width: 1.2;
+  fill: none;
+  opacity: 0.9;
+}
+
+.twinkle circle {
+  animation: starTwinkle 6s infinite ease-in-out;
+  transform-origin: center;
+  filter: drop-shadow(0 0 6px #fffdd0) drop-shadow(0 0 12px #fff8b0);
+  opacity: 1;
+}
+
+.starry-sky circle {
+  animation: twinkle 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px #fff6e6);
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.orion-stars polyline { stroke: #fff6ea; }
+.brighid-stars polyline { stroke: #ff8c00; }
+.lugh-stars polyline { stroke: #ff4444; }
+
 /* Moon Magic in carousel */
 .moon-centered {
   font-size: 150px;
@@ -1632,12 +2004,14 @@ blockquote.moon-poem {
 }
 
 .moon-description {
-  font-size: 1rem;
-  font-style: italic;
-  text-align: center;
-  margin-top: 8px;
-  padding: 0 20px;
-  color: #fff6ea; /* or your moonlight colour */
+    font-family: "Libre Baskerville", serif;
+    font-size: 1rem;
+    font-style: italic;
+    text-align: center;
+    margin-top: 8px;
+    padding: 0 20px;
+    color: #fff6ea;
+    width: 250px;
 }
 
 /* Mirabilis Modal */
@@ -1657,7 +2031,7 @@ blockquote.moon-poem {
 
 .mirabilis-content p {
   font-family: 'Libre Baskerville', serif;
-  color: #fff6ea;
+  color: #D7E0FF;
   line-height: 1.8;
   text-align: center;
 }
@@ -1793,6 +2167,15 @@ blockquote.moon-poem {
   margin-top: 20px;
 }
 
+.zodiac-image {
+  filter: drop-shadow(0 0 6px #fefbd8);
+  transition: transform 0.3s ease;
+  width: 200px !important;
+}
+.zodiac-image:hover {
+  transform: scale(1.05);
+}
+
 .zodiac-list ul li {
  color: #fff6ea;
 }
@@ -1863,6 +2246,10 @@ blockquote.moon-poem {
   color: #fff6ea;
 }
 
+span.celtic-zodiac-date {
+  font-size: 0.8rem;
+}
+
 /* Glow effect on hover */
 .zodiac-item:hover {
   /*transform: scale(1.1);*/
@@ -1926,7 +2313,7 @@ blockquote.moon-poem {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  color: white;
+  color: #D7E0FF;
   max-width: 80%;
   box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
   margin: 0 auto;
@@ -2074,17 +2461,20 @@ body.modal-open {
 
 .festival-date {
   font-size: 1.2rem;
+  font-weight: 400;
   color: #fff6ea;
 }
 
 .festival-description {
   font-family: 'Libre Baskerville', serif;
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-style: italic;
-  color: #fff;
+  color: #D7E0FF;
   max-width: 80%;
   margin: 10px auto;
+  text-align: center; /* or left for better readability on small screens */
 }
+
 
 .festival-carousel-prev, .festival-carousel-next {
   position: absolute;
@@ -2110,6 +2500,30 @@ body.modal-open {
 @keyframes festivalGlow {
   0% { filter: drop-shadow(0 0 10px rgba(255, 223, 127, 0.8)); }
   100% { filter: drop-shadow(0 0 20px rgba(255, 255, 127, 1)); }
+}
+
+/* Match calendar glow effects on insights carousel arrows */
+.festival-carousel-prev img,
+.festival-carousel-next img,
+.carousel-prev img,
+.carousel-next img {
+  width: 40px;
+  height: 40px;
+  transform: translateY(-4px);
+  box-shadow: 0 0 10px #ffd700;
+  transition: 0.4s ease-in-out;
+  border-radius: 50%;
+}
+
+.festival-carousel-prev:hover img,
+.festival-carousel-next:hover img,
+.carousel-prev:hover img,
+.carousel-next:hover img {
+  box-shadow:
+    0 0 20px rgba(164, 104, 214, 0.9),
+    0 0 30px rgba(104, 70, 140, 0.7),
+    0 0 40px rgba(84, 60, 120, 0.5);
+  transform: scale(1.1);
 }
 
 
@@ -2174,23 +2588,24 @@ body.modal-open {
   line-height: 130%;
 }
 
-.moon-poem h3 {
-  font-style: normal;
-  font-size: 1.2rem;
-  color: #f5d742;
-  font-family: 'Cinzel Decorative', serif;
-}
 
-.moon-poem p {
-  font-style: italic;
-  font-size: 1rem;
+.moon-poem h3 {
+  font-family: 'Libre Baskerville', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 1.25rem; /* Adjust size as needed */
+  color: #f5d742; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+  font-style: normal;
 }
 
 .moon-poem {
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 400;
-  color: #FFF6EA;
+  color: #D7E0FF;
   font-style: italic;
+  line-height: 125%;
 }
 
 /* Navigation Arrows */
@@ -2201,13 +2616,12 @@ body.modal-open {
   color: #FFD700;
   cursor: pointer;
   position: absolute;
-  top: 8%;
   /*transform: translateY(-50%);*/
   transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
 }
 
-.carousel-prev { left: 10px; }
-.carousel-next { right: 10px; }
+.carousel-prev { left: 10px; top: 75px; }
+.carousel-next { right: 10px; top: 75px; }
 
 /* New pulsing effect on hover */
 .carousel-prev:hover, .carousel-next:hover {
@@ -2262,7 +2676,7 @@ body.modal-open {
   font-size: 1.2rem;
   line-height: 120%;
   margin-bottom: 20px;
-  color: #fff6ea;
+  color: #D7E0FF;
   font-family: 'Libre Baskerville', serif;
 }
 
@@ -2342,15 +2756,19 @@ body.modal-open {
 .features-list li  {
   font-size: 1.2rem;
   line-height: 1.6;
-  color: #fff6ea;
+  color: #D7E0FF;
   font-weight: 400;
 }
 
 .creator p, .creator li {
   font-size: 1.2rem;
   line-height: 1.8;
-  color: #fff6ea;
+  color: #D7E0FF;
   font-weight: 400;
+}
+
+.playground-logo {
+  width: 125px;
 }
 
 /* Fade-in Animation */
@@ -2415,7 +2833,7 @@ body.modal-open {
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
   text-align: center;
-  color: #fff;
+  color: #D7E0FF;
   animation: fadeIn 1s ease-in-out;
 }
 
@@ -2442,7 +2860,7 @@ body.modal-open {
   font-size: 1.2rem;
   line-height: 120%;
   margin-bottom: 20px;
-  color: #fff6ea;
+  color: #D7E0FF;
   font-family: 'Libre Baskerville', serif;
 }
 
@@ -2456,7 +2874,7 @@ body.modal-open {
   padding: 20px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 12px;
-  color: white;
+  color: #D7E0FF;
   font-family: 'Cinzel', serif;
   box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
 }
@@ -2467,7 +2885,43 @@ body.modal-open {
 
 .settings-title {
   text-align: center;
-  font-size: 2em;
+  font-size: 2.5em;
+}
+
+.conversion-settings {
+  margin-bottom: 20px;
+}
+
+.conversion-settings li {
+  list-style-type: none;
+  margin-bottom: 5px;
+}
+
+.converted-date {
+  color: #fff6ea;
+}
+
+.flatpickr-input {
+    background: url('/static/images/decor/full-moon.png') no-repeat right 10px center;
+    background-size: 24px;
+    padding-right: 35px;
+    color: #ffd700;
+    font-family: 'Libre Baskerville', serif;
+}
+
+.lunar-date-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  font-size: 1em;
+  margin-top: 5px;
+}
+
+.lunar-label {
+  font-weight: bold;
+  color: #FFD700;
 }
 
 .mystical-list li {
@@ -2917,7 +3371,7 @@ body.modal-open {
   font-style: italic;
   /*text-shadow: 0 0 10px rgba(255, 223, 127, 0.8);*/
   margin-top: 10px;
-  font-size: 1.2rem !important;
+  font-size: 1rem !important;
   color: #ffcaff;
   margin-top: 10px;
   /*transition: opacity 0.5s ease;*/
@@ -3001,6 +3455,35 @@ input:checked + .slider .toggle-icon {
   transform: translateX(22px);
 }
 
+/**********************************************/
+/*   SCROLL Bar Styles   */
+/**********************************************/
+
+/* Chrome, Safari, Edge (WebKit) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1d1d2b;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b86bff, #5e30eb);
+  border-radius: 5px;
+  border: 2px solid #1d1d2b;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #e4aaff, #835bff);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b86bff #1d1d2b;
+}
 
 
 /**********************************************/
@@ -3052,6 +3535,26 @@ footer nav {
   filter: drop-shadow(0 0 6px #ffda44);
 }
 
+/* Home carousel arrows: use crescent images with gold & purple glow */
+.coming-events-carousel-prev img,
+.coming-events-carousel-next img {
+  width: 40px;
+  height: 40px;
+  transform: translateY(-4px);
+  box-shadow: 0 0 10px #ffd700;
+  transition: 0.4s ease-in-out;
+  border-radius: 50%;
+}
+
+.coming-events-carousel-prev:hover img,
+.coming-events-carousel-next:hover img {
+  box-shadow:
+    0 0 20px rgba(164, 104, 214, 0.9),
+    0 0 30px rgba(104, 70, 140, 0.7),
+    0 0 40px rgba(84, 60, 120, 0.5);
+  transform: scale(1.1);
+}
+
 /**********************************************/
 /*   MOBILE   */
 /**********************************************/
@@ -3090,5 +3593,40 @@ footer nav {
   .calendar-modal {
     width: 95vw;
     padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .festival-note, .moon-description {
+    font-size: 0.95rem;
+    width: 250px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 414px) {
+  .festival-slide .festival-title {
+    font-size: 1.5rem; /* slightly smaller */
+  }
+
+  .festival-slide .festival-date {
+    font-size: 1rem;
+  }
+
+  .festival-slide .festival-description {
+    font-size: 1rem;
+    padding: 0 10px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    line-height: 125%;
+  }
+
+  .festival-slide .festival-icon {
+    width: 180px;
+    height: 180px;
+  }
+
+  .festival-slide {
+    padding: 10px;
   }
 }

@@ -61,7 +61,7 @@
             "tagline": "A tribute to the Roman goddess of orchards and fruitfulness, Pomona is a season of rich harvests and whispered abundance, where the earth gifts its sweetest treasures."
         },
         {
-            "name": "Autumma",
+            "name": "Autumna",
             "start_date": "2025-09-29",
             "end_date": "2025-10-26",
             "tagline": "From the Latin ‘autumnus’ meaning the fall, Autumna is the golden descent of the year, where leaves turn to fire and the air hums with the poetry of endings."
@@ -82,7 +82,7 @@
     "special_days": [
         {
             "name": "Imbolc",
-            "description": "Imbolc marks the first signs of spring. It's a time to celebrate the return of life and the arrival of new growth. Wiccans use this time to cleanse their homes and welcome new beginnings into their lives.",
+            "description": "Imbolc marks the first signs of spring. It's a time to celebrate the return of life and the arrival of new growth.",
             "poem": "Imbolc’s fire, a guiding light,\nTo cleanse the old and spark the bright.\nSweep the hearth and set your aim,\nBegin anew in Brigid’s name.",
             "date": "2025-02-01",
             "linked_phase": "Full Moon",
@@ -90,7 +90,7 @@
         },
         {
             "name": "Ostara",
-            "description": "Ostara marks the spring equinox. It's a time to celebrate the balance of light and dark and to look ahead to the growth and renewal of spring. Celebrants come together to plant seeds and watch the world come back to life.",
+            "description": "Ostara marks the spring equinox. It's a time to celebrate the balance of light and dark and to look ahead to the growth and renewal of spring.",
             "poem": "Ostara greets the dawn’s bright glow,\nAs light and dark share equal show.\nPlant a seed and watch it grow,\nSpring awakens, soft and slow.",
             "date": "2025-03-20",
             "linked_phase": "Full Moon",
@@ -98,7 +98,7 @@
         },
         {
             "name": "Beltane",
-            "description": "Beltane marks the beginning of summer. It's a time to celebrate the fertility of the earth and the arrival of new life. Wiccans come together to dance, sing, and make merry to mark this special day.",
+            "description": "Beltane marks the beginning of summer. It's a time to celebrate the fertility of the earth and the arrival of new life.",
             "poem": "Beltane fires in moonlit glade,\nMark love’s embrace and life displayed.\nDance with joy ‘neath skies so wide,\nAnd weave the threads where dreams reside.",
             "date": "2025-05-01",
             "linked_phase": "Full Moon",
@@ -106,7 +106,7 @@
         },
         {
             "name": "Litha",
-            "description": "Litha marks the summer solstice. It's a time to celebrate the power of the sun and the longest day of the year. Pagans come together to light fires, dance, and sing to mark this special day.",
+            "description": "Litha marks the summer solstice. It's a time to celebrate the power of the sun and the longest day of the year.",
             "poem": "The sun at peak, its golden flame,\nOn Litha’s day, no dark can claim.\nBathe in light, embrace its glow,\nAnd let your inner fire grow.",
             "date": "2025-06-21",
             "linked_phase": "Full Moon",
@@ -114,7 +114,7 @@
         },
         {
             "name": "Lammas",
-            "description": "Lammas marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter. Wiccans come together to exchange gifts and enjoy feasts to mark this special day.",
+            "description": "Lammas marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter.",
             "poem": "Lammas fields of amber grain,\nGive thanks for sun and summer rain.\nShare your bread, your heart, your care,\nAnd bless the earth with all you bear.",
             "date": "2025-08-01",
             "linked_phase": "Full Moon",
@@ -122,7 +122,7 @@
         },
         {
             "name": "Mabon",
-            "description": "Mabon marks the autumn equinox. It's a time to celebrate the balance of light and dark and to look ahead to the chill of winter. Wiccans come together to harvest crops, exchange gifts, and enjoy feasts to mark this special day.",
+            "description": "Mabon marks the autumn equinox. It's a time to celebrate the balance of light and dark and to look ahead to the chill of winter.",
             "poem": "Mabon’s time, the scales now sway,\nEqual hours of night and day.\nGather fruits and share the feast,\nCelebrate the earth’s increase.",
             "date": "2025-09-22",
             "linked_phase": "Full Moon",
@@ -130,7 +130,7 @@
         },
         {
             "name": "Samhain",
-            "description": "This festival marks the end of the harvest season. It's a time to reflect on the past year and honour the ancestors who have come before us. Samhain is also a time to connect with the spirit world and seek guidance for the future.",
+            "description": "This festival marks the end of the harvest season. It's a time to reflect on the past year and honour the ancestors who have come before us.",
             "poem": "The veil grows thin on Samhain night,\nA time for dreams and spirit’s sight.\nLight a flame for those once near,\nAnd seek their wisdom, calm and clear.",
             "date": "2025-10-31",
             "linked_phase": "Full Moon",
@@ -138,80 +138,113 @@
         },
         {
             "name": "Yule",
-            "description": "Yule marks the winter solstice. It's a time to celebrate the return of the light and the rebirth of the sun. Pagans come together to exchange gifts, light candles, and enjoy feasts to mark this special day.",
+            "description": "Yule marks the winter solstice. It's a time to celebrate the return of the light and the rebirth of the sun.",
             "poem": "Yule’s bright star in longest night,\nBrings hope of dawn and coming light.\nExchange your gifts, sing songs of cheer,\nThe wheel has turned; new life draws near.",
             "date": "2025-12-21",
             "linked_phase": "Full Moon",
             "linked_moon": "Cold Moon"
-        }
+        },
+        {
+            "name": "Mirabilis",
+            "description": "Mirabilis is a breath held between endings and beginnings—a sacred pause where the wheel stands still. Neither dark nor light, it is the hush between heartbeats, the silence where soul meets sky.",
+            "poem": "Between the dusk and coming light,\nMirabilis blooms in velvet night.\nNo path to walk, no time to chase,\nJust stars and stillness, vast in space.",
+            "date": "2025-12-22",
+            "linked_phase": "Waning Gibbous",
+            "linked_moon": "Cold Moon"
+          }
     ],
-    "national_holidays": [
-        {
-            "title": "New Year's Day",
-            "type": "USA",
-            "date": "2025-01-01"
-        },
-        {
-            "title": "Martin Luther King Jr. Day",
-            "type": "USA",
-            "date": "2025-01-20"
-        },
-        {
-            "title": "Valentine's Day",
-            "type": "USA",
-            "date": "2025-02-14"
-        },
-        {
-            "title": "Presidents’ Day",
-            "type": "USA",
-            "date": "2025-02-17"
-        },
-        {
-            "title": "St. Patrick's Day",
-            "type": "USA",
-            "date": "2025-03-17"
-        },
-        {
-            "title": "Memorial Day",
-            "type": "USA",
-            "date": "2025-05-26"
-        },
-        {
-            "title": "Juneteenth",
-            "type": "USA",
-            "date": "2025-06-19"
-        },
-        {
-            "title": "Independence Day",
-            "type": "USA",
-            "date": "2025-07-04"
-        },
-        {
-            "title": "Labor Day",
-            "type": "USA",
-            "date": "2025-09-01"
-        },
-        {
-            "title": "Columbus Day",
-            "type": "USA",
-            "date": "2025-10-13"
-        },
-        {
-            "title": "Veterans Day",
-            "type": "USA",
-            "date": "2025-11-11"
-        },
-        {
-            "title": "Thanksgiving Day",
-            "type": "USA",
-            "date": "2025-11-27"
-        },
-        {
-            "title": "Christmas Day",
-            "type": "USA",
-            "date": "2025-12-25"
-        }
-    ],
+   "national_holidays": [
+    {
+        "title": "New Year's Day",
+        "type": "USA",
+        "date": "2025-01-01",
+        "description": "A turning of the cosmic wheel, where time is reborn in shimmering hope and stardust wishes."
+    },
+    {
+        "title": "Martin Luther King Jr. Day",
+        "type": "USA",
+        "date": "2025-01-20",
+        "description": "A day of dreaming bold and rising strong, when voices echo like thunder for justice and peace."
+    },
+    {
+        "title": "Valentine's Day",
+        "type": "USA",
+        "date": "2025-02-14",
+        "description": "A heart-shaped spell cast upon the world, where love blooms and passion lingers like rose perfume."
+    },
+    {
+        "title": "Presidents’ Day",
+        "type": "USA",
+        "date": "2025-02-17",
+        "description": "A reflection on those who shaped the nation's fate—through storms and stillness, with quill and courage."
+    },
+    {
+        "title": "St. Patrick's Day",
+        "type": "USA",
+        "date": "2025-03-17",
+        "description": "Emerald echoes and laughter rise—today the fae walk among us, cloaked in clover and mirth."
+    },
+    {
+        "title": "Memorial Day",
+        "type": "USA",
+        "date": "2025-05-26",
+        "description": "A solemn flame flickers for the fallen—where silence speaks of sacrifice and honour rides the breeze."
+    },
+    {
+        "title": "Mother's Day",
+        "type": "USA",
+        "date": "2025-05-11",
+        "description": "A day wrapped in the soft glow of nurturing spirits, where love flows from root to bloom."
+    },
+    {
+        "title": "Father's Day",
+        "type": "USA",
+        "date": "2025-06-16",
+        "description": "A tribute to guiding stars—strong, steady, and luminous as ancient oaks in summer’s sun."
+    },
+    {
+        "title": "Juneteenth",
+        "type": "USA",
+        "date": "2025-06-19",
+        "description": "Chains shattered, spirits freed—Juneteenth rings with ancestral triumph and the fire of freedom."
+    },
+    {
+        "title": "Independence Day",
+        "type": "USA",
+        "date": "2025-07-04",
+        "description": "Fireworks bloom like celestial flowers in celebration of liberty’s blazing star."
+    },
+    {
+        "title": "Labor Day",
+        "type": "USA",
+        "date": "2025-09-01",
+        "description": "A sacred pause where hands rest and hearts honour the quiet nobility of work."
+    },
+    {
+        "title": "Columbus Day",
+        "type": "USA",
+        "date": "2025-10-13",
+        "description": "Voyages remembered beneath a questioning sky—echoes of discovery and reckoning alike."
+    },
+    {
+        "title": "Veterans Day",
+        "type": "USA",
+        "date": "2025-11-11",
+        "description": "Honour walks among us, cloaked in silence and strength—today we remember the keepers of peace."
+    },
+    {
+        "title": "Thanksgiving Day",
+        "type": "USA",
+        "date": "2025-11-27",
+        "description": "A harvest of gratitude, where hearths glow with remembrance and blessings flow like mead."
+    },
+    {
+        "title": "Christmas Day",
+        "type": "USA",
+        "date": "2025-12-25",
+        "description": "A holy hush cloaks the world in wonder, where light returns through stories, stars, and song."
+    }
+],
     "custom_events": [
         {
             "id": "1711742214032",
@@ -226,6 +259,27 @@
             "type": "🔥 Date",
             "date": "2025-04-12",
             "notes": "You took too much, too much...."
+        },
+        {
+            "id": "1746485879844",
+            "title": "Hello World, Baby Princess",
+            "type": "🔥 Date",
+            "notes": "Date test!",
+            "date": "2025-05-06"
+        },
+        {
+            "id": "1746575894446",
+            "title": "My First Period!",
+            "type": "🌸 My Cycle",
+            "notes": "I'm so excited!",
+            "date": "2025-05-08"
+        },
+        {
+            "id": "1746660249363",
+            "title": "Yesterday's Test",
+            "type": "🎉 Celebrations",
+            "notes": "Can you see me?",
+            "date": "2025-05-05"
         }
     ],
     "zodiac": [

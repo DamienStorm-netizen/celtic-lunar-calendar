@@ -1,16 +1,19 @@
 import { getMysticalPrefs } from "./settings.js";
 import { saveCustomEvents } from "../utils/localStorage.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
+import { slugifyCharm } from "../utils/slugifyCharm.js";
+import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
+import { starFieldSVG } from "../constants/starField.js";
+import { getCelticWeekday, convertCelticToGregorian } from '../utils/dateUtils.js';
 
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
 let lastOpenedMonth = null; // Keep track of the last opened month modal
-let customEvents = []; // Initialize an empty array for storing custom events
+//let customEvents = []; // Initialize an empty array for storing custom events
 
 export function renderCalendar() {
-    const app = document.getElementById('app');
-    app.innerHTML = `
-        <section class="calendar" class="fade-in">
+    return `
+      <section class="calendar" class="fade-in">
         <div id="modal-overlay" class="modal-overlay hidden"></div>
 
             <h1 class="calendar-title">Calendar</h1>
@@ -62,6 +65,29 @@ export function renderCalendar() {
 
         <div id="modal-container" class="calendar-modal hidden">
             <div id="modal-content">
+                <!-- Add this inside #modal-container -->
+
+                <div id="constellation-layer">
+                    <!-- 🌠 Shooting star or constellation here -->
+                    <svg class="constellation-stars" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+                        ${starFieldSVG}
+                        <defs>
+                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="5" result="blur"/>
+                                <feMerge>
+                                <feMergeNode in="blur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <!-- Example Orion Constellation -->
+                        <circle cx="100" cy="120" r="2" fill="#f7e98c" filter="url(#glow)" />
+                        <circle cx="140" cy="160" r="2" fill="#f7e98c" filter="url(#glow)" />
+                        <circle cx="180" cy="200" r="2" fill="#f7e98c" filter="url(#glow)" />
+                        <polyline points="100,120 140,160 180,200" stroke="#ffd700" stroke-width="0.5" fill="none" />
+                    </svg>
+                </div>
+
                 <button id="close-modal" class="mystical-close">✦</button>
                 <!-- <button class="day-carousel-prev"><img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" /></button> -->
                 <div id="modal-details"></div>
@@ -71,12 +97,18 @@ export function renderCalendar() {
     `;
 
     console.log("✅ Running setupCalendarEvents...");
-    setupCalendarEvents();  // Ensure this runs after injecting HTML
-
 }
 
-async function setupCalendarEvents() {
+export async function setupCalendarEvents() {
     console.log("I am running setupCalendarEvents");
+
+    function logToScreen(message) {
+        const debug = document.getElementById("debug");
+        if (debug) {
+          debug.innerHTML += `<div>${message}</div>`;
+          debug.scrollTop = debug.scrollHeight;
+        }
+      }
 
     // Select the modal elements
     const modalContainer = document.getElementById("modal-container");
@@ -112,21 +144,180 @@ async function setupCalendarEvents() {
     thumbnails.forEach((thumbnail) => {
         thumbnail.addEventListener("click", (e) => {
             const monthName = e.target.closest(".month-thumbnail").dataset.month;
-            console.log(`CLICK! for: ${monthName}`);
-
-            // **Fetch Celtic Zodiac only when a month is clicked**
-            getCelticZodiac(monthName);
-
-            // Open the modal with the selected month
-            showModal(monthName);
-        });
+          
+            if (monthName === "Mirabilis") {
+                // ✨ Call as if it's a special day modal
+                showDayModal(1, "Mirabilis", "2025-12-22");
+            } else {
+                showModal(monthName);
+            }
+          });
     });
+}
+
+// Open modal window and insert HTML
+function showModal(monthName) {
+
+    lastOpenedMonth = monthName; // ✅ Store the last opened month
+    console.log("📅 Last opened month set to:", lastOpenedMonth);
+
+    const modalContainer = document.getElementById("modal-container"); // Ensure modalContainer is defined first
+
+    if (!modalContainer) {
+        return;
+    }
+
+    // Show the modal overlay
+    document.getElementById("modal-overlay").classList.add("show");
+    document.getElementById("modal-overlay").classList.remove("hidden");
+
+    // Make overlay clickable
+    document.getElementById("modal-overlay").addEventListener("click", () => {
+        console.log("Click on overlay");
+        // Hide the overlay itself
+        document.getElementById("modal-overlay").classList.remove("show");
+        document.getElementById("modal-overlay").classList.add("hidden");
+    });
+
+ 
+    modalContainer.classList.remove("hidden");
+    modalContainer.classList.add("month-mode");
+
+    if (monthName) {
+        const modalDetails = modalContainer.querySelector("#modal-details");
+
+        if (modalDetails) {
+            modalContainer.classList.add("show");
+            document.body.classList.add("modal-open"); // Prevent scrolling
+
+            if (monthName === 'Mirabilis') {
+                modalDetails.innerHTML = `
+                    <h2 class="month-title">${monthName}</h2>
+                    <div class="mirabilis-image">
+                        <img src="static/assets/images/decor/mirabilis-modal.png" alt="Mirabilis" />
+                    </div>
+                    <div class="mirabilis-content">
+                        <p>Between the last grain of sand and the first light of dawn, Mirabilis shimmers—a moment untethered, a breath between worlds.</p>
+                        <p>Neither past nor future, neither here nor there, it is the space where dreams are whispered and destinies rewritten.</p> 
+                        <p>Pause, reflect, release. For in this fleeting eternity, you are free to reshape the stars.<p>
+                        <br />
+                    </div>
+                `;
+            } else {
+                modalDetails.innerHTML = `
+                    <!-- Inside modalDetails.innerHTML -->
+                    <h2 class="month-title">${monthName}</h2>
+                    <p class="month-tagline">Loading month tagline...</p>
+
+                    <!-- 🌟 Magical Tabs -->
+                    <div class="calendar-tabs">
+                    <button id="tab-calendar" class="calendar-tab-button active">Calendar</button>
+                    <button id="tab-legend" class="calendar-tab-button">Legend</button>
+                    <button id="tab-add" class="calendar-tab-button">Add Your Event</button>
+                    </div>
+
+                    <!-- 🌿 Calendar View -->
+                    <div id="tab-content-calendar" class="calendar-tab-content active">
+                    <div class="calendarGridBox">
+                        <table class="calendar-grid">
+                        <thead>
+                            <tr>
+                            <th title="Moonday">Moon</th><th title="Trésda">Trés</th><th title="Wyrdsday">Wyrd</th><th title="Thornsday">Thrn</th><th title="Freyasday">Freya</th><th title="Emberveil">Ember</th><th title="Sunveil">Veil</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+                            <tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
+                            <tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr>
+                            <tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr>
+                        </tbody>
+                        </table>
+                    </div>
+                    </div>
+
+                    <!-- 🧚 Legend -->
+                    <div id="tab-content-legend" class="calendar-tab-content">
+                        <!-- <h3 class="goldenTitle">Legend</h3> -->
+                        <div id="legend-section">
+                            <table class="calendarLegendGrid">
+                                <tr class="festival-day-row"><td class="festival-day legendBox">&nbsp;</td><td>Festival Day</td></tr>
+                                <tr class="full-moon-day-row"><td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon</td></tr>
+                                <tr class="eclipse-day-row"><td class="eclipse-day legendBox">&nbsp;</td><td>Eclipse</td></tr>
+                                <tr class="national-holiday-row"><td class="national-holiday legendBox">&nbsp;</td><td>Holiday</td></tr>
+                                <tr class="custom-event-day-row"><td class="custom-event-day legendBox">&nbsp;</td><td>Your Event</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 💌 Add Event Form -->
+                    <div id="tab-content-add" class="calendar-tab-content">
+                    <!-- <h3 class="goldenTitle">Add Your Event</h3> -->
+                    <form id="add-event-form">
+                        <ul>
+                        <li><label for="event-name">Event Name</label>
+                            <input type="text" id="event-name" required /></li>
+                        <li><label for="event-type">Type of Event</label>
+                            <select id="event-type" name="event-type">
+                                <option value="😎 Friends">😎 Friends</option>
+                                <option value="🎉 Celebrations">🎉 Celebrations</option>
+                                <option value="🌸 My Cycle">🌸 My Cycle</option>
+                                <option value="💡 General" active>💡 General</option>
+                                <option value="🏥 Health">🏥 Health</option>
+                                <option value="💜 Romantic">💜 Romantic</option>
+                                <option value="🖥️ Professional">🖥️ Professional</option>
+                            </select></li>
+                        <li><label for="event-note">Event Description</label>
+                            <textarea id="event-note" rows="1" cols="35"></textarea></li>
+                        <li><label for="event-date">Date</label>
+                            <input type="text" id="event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
+                        <li><button type="submit" class="add-event-button">Add Event</button></li>
+                        </ul>
+                    </form>
+                    </div>
+                `;
+            }
+
+            // Fetch Mystical Preferences
+            applyMysticalSettings(getMysticalPrefs());
+
+            // Fetch tagline and update
+            fetchTagline(monthName);
+
+            // Setup tabbed navigation
+            setupCalendarTabNavigation();
+
+            // Apply fade-in effect
+            modalContainer.classList.add("fade-in");
+            modalContainer.classList.remove("fade-out");
+
+            // ✅ Call enhancement only when the modal is displayed
+            enhanceCalendarTable(modalContainer, monthName);
+
+            flatpickr("#event-date", {
+                altInput: true,
+                altFormat: "F j, Y",
+                dateFormat: "Y-m-d",
+                theme: "moonveil"
+            });
+
+            document.getElementById("add-event-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+              
+                // 🌟 Save the event here...
+              
+                // Switch to Calendar tab
+                document.getElementById("tab-calendar").click();
+              });
+        }
+    }
 }
 
  // Close modal
  function closeModal() {
     console.log("Click Close Button");
     const modalContainer = document.getElementById("modal-container");
+
+    document.body.classList.remove("modal-open"); //Add scrollbars to body
 
     if (modalContainer) {
         modalContainer.classList.add("hidden");
@@ -135,6 +326,46 @@ async function setupCalendarEvents() {
     // Show the modal overlay
     document.getElementById("modal-overlay").classList.add("hidden");
     document.getElementById("modal-overlay").classList.remove("show");
+}
+
+// Fetch monthly tag line
+async function fetchTagline(monthName) {
+    try {
+        const response = await fetch("/api/calendar-data");  // Updated endpoint
+        if (!response.ok) throw new Error("Failed to fetch calendar data");
+
+        const data = await response.json();
+        const monthData = data.months.find(month => month.name === monthName);
+
+        if (monthData) {
+            document.querySelector(".month-tagline").textContent = monthData.tagline;
+        } else {
+            document.querySelector(".month-tagline").textContent = "A whisper of time's essence...";
+        }
+    } catch (error) {
+        console.error("Error fetching tagline:", error);
+        document.querySelector(".month-tagline").textContent = "A whisper of time's essence...";
+    }
+}
+
+// Sets up the 3 tabs inside the  modal
+function setupCalendarTabNavigation() {
+    const tabs = document.querySelectorAll(".calendar-tab-button");
+    const contents = document.querySelectorAll(".calendar-tab-content");
+  
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const targetId = tab.id.replace("tab-", "tab-content-");
+  
+        // Deactivate all tabs
+        tabs.forEach((t) => t.classList.remove("active"));
+        contents.forEach((c) => c.classList.remove("active"));
+  
+        // Activate the clicked tab
+        tab.classList.add("active");
+        document.getElementById(targetId).classList.add("active");
+      });
+    });
 }
 
 // Add click events to HTML table
@@ -193,7 +424,7 @@ async function enhanceCalendarTable(modalContainer, monthName) {
                 console.error(`Failed to convert ${monthName} ${day} to Gregorian.`);
                 return;
             }
-            const formattedGregorianDate = `2025-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
+            const formattedGregorianDate = `${gregorian.gregorianYear}-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
   
              // Check if this date has an eclipse
              const eclipseEvent = eclipses.find(e => e.date.startsWith(formattedGregorianDate));
@@ -245,11 +476,21 @@ async function enhanceCalendarTable(modalContainer, monthName) {
             }
 
             // 💜 Highlight Custom Event Days
-            const matchingEvents = customEvents.filter(event => {
-                const eventDate = event.date; // This is in 'YYYY-MM-DD' format
-                console.log(`Checking custom event: ${event.title} on ${eventDate}`);
+            const today = new Date();
+            const currentYear = today.getFullYear();
 
-                return eventDate === formattedGregorianDate; // Match Gregorian date format
+            const prefs = getMysticalPrefs(); // make sure this is declared above if not already
+
+            const matchingEvents = customEvents.filter(event => {
+                const eventDate = new Date(event.date);
+                const eventDateISO = eventDate.toISOString().split("T")[0];
+                const todayISO = new Date().toISOString().split("T")[0];
+
+                const isTodayOrFuture = eventDateISO >= todayISO;
+                const isSameDate = eventDateISO === formattedGregorianDate;
+
+                // Only include if past events are shown OR it's today/future
+                return isSameDate && (prefs.showPastEvents || isTodayOrFuture);
             });
 
             if (matchingEvents.length > 0) {
@@ -271,9 +512,61 @@ async function enhanceCalendarTable(modalContainer, monthName) {
     applyMysticalSettings(getMysticalPrefs());
 
 }
-  
-  // Fetch lunar phases dynamically for a given month
-  async function fetchMoonPhases(monthName) {
+
+// Fetch national holidays dynamically
+async function fetchNationalHolidays() {
+    console.log('Fetching national holidays now!!');
+    try {
+        const response = await fetch("/api/national-holidays");
+        if (!response.ok) throw new Error("Failed to fetch national holidays");
+        const data = await response.json();
+        cachedNationalHolidays = data; // Store globally for reuse
+        console.log("✅ National Holidays Fetched:", cachedNationalHolidays);
+        return data;
+    } catch (error) {
+        console.error("Error fetching national holidays:", error);
+        return [];
+    }
+}
+
+async function getCelticDate() {
+    try {
+        const response = await fetch("/api/celtic-date");
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return {
+            celticMonth: data.month, // "Janus"
+            celticDay: parseInt(data.celtic_day, 10), // 19
+        };
+    } catch (error) {
+        console.error("Failed to fetch Celtic date:", error);
+        return null;
+    }
+}
+
+async function fetchEclipseEvents() {
+    try {
+        console.log("🌘 Calling fetchEclipseEvents()...");
+        const response = await fetch("/api/eclipse-events");
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const eclipseData = await response.json();
+        console.log("✅ Eclipse Data Retrieved:", eclipseData);
+
+        return eclipseData;
+    } catch (error) {
+        console.error("❌ Failed to fetch eclipse events:", error);
+        return [];
+    }
+}
+
+// Fetch lunar phases dynamically for a given month
+async function fetchMoonPhases(monthName) {
     console.log("Fetching moon phases for month:", monthName);
     try {
         const celticMonthMapping = {
@@ -309,10 +602,10 @@ async function enhanceCalendarTable(modalContainer, monthName) {
         console.error("Error fetching moon phases:", error);
         return [];
     }
-  }
-  
-  // Fetch custom events dynamically
-  async function fetchCustomEvents() {
+}
+
+// Fetch custom events dynamically
+async function fetchCustomEvents() {
     try {
         const response = await fetch("/api/custom-events");
         if (!response.ok) throw new Error("Failed to fetch custom events");
@@ -323,239 +616,44 @@ async function enhanceCalendarTable(modalContainer, monthName) {
     }
 }
 
- // Fetch national holidays dynamically
- async function fetchNationalHolidays() {
-    console.log('Fetching national holidays now!!');
+// Fetch Celtic festivals dynamically
+async function fetchFestivals() {
+    console.log('Fetching Festivals now!!');
     try {
-        const response = await fetch("/api/national-holidays");
-        if (!response.ok) throw new Error("Failed to fetch national holidays");
+        const response = await fetch("/festivals");
+        if (!response.ok) throw new Error("Failed to fetch festivals");
         const data = await response.json();
-        cachedNationalHolidays = data; // Store globally for reuse
-        console.log("✅ National Holidays Fetched:", cachedNationalHolidays);
+        cachedFestivals = data; // Store globally for reuse
+        console.log("✅ Festivals Fetched:", cachedFestivals);
         return data;
     } catch (error) {
-        console.error("Error fetching national holidays:", error);
+        console.error("Error fetching festivals:", error);
         return [];
     }
-} 
-
- // Open modal window and insert HTML
-function showModal(monthName) {
-
-    lastOpenedMonth = monthName; // ✅ Store the last opened month
-    console.log("📅 Last opened month set to:", lastOpenedMonth);
-
-    const modalContainer = document.getElementById("modal-container"); // Ensure modalContainer is defined first
-
-    if (!modalContainer) {
-        return;
-    }
-
-    // Show the modal overlay
-    document.getElementById("modal-overlay").classList.add("show");
-    document.getElementById("modal-overlay").classList.remove("hidden");
-
-    // Make overlay clickable
-    document.getElementById("modal-overlay").addEventListener("click", () => {
-        console.log("Click on overlay");
-        // Hide the overlay itself
-        document.getElementById("modal-overlay").classList.remove("show");
-        document.getElementById("modal-overlay").classList.add("hidden");
-    });
-
- 
-    modalContainer.classList.remove("hidden");
-    modalContainer.classList.add("month-mode");
-
-    if (monthName) {
-        const modalDetails = modalContainer.querySelector("#modal-details");
-
-        if (modalDetails) {
-            modalContainer.classList.add("show");
-            document.body.classList.add("modal-open"); // Prevent scrolling
-
-            if (monthName === 'Mirabilis') {
-                modalDetails.innerHTML = `
-                    <h2 class="month-title">${monthName}</h2>
-                    <div class="mirabilis-image">
-                        <img src="static/assets/images/decor/mirabilis-modal.png" alt="Mirabilis" />
-                    </div>
-                    <div class="mirabilis-content">
-                        <p>Between the last grain of sand and the first light of dawn, Mirabilis shimmers—a moment untethered, a breath between worlds.</p>
-                        <p>Neither past nor future, neither here nor there, it is the space where dreams are whispered and destinies rewritten.</p> 
-                        <p>Pause, reflect, release. For in this fleeting eternity, you are free to reshape the stars.<p>
-                        <br />
-                    </div>
-                `;
-            } else {
-                modalDetails.innerHTML = `
-                    <!-- Inside modalDetails.innerHTML -->
-                    <h2 class="month-title">${monthName}</h2>
-                    <p class="month-tagline">Loading month tagline...</p>
-
-                    <!-- 🌟 Magical Tabs -->
-                    <div class="calendar-tabs">
-                    <button id="tab-calendar" class="calendar-tab-button active">Calendar</button>
-                    <button id="tab-legend" class="calendar-tab-button" style="margin: 0 15px 0 5px">Legend</button>
-                    <button id="tab-add" class="calendar-tab-button">Add Your Event</button>
-                    </div>
-
-                    <!-- 🌿 Calendar View -->
-                    <div id="tab-content-calendar" class="calendar-tab-content active">
-                    <div class="calendarGridBox">
-                        <table class="calendar-grid">
-                        <thead>
-                            <tr>
-                            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
-                            <tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
-                            <tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr>
-                            <tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr>
-                        </tbody>
-                        </table>
-                    </div>
-                    </div>
-
-                    <!-- 🧚 Legend -->
-                    <div id="tab-content-legend" class="calendar-tab-content">
-                        <h3 class="goldenTitle">Legend</h3>
-                        <div id="legend-section">
-                            <table class="calendarLegendGrid">
-                                <tr class="festival-day-row"><td class="festival-day legendBox">&nbsp;</td><td>Festival Day</td></tr>
-                                <tr class="full-moon-day-row"><td class="full-moon-day legendBox">&nbsp;</td><td>Full Moon</td></tr>
-                                <tr class="eclipse-day-row"><td class="eclipse-day legendBox">&nbsp;</td><td>Eclipse</td></tr>
-                                <tr class="national-holiday-row"><td class="national-holiday legendBox">&nbsp;</td><td>Holiday</td></tr>
-                                <tr class="custom-event-day-row"><td class="custom-event-day legendBox">&nbsp;</td><td>Your Event</td></tr>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- 💌 Add Event Form -->
-                    <div id="tab-content-add" class="calendar-tab-content">
-                    <h3 class="goldenTitle">Add Your Event</h3>
-                    <form id="add-event-form">
-                        <ul>
-                        <li><label for="event-name">Event Name</label>
-                            <input type="text" id="event-name" required /></li>
-                        <li><label for="event-type">Type of Event</label>
-                            <select id="event-type" name="event-type">
-                                <option value="😎 Friends">😎 Friends</option>
-                                <option value="🎉 Fun">🎉 Fun</option>
-                                <option value="💡 General" active>💡 General</option>
-                                <option value="🏥 Health">🏥 Health</option>
-                                <option value="💜 Romantic">💜 Romantic</option>
-                                <option value="🖥️ Professional">🖥️ Professional</option>
-                            </select></li>
-                        <li><label for="event-note">Event Description</label>
-                            <textarea id="event-note" rows="1" cols="35"></textarea></li>
-                        <li><label for="event-date">Date</label>
-                            <input type="date" id="event-date" required /></li>
-                        <li><button type="submit" class="add-event-button">Add Event</button></li>
-                        </ul>
-                    </form>
-                    </div>
-                `;
-            }
-
-            // Fetch Mystical Preferences
-            applyMysticalSettings(getMysticalPrefs());
-
-            // Fetch tagline and update
-            fetchTagline(monthName);
-
-            // Setup tabbed navigation
-            setupCalendarTabNavigation();
-
-            // Apply fade-in effect
-            modalContainer.classList.add("fade-in");
-            modalContainer.classList.remove("fade-out");
-
-            // ✅ Call enhancement only when the modal is displayed
-            enhanceCalendarTable(modalContainer, monthName);
-
-            document.getElementById("add-event-form").addEventListener("submit", (e) => {
-                e.preventDefault();
-              
-                // 🌟 Save the event here...
-              
-                // Switch to Calendar tab
-                document.getElementById("tab-calendar").click();
-              });
-        }
-    }
 }
 
-function setupCalendarTabNavigation() {
-    const tabs = document.querySelectorAll(".calendar-tab-button");
-    const contents = document.querySelectorAll(".calendar-tab-content");
+function waitForImagesToLoad(container, callback) {
+    const images = container.querySelectorAll("img");
+    let loaded = 0;
   
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        const targetId = tab.id.replace("tab-", "tab-content-");
+    if (images.length === 0) return callback();
   
-        // Deactivate all tabs
-        tabs.forEach((t) => t.classList.remove("active"));
-        contents.forEach((c) => c.classList.remove("active"));
-  
-        // Activate the clicked tab
-        tab.classList.add("active");
-        document.getElementById(targetId).classList.add("active");
-      });
+    images.forEach((img) => {
+      if (img.complete) {
+        loaded++;
+      } else {
+        img.addEventListener("load", () => {
+          loaded++;
+          if (loaded === images.length) callback();
+        });
+        img.addEventListener("error", () => {
+          loaded++;
+          if (loaded === images.length) callback();
+        });
+      }
     });
-  }
-
-// Convert Celtic date to Gregorian date.
-function convertCelticToGregorian(celticMonth, celticDay) {
-    const monthMapping = {
-        "Nivis": "2024-12-23",
-        "Janus": "2025-01-20",
-        "Brigid": "2025-02-17",
-        "Flora": "2025-03-17",
-        "Maia": "2025-04-14",
-        "Juno": "2025-05-12",
-        "Solis": "2025-06-09",
-        "Terra": "2025-07-07",
-        "Lugh": "2025-08-04",
-        "Pomona": "2025-09-01",
-        "Autumna": "2025-09-29",
-        "Eira": "2025-10-27",
-        "Aether": "2025-11-24"
-    };
-
-    const startDateStr = monthMapping[celticMonth];
-    if (!startDateStr) {
-        console.error("Invalid Celtic month:", celticMonth);
-        return null;
-    }
-
-    // Create a UTC date instead of a local date
-    const startDate = new Date(startDateStr + "T00:00:00Z"); 
-    const gregorianDate = new Date(startDate.getTime() + (celticDay - 1) * 24 * 60 * 60 * 1000);
-
-    return {
-        gregorianMonth: ("0" + (gregorianDate.getUTCMonth() + 1)).slice(-2),  // Ensure UTC month
-        gregorianDay: ("0" + gregorianDate.getUTCDate()).slice(-2)  // Ensure UTC day
-    };
-}
-    
-async function getCelticDate() {
-    try {
-        const response = await fetch("/api/celtic-date");
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        return {
-            celticMonth: data.month, // "Janus"
-            celticDay: parseInt(data.celtic_day, 10), // 19
-        };
-    } catch (error) {
-        console.error("Failed to fetch Celtic date:", error);
-        return null;
-    }
+  
+    if (loaded === images.length) callback();
 }
 
 // Function to fetch and display the details for a selected Celtic date
@@ -570,9 +668,6 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         return;
     }
 
-    console.log("🚨 Removing hidden class from modal-container");
-
-
     // Convert date format for lookup
     const formattedFestivalKey = `${celticMonth} ${celticDay}`;
   
@@ -584,6 +679,9 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
   
     // Display the modal
     modalContainer.classList.remove("hidden");
+
+    const constellationOverlay = document.getElementById("constellation-layer");
+    constellationOverlay.className = `${celticMonth.toLowerCase()}-stars`;
   
     // Convert the Celtic date to Gregorian
     const gregorian = convertCelticToGregorian(celticMonth, celticDay);
@@ -595,12 +693,13 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
     const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
 
-    const zodiac = getCelticZodiac(parseInt(gregorian.gregorianMonth, 10), parseInt(gregorian.gregorianDay, 10));
+    const zodiacName = getCelticZodiacName(gregorian.gregorianMonth, gregorian.gregorianDay);
+    const zodiacSign = await fetchZodiacInfoByName(zodiacName);
 
      // Get additional data
-    const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
+    //const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
     //const zodiac = getCelticZodiac(celticMonth, celticDay);
-    let events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
+    let events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay, gregorian.gregorianYear);
 
     // Ensure events is always an array
     if (!Array.isArray(events)) {
@@ -608,10 +707,10 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     }
 
     // Apply display preferences to Mystical Preferences
-    const prefs = getMysticalPrefs();
+    // const prefs = getMysticalPrefs();
   
     // Construct an ISO date string
-    const year = "2025";
+    const year = gregorian.gregorianYear;
     const monthStr = String(gregorian.gregorianMonth).padStart(2, "0");
     const dayStr = String(gregorian.gregorianDay).padStart(2, "0"); 
     const dateStr = `${year}-${monthStr}-${dayStr}`;
@@ -642,6 +741,30 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         }
         console.log("Fetched National Holidays:", cachedNationalHolidays);        
 
+        // Find Celtic Zodiac for this date
+        const zodiacName = getCelticZodiacName(gregorian.gregorianMonth, gregorian.gregorianDay);
+        const zodiacSign = await fetchZodiacInfoByName(zodiacName);
+
+        console.log("Zodiac for this date:", zodiacSign);
+
+
+        // Create a new zodiac slide
+        let zodiacHTML = "";
+        if (zodiacSign && zodiacSign.name) {
+            const imageSlugZodiac = slugifyCharm(zodiacSign.name); // Convert to slugified charm name
+        zodiacHTML = `
+            <div class="carousel-slide zodiac-slide">
+                <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+                <h3 class="goldenTitle">Celtic Zodiac</h3>
+                <p><span class="zodiac-title">${zodiacSign.name.toUpperCase()}</span></p>
+                <img src="static/assets/images/zodiac/zodiac-${imageSlugZodiac}.png" alt="${zodiacSign.name}" class="zodiac-image">
+                <p class="zodiac-description">${zodiacSign.symbolism || "Mysterious and undefined."}</p>
+            </div>
+        `;
+        } else {
+            console.warn("⚠️ Zodiac sign not found for this date!");
+        }
+
         // Find eclipses for this date
         const eclipses = await fetchEclipseEvents();
         const eclipseEvent = eclipses.find(e => {
@@ -649,6 +772,19 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             console.log(`🔍 Checking Eclipse Date: ${eventDate} vs ${formattedGregorianDate}`);
             return eventDate === formattedGregorianDate;
         });
+
+        // Generate featured icon for custom event slide
+        const iconMap = {
+            "😎 Friends": "😎",
+            "🎉 Celebrations": "🎉",
+            "🌸 My Cycle": "🌸",
+            "💡 General": "💡",
+            "🏥 Health": "🏥",
+            "💜 Romantic": "💜",
+            "🖥️ Professional": "🖥️",
+            "🔥 Date": "🔥" // If you use custom labels
+          };
+
 
         console.log("Formatted Gregorian date used with eclipses: ", formattedGregorianDate);
         console.log("Today Eclipse data fetched: ", eclipseEvent);
@@ -677,94 +813,122 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         // Find the holiday for this date
         const holidayInfo = cachedNationalHolidays
         .filter(h => h.date === dateStr)
-        .map(h => `<p><strong>${h.title}</strong> ${h.notes}</p>`)
+        .map(h => {
+        const imageSlugHoliday = slugifyCharm(h.title);
+        return `<p><strong>${h.title}</strong></p>
+                <img src='static/assets/images/holidays/holiday-${imageSlugHoliday}.png' class='holiday-img' alt='${h.title}' />`;
+        })
         .join("") || "No national holidays today.";
 
-        let festivalHTML = festivalEvent
-            ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="subheader">Festivals</h3>
-            <p><span class="festival-title">${festivalEvent.name}</span></p>
-            <p class="festival-note">${festivalEvent.description}</p>`
-            : "";
+        let eclipseHTML = "";
+        if (eclipseEvent) {
+            console.log("Eclipse Event is:", eclipseEvent.type);
+            const eclipseImage = eclipseEvent.type === "solar-eclipse"
+                ? "eclipse-solar.png"
+                : "eclipse-lunar.png";
 
-        console.log("Festival Data Retrieved:", festivalHTML); // Debugging Log
+        eclipseHTML = `
+            <div class="eclipse-block">
+            <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3 class="goldenTitle">Eclipse</h3>
+            <img src='static/assets/images/eclipses/${eclipseImage}' class='eclipse-img' alt='${eclipseEvent.type}' />
+            <p><strong>${eclipseEvent.title}</strong></p>
+            <p class="eclipse-note">${eclipseEvent.description}</p>
+            </div>
+        `;
+        }
 
-        let holidayHTML = holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today."
-            ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="subheader">Holidays</h3><p>${holidayInfo}</p>` 
-            : "";
-
-        let eclipseHTML = eclipseEvent 
-            ? `<div class="eclipse-block">
+        let holidayHTML = (holidayInfo && holidayInfo.trim() !== "" && holidayInfo !== "No national holidays today.")
+        ? `<div class="holiday-block">
                 <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-                <h3 class="subheader">Eclipse</h3>
-                <p><strong>${eclipseEvent.title}</strong></p>
-                <p>${eclipseEvent.description}</p>
-            </div>`
-            : "";
+                <h3 class="goldenTitle">Holidays</h3>
+                <p>${holidayInfo}</p>
+        </div>`
+        : "";
+
+
+        let festivalHTML = "";
+        if (festivalEvent) {
+            const imageSlugFestival = slugifyCharm(festivalEvent.name);
+            festivalHTML = `
+                <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+                <h3 class="goldenTitle">Festivals</h3>
+                <p><span class="festival-title">${festivalEvent.name}</span></p>
+                <img src='static/assets/images/festivals/festival-${imageSlugFestival}.png' class='festival-img' alt='${festivalEvent.name}' />
+                <p class="festival-note">${festivalEvent.description}</p>
+            `;
+        }
 
         let eventsHTML = Array.isArray(events) && events.length > 0
-            ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-                <h3 class="subheader">Special Events</h3>
-                ${events.map(event => `
+        ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3 class="goldenTitle">Your Event</h3>
+            ${events.map(event => {
+                const icon = iconMap[event.type] || "🌟"; // fallback
+                return `
                     <p><span class="event-title">${event.title}</span><br />
+                    <div class="custom-event-icon">${icon}</div>
                     <span class="event-note">${event.notes || 'No additional details.'}</span><br />
                     <span class="event-type">${event.type}</span></p>
-                `).join('')}`
-            : "";
+                `;
+            }).join('')}`
+        : "";
 
         // Update modal with lunar details
         modalDetails.innerHTML = `
             <div class="day-carousel-wrapper">
                 <button class="day-carousel-prev"><img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" /></button>
 
-
                 <div class="day-carousel">
-                    <div class="day-carousel">
-                        ${generateDaySlides({ lunarData, festivalHTML, holidayHTML, eclipseHTML, eventsHTML })}
-                    </div>
+                    ${generateDaySlides({ 
+                        lunarData, 
+                        festivalHTML,
+                        zodiacHTML, 
+                        holidayHTML, 
+                        eclipseHTML, 
+                        eventsHTML,
+                        celticMonth,
+                        celticDay,
+                        formattedGregorianDate })}
                 </div>
 
                <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
                 </div>
-                <br />
-                <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
+                ${celticMonth !== "Mirabilis" ? `<button id="back-to-month" class="back-button">Back to ${celticMonth}</button>` : ""}
             </div>
         `;
 
-        // The Celestial Day Carousel
-        // ✨ Activate the Celestial Carousel
+        // 🍃 Simple Day Carousel (show/hide)
+        const allSlides = Array.from(document.querySelectorAll('.day-slide'));
         let currentSlide = 0;
-        const carousel = document.querySelector('.day-carousel');
-        const slides = document.querySelectorAll('.day-slide');
-
-        document.querySelector('.day-carousel-prev').addEventListener('click', () => {
-        if (currentSlide > 0) {
-            currentSlide--;
-            updateCarousel();
-        }
+        // Initialize slides: only show the first
+        allSlides.forEach((slide, i) => {
+          slide.style.display = i === currentSlide ? 'flex' : 'none';
+        });
+        const showSlide = (index) => {
+          // hide current
+          allSlides[currentSlide].style.display = 'none';
+          // wrap index
+          currentSlide = (index + allSlides.length) % allSlides.length;
+          // show new
+          allSlides[currentSlide].style.display = 'flex';
+        };
+        // Prev/Next buttons
+        document.querySelector('.day-carousel-prev').addEventListener('click', () => showSlide(currentSlide - 1));
+        document.querySelector('.day-carousel-next').addEventListener('click', () => showSlide(currentSlide + 1));
+        // Swipe support
+        initSwipe(document.querySelector('.day-carousel'), {
+          onSwipeLeft: () => showSlide(currentSlide + 1),
+          onSwipeRight: () => showSlide(currentSlide - 1)
         });
 
-        document.querySelector('.day-carousel-next').addEventListener('click', () => {
-        if (currentSlide < slides.length - 1) {
-            currentSlide++;
-            updateCarousel();
-        }
-        });
-
-        function updateCarousel() {
-        const slideWidth = slides[0].offsetWidth;
-        carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-        }
-
-        // Apply display preferences to Mystical Preferences
-        applyMysticalSettings(prefs);
-  
         // Add event listener for the "Back" button
-        document.getElementById("back-to-month").addEventListener("click", () => {
-            modalContainer.classList.add("month-mode");
-            showModal(celticMonth);
-        });
+        const backButton = document.getElementById("back-to-month");
+        if (backButton) {
+            backButton.addEventListener("click", () => {
+                modalContainer.classList.add("month-mode");
+                showModal(celticMonth);
+            });
+        }
   
     } catch (error) {
         console.error("Error fetching lunar phase:", error);
@@ -774,59 +938,8 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     console.log("Final Gregorian Date:", dateStr);
 }
 
-function generateDaySlides({ lunarData, festivalHTML, holidayHTML, eclipseHTML, eventsHTML }) {
-
-
-    const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
-
-    const mysticalSlide = `
-    <div class="day-slide">
-        <h3 class="goldenTitle">Mystical Suggestions</h3>
-        <div class="mystical-suggestion-block">
-        <p class="mystical-message">${randomMystical}</p>
-        <img src="static/assets/images/decor/moon-sparkle.png" alt="Mystical Sparkle" class="divider" />
-        </div>
-    </div>
-    `;
-
-    const moonDescription = lunarData.description && lunarData.description !== "No description available."
-        ? lunarData.description
-        : "The moon stirs in silence tonight, her secrets cloaked.";
-
-        return `
-        <div class="day-slide">
-            <h3 class="goldenTitle">Lunar Phase</h3>
-            <div class="moon-phase-graphic moon-centered">
-                ${lunarData.graphic}
-            </div>
-            <p class="moon-phase-name">${lunarData.moonName || lunarData.phase || "Unnamed Phase"}</p>
-            <p class="moon-description">${moonDescription}</p>
-        </div>
-      
-        ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
-        ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
-        ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
-        ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
-        ${mysticalSlide}
-      `;
-}
-
-function getFormattedMonth(monthNum) {
-    const monthNames = [
-        "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
-        "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
-    ];
-    return monthNames[parseInt(monthNum, 10) - 1]; // Convert to zero-based index
-}
-
-function getDayOfWeek(gregorianMonth, gregorianDay) {
-    const date = new Date(`2025-${gregorianMonth}-${gregorianDay}`);
-    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    return days[date.getDay()];
-}
-
 // Get Celtic Zodiac sign
-function getCelticZodiac(gregorianMonth, gregorianDay) {
+function getCelticZodiacName(gregorianMonth, gregorianDay) {
     console.log(`Checking zodiac for: ${gregorianMonth}-${gregorianDay}`);
   
     const zodiacSigns = [
@@ -847,32 +960,42 @@ function getCelticZodiac(gregorianMonth, gregorianDay) {
   
     const monthNum = parseInt(gregorianMonth, 10);
     const dayNum = parseInt(gregorianDay, 10);
-  
+
     for (const sign of zodiacSigns) {
-        const startMonth = sign.start.month;
-        const startDay = sign.start.day;
-        const endMonth = sign.end.month;
-        const endDay = sign.end.day;
-  
-        console.log(`Checking ${sign.name}: ${startMonth}/${startDay} - ${endMonth}/${endDay}`);
-  
-        // Zodiac range handling with numeric comparison
+        const { start, end } = sign;
         if (
-            (monthNum === startMonth && dayNum >= startDay) || 
-            (monthNum === endMonth && dayNum <= endDay) || 
-            (monthNum > startMonth && monthNum < endMonth) || 
-            (startMonth > endMonth && (monthNum > startMonth || monthNum < endMonth))
+            (monthNum === start.month && dayNum >= start.day) ||
+            (monthNum === end.month && dayNum <= end.day) ||
+            (start.month > end.month && (monthNum > start.month || monthNum < end.month))
         ) {
-            console.log(`🎉 Match Found! Zodiac: ${sign.name}`);
             return sign.name;
         }
     }
-  
-    console.log("❌ No zodiac match found, returning 'Unknown'");
     return "Unknown";
 }
 
-async function getCustomEvents(gregorianMonth, gregorianDay) {
+async function fetchZodiacInfoByName(name) {
+    try {
+        const response = await fetch("/api/calendar-data");
+        if (!response.ok) throw new Error("Failed to fetch zodiac info");
+
+        const data = await response.json();
+        return data.zodiac.find(z => z.name === name) || null;
+    } catch (error) {
+        console.error("Error fetching zodiac info:", error);
+        return null;
+    }
+}
+
+function getFormattedMonth(monthNum) {
+    const monthNames = [
+        "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+        "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+    ];
+    return monthNames[parseInt(monthNum, 10) - 1]; // Convert to zero-based index
+}
+
+async function getCustomEvents(gregorianMonth, gregorianDay, gregorianYear) {
     console.log("Fetching custom events...");
     try {
         const response = await fetch("/api/custom-events");
@@ -882,124 +1005,12 @@ async function getCustomEvents(gregorianMonth, gregorianDay) {
 
         const monthStr = String(gregorianMonth).padStart(2, "0");
         const dayStr = String(gregorianDay).padStart(2, "0");
-
-        const targetDate = `2025-${monthStr}-${dayStr}`;
-
-        // ✅ Return full event objects instead of just titles
+        const targetDate = `${gregorianYear}-${monthStr}-${dayStr}`;
         return events.filter(event => event.date === targetDate);
 
     } catch (error) {
         console.error("Error fetching events:", error);
-        return [];  // ✅ Ensure we return an empty array on error
-    }
-}
-
-export function applyMysticalSettings(prefs) {
-
-    // 🌒 Toggle Eclipses
-    const eclipseRows = document.querySelectorAll(".eclipse-day-row");
-    eclipseRows.forEach(row => {
-        row.classList.toggle("legend-row-hidden", !prefs.showEclipses);
-    });
-
-    // 🌕 Toggle Full Moons
-    const moonRows = document.querySelectorAll(".full-moon-day-row");
-    moonRows.forEach(row => {
-        row.classList.toggle("legend-row-hidden", !prefs.showMoons);
-    });
-
-    const moonCells = document.querySelectorAll(".full-moon-day");
-    moonCells.forEach(cell => {
-        if (prefs.showMoons) {
-            cell.classList.add("full-moon-day");
-        } else {
-            cell.classList.remove("full-moon-day");
-        }
-    });
-
-    // 🎉 Toggle Holidays
-    const holidayRows = document.querySelectorAll(".national-holiday-row");
-    holidayRows.forEach(row => {
-        row.classList.toggle("legend-row-hidden", !prefs.showHolidays);
-    });
-
-    const holidayCells = document.querySelectorAll(".national-holiday");
-    holidayCells.forEach(cell => {
-        if (prefs.showHolidays) {
-            cell.classList.add("national-holiday");
-        } else {
-            cell.classList.remove("national-holiday");
-        }
-    });
-
-    // 💜 Toggle Custom Events
-    const customEventRows = document.querySelectorAll(".custom-event-day-row");
-    customEventRows.forEach(row => {
-        row.classList.toggle("legend-row-hidden", !prefs.showCustomEvents);
-    });
-
-    const customEventCells = document.querySelectorAll(".custom-event-day");
-    customEventCells.forEach(cell => {
-        if (prefs.showCustomEvents) {
-            cell.classList.add("custom-event-day");
-        } else {
-            cell.classList.remove("custom-event-day");
-        }
-    });
-
-    // ✨ Toggle Mystical Suggestions display logic
-    const showMystical = prefs.mysticalSuggestions;
-    const mysticalArea = document.getElementById("mystical-insight");
-
-    const eclipseBlock = document.querySelector(".eclipse-block");
-    if (eclipseBlock) {
-        eclipseBlock.style.display = prefs.showEclipses ? "block" : "none";
-    }
-
-    if (mysticalArea) {
-        const heading = mysticalArea.querySelector("h3");
-        const message = mysticalArea.querySelector("span");
-
-        if (showMystical && mysticalArea) {
-            const messages = [
-                "🌙 Trust your inner tides.",
-                "✨ Today is a good day to cast intentions.",
-                "🔮 The stars whisper secrets today...",
-                "🌿 Pause. Listen to nature. It knows.",
-                "🌙 Trust your inner tides.",
-                "✨ Today is a good day to cast intentions.",
-                "🔮 The stars whisper secrets today...",
-                "🪄 Cast your hopes into the universe.",
-                "🌸 A seed planted today blooms tomorrow.",
-                "🌌 Let stardust guide your heart.",
-                "🕯️ Light a candle and focus on your intentions for the day.",
-                "🌜Meditate under the moonlight and visualize your dreams.",
-                "߷ Draw a rune and interpret its meaning for guidance.",
-                "💌 Write a letter to your future self and store it safely.",
-                "🍁 Collect a small item from nature and set an intention with it."
-            ];
-            const randomIndex = Math.floor(Math.random() * messages.length);
-            heading.classList.remove("hidden");
-            message.textContent = messages[randomIndex];
-            message.classList.remove("hidden");
-            mysticalArea.classList.remove("hidden");
-        } else {
-            heading.classList.add("hidden");
-            message.textContent = "";
-            message.classList.add("hidden");
-            mysticalArea.classList.add("hidden");
-        }
-    }
-
-    // 🌒 Control Eclipse visibility based on preferences
-    const eclipseElements = document.querySelectorAll(".eclipse-day");
-    eclipseElements.forEach(el => {
-        el.style.display = prefs.showEclipses ? "table-cell" : "none";
-    });
-
-    const eclipseSection = document.querySelector("#modal-details h3.subheader + p");
-    if (eclipseSection && eclipseSection.textContent.includes("Eclipse")) {
-        eclipseSection.parentElement.style.display = prefs.showEclipses ? "block" : "none";
+        return [];
     }
 }
 
@@ -1050,91 +1061,159 @@ function getMoonPoem(moonPhase, date) {
     };
 }
 
-async function fetchEclipseEvents() {
-    try {
-        console.log("🌘 Calling fetchEclipseEvents()...");
-        const response = await fetch("/api/eclipse-events");
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const eclipseData = await response.json();
-        console.log("✅ Eclipse Data Retrieved:", eclipseData);
-
-        return eclipseData;
-    } catch (error) {
-        console.error("❌ Failed to fetch eclipse events:", error);
-        return [];
-    }
+// Builds slides for the Day carousel
+function generateDaySlides({ 
+    lunarData, 
+    festivalHTML, 
+    holidayHTML, 
+    eclipseHTML, 
+    zodiacHTML,
+    eventsHTML, 
+    celticMonth, 
+    celticDay, 
+    formattedGregorianDate 
+  }) {
+    const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
+  
+    // 🗓 Get day of week and formatted month
+    // ✨ Use the new dateUtils helper
+    const [year, month, day] = formattedGregorianDate.split("-");
+    const weekday = getCelticWeekday(celticDay);
+    const gMonth = getFormattedMonth(month); // Assuming you still want the pretty name
+    const gDay = parseInt(day, 10);
+  
+    const moonDescription = lunarData.description && lunarData.description !== "No description available."
+        ? lunarData.description
+        : "The moon stirs in silence tonight, her secrets cloaked.";
+  
+    return `
+      <div class="day-slide">
+          <h3 class="goldenTitle">${celticMonth === "Mirabilis" ? "Timeless" : weekday}</h3>
+          <p><span class="celticDate">${celticMonth} ${celticDay}</span></p>
+          <div class="moon-phase-graphic moon-centered">
+              ${lunarData.graphic}
+          </div>
+          <p class="moon-phase-name">${lunarData.moonName || lunarData.phase || "Unnamed Phase"}</p>
+          <p class="moon-description">${moonDescription}</p>
+      </div>
+      
+      ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
+      ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
+      ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
+      ${zodiacHTML ? `<div class="day-slide">${zodiacHTML}</div>` : ""}
+      ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
+      <div class="day-slide">
+        <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+        <h3 class="goldenTitle">Mystical Wisdom</h3>
+        <div class="mystical-suggestion-block">
+            <img src="static/assets/images/decor/mystical-sparkle.png" alt="Mystical Sparkle" class="divider" />
+            <p class="mystical-message">${randomMystical}</p>
+        </div>
+      </div>
+    `;
 }
 
-async function fetchTagline(monthName) {
-    try {
-        const response = await fetch("/api/calendar-data");  // Updated endpoint
-        if (!response.ok) throw new Error("Failed to fetch calendar data");
+function initDayCarousel(carousel, allSlides, currentSlide) {
+    // Force consistent width for all slides
+    const container = carousel.parentElement; // Or use a more specific selector if needed
+    if (container) {
+        const slideWidth = container.clientWidth;
 
-        const data = await response.json();
-        const monthData = data.months.find(month => month.name === monthName);
+        allSlides.forEach(slide => {
+            slide.style.width = `${slideWidth}px`;
+        });
+    }
 
-        if (monthData) {
-            document.querySelector(".month-tagline").textContent = monthData.tagline;
+    waitForImagesToLoad(carousel, () => {
+        const slideWidth = allSlides[0].clientWidth;
+        carousel.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+    });
+}
+
+export function applyMysticalSettings(prefs) {
+
+    // 🎉 Toggle Holidays
+    const holidayRows = document.querySelectorAll(".national-holiday-row");
+    holidayRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showHolidays);
+    });
+
+    const holidayCells = document.querySelectorAll(".national-holiday");
+    holidayCells.forEach(cell => {
+        if (prefs.showHolidays) {
+            cell.classList.add("national-holiday");
         } else {
-            document.querySelector(".month-tagline").textContent = "A whisper of time's essence...";
+            cell.classList.remove("national-holiday");
         }
-    } catch (error) {
-        console.error("Error fetching tagline:", error);
-        document.querySelector(".month-tagline").textContent = "A whisper of time's essence...";
-    }
-}
+    });
 
-async function loadCustomEvents() {
-    try {
-        // 🔥 Change API Endpoint to /custom-events
-        const response = await fetch("/api/custom-events"); 
-        if (!response.ok) {
-            throw new Error("Failed to fetch custom events.");
-        }
+    // 💜 Toggle Custom Events
+    const customEventRows = document.querySelectorAll(".custom-event-day-row");
+    customEventRows.forEach(row => {
+        row.classList.toggle("legend-row-hidden", !prefs.showCustomEvents);
+    });
 
-        const data = await response.json();
-
-        // 🔥 Debugging Step: Log the raw API response
-        console.log("🛠 Raw API Response:", data);
-        
-        // ✅ Store events in the correct format
-        if (Array.isArray(data)) {
-            customEvents = data;
+    const customEventCells = document.querySelectorAll(".custom-event-day");
+    customEventCells.forEach(cell => {
+        if (prefs.showCustomEvents) {
+            cell.classList.add("custom-event-day");
         } else {
-            console.warn("Unexpected response format for custom events.");
-            customEvents = [];
+            cell.classList.remove("custom-event-day");
         }
+    });
 
-        console.log("✅ Custom Events Loaded:", customEvents);
-    } catch (error) {
-        console.error("Error loading custom events:", error);
+    // ✨ Toggle Mystical Suggestions display logic
+    const showMystical = prefs.mysticalSuggestions;
+    const mysticalArea = document.getElementById("mystical-insight");
+
+    // (Eclipse block display now always handled by presence, not prefs.showEclipses)
+
+    if (mysticalArea) {
+        const heading = mysticalArea.querySelector("h3");
+        const message = mysticalArea.querySelector("span");
+
+        if (showMystical && mysticalArea) {
+            const messages = [
+                "🌙 Trust your inner tides.",
+                "✨ Today is a good day to cast intentions.",
+                "🔮 The stars whisper secrets today...",
+                "🌿 Pause. Listen to nature. It knows.",
+                "🌙 Trust your inner tides.",
+                "✨ Today is a good day to cast intentions.",
+                "🔮 The stars whisper secrets today...",
+                "🪄 Cast your hopes into the universe.",
+                "🌸 A seed planted today blooms tomorrow.",
+                "🌌 Let stardust guide your heart.",
+                "🕯️ Light a candle and focus on your intentions for the day.",
+                "🌜Meditate under the moonlight and visualize your dreams.",
+                "߷ Draw a rune and interpret its meaning for guidance.",
+                "💌 Write a letter to your future self and store it safely.",
+                "🍁 Collect a small item from nature and set an intention with it."
+            ];
+            const randomIndex = Math.floor(Math.random() * messages.length);
+            heading.classList.remove("hidden");
+            message.textContent = messages[randomIndex];
+            message.classList.remove("hidden");
+            mysticalArea.classList.remove("hidden");
+        } else {
+            heading.classList.add("hidden");
+            message.textContent = "";
+            message.classList.add("hidden");
+            mysticalArea.classList.add("hidden");
+        }
+    }
+
+    // 🌒 Control Eclipse visibility based on preferences
+    const eclipseElements = document.querySelectorAll(".eclipse-day");
+    eclipseElements.forEach(el => {
+        el.style.display = prefs.showEclipses ? "table-cell" : "none";
+    });
+
+    const eclipseSection = document.querySelector("#modal-details h3.subheader + p");
+    if (eclipseSection && eclipseSection.textContent.includes("Eclipse")) {
+        eclipseSection.parentElement.style.display = prefs.showEclipses ? "block" : "none";
     }
 }
-// Call the function on page load
-loadCustomEvents();
-
-// Fetch Celtic festivals dynamically
-async function fetchFestivals() {
-    console.log('Fetching Festivals now!!');
-    try {
-        const response = await fetch("/festivals");
-        if (!response.ok) throw new Error("Failed to fetch festivals");
-        const data = await response.json();
-        cachedFestivals = data; // Store globally for reuse
-        console.log("✅ Festivals Fetched:", cachedFestivals);
-        return data;
-    } catch (error) {
-        console.error("Error fetching festivals:", error);
-        return [];
-    }
-}
-
-// Celestial Day carousel magic
-
 
 // Add only one submit listener for calendar page
 document.addEventListener("submit", async (event) => {
