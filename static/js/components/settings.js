@@ -1,3 +1,4 @@
+import { convertGregorianToCeltic, getCelticWeekday } from "../utils/dateUtils.js";
 import { applyMysticalSettings } from "./calendar.js"; // or wherever it's defined
 import { saveCustomEvents } from "../utils/localStorage.js";
 
@@ -9,6 +10,15 @@ export function renderSettings() {
 
             <!-- Custom Events Management -->
             <section id="custom-events-settings">
+
+                <h2>🌗 Date Conversion</h2>
+                <p class="settings-subheader">Convert Gregorian to Lunar Date</p>
+                <ul class="conversion-settings">
+                    <li>Gregorian Date: <input type="text" id="convert-to-celtic" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
+                   <li class="lunar-date-row"><span class="lunar-label">Lunar Date:</span><span class="converted-date">Trésda, Juno 9</span></li>
+                </ul>
+                <br />
+
                 <h2>🌙 Add an Event</h2>
                 <p class="settings-subheader">Add a custom event to your calendar.</p>
                 <button id="add-event-button" class="settings-btn">Add New Event</button>
@@ -44,7 +54,7 @@ export function renderSettings() {
                             </select></label>
 
                             <label for="event-date">Date:<br />
-                            <input type="date" id="event-date" required /></label>
+                            <input type="date" id="event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></label>
 
                             <label for="event-note">Event Description:
                             <textarea id="event-note"></textarea></label>
@@ -75,7 +85,7 @@ export function renderSettings() {
                             </select></label>
 
                             <label for="edit-event-date">Date:<br />
-                            <input type="date" id="edit-event-date" required /></label>
+                            <input type="date" id="edit-event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></label>
 
                             <label for="edit-event-notes">Notes:<br />
                             <textarea id="edit-event-notes"></textarea></label>
@@ -104,22 +114,6 @@ export function renderSettings() {
                     </li>
                     
                     <li class="mystical-toggle">
-                        <span>Show Eclipses</span>
-                        <label class="switch">
-                        <input type="checkbox" id="show-eclipses" data-on="🌑" data-off="☀️" />
-                        <span class="slider round"></span>
-                        </label>
-                    </li>
-                    
-                    <li class="mystical-toggle">
-                        <span>Show Full Moons</span>
-                        <label class="switch">
-                        <input type="checkbox" id="show-moons" data-on="🌕" data-off="🌒" />
-                        <span class="slider round"></span>
-                        </label>
-                    </li>
-                    
-                    <li class="mystical-toggle">
                         <span>Show National Holidays</span>
                         <label class="switch">
                         <input type="checkbox" id="show-holidays" data-on="🎉" data-off="🧾" />
@@ -140,14 +134,6 @@ export function renderSettings() {
                         <span>Show Past Events</span>
                         <label class="switch">
                             <input type="checkbox" id="show-past-events" data-on="🕰️" data-off="🚫" />
-                            <span class="slider round"></span>
-                        </label>
-                    </li>
-
-                    <li class="mystical-toggle">
-                        <span>Show Constellations</span>
-                        <label class="switch">
-                            <input type="checkbox" id="toggle-constellations" checked />
                             <span class="slider round"></span>
                         </label>
                     </li>
@@ -174,8 +160,6 @@ export function getMysticalPrefs() {
     const saved = localStorage.getItem("mysticalPrefs");
     const defaults = {
         mysticalSuggestions: true,
-        showEclipses: true,
-        showMoons: true,
         showHolidays: true,
         showCustomEvents: true, // ✅ This line makes all the difference
         showPastEvents: false,
@@ -260,8 +244,6 @@ export function setupSettingsEvents() {
 
     const defaultPreferences = {
         mysticalSuggestions: true,
-        showEclipses: true,
-        showMoons: true,
         showHolidays: true,
         showCustomEvents: true // 💜 Add this line!
     };
@@ -333,8 +315,6 @@ export function setupSettingsEvents() {
 
     const prefs = getMysticalPrefs();
     document.getElementById("toggle-mystical").checked = prefs.mysticalSuggestions;
-    document.getElementById("show-eclipses").checked = prefs.showEclipses;
-    document.getElementById("show-moons").checked = prefs.showMoons;
     document.getElementById("show-holidays").checked = prefs.showHolidays;
     document.getElementById("show-custom-events").checked = prefs.showCustomEvents;
     document.getElementById("show-past-events").checked = prefs.showPastEvents;
@@ -364,6 +344,61 @@ export function setupSettingsEvents() {
     
     // Call it once Settings loads
     initMysticalToggles();
+    // Gregorian→Celtic converter
+    const convertInput = document.getElementById("convert-to-celtic");
+    const convertedDisplay = document.querySelector(".converted-date");
+    if (convertInput && convertedDisplay) {
+      convertInput.addEventListener("change", e => {
+        const celtic = convertGregorianToCeltic(e.target.value);
+        // If valid, include the Celtic weekday name
+        if (/[A-Za-z]+ \d+/.test(celtic)) {
+          const [month, dayStr] = celtic.split(" ");
+          const dayNum = parseInt(dayStr, 10);
+          const weekday = getCelticWeekday(dayNum);
+          convertedDisplay.textContent = `${weekday}, ${celtic}`;
+        } else {
+          convertedDisplay.textContent = celtic;
+        }
+      });
+      // Set default to today's date and initialize display
+      const todayStr = new Date().toISOString().split('T')[0];
+      convertInput.value = todayStr;
+      convertInput.dispatchEvent(new Event('change'));
+    }
+
+    flatpickr("#convert-to-celtic", {
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
+        theme: "moonveil", // optional for readability
+        onChange: function(selectedDates, dateStr, instance) {
+            const convertInput = document.getElementById("convert-to-celtic");
+            const convertedDisplay = document.querySelector(".converted-date");
+            const celtic = convertGregorianToCeltic(dateStr);
+            if (/[A-Za-z]+ \d+/.test(celtic)) {
+                const [month, dayStr] = celtic.split(" ");
+                const dayNum = parseInt(dayStr, 10);
+                const weekday = getCelticWeekday(dayNum);
+                convertedDisplay.textContent = `${weekday}, ${celtic}`;
+            } else {
+                convertedDisplay.textContent = celtic;
+            }
+        }
+    });
+    
+    flatpickr("#event-date", {
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
+        theme: "moonveil"
+    });
+
+    flatpickr("#edit-event-date", {
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
+        theme: "moonveil"
+    });
 }
 
 // Function to show add event modal
@@ -676,19 +711,6 @@ function attachEventHandlers() {
         applyMysticalSettings(prefs);
     });
     
-    document.getElementById("show-eclipses").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showEclipses = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
-    
-    document.getElementById("show-moons").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showMoons = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
     
     document.getElementById("show-holidays").addEventListener("change", (e) => {
         const prefs = getMysticalPrefs();

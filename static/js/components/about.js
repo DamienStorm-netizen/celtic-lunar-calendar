@@ -3,24 +3,24 @@ export function renderAbout() {
     return `
    <section id="about" class="about-container">
     <div class="about-content">
-        <h1 class="about-title">The Magic Behind the Calendar</h1>
+        <h1 class="about-title">The Magic Behind the Almanac</h1>
         <p class="about-intro">
             Time is not just measured in days and hours, but in the rhythms of the moon, 
             the whispers of the trees, and the unseen magic that connects all things. 
-            Welcome to the Celtic Lunar Calendar—where ancient wisdom meets celestial wonder.
+            Welcome to the Lunar Almanac—where ancient wisdom meets celestial wonder.
         </p>
 
         <div class="about-section">
-            <h2>The Celtic Lunar Calendar</h2>
+            <h2>The Lunar Almanac</h2>
             <p>
-                Rooted in ancient traditions, this calendar follows the rhythm of <strong>13 lunar months<strong>, 
+                Rooted in ancient traditions, this almanac follows the rhythm of <strong>13 lunar months<strong>, 
                 each aligned with a sacred tree of the <strong>Celtic Tree Zodiac</strong>. The moon is our guide, 
                 leading us through the changing seasons, whispering secrets of transformation and renewal.
             </p>
         </div>
 
         <div class="about-section">
-            <h2>Features of the Calendar</h2>
+            <h2>Features of the Lunar Almanac</h2>
             <ul class="features-list">
                 <li>🌕 <strong>Moon Phases & Poetry</strong> – Each phase brings a new whisper of celestial verse.</li>
                 <li>🔮 <strong>Eclipses & Celestial Events</strong> – Watch the dance of light and shadow.</li>
@@ -33,7 +33,7 @@ export function renderAbout() {
         <div class="about-section">
             <h2>The Inspiration</h2>
             <p>
-                This calendar was created to reconnect us with the <strong>cosmic dance of the universe<strong>. 
+                This almanac was created to reconnect us with the <strong>cosmic dance of the universe<strong>. 
                 Inspired by the wisdom of the <strong>druids</strong>, the poetry of the <strong>stars</strong>, and the <strong>whispers 
                 of the <strong>wind</strong>, it serves as a guide through the mystical passage of time.
             </p>
@@ -72,7 +72,7 @@ export function renderAbout() {
     </div>
 
     <p>
-        Together, we have crafted something more than a calendar—<strong>a celestial compass</strong>, an <strong>invitation to wonder</strong>, 
+        Together, we have crafted something more than an almanac <strong>a celestial compass</strong>, an <strong>invitation to wonder</strong>, 
         and a bridge between <strong>the known and the unknown</strong>. May you walk its path <strong>with open heart and star-lit eyes.</strong> ✨
     </p>
 </div>
@@ -80,7 +80,7 @@ export function renderAbout() {
         <div class="about-closing">
             <h2>A Final Call to Magic</h2>
             <p>
-                May this calendar be your <strong>celestial compass</strong>, guiding you through the <strong>ebbs and flows 
+                May this Lunar Almanac be your <strong>celestial compass</strong>, guiding you through the <strong>ebbs and flows 
                 of time</strong>. Look to the moon, listen to the trees, and let the stars whisper their secrets. 
             </p>
             <p class="mystical-cta">✨ Step into the rhythm of the universe ✨</p>

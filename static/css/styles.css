@@ -621,6 +621,17 @@ blockquote.moon-poem {
   padding: 10px;
 }
 
+.zodiac-title {
+  font-family: 'Libre Baskerville', serif; /* Fallback to serif if the font doesn’t load */
+  font-weight: 400; /* Use bold for the title */
+  font-size: 2rem; /* Adjust size as needed */
+  color: #f5d742 !important; /* Your dazzling title colour! */
+  text-align: center;
+  filter: drop-shadow(0 0 8px #ffd700);
+  margin-top: 0;
+  margin-bottom: 0 !important;
+}
+
 .moon-column {
   display: flex;
   flex-direction: column;
@@ -1090,13 +1101,14 @@ blockquote.moon-poem {
 }
 
 .calendar-grid th {
-  padding: 11px; /* SAME padding for both th and td */
-  color: #fff;
+  padding: 6px; /* SAME padding for both th and td */
+  color: rgb(215, 224, 255);
   font-family: "Libre Baskerville", serif;
-  font-size: 11.5px;
-  font-weight: bold;
+  font-size: 0.65rem;
   border: none; /* Remove borders from weekday headers */
   background-color: rgba(255, 255, 255, 0.1); /* Subtle background for headers */
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .calendar-grid td {
@@ -2155,6 +2167,15 @@ blockquote.moon-poem {
   margin-top: 20px;
 }
 
+.zodiac-image {
+  filter: drop-shadow(0 0 6px #fefbd8);
+  transition: transform 0.3s ease;
+  width: 200px !important;
+}
+.zodiac-image:hover {
+  transform: scale(1.05);
+}
+
 .zodiac-list ul li {
  color: #fff6ea;
 }
@@ -2865,6 +2886,42 @@ body.modal-open {
 .settings-title {
   text-align: center;
   font-size: 2.5em;
+}
+
+.conversion-settings {
+  margin-bottom: 20px;
+}
+
+.conversion-settings li {
+  list-style-type: none;
+  margin-bottom: 5px;
+}
+
+.converted-date {
+  color: #fff6ea;
+}
+
+.flatpickr-input {
+    background: url('/static/images/decor/full-moon.png') no-repeat right 10px center;
+    background-size: 24px;
+    padding-right: 35px;
+    color: #ffd700;
+    font-family: 'Libre Baskerville', serif;
+}
+
+.lunar-date-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  font-size: 1em;
+  margin-top: 5px;
+}
+
+.lunar-label {
+  font-weight: bold;
+  color: #FFD700;
 }
 
 .mystical-list li {

@@ -222,7 +222,7 @@ function showModal(monthName) {
                         <table class="calendar-grid">
                         <thead>
                             <tr>
-                            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+                            <th title="Moonday">Moon</th><th title="Trésda">Trés</th><th title="Wyrdsday">Wyrd</th><th title="Thornsday">Thrn</th><th title="Freyasday">Freya</th><th title="Emberveil">Ember</th><th title="Sunveil">Veil</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -269,7 +269,7 @@ function showModal(monthName) {
                         <li><label for="event-note">Event Description</label>
                             <textarea id="event-note" rows="1" cols="35"></textarea></li>
                         <li><label for="event-date">Date</label>
-                            <input type="date" id="event-date" required /></li>
+                            <input type="text" id="event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
                         <li><button type="submit" class="add-event-button">Add Event</button></li>
                         </ul>
                     </form>
@@ -292,6 +292,13 @@ function showModal(monthName) {
 
             // ✅ Call enhancement only when the modal is displayed
             enhanceCalendarTable(modalContainer, monthName);
+
+            flatpickr("#event-date", {
+                altInput: true,
+                altFormat: "F j, Y",
+                dateFormat: "Y-m-d",
+                theme: "moonveil"
+            });
 
             document.getElementById("add-event-form").addEventListener("submit", (e) => {
                 e.preventDefault();
@@ -417,7 +424,7 @@ async function enhanceCalendarTable(modalContainer, monthName) {
                 console.error(`Failed to convert ${monthName} ${day} to Gregorian.`);
                 return;
             }
-            const formattedGregorianDate = `2025-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
+            const formattedGregorianDate = `${gregorian.gregorianYear}-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
   
              // Check if this date has an eclipse
              const eclipseEvent = eclipses.find(e => e.date.startsWith(formattedGregorianDate));
@@ -686,12 +693,13 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
     const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
 
-    const zodiac = getCelticZodiac(parseInt(gregorian.gregorianMonth, 10), parseInt(gregorian.gregorianDay, 10));
+    const zodiacName = getCelticZodiacName(gregorian.gregorianMonth, gregorian.gregorianDay);
+    const zodiacSign = await fetchZodiacInfoByName(zodiacName);
 
      // Get additional data
     //const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
     //const zodiac = getCelticZodiac(celticMonth, celticDay);
-    let events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay);
+    let events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay, gregorian.gregorianYear);
 
     // Ensure events is always an array
     if (!Array.isArray(events)) {
@@ -702,7 +710,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
     // const prefs = getMysticalPrefs();
   
     // Construct an ISO date string
-    const year = "2025";
+    const year = gregorian.gregorianYear;
     const monthStr = String(gregorian.gregorianMonth).padStart(2, "0");
     const dayStr = String(gregorian.gregorianDay).padStart(2, "0"); 
     const dateStr = `${year}-${monthStr}-${dayStr}`;
@@ -732,6 +740,30 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             await fetchNationalHolidays(); // Fetch if not already cached
         }
         console.log("Fetched National Holidays:", cachedNationalHolidays);        
+
+        // Find Celtic Zodiac for this date
+        const zodiacName = getCelticZodiacName(gregorian.gregorianMonth, gregorian.gregorianDay);
+        const zodiacSign = await fetchZodiacInfoByName(zodiacName);
+
+        console.log("Zodiac for this date:", zodiacSign);
+
+
+        // Create a new zodiac slide
+        let zodiacHTML = "";
+        if (zodiacSign && zodiacSign.name) {
+            const imageSlugZodiac = slugifyCharm(zodiacSign.name); // Convert to slugified charm name
+        zodiacHTML = `
+            <div class="carousel-slide zodiac-slide">
+                <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+                <h3 class="goldenTitle">Celtic Zodiac</h3>
+                <p><span class="zodiac-title">${zodiacSign.name.toUpperCase()}</span></p>
+                <img src="static/assets/images/zodiac/zodiac-${imageSlugZodiac}.png" alt="${zodiacSign.name}" class="zodiac-image">
+                <p class="zodiac-description">${zodiacSign.symbolism || "Mysterious and undefined."}</p>
+            </div>
+        `;
+        } else {
+            console.warn("⚠️ Zodiac sign not found for this date!");
+        }
 
         // Find eclipses for this date
         const eclipses = await fetchEclipseEvents();
@@ -849,7 +881,8 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
                 <div class="day-carousel">
                     ${generateDaySlides({ 
                         lunarData, 
-                        festivalHTML, 
+                        festivalHTML,
+                        zodiacHTML, 
                         holidayHTML, 
                         eclipseHTML, 
                         eventsHTML,
@@ -906,7 +939,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
 }
 
 // Get Celtic Zodiac sign
-function getCelticZodiac(gregorianMonth, gregorianDay) {
+function getCelticZodiacName(gregorianMonth, gregorianDay) {
     console.log(`Checking zodiac for: ${gregorianMonth}-${gregorianDay}`);
   
     const zodiacSigns = [
@@ -927,29 +960,31 @@ function getCelticZodiac(gregorianMonth, gregorianDay) {
   
     const monthNum = parseInt(gregorianMonth, 10);
     const dayNum = parseInt(gregorianDay, 10);
-  
+
     for (const sign of zodiacSigns) {
-        const startMonth = sign.start.month;
-        const startDay = sign.start.day;
-        const endMonth = sign.end.month;
-        const endDay = sign.end.day;
-  
-        console.log(`Checking ${sign.name}: ${startMonth}/${startDay} - ${endMonth}/${endDay}`);
-  
-        // Zodiac range handling with numeric comparison
+        const { start, end } = sign;
         if (
-            (monthNum === startMonth && dayNum >= startDay) || 
-            (monthNum === endMonth && dayNum <= endDay) || 
-            (monthNum > startMonth && monthNum < endMonth) || 
-            (startMonth > endMonth && (monthNum > startMonth || monthNum < endMonth))
+            (monthNum === start.month && dayNum >= start.day) ||
+            (monthNum === end.month && dayNum <= end.day) ||
+            (start.month > end.month && (monthNum > start.month || monthNum < end.month))
         ) {
-            console.log(`🎉 Match Found! Zodiac: ${sign.name}`);
             return sign.name;
         }
     }
-  
-    console.log("❌ No zodiac match found, returning 'Unknown'");
     return "Unknown";
+}
+
+async function fetchZodiacInfoByName(name) {
+    try {
+        const response = await fetch("/api/calendar-data");
+        if (!response.ok) throw new Error("Failed to fetch zodiac info");
+
+        const data = await response.json();
+        return data.zodiac.find(z => z.name === name) || null;
+    } catch (error) {
+        console.error("Error fetching zodiac info:", error);
+        return null;
+    }
 }
 
 function getFormattedMonth(monthNum) {
@@ -960,7 +995,7 @@ function getFormattedMonth(monthNum) {
     return monthNames[parseInt(monthNum, 10) - 1]; // Convert to zero-based index
 }
 
-async function getCustomEvents(gregorianMonth, gregorianDay) {
+async function getCustomEvents(gregorianMonth, gregorianDay, gregorianYear) {
     console.log("Fetching custom events...");
     try {
         const response = await fetch("/api/custom-events");
@@ -970,15 +1005,12 @@ async function getCustomEvents(gregorianMonth, gregorianDay) {
 
         const monthStr = String(gregorianMonth).padStart(2, "0");
         const dayStr = String(gregorianDay).padStart(2, "0");
-
-        const targetDate = `2025-${monthStr}-${dayStr}`;
-
-        // ✅ Return full event objects instead of just titles
+        const targetDate = `${gregorianYear}-${monthStr}-${dayStr}`;
         return events.filter(event => event.date === targetDate);
 
     } catch (error) {
         console.error("Error fetching events:", error);
-        return [];  // ✅ Ensure we return an empty array on error
+        return [];
     }
 }
 
@@ -1035,6 +1067,7 @@ function generateDaySlides({
     festivalHTML, 
     holidayHTML, 
     eclipseHTML, 
+    zodiacHTML,
     eventsHTML, 
     celticMonth, 
     celticDay, 
@@ -1056,7 +1089,7 @@ function generateDaySlides({
     return `
       <div class="day-slide">
           <h3 class="goldenTitle">${celticMonth === "Mirabilis" ? "Timeless" : weekday}</h3>
-          <p><span class="celticDate">${celticMonth} ${celticDay}</span>/ <span class="gregorianDate">${gMonth} ${gDay}</span></p>
+          <p><span class="celticDate">${celticMonth} ${celticDay}</span></p>
           <div class="moon-phase-graphic moon-centered">
               ${lunarData.graphic}
           </div>
@@ -1067,6 +1100,7 @@ function generateDaySlides({
       ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
       ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
       ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
+      ${zodiacHTML ? `<div class="day-slide">${zodiacHTML}</div>` : ""}
       ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
       <div class="day-slide">
         <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
@@ -1097,27 +1131,6 @@ function initDayCarousel(carousel, allSlides, currentSlide) {
 }
 
 export function applyMysticalSettings(prefs) {
-
-    // 🌒 Toggle Eclipses
-    const eclipseRows = document.querySelectorAll(".eclipse-day-row");
-    eclipseRows.forEach(row => {
-        row.classList.toggle("legend-row-hidden", !prefs.showEclipses);
-    });
-
-    // 🌕 Toggle Full Moons
-    const moonRows = document.querySelectorAll(".full-moon-day-row");
-    moonRows.forEach(row => {
-        row.classList.toggle("legend-row-hidden", !prefs.showMoons);
-    });
-
-    const moonCells = document.querySelectorAll(".full-moon-day");
-    moonCells.forEach(cell => {
-        if (prefs.showMoons) {
-            cell.classList.add("full-moon-day");
-        } else {
-            cell.classList.remove("full-moon-day");
-        }
-    });
 
     // 🎉 Toggle Holidays
     const holidayRows = document.querySelectorAll(".national-holiday-row");
@@ -1153,10 +1166,7 @@ export function applyMysticalSettings(prefs) {
     const showMystical = prefs.mysticalSuggestions;
     const mysticalArea = document.getElementById("mystical-insight");
 
-    const eclipseBlock = document.querySelector(".eclipse-block");
-    if (eclipseBlock) {
-        eclipseBlock.style.display = prefs.showEclipses ? "block" : "none";
-    }
+    // (Eclipse block display now always handled by presence, not prefs.showEclipses)
 
     if (mysticalArea) {
         const heading = mysticalArea.querySelector("h3");

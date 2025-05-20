@@ -7,8 +7,6 @@ export function getMysticalPrefs() {
       return JSON.parse(savedPrefs);
     }
     return {
-      showMoons: true,
-      showEclipses: true,
       showHolidays: true,
       showCustomEvents: true
     };

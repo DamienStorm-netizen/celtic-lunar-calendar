@@ -1,10 +1,10 @@
-import { getMysticalPrefs } from "../utils/mysticalSettings.js";
 import { initSwipe } from "../utils/swipeHandler.js";
 import { getEventIcon } from "../utils/eventUtils.js";
-import { getCelticWeekday, convertCelticToGregorian } from "../utils/dateUtils.js";
+import { getCelticWeekday, convertGregorianToCeltic } from "../utils/dateUtils.js";
+import { getMysticalPrefs } from "./settings.js";
 
 export function renderHome() {
-    // Return the HTML and then in the next tick attach overlay & swipe
+    // Return the HTML and then in the next tickß attach overlay & swipe
     const html = `
         <section class="home" class="fade-in">
             <div id="modal-overlay" class="modal-overlay hidden"></div>
@@ -116,7 +116,7 @@ export async function fetchCelticDate() {
         if (dateContainer) {
             dateContainer.innerHTML = `
             <h1 id="celtic-day">${weekday}</h1>
-            <p><span id="celtic-month">${data.month} ${data.celtic_day}</span></p>
+            <p><span id="celtic-month">${data.month} ${data.celtic_day}</span> / <span id="gregorian-month">${data.gregorian_date}</span></p>
         `;
         }
 
@@ -786,41 +786,6 @@ export function getMonthNumber(monthName) {
     return months[monthName] || null;
 }
 
-export function convertGregorianToCeltic(gregorianDate) {
-    const monthMapping = {
-        "Nivis": { start: "2024-12-23", end: "2025-01-19" },
-        "Janus": { start: "2025-01-20", end: "2025-02-16" },
-        "Brigid": { start: "2025-02-17", end: "2025-03-16" },
-        "Flora": { start: "2025-03-17", end: "2025-04-13" },
-        "Maia": { start: "2025-04-14", end: "2025-05-11" },
-        "Juno": { start: "2025-05-12", end: "2025-06-08" },
-        "Solis": { start: "2025-06-09", end: "2025-07-06" },
-        "Terra": { start: "2025-07-07", end: "2025-08-03" },
-        "Lugh": { start: "2025-08-04", end: "2025-08-31" },
-        "Pomona": { start: "2025-09-01", end: "2025-09-28" },
-        "Autumna": { start: "2025-09-29", end: "2025-10-26" },
-        "Eira": { start: "2025-10-27", end: "2025-11-23" },
-        "Aether": { start: "2025-11-24", end: "2025-12-21" },
-    };
-
-    const inputDate = new Date(gregorianDate);
-    if (isNaN(inputDate.getTime())) {
-        console.error("Invalid Gregorian date:", gregorianDate);
-        return "Invalid Date";
-    }
-
-    for (const [celticMonth, range] of Object.entries(monthMapping)) {
-        const startDate = new Date(range.start);
-        const endDate = new Date(range.end);
-
-        if (inputDate >= startDate && inputDate <= endDate) {
-            const celticDay = Math.floor((inputDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-            return `${celticMonth} ${celticDay}`;
-        }
-    }
-
-    return "Unknown Date";
-}
 
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("🏡 Home screen loaded, fetching upcoming events...");
