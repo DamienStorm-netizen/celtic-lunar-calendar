@@ -102,7 +102,7 @@ export function renderSettings() {
             <!-- Mystical Preferences -->
             <section id="mystical-settings">
                 <h2>🔮 Mystical Preferences</h2>
-                <p class="settings-subheader">Fine-tune your calendar.</p>
+                <p class="settings-subheader">Fine-tune your Almanac.</p>
 
                 <ul class="mystical-list">
                     <li class="mystical-toggle">

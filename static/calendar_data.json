@@ -1,5 +1,11 @@
 {
     "months": [
+         {
+            "name": "Mirabilis",
+            "start_date": "2024-12-22",
+            "end_date": "2024-12-22",
+            "tagline": "Beyond the boundary of time, in the hush between cycles, Mirabilis blooms. Here, two sacred breaths—one of fire, one of shadow—meet where neither past nor future holds sway."
+        },
         {
             "name": "Nivis",
             "start_date": "2024-12-23",

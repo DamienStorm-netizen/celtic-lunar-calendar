@@ -4,7 +4,7 @@ import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
 import { starFieldSVG } from "../constants/starField.js";
-import { getCelticWeekday, convertCelticToGregorian } from '../utils/dateUtils.js';
+import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils/dateUtils.js';
 
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
@@ -89,9 +89,9 @@ export function renderCalendar() {
                 </div>
 
                 <button id="close-modal" class="mystical-close">✦</button>
-                <!-- <button class="day-carousel-prev"><img src="static/assets/images/decor/moon-crescent-prev.png" alt="Prev" /></button> -->
+               
                 <div id="modal-details"></div>
-                <!-- <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button> -->
+               
             </div>
         </div>
     `;
@@ -143,14 +143,8 @@ export async function setupCalendarEvents() {
     const thumbnails = document.querySelectorAll(".month-thumbnail");
     thumbnails.forEach((thumbnail) => {
         thumbnail.addEventListener("click", (e) => {
-            const monthName = e.target.closest(".month-thumbnail").dataset.month;
-          
-            if (monthName === "Mirabilis") {
-                // ✨ Call as if it's a special day modal
-                showDayModal(1, "Mirabilis", "2025-12-22");
-            } else {
+                const monthName = e.target.closest(".month-thumbnail").dataset.month;
                 showModal(monthName);
-            }
           });
     });
 }
@@ -191,18 +185,23 @@ function showModal(monthName) {
             document.body.classList.add("modal-open"); // Prevent scrolling
 
             if (monthName === 'Mirabilis') {
+                const today = new Date();
+                const leap = isLeapYear(today.getFullYear());
+
                 modalDetails.innerHTML = `
-                    <h2 class="month-title">${monthName}</h2>
-                    <div class="mirabilis-image">
-                        <img src="static/assets/images/decor/mirabilis-modal.png" alt="Mirabilis" />
+                    <h2 class="month-title">Mirabilis</h2>
+                    <p class="mirabilis-intro month-tagline">Beyond the boundary of time, in the hush between cycles, Mirabilis blooms. Here, two sacred breaths—one of fire, one of shadow—meet where neither past nor future holds sway.</p>
+                    <div class="mirabilis-crest-wrapper">
+                        <div class="mirabilis-crest crest-solis" id="crest-solis" title="Click to enter Mirabilis Solis">
+                            <img src="static/assets/images/months/mirabilis-solis.png" alt="Mirabilis Solis" />
+                            <p>Mirabilis Solis</p>
+                        </div>
+                        <div class="mirabilis-crest crest-noctis ${leap ? '' : 'disabled'}" id="crest-noctis" title="${leap ? 'Click to enter Mirabilis Noctis' : 'Appears only in leap years'}">
+                            <img src="static/assets/images/months/mirabilis-noctis.png" alt="Mirabilis Noctis" />
+                            <p>Mirabilis Noctis</p>
+                        </div>
                     </div>
-                    <div class="mirabilis-content">
-                        <p>Between the last grain of sand and the first light of dawn, Mirabilis shimmers—a moment untethered, a breath between worlds.</p>
-                        <p>Neither past nor future, neither here nor there, it is the space where dreams are whispered and destinies rewritten.</p> 
-                        <p>Pause, reflect, release. For in this fleeting eternity, you are free to reshape the stars.<p>
-                        <br />
-                    </div>
-                `;
+                    `;
             } else {
                 modalDetails.innerHTML = `
                     <!-- Inside modalDetails.innerHTML -->
@@ -211,28 +210,28 @@ function showModal(monthName) {
 
                     <!-- 🌟 Magical Tabs -->
                     <div class="calendar-tabs">
-                    <button id="tab-calendar" class="calendar-tab-button active">Calendar</button>
-                    <button id="tab-legend" class="calendar-tab-button">Legend</button>
-                    <button id="tab-add" class="calendar-tab-button">Add Your Event</button>
+                        <button id="tab-calendar" class="calendar-tab-button active">Calendar</button>
+                        <button id="tab-legend" class="calendar-tab-button">Legend</button>
+                        <button id="tab-add" class="calendar-tab-button">Add Your Event</button>
                     </div>
 
                     <!-- 🌿 Calendar View -->
                     <div id="tab-content-calendar" class="calendar-tab-content active">
-                    <div class="calendarGridBox">
-                        <table class="calendar-grid">
-                        <thead>
-                            <tr>
-                            <th title="Moonday">Moon</th><th title="Trésda">Trés</th><th title="Wyrdsday">Wyrd</th><th title="Thornsday">Thrn</th><th title="Freyasday">Freya</th><th title="Emberveil">Ember</th><th title="Sunveil">Veil</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
-                            <tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
-                            <tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr>
-                            <tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr>
-                        </tbody>
-                        </table>
-                    </div>
+                        <div class="calendarGridBox">
+                            <table class="calendar-grid">
+                                <thead>
+                                    <tr>
+                                    <th title="Moonday">Moon</th><th title="Trésda">Trés</th><th title="Wyrdsday">Wyrd</th><th title="Thornsday">Thrn</th><th title="Freyasday">Freya</th><th title="Emberveil">Ember</th><th title="Sunveil">Veil</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+                                    <tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
+                                    <tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr>
+                                    <tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- 🧚 Legend -->
@@ -285,6 +284,26 @@ function showModal(monthName) {
 
             // Setup tabbed navigation
             setupCalendarTabNavigation();
+
+            // Assign click behaviours to Mirabilis
+            // 🌟 Add these *after* the modal content is injected:
+            setTimeout(() => {
+                const crestSolis = document.getElementById("crest-solis");
+                if (crestSolis) {
+                    crestSolis.addEventListener("click", () => {
+                        showDayModal(1, "Mirabilis", "2025-12-22");
+                    });
+                }
+
+                if (leap) {
+                    const crestNoctis = document.getElementById("crest-noctis");
+                    if (crestNoctis) {
+                        crestNoctis.addEventListener("click", () => {
+                            showDayModal(2, "Mirabilis", "2025-12-23");
+                        });
+                    }
+                }
+    }, 0); // ⏳ Waits for DOM to render first
 
             // Apply fade-in effect
             modalContainer.classList.add("fade-in");
@@ -893,7 +912,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
 
                <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
                 </div>
-                ${celticMonth !== "Mirabilis" ? `<button id="back-to-month" class="back-button">Back to ${celticMonth}</button>` : ""}
+                <button id="back-to-month" class="back-button">Back to ${celticMonth}</button>
             </div>
         `;
 
@@ -1072,44 +1091,64 @@ function generateDaySlides({
     celticMonth, 
     celticDay, 
     formattedGregorianDate 
-  }) {
+}) {
     const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
-  
-    // 🗓 Get day of week and formatted month
-    // ✨ Use the new dateUtils helper
+
     const [year, month, day] = formattedGregorianDate.split("-");
     const weekday = getCelticWeekday(celticDay);
-    const gMonth = getFormattedMonth(month); // Assuming you still want the pretty name
+    const gMonth = getFormattedMonth(month);
     const gDay = parseInt(day, 10);
-  
+
     const moonDescription = lunarData.description && lunarData.description !== "No description available."
         ? lunarData.description
         : "The moon stirs in silence tonight, her secrets cloaked.";
-  
+
+    // 🌞🌚 Determine whether Solis or Noctis
+    let mirabilisTitle = "Mirabilis";
+    let mirabilisPoem = "";
+    let mirabilisSymbol = "";
+
+    if (celticMonth === "Mirabilis") {
+        if (celticDay === 1) {
+            mirabilisTitle = "Mirabilis Solis";
+            mirabilisPoem = "The sun dances on the edge of time,<br />Golden and defiant, it bends the chime.<br />A sacred spark, a seed of light,<br />That births the wheel in radiant flight.";
+            mirabilisSymbol = `<img src="static/assets/images/months/mirabilis-solis-notext.png" class="mirabilis-symbol" alt="Solis Symbol" />`;
+        } else if (celticDay === 2) {
+            mirabilisTitle = "Mirabilis Noctis";
+            mirabilisPoem = "A breath of shadow, soft and still,\nA second hush upon the hill.\nShe stirs in dreams beneath the veil,\nWhere moonlight writes the ancient tale.";
+            mirabilisSymbol = `<img src="static/assets/images/months/mirabilis-noctis-notext.png" class="mirabilis-symbol" alt="Noctis Symbol" />`;
+        }
+    }
+
     return `
-      <div class="day-slide">
-          <h3 class="goldenTitle">${celticMonth === "Mirabilis" ? "Timeless" : weekday}</h3>
-          <p><span class="celticDate">${celticMonth} ${celticDay}</span></p>
-          <div class="moon-phase-graphic moon-centered">
-              ${lunarData.graphic}
-          </div>
-          <p class="moon-phase-name">${lunarData.moonName || lunarData.phase || "Unnamed Phase"}</p>
-          <p class="moon-description">${moonDescription}</p>
-      </div>
-      
-      ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
-      ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
-      ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
-      ${zodiacHTML ? `<div class="day-slide">${zodiacHTML}</div>` : ""}
-      ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
-      <div class="day-slide">
-        <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-        <h3 class="goldenTitle">Mystical Wisdom</h3>
-        <div class="mystical-suggestion-block">
-            <img src="static/assets/images/decor/mystical-sparkle.png" alt="Mystical Sparkle" class="divider" />
-            <p class="mystical-message">${randomMystical}</p>
+    <div class="day-slide">
+        <h3 class="goldenTitle">${celticMonth === "Mirabilis" ? mirabilisTitle : weekday}</h3>
+        ${celticMonth !== "Mirabilis" ? `<p><span class="celticDate">${celticMonth} ${celticDay}</span></p>` : ""}
+        ${celticMonth !== "Mirabilis" ? `
+            <div class="moon-phase-graphic moon-centered">
+                ${lunarData.graphic}
+            </div>` : ""}
+        <div class="mirabilis-graphic">
+            ${mirabilisSymbol}
         </div>
-      </div>
+        ${mirabilisPoem ? `<blockquote class="mirabilis-poem">${mirabilisPoem}</blockquote>` : ""}
+        ${celticMonth !== "Mirabilis" ? `<p class="moon-description">${moonDescription}</p>`: ""}
+    </div>
+
+        ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
+        ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
+        ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
+        ${zodiacHTML ? `<div class="day-slide">${zodiacHTML}</div>` : ""}
+        ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
+
+        <div class="day-slide">
+            <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+            <h3 class="goldenTitle">Mystical Wisdom</h3>
+            <div class="mystical-suggestion-block">
+                <img src="static/assets/images/decor/mystical-sparkle.png" alt="Mystical Sparkle" class="divider" />
+                <p class="mystical-message">${randomMystical}</p>
+            </div>
+        </div>
     `;
 }
 

@@ -1,5 +1,9 @@
 // dateUtils.js
 
+export function isLeapYear(year = new Date().getFullYear()) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
 export function convertCelticToGregorian(celticMonth, celticDay, baseYear = new Date().getFullYear()) {
     // For months that begin in the prior year (like Nivis), adjust the base year accordingly
     const adjustedYear = celticMonth === "Nivis" ? baseYear - 1 : baseYear;
