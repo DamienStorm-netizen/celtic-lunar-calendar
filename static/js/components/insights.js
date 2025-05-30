@@ -103,10 +103,10 @@ export function renderInsights() {
 
           <br />
 
-          <!-- <h3 class="subheader">Mythology</h3>
-          <p id="zodiac-mythology"></p> -->
+          <h3 class="subheader">Mythology</h3>
+          <p id="zodiac-mythology"></p> 
 
-          <a class="settings-btn" href="#" target="_blank">Learn More</a>
+          <a id="zodiac-learn-more" class="settings-btn celtic-zodiac-btn" href="#" target="_blank">Learn More</a>
         </div>
       </div>
   
@@ -454,7 +454,7 @@ export function initializeCelticZodiac() {
 async function showZodiacModal(zodiacName) {
   const modal = document.getElementById("zodiac-modal");
   const overlay = document.getElementById("modal-overlay");
-  const learnMoreBtn = document.querySelector(".settings-btn"); // 👈 Add this line here!
+  const learnMoreBtn = document.querySelector(".celtic-zodiac-btn"); // 👈 Add this line here!
 
   try {
       const response = await fetch(`/zodiac/insights/${encodeURIComponent(zodiacName)}`);
@@ -492,6 +492,8 @@ async function showZodiacModal(zodiacName) {
       document.getElementById("zodiac-animal").textContent = zodiacEntry.animal;
       document.getElementById("zodiac-mythology").textContent = zodiacEntry.mythical_creature;
 
+      console.log("Zodiac url is ", zodiacEntry.url);
+
       if (zodiacEntry.url) {
         learnMoreBtn.style.display = "inline-block";
         learnMoreBtn.setAttribute("href", zodiacEntry.url);
@@ -503,6 +505,8 @@ async function showZodiacModal(zodiacName) {
   } catch (error) {
       console.error("Error loading zodiac modal:", error);
   }
+
+
 }
 
 // ********************************

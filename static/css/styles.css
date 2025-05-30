@@ -2016,6 +2016,47 @@ blockquote.moon-poem {
 
 /* Mirabilis Modal */
 
+.mirabilis-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.mirabilis-tab {
+  background: radial-gradient(circle, #FFD700 0%, #FF8C00 100%);
+  color: #000;
+  border: none;
+  padding: 6px 14px;
+  margin: 0 6px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1rem;
+  box-shadow: 0 0 8px rgba(255, 223, 127, 0.6);
+  transition: all 0.3s ease-in-out;
+}
+
+.mirabilis-tab.active {
+  background: #6a0dad;
+  color: #fff6ea;
+  box-shadow: 0 0 12px #ffd700;
+}
+
+.mirabilis-tab-content.hidden {
+  display: none;
+}
+
+.mirabilis-tab-content img {
+  width: 200px;
+  margin: 0 auto 10px auto;
+}
+
+.mirabilis-caption {
+  font-family: 'Libre Baskerville', serif;
+  color: #fff6ea;
+  font-size: 0.9rem;
+}
+
 .mirabilis-intro p {
   color: 
 }

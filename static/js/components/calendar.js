@@ -191,15 +191,24 @@ function showModal(monthName) {
                 modalDetails.innerHTML = `
                     <h2 class="month-title">Mirabilis</h2>
                     <p class="mirabilis-intro month-tagline">Beyond the boundary of time, in the hush between cycles, Mirabilis blooms. Here, two sacred breaths—one of fire, one of shadow—meet where neither past nor future holds sway.</p>
-                    <div class="mirabilis-crest-wrapper">
+
+                    <div class="mirabilis-tabs">
+                        <button class="mirabilis-tab active" data-tab="solis">Mirabilis Solis</button>
+                        <button class="mirabilis-tab" data-tab="noctis">Mirabilis Noctis</button>
+                    </div>
+
+                    <div class="mirabilis-tab-content" id="tab-solis">
                         <div class="mirabilis-crest crest-solis" id="crest-solis" title="Click to enter Mirabilis Solis">
                             <img src="static/assets/images/months/mirabilis-solis.png" alt="Mirabilis Solis" />
                             <p>Mirabilis Solis</p>
                         </div>
+                    </div>
+
+                    <div class="mirabilis-tab-content hidden" id="tab-noctis">
                         <div class="mirabilis-crest crest-noctis ${leap ? '' : 'disabled'}" id="crest-noctis" title="${leap ? 'Click to enter Mirabilis Noctis' : 'Appears only in leap years'}">
                             <img src="static/assets/images/months/mirabilis-noctis.png" alt="Mirabilis Noctis" />
                             <p>Mirabilis Noctis</p>
-                        </div>
+                         </div>
                     </div>
                     `;
             } else {
@@ -284,6 +293,21 @@ function showModal(monthName) {
 
             // Setup tabbed navigation
             setupCalendarTabNavigation();
+
+           document.querySelectorAll(".mirabilis-tab").forEach(tab => {
+                tab.addEventListener("click", () => {
+                // Toggle button active states
+                document.querySelectorAll(".mirabilis-tab").forEach(btn => btn.classList.remove("active"));
+                tab.classList.add("active");
+
+                // Toggle content visibility
+                const target = tab.dataset.tab;
+                document.querySelectorAll(".mirabilis-tab-content").forEach(content => {
+                content.classList.add("hidden");
+                });
+                document.getElementById(`tab-${target}`).classList.remove("hidden");
+                });
+            });
 
             // Assign click behaviours to Mirabilis
             // 🌟 Add these *after* the modal content is injected:
