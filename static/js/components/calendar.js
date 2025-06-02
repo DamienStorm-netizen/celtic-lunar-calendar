@@ -4,7 +4,80 @@ import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
 import { starFieldSVG } from "../constants/starField.js";
+
 import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils/dateUtils.js';
+
+// Helper: Return ISO start/end dates for any Celtic month in a given cycle year
+function getMonthRangeISO(monthName, cycleYear) {
+  let startDate, endDate;
+  switch (monthName) {
+    case "Nivis":
+      startDate = new Date(Date.UTC(cycleYear - 1, 11, 23));
+      endDate   = new Date(Date.UTC(cycleYear,    0, 19));
+      break;
+    case "Janus":
+      startDate = new Date(Date.UTC(cycleYear,    0, 20));
+      endDate   = new Date(Date.UTC(cycleYear,    1, 16));
+      break;
+    case "Brigid":
+      startDate = new Date(Date.UTC(cycleYear,    1, 17));
+      endDate   = new Date(Date.UTC(cycleYear,    2, 16));
+      break;
+    case "Flora":
+      startDate = new Date(Date.UTC(cycleYear,    2, 17));
+      endDate   = new Date(Date.UTC(cycleYear,    3, 13));
+      break;
+    case "Maia":
+      startDate = new Date(Date.UTC(cycleYear,    3, 14));
+      endDate   = new Date(Date.UTC(cycleYear,    4, 11));
+      break;
+    case "Juno":
+      startDate = new Date(Date.UTC(cycleYear,    4, 12));
+      endDate   = new Date(Date.UTC(cycleYear,    5,  8));
+      break;
+    case "Solis":
+      startDate = new Date(Date.UTC(cycleYear,    5,  9));
+      endDate   = new Date(Date.UTC(cycleYear,    6,  6));
+      break;
+    case "Terra":
+      startDate = new Date(Date.UTC(cycleYear,    6,  7));
+      endDate   = new Date(Date.UTC(cycleYear,    7,  3));
+      break;
+    case "Lugh":
+      startDate = new Date(Date.UTC(cycleYear,    7,  4));
+      endDate   = new Date(Date.UTC(cycleYear,    7, 31));
+      break;
+    case "Pomona":
+      startDate = new Date(Date.UTC(cycleYear,    8,  1));
+      endDate   = new Date(Date.UTC(cycleYear,    8, 28));
+      break;
+    case "Autumna":
+      startDate = new Date(Date.UTC(cycleYear,    8, 29));
+      endDate   = new Date(Date.UTC(cycleYear,    9, 26));
+      break;
+    case "Eira":
+      startDate = new Date(Date.UTC(cycleYear,    9, 27));
+      endDate   = new Date(Date.UTC(cycleYear,   10, 23));
+      break;
+    case "Aether":
+      startDate = new Date(Date.UTC(cycleYear,   10, 24));
+      endDate   = new Date(Date.UTC(cycleYear,   11, 21));
+      break;
+    case "Mirabilis":
+      const isLeap = isLeapYear(cycleYear);
+      startDate = new Date(Date.UTC(cycleYear,   11, 22));
+      endDate   = new Date(Date.UTC(cycleYear,   11, 22 + (isLeap ? 1 : 0)));
+      break;
+    default:
+      console.error("Unknown Celtic month in getMonthRangeISO:", monthName);
+      return { startISO: null, endISO: null };
+  }
+  const pad = (n) => String(n).padStart(2, "0");
+  return {
+    startISO: `${startDate.getUTCFullYear()}-${pad(startDate.getUTCMonth() + 1)}-${pad(startDate.getUTCDate())}`,
+    endISO:   `${endDate.getUTCFullYear()}-${pad(endDate.getUTCMonth() + 1)}-${pad(endDate.getUTCDate())}`
+  };
+}
 
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
@@ -608,43 +681,33 @@ async function fetchEclipseEvents() {
     }
 }
 
-// Fetch lunar phases dynamically for a given month
-async function fetchMoonPhases(monthName) {
-    console.log("Fetching moon phases for month:", monthName);
-    try {
-        const celticMonthMapping = {
-            "Nivis": { start: "2024-12-23", end: "2025-01-19" },
-            "Janus": { start: "2025-01-20", end: "2025-02-16" },
-            "Brigid": { start: "2025-02-17", end: "2025-03-16" },
-            "Flora": { start: "2025-03-17", end: "2025-04-13" },
-            "Maia": { start: "2025-04-14", end: "2025-05-11" },
-            "Juno": { start: "2025-05-12", end: "2025-06-08" },
-            "Solis": { start: "2025-06-09", end: "2025-07-06" },
-            "Terra": { start: "2025-07-07", end: "2025-08-03" },
-            "Lugh": { start: "2025-08-04", end: "2025-08-31" },
-            "Pomona": { start: "2025-09-01", end: "2025-09-28" },
-            "Autumna": { start: "2025-09-29", end: "2025-10-26" },
-            "Eira": { start: "2025-10-27", end: "2025-11-23" },
-            "Aether": { start: "2025-11-24", end: "2025-12-21" },
-        };
-  
-        if (!celticMonthMapping[monthName]) {
-            console.error("Invalid month name:", monthName);
-            return [];
-        }
-  
-        const { start, end } = celticMonthMapping[monthName];
-  
-        const response = await fetch(`/dynamic-moon-phases?start_date=${start}&end_date=${end}`);
-        if (!response.ok) throw new Error("Failed to fetch moon phases");
-  
-        const moonData = await response.json();
-        console.log("Moon phases retrieved:", moonData);
-        return moonData;
-    } catch (error) {
-        console.error("Error fetching moon phases:", error);
-        return [];
-    }
+// Fetch lunar phases dynamically for a given Celtic month
+export async function fetchMoonPhases(celticMonth) {
+  console.log(`Fetching moon phases for ${celticMonth}...`);
+
+  // Determine which cycle year we’re in (each cycle starts on Dec 23)
+  const now = new Date();
+  const anchorYear = (now >= new Date(now.getFullYear(), 11, 23))
+    ? now.getFullYear()
+    : now.getFullYear() - 1;
+
+  // Get the ISO date range for this Celtic month
+  const { startISO, endISO } = getMonthRangeISO(celticMonth, anchorYear);
+  if (!startISO || !endISO) {
+    console.error("Invalid Celtic month in fetchMoonPhases:", celticMonth);
+    return [];
+  }
+
+  try {
+    const response = await fetch(`/dynamic-moon-phases?start_date=${startISO}&end_date=${endISO}`);
+    if (!response.ok) throw new Error("Failed to fetch moon phases");
+    const moonData = await response.json();
+    console.log("🌙 Moon Phases Retrieved:", moonData);
+    return moonData;
+  } catch (error) {
+    console.error("❌ Error fetching moon phases:", error);
+    return [];
+  }
 }
 
 // Fetch custom events dynamically

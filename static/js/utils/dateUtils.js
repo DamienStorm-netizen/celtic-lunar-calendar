@@ -42,25 +42,36 @@ export function convertCelticToGregorian(celticMonth, celticDay, baseYear = new 
 
 // Convert Gregorian date string (YYYY-MM-DD or Date) to Celtic date string (e.g., "Janus 3")
 export function convertGregorianToCeltic(gregorianDate) {
-    const inputDate = new Date(gregorianDate);
-    if (isNaN(inputDate.getTime())) {
-        console.error("Invalid Gregorian date:", gregorianDate);
-        return "Invalid Date";
+    // Parse input into year, month, day
+    let year, month, day;
+    if (typeof gregorianDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(gregorianDate)) {
+        [year, month, day] = gregorianDate.split("-").map(Number);
+    } else {
+        const d = new Date(gregorianDate);
+        if (isNaN(d.getTime())) {
+            console.error("Invalid Gregorian date:", gregorianDate);
+            return "Invalid Date";
+        }
+        year = d.getFullYear();
+        month = d.getMonth() + 1;
+        day = d.getDate();
     }
 
-    // Determine cycle (each Celtic year begins on Dec 23)
-    const year = inputDate.getFullYear();
-    const dec23 = new Date(year, 11, 23);
-    const cycleStartYear = inputDate >= dec23 ? year : year - 1;
-    const cycleStart = new Date(cycleStartYear, 11, 23);
+    // Compute UTC timestamps for comparison
+    const inputUTC = Date.UTC(year, month - 1, day);
+    const dec23UTC = Date.UTC(year, 11, 23);
+
+    // Determine cycle start year
+    const cycleStartYear = inputUTC >= dec23UTC ? year : year - 1;
+    const cycleStartUTC = Date.UTC(cycleStartYear, 11, 23);
 
     // Days since cycle start
-    const diffDays = Math.floor((inputDate - cycleStart) / 86400000);
+    const diffDays = Math.floor((inputUTC - cycleStartUTC) / 86400000);
 
     // Determine if this cycle includes Mirabilis Noctis (leap)
     const isLeap = isLeapYear(cycleStartYear + 1);
     const daysInMonthCycle = 13 * 28;        // 364 days for 13 months
-    const totalCycleDays = daysInMonthCycle + 1 + (isLeap ? 1 : 0); // + Mirabilis Solis (+ Mirabilis Noctis if leap)
+    const totalCycleDays = daysInMonthCycle + 1 + (isLeap ? 1 : 0);
 
     // If outside the whole cycle, unknown
     if (diffDays < 0 || diffDays >= totalCycleDays) {
@@ -95,4 +106,35 @@ export function convertGregorianToCeltic(gregorianDate) {
 export function getCelticWeekday(celticDay) {
     const weekdays = ["Moonday", "Trésda", "Wyrdsday", "Thornsday", "Freyasday", "Emberveil", "Sunveil"];
     return weekdays[(celticDay - 1) % 7];
+}
+
+// Get the Celtic weekday name for a given Gregorian date string (YYYY-MM-DD)
+export function getCelticWeekdayFromGregorian(gregorianDate) {
+    // Parse input into year, month, day
+    let year, month, day;
+    if (typeof gregorianDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(gregorianDate)) {
+        [year, month, day] = gregorianDate.split("-").map(Number);
+    } else {
+        const d = new Date(gregorianDate);
+        if (isNaN(d.getTime())) {
+            console.error("Invalid Gregorian date for weekday:", gregorianDate);
+            return "";
+        }
+        year = d.getFullYear();
+        month = d.getMonth() + 1;
+        day = d.getDate();
+    }
+
+    // Compute UTC timestamps
+    const inputUTC = Date.UTC(year, month - 1, day);
+    const dec23UTC = Date.UTC(year, 11, 23);
+
+    // Determine cycle start year
+    const cycleStartYear = inputUTC >= dec23UTC ? year : year - 1;
+    const cycleStartUTC = Date.UTC(cycleStartYear, 11, 23);
+
+    const diffDays = Math.floor((inputUTC - cycleStartUTC) / 86400000);
+    const cycleDay = diffDays + 1;  // 1-based day in cycle
+
+    return getCelticWeekday(((cycleDay - 1) % 7) + 1);
 }

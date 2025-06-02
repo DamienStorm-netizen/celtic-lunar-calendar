@@ -1,4 +1,4 @@
-import { convertGregorianToCeltic, getCelticWeekday } from "../utils/dateUtils.js";
+import { convertGregorianToCeltic, getCelticWeekday, getCelticWeekdayFromGregorian } from "../utils/dateUtils.js";
 import { applyMysticalSettings } from "./calendar.js"; // or wherever it's defined
 import { saveCustomEvents } from "../utils/localStorage.js";
 
@@ -12,11 +12,12 @@ export function renderSettings() {
             <section id="custom-events-settings">
 
                 <h2>🌗 Date Conversion</h2>
-                <p class="settings-subheader">Convert Gregorian to Lunar Date</p>
+                <p class="settings-subheader">Gregorian to Lunar Date</p>
                 <ul class="conversion-settings">
                     <li>Gregorian Date: <input type="text" id="convert-to-celtic" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
                    <li class="lunar-date-row"><span class="lunar-label">Lunar Date:</span><span class="converted-date">Trésda, Juno 9</span></li>
                 </ul>
+            
                 <br />
 
                 <h2>🌙 Add an Event</h2>
@@ -349,15 +350,13 @@ export function setupSettingsEvents() {
     const convertedDisplay = document.querySelector(".converted-date");
     if (convertInput && convertedDisplay) {
       convertInput.addEventListener("change", e => {
-        const celtic = convertGregorianToCeltic(e.target.value);
-        // If valid, include the Celtic weekday name
-        if (/[A-Za-z]+ \d+/.test(celtic)) {
-          const [month, dayStr] = celtic.split(" ");
-          const dayNum = parseInt(dayStr, 10);
-          const weekday = getCelticWeekday(dayNum);
-          convertedDisplay.textContent = `${weekday}, ${celtic}`;
+        const dateStr = e.target.value;
+        const celtic = convertGregorianToCeltic(dateStr);
+        if (celtic === "Unknown Date" || celtic === "Invalid Date") {
+            convertedDisplay.textContent = celtic;
         } else {
-          convertedDisplay.textContent = celtic;
+            const weekday = getCelticWeekdayFromGregorian(dateStr);
+            convertedDisplay.textContent = `${weekday}, ${celtic}`;
         }
       });
       // Set default to today's date and initialize display
@@ -371,17 +370,13 @@ export function setupSettingsEvents() {
         altFormat: "F j, Y",
         dateFormat: "Y-m-d",
         theme: "moonveil", // optional for readability
-        onChange: function(selectedDates, dateStr, instance) {
-            const convertInput = document.getElementById("convert-to-celtic");
-            const convertedDisplay = document.querySelector(".converted-date");
+        onChange: function(selectedDates, dateStr) {
             const celtic = convertGregorianToCeltic(dateStr);
-            if (/[A-Za-z]+ \d+/.test(celtic)) {
-                const [month, dayStr] = celtic.split(" ");
-                const dayNum = parseInt(dayStr, 10);
-                const weekday = getCelticWeekday(dayNum);
-                convertedDisplay.textContent = `${weekday}, ${celtic}`;
-            } else {
+            if (celtic === "Unknown Date" || celtic === "Invalid Date") {
                 convertedDisplay.textContent = celtic;
+            } else {
+                const weekday = getCelticWeekdayFromGregorian(dateStr);
+                convertedDisplay.textContent = `${weekday}, ${celtic}`;
             }
         }
     });
@@ -726,10 +721,7 @@ function attachEventHandlers() {
         applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
     });
 
-    document.getElementById("toggle-constellations").addEventListener("change", (e) => {
-        const layer = document.getElementById("constellation-layer");
-        layer.style.display = e.target.checked ? "block" : "none";
-      });
+    // Removed toggle-constellations and constellation-layer event handler
 }
 
 export function saveMysticalPrefs(prefs) {
