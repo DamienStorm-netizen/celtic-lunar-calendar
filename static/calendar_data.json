@@ -1,5 +1,11 @@
 {
     "months": [
+         {
+            "name": "Mirabilis",
+            "start_date": "2024-12-22",
+            "end_date": "2024-12-22",
+            "tagline": "Beyond the boundary of time, in the hush between cycles, Mirabilis blooms. Here, two sacred breaths—one of fire, one of shadow—meet where neither past nor future holds sway."
+        },
         {
             "name": "Nivis",
             "start_date": "2024-12-23",
@@ -86,7 +92,8 @@
             "poem": "Imbolc’s fire, a guiding light,\nTo cleanse the old and spark the bright.\nSweep the hearth and set your aim,\nBegin anew in Brigid’s name.",
             "date": "2025-02-01",
             "linked_phase": "Full Moon",
-            "linked_moon": "Snow Moon"
+            "linked_moon": "Snow Moon",
+            "url": "https://playgroundofthesenses.substack.com/p/imbolc-the-first-flame-and-sacred"
         },
         {
             "name": "Ostara",
@@ -94,7 +101,8 @@
             "poem": "Ostara greets the dawn’s bright glow,\nAs light and dark share equal show.\nPlant a seed and watch it grow,\nSpring awakens, soft and slow.",
             "date": "2025-03-20",
             "linked_phase": "Full Moon",
-            "linked_moon": "Worm Moon"
+            "linked_moon": "Worm Moon",
+            "url": "https://playgroundofthesenses.substack.com/p/ostara-the-balance-of-blossoms-and"
         },
         {
             "name": "Beltane",
@@ -102,7 +110,8 @@
             "poem": "Beltane fires in moonlit glade,\nMark love’s embrace and life displayed.\nDance with joy ‘neath skies so wide,\nAnd weave the threads where dreams reside.",
             "date": "2025-05-01",
             "linked_phase": "Full Moon",
-            "linked_moon": "Flower Moon"
+            "linked_moon": "Flower Moon",
+            "url": "https://playgroundofthesenses.substack.com/p/beltane-the-fire-of-union-and-fertile"
         },
         {
             "name": "Litha",
@@ -110,15 +119,17 @@
             "poem": "The sun at peak, its golden flame,\nOn Litha’s day, no dark can claim.\nBathe in light, embrace its glow,\nAnd let your inner fire grow.",
             "date": "2025-06-21",
             "linked_phase": "Full Moon",
-            "linked_moon": "Strawberry Moon"
+            "linked_moon": "Strawberry Moon",
+            "url": "https://playgroundofthesenses.substack.com/p/litha-the-crown-of-light-and-sovereign"
         },
         {
-            "name": "Lammas",
-            "description": "Lammas marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter.",
-            "poem": "Lammas fields of amber grain,\nGive thanks for sun and summer rain.\nShare your bread, your heart, your care,\nAnd bless the earth with all you bear.",
+            "name": "Lughnasadh",
+            "description": "Lughnasadh marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter.",
+            "poem": "Lughnasadh fields of amber grain,\nGive thanks for sun and summer rain.\nShare your bread, your heart, your care,\nAnd bless the earth with all you bear.",
             "date": "2025-08-01",
             "linked_phase": "Full Moon",
-            "linked_moon": "Grain Moon"
+            "linked_moon": "Grain Moon",
+            "url": "https://playgroundofthesenses.substack.com/p/lughnasadh-the-golden-harvest-and"
         },
         {
             "name": "Mabon",
@@ -126,7 +137,8 @@
             "poem": "Mabon’s time, the scales now sway,\nEqual hours of night and day.\nGather fruits and share the feast,\nCelebrate the earth’s increase.",
             "date": "2025-09-22",
             "linked_phase": "Full Moon",
-            "linked_moon": "Harvest Moon"
+            "linked_moon": "Harvest Moon",
+            "url": "https://playgroundofthesenses.substack.com/p/mabon-the-balance-of-shadow-and-abundance"
         },
         {
             "name": "Samhain",
@@ -292,7 +304,7 @@
             "animal": "White Stag - Guidance and intuition.",
             "mythical_creature": "White Hart - Purity, power, and nobility.",
             "element": "🌬️ Air",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/birch-the-dawn-of-beginnings-and"
         },
         {
             "name": "Rowan",
@@ -303,7 +315,7 @@
             "animal": "Crane - Longevity, wisdom, and spiritual strength.",
             "element": "🔥 Fire",
             "mythical_creature": "Dragon - Transformation, growth, and new beginnings.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/rowan-the-guardian-of-vision-and"
         },
         {
             "name": "Ash",
@@ -314,7 +326,7 @@
             "animal": "Adder - Transformation and rebirth.",
             "element": "💧 Water",
             "mythical_creature": "Sea Serpent - Hidden depths and transformation.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/ash-the-child-of-water-and-transformation"
         },
         {
             "name": "Alder",
@@ -325,7 +337,7 @@
             "animal": "Fox - Intelligence, cunning, and adaptability.",
             "element": "🌊 Water",
             "mythical_creature": "Firebird - Resurrection and spiritual enlightenment.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/alder-the-flame-of-courage-and-renewal"
         },
         {
             "name": "Willow",
@@ -336,7 +348,7 @@
             "animal": "Hawk - Intuition and sensitivity.",
             "element": "🌊 Water",
             "mythical_creature": "Hare - Magic, fertility, and new life.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/willow-the-dreamer-of-moonlight-and"
         },
         {
             "name": "Hawthorn",
@@ -347,7 +359,7 @@
             "animal": "Owl - Wisdom, intuition, and mystery.",
             "element": "🌬️ Air",
             "mythical_creature": "Unicorn - Purity, grace, and divine guidance.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/hawthorn-the-hearts-gate-and-wild"
         },
         {
             "name": "Oak",
@@ -358,7 +370,7 @@
             "animal": "Wren - Quick-wittedness and resourcefulness.",
             "element": "🌎 Earth",
             "mythical_creature": "White Horse - Power, freedom, and victory.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/oak-the-sovereign-of-strength-and"
         },
         {
             "name": "Holly",
@@ -369,7 +381,7 @@
             "animal": "Horse - Freedom, courage, and adventure.",
             "element": "🔥 Fire",
             "mythical_creature": "Pegasus - Creativity and spiritual enlightenment.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/holly-the-warrior-of-heart-and-shadow"
         },
         {
             "name": "Hazel",
@@ -380,7 +392,7 @@
             "animal": "Salmon - Knowledge and divine inspiration.",
             "element": "💧 Water",
             "mythical_creature": "Salmon of Knowledge - Quest for wisdom and understanding.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/hazel-the-poet-of-wisdom-and-wild"
         },
         {
             "name": "Vine",
@@ -391,7 +403,7 @@
             "animal": "Swan - Grace and transformation.",
             "element": "🌎 Earth",
             "mythical_creature": "Selkie - Adaptability and emotional depth.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/vine-the-enchanter-of-passion-and"
         },
         {
             "name": "Ivy",
@@ -402,7 +414,7 @@
             "animal": "Butterfly - Endurance and adaptability.",
             "element": "🌬️ Air",
             "mythical_creature": "Faerie - Magic and the hidden realms of nature.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/ivy-the-weaver-of-devotion-and-endurance"
         },
         {
             "name": "Reed",
@@ -413,7 +425,7 @@
             "animal": "Cat - Independence and curiosity.",
             "element": "🌊 Water",
             "mythical_creature": "Mermaid - Transformation, healing, and rebirth.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/reed-the-whisperer-between-worlds"
         },
         {
             "name": "Elder",
@@ -424,7 +436,7 @@
             "animal": "Badger - Magic and intelligence.",
             "element": "🔥 Fire",
             "mythical_creature": "Phoenix - Rebirth and spiritual transformation.",
-            "url": "http://playgroundofthesenses.com"
+            "url": "https://playgroundofthesenses.substack.com/p/elder-the-flame-that-ends-and-begins"
         }
     ]
 }
