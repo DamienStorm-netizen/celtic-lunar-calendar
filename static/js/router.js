@@ -8,7 +8,7 @@ import { initInsightsView } from './utils/insightsInit.js';
 import {renderSettings } from './components/settings.js';
 import {initSettingsView } from './utils/settingsInit.js';
 
-import {renderFaq} from './components/faq.js';
+import {renderFaq, initFaq} from './components/faq.js';
 
 import {renderAbout} from './components/about.js';
 import {renderPrivacy} from './components/privacy.js';
@@ -60,6 +60,7 @@ function navigateTo(hash) {
         break;
       case 'faq':
         appContainer.innerHTML = renderFaq();
+        initFaq();
         break;
       case 'settings':
         appContainer.innerHTML = renderSettings();
