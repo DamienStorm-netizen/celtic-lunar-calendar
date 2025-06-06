@@ -90,6 +90,9 @@ export function renderCalendar() {
         <div id="modal-overlay" class="modal-overlay hidden"></div>
 
             <h1 class="calendar-title">Calendar</h1>
+
+            <button id="calendar-today-btn" class="today_btn">Today</button>
+
             <div class="calendar-grid">
                 <div class="month-thumbnail" id="nivis" data-month="Nivis">
                     <img src="static/assets/images/months/nivis-thumbnail.png" alt="Nivis Month Thumbnail">
@@ -211,6 +214,27 @@ export async function setupCalendarEvents() {
 
     // Attach event listener to close modal
     modalClose.addEventListener("click", closeModal);
+
+    // Attach event listender to Today button
+    document.getElementById("calendar-today-btn").addEventListener("click", async () => {
+        const todayCeltic = await getCelticDate();
+        if (!todayCeltic) {
+            console.error("Could not determine today's Celtic date.");
+            return;
+        }
+
+        const { celticMonth, celticDay } = todayCeltic;
+        const gregorian = convertCelticToGregorian(celticMonth, celticDay);
+
+        if (!gregorian) {
+            console.error("Failed to convert today’s Celtic date to Gregorian.");
+            return;
+        }
+
+        const formattedGregorianDate = `${gregorian.gregorianYear}-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
+
+        showDayModal(celticDay, celticMonth, formattedGregorianDate);
+    });
 
     // Attach event listeners to each month thumbnail
     const thumbnails = document.querySelectorAll(".month-thumbnail");

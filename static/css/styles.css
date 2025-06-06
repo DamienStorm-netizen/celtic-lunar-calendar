@@ -957,6 +957,18 @@ blockquote.moon-poem {
 /* CELTIC CALENDAR SCREEN */
 /**********************************************/
 
+/* Today Button */
+#calendar-today-btn {
+  background: linear-gradient(to right, #5c4aff, #9f72ff);
+  border: none;
+  border-radius: 10px;
+  padding: 0.4em 1em;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
  .month-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
@@ -1599,8 +1611,6 @@ blockquote.moon-poem {
   color: #ffd700;
   margin-bottom: 0.5rem;
 }
-
-/*** CALENDAR SCREEN */
 
 /* Section Styling */
 .calendar {
@@ -2959,7 +2969,7 @@ body.modal-open {
   border-radius: 10px;
   padding: 1rem;
   box-shadow: 0 0 12px rgba(200, 200, 255, 0.1);
-  font-family: 'EB Garamond', serif;
+  font-family: 'Libre Baskerville', serif;
   color: #f5f5f5;
 }
 
@@ -2979,6 +2989,7 @@ body.modal-open {
   justify-content: space-between;
   align-items: center;
   color: #ffd700;
+  font-family: 'Libre Baskerville', serif;
   font-weight: 600;
   transition: all 0.3s ease;
 }
@@ -2997,6 +3008,7 @@ body.modal-open {
   color: #e0e0e0;
   font-size: 1rem;
   line-height: 1.5;
+  font-weight: 400;
 }
 
 .accordion-content a {
