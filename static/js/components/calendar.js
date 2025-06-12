@@ -513,7 +513,7 @@ async function enhanceCalendarTable(modalContainer, monthName) {
     console.log(`Enhancing calendar for ${monthName}...`);
 
     // Convert monthName to a zero-padded monthIndex
-    const monthNames = ["Nivis", "Janus", "Flora", "Maia", "Solis", "Terra", "Lugh", "Pomona", "Brigid", "Autumna", "Eira", "Aether"];
+    const monthNames = ["Nivis", "Janus", "Flora", "Maia", "Juno", "Solis", "Terra", "Lugh", "Pomona", "Brigid", "Autumna", "Eira", "Aether"];
     const monthIndex = String(monthNames.indexOf(monthName) + 1).padStart(2, "0");
 
     // Ensure national holidays are fetched before using them
@@ -542,7 +542,7 @@ async function enhanceCalendarTable(modalContainer, monthName) {
 
     // Fetch lunar phases, festivals and national holidays
     const lunarData = await fetchMoonPhases(monthName);
-    console.log("Fetch moon graphic", lunarData.graphic);
+    console.log("🌙 lunarData array:", lunarData);
 
     // Fetch custom events
     const customEvents = await fetchCustomEvents();
@@ -578,10 +578,13 @@ async function enhanceCalendarTable(modalContainer, monthName) {
             // Find the corresponding moon event
             const moonEvent = lunarData.find(moon => moon.date === formattedGregorianDate);
             console.log("Coverted Gregorian date is ", formattedGregorianDate);
-            if (moonEvent && moonEvent.phase === "Full Moon") {
-                console.log(`Corrected: Marking ${day} (Celtic) = ${formattedGregorianDate} (Gregorian) as Full Moon (${moonEvent.moonName})`);
+            if (moonEvent && (moonEvent.moonName || moonEvent.phase.toLowerCase() === "full moon")) {
+                console.log(`🌕 Marking ${day} as Full Moon: ${moonEvent.moonName || moonEvent.phase}`);
                 cell.classList.add("full-moon-day");
-                cell.setAttribute("title", `${moonEvent.moonName} 🌕`);
+
+                // always display the name if present, otherwise use the returned phase text
+                const moonLabel = `${moonEvent.moonName || moonEvent.phase} 🌕`;
+                cell.setAttribute("title", moonLabel);
             }
 
             // Highlight today's Celtic date if it matches the current month and day
@@ -709,11 +712,9 @@ async function fetchEclipseEvents() {
 export async function fetchMoonPhases(celticMonth) {
   console.log(`Fetching moon phases for ${celticMonth}...`);
 
-  // Determine which cycle year we’re in (each cycle starts on Dec 23)
-  const now = new Date();
-  const anchorYear = (now >= new Date(now.getFullYear(), 11, 23))
-    ? now.getFullYear()
-    : now.getFullYear() - 1;
+  // Determine anchor year based on first day of the Celtic month
+  const firstGregorian = convertCelticToGregorian(celticMonth, 1);
+  const anchorYear = firstGregorian.gregorianYear;
 
   // Get the ISO date range for this Celtic month
   const { startISO, endISO } = getMonthRangeISO(celticMonth, anchorYear);
@@ -857,6 +858,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
         }
         const lunarData = data[0];
         console.log("🌙 lunarData.graphic is:", lunarData.graphic);
+        const fullMoonName = lunarData.moonName;
   
         // Format the Gregorian month
         const gMonth = getFormattedMonth(monthStr);
@@ -1018,7 +1020,9 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
                         eventsHTML,
                         celticMonth,
                         celticDay,
-                        formattedGregorianDate })}
+                        formattedGregorianDate,
+                        fullMoonName // ✨ Add this line 
+                        })}
                 </div>
 
                <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
@@ -1201,7 +1205,8 @@ function generateDaySlides({
     eventsHTML, 
     celticMonth, 
     celticDay, 
-    formattedGregorianDate 
+    formattedGregorianDate,
+    fullMoonName // ✨ Add this too! 
 }) {
     const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
 
@@ -1239,6 +1244,9 @@ function generateDaySlides({
             <div class="moon-phase-graphic moon-centered">
                 ${lunarData.graphic}
             </div>` : ""}
+            <h3 class="moon-phase-name">
+                ${fullMoonName ? fullMoonName + " 🌕" : lunarData.phase + " 🌙"}
+            </h3>
         <div class="mirabilis-graphic">
             ${mirabilisSymbol}
         </div>

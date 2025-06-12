@@ -958,17 +958,21 @@ blockquote.moon-poem {
 /**********************************************/
 
 /* Today Button */
+.calendar-title {
+  margin-bottom: 15px;
+}
+
 #calendar-today-btn {
   background: linear-gradient(to right, #5c4aff, #9f72ff);
   border: none;
   border-radius: 10px;
-  padding: 0.4em 1em;
+  padding: 0.4em 2em;
   color: white;
   font-size: 1rem;
   cursor: pointer;
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+  margin-bottom: 15px;
 }
-
  .month-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */
   font-weight: 400; /* Use bold for the title */
@@ -1247,7 +1251,7 @@ blockquote.moon-poem {
 /*** 🔥 Today's date highlight ***/
 
 .highlight-today {
-  background: linear-gradient(135deg, #ffdf7e 0%, #ffac33 100%);
+  background: linear-gradient(135deg, #000 0%, #68468c 100%);
   color: #000;
   font-weight: bold;
   box-shadow: 0 0 10px rgba(255, 223, 127, 0.8);
