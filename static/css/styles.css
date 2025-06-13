@@ -1046,15 +1046,22 @@ blockquote.moon-poem {
 }
 
 #calendar-today-btn {
-  background: linear-gradient(to right, #5c4aff, #9f72ff);
-  border: none;
-  border-radius: 10px;
-  padding: 0.4em 2em;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
-  margin-bottom: 15px;
+  display: block;
+  width: 233px;
+  margin: 15px auto;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 0.95em;
+  background: linear-gradient(135deg, #9c27b0, #000);
+  color: #ffd700;
+  text-decoration: none;
+  box-shadow: 0 0 12px rgba(255, 140, 0, 0.5);
+  transition: all 0.3s ease-in-out;
 }
  .month-title {
   font-family: 'Cinzel Decorative', serif; /* Fallback to serif if the font doesn’t load */

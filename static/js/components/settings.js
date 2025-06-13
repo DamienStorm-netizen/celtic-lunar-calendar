@@ -130,14 +130,6 @@ export function renderSettings() {
                             </span>
                         </label>
                     </li>
-
-                    <li class="mystical-toggle">
-                        <span>Show Past Events</span>
-                        <label class="switch">
-                            <input type="checkbox" id="show-past-events" data-on="🕰️" data-off="🚫" />
-                            <span class="slider round"></span>
-                        </label>
-                    </li>
                 <ul>
             </section>
 
@@ -163,7 +155,6 @@ export function getMysticalPrefs() {
         mysticalSuggestions: true,
         showHolidays: true,
         showCustomEvents: true, // ✅ This line makes all the difference
-        showPastEvents: false,
         showConstellations: true
     };
 
@@ -263,28 +254,6 @@ export function setupSettingsEvents() {
     addEventForm.removeEventListener("submit", handleAddEventSubmit); // clear old
     addEventForm.addEventListener("submit", handleAddEventSubmit);    // attach fresh
 
-    document.getElementById("show-past-events").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showPastEvents = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-        togglePastEventsVisibility(prefs.showPastEvents); // 🪄 Add this line
-    });
-
-    function togglePastEventsVisibility(show) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalize today's date to midnight
-      
-        document.querySelectorAll(".event-item").forEach(item => {
-          const dateText = item.querySelector("li:nth-child(2)")?.textContent;
-          if (!dateText) return;
-      
-          const eventDate = new Date(dateText);
-          eventDate.setHours(0, 0, 0, 0); // Normalize event date
-      
-          item.style.display = (show || eventDate >= today) ? "block" : "none";
-        });
-    }
 
     // Hide overlay and make it clickable
     document.getElementById("modal-overlay").addEventListener("click", () => {
@@ -318,9 +287,6 @@ export function setupSettingsEvents() {
     document.getElementById("toggle-mystical").checked = prefs.mysticalSuggestions;
     document.getElementById("show-holidays").checked = prefs.showHolidays;
     document.getElementById("show-custom-events").checked = prefs.showCustomEvents;
-    document.getElementById("show-past-events").checked = prefs.showPastEvents;
-    
-    togglePastEventsVisibility(prefs.showPastEvents); // 🪄 apply immediately!
 
     function updateToggleIcons() {
         document.querySelectorAll(".switch input[type='checkbox']").forEach(input => {
