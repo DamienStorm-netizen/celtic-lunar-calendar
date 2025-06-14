@@ -160,11 +160,11 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="static/assets/images/festivals/festival-lammas.png" alt="Lammas" class="festival-icon" />
-                <h2 class="festival-title">Lammas</h2>
+                <img src="static/assets/images/festivals/festival-lughnasadh.png" alt="Lughnasadh" class="festival-icon" />
+                <h2 class="festival-title">Lughnasadh</h2>
                 <h3 class="festival-date">27th of Terra</h3>
                 <p class="festival-description">
-                    Lammas marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter. 
+                    Lughnasadh marks the beginning of the harvest season. It's a time to give thanks for the abundance of the earth and to prepare for the coming winter. 
                 </p>
             </div>
 
