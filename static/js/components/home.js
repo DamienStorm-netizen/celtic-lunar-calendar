@@ -1,7 +1,10 @@
 import { initSwipe } from "../utils/swipeHandler.js";
 import { getEventIcon } from "../utils/eventUtils.js";
-import { getCelticWeekday, convertGregorianToCeltic } from "../utils/dateUtils.js";
+import { getCelticWeekday, convertGregorianToCeltic, getCelticWeekdayFromGregorian } from "../utils/dateUtils.js";
 import { getMysticalPrefs } from "./settings.js";
+import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
+import { slugifyCharm } from "../utils/slugifyCharm.js";
+//import { fetchComingEvents } from "./home.js";
 
 export function renderHome() {
     // Return the HTML and then in the next tickß attach overlay & swipe
@@ -10,6 +13,8 @@ export function renderHome() {
             <div id="modal-overlay" class="modal-overlay hidden"></div>
             <div class="celtic-date"></div>
             <div class="celtic-info-container">
+
+            <!--- *** MOON & CELTIC ZODIAC *** --->
                 <!-- Moon Phase Column -->
                 <div class="moon-column">
                     <p class="goldenTitle">Tonight's Moon</p>
@@ -30,11 +35,14 @@ export function renderHome() {
                     </div>
                 </div>
             </div>
+
             <div class="tree-of-life">
-                <!-- Moon Poem -->
+
+                <!--- *** MOON POEM *** --->
                 <div class="poem-container">
                     <blockquote class="moon-poem">Fetching poetic wisdom...</blockquote>
                 </div>
+
                 <!-- What's Happening! Carousel -->
                 <div id="coming-events-container">
                     <h3 class="coming-events-header">The Journey Unfolds</h3>
@@ -51,6 +59,27 @@ export function renderHome() {
                     </button>
                 </div>
             </div>
+
+            <!-- *** CELTIC BIRTHDAY SECTION *** -->
+            <section class="celtic-birthday" style="background-image: url('static/assets/images/decor/moon-circle.png'); background-repeat: no-repeat; background-position: center top; background-size: 250px;">
+                <h2 class="celtic-birthday-header">What is my Lunar Birthday?</h2>
+                <p>Enter your birthdate and discover your Celtic Zodiac sign and lunar date:</p>
+                
+                <input type="date" id="birthdateInput" class="flatpickr-input" />
+
+                <button id="revealZodiac" class="gold-button">Reveal My Celtic Sign</button>
+
+                <div id="birthdayResults" class="birthday-results hidden">
+                <p><strong>Your Lunar Birthday is </strong> <span id="lunarDateOutput"></span></p>
+                <img class="birthdayZodiacImage" src="static/assets/images/zodiac/zodiac-willow.png" alt="Willow" />
+                <p><strong>Your Celtic Zodiac Sign:</strong> <span id="celticSignOutput"></span></p>
+                <p><strong>Zodiac Traits:</strong> <span id="traitsOutput"></span></p>
+
+                <button id="addBirthdayEvent" class="gold-button">Add to My Calendar</button>
+                </div>
+            </section>
+
+            <!--- *** ZODIAC MODAL *** --->
             <div id="home-zodiac-modal" class="modal hidden">
                 <div class="modal-content scrollable-content">
                     <span class="close-button-home mystical-close">✦</span>
@@ -90,6 +119,102 @@ export function renderHome() {
             console.warn("coming-events-carousel element not found for swipe init");
           }
         });
+
+        // *** CELTIC BIRTHDAY INTERACTIONS ***
+        const birthdateInput = document.getElementById("birthdateInput");
+        const revealBtn = document.getElementById("revealZodiac");
+        const resultsBox = document.getElementById("birthdayResults");
+        //const imageSlugZodiac = slugifyCharm(zodiacSign.name); // Convert to slugified
+
+        // Load zodiac data and build traits map
+        let zodiacTraits = {};
+        fetch("/static/calendar_data.json")
+          .then(res => res.json())
+          .then(data => {
+            data.zodiac.forEach(sign => {
+              zodiacTraits[sign.name] = sign.symbolism;
+            });
+          })
+          .catch(err => console.error("Failed to load zodiac data:", err));
+
+        // On click, compute lunar date and Celtic sign
+        revealBtn.addEventListener("click", async () => {
+          if (!birthdateInput.value) return;
+          const isoDate = birthdateInput.value; // "YYYY-MM-DD"
+          // Lunar date using our existing utility
+          const lunarDate = convertGregorianToCeltic(isoDate);
+          // Fetch all signs and pick matching by month/day
+          let signName = "";
+          try {
+            const resp = await fetch('/zodiac/all');
+            const allSigns = await resp.json();
+            const [by, bMonth, bDay] = isoDate.split('-').map(Number);
+            const match = allSigns.find(sign => {
+              const [ , sMonth, sDay] = sign.start_date.split('-').map(Number);
+              const [ , eMonth, eDay] = sign.end_date.split('-').map(Number);
+              const afterStart = (bMonth > sMonth) || (bMonth === sMonth && bDay >= sDay);
+              const beforeEnd = (bMonth < eMonth) || (bMonth === eMonth && bDay <= eDay);
+              if (sMonth < eMonth || (sMonth === eMonth && sDay <= eDay)) {
+                return afterStart && beforeEnd;
+              } else {
+                // wraps year boundary
+                return afterStart || beforeEnd;
+              }
+            });
+            signName = match?.name || 'Unknown';
+          } catch (e) {
+            console.error("Zodiac fetch/all error:", e);
+          }
+          const traits = zodiacTraits[signName] || "No traits found.";
+          document.getElementById("lunarDateOutput").textContent = lunarDate;
+          document.getElementById("celticSignOutput").textContent = signName;
+          document.getElementById("traitsOutput").textContent = traits;
+          resultsBox.classList.remove("hidden");
+        });
+
+        // Hook up Add to Calendar button
+        document.getElementById("addBirthdayEvent")?.addEventListener("click", () => {
+            const isoDate = birthdateInput.value;
+            console.log("Add Bday button is clicked: ", isoDate);
+            const event = {
+              id: Date.now().toString(),
+              date: isoDate,
+              title: `Celtic Birthday`,
+              type: "🎂 Birthday",
+              notes: `Lunar: ${document.getElementById("lunarDateOutput").textContent}, Sign: ${document.getElementById("celticSignOutput").textContent}`
+            };
+            // Save locally
+            const existing = loadCustomEvents();
+            saveCustomEvents([...existing, event]);
+            // Send to backend
+            fetch("/api/custom-events", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(event)
+            })
+            .then(resp => {
+              if (!resp.ok) throw new Error("Failed to save event");
+              return resp.json();
+            })
+            .then(() => {
+              // Refresh home carousel to include the new birthday
+              fetchComingEvents();
+              alert("Birthday added to your calendar!");
+            })
+            .catch(err => {
+              console.error("Error adding birthday event:", err);
+              alert("Oops! Could not add your birthday event.");
+            });
+        });
+
+        flatpickr("#birthdateInput", {
+            altInput: true,
+            altFormat: "F j, Y",
+            dateFormat: "Y-m-d",
+            defaultDate: "today",
+            theme: "moonveil"
+        });
+
     }, 0);
     return html;
 }
