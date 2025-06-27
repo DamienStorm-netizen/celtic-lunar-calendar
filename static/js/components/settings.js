@@ -154,6 +154,11 @@ export function renderSettings() {
 
             <!-- Shooting Stars on close overlay -->
             <div id="shooting-stars-container"></div>
+
+            <!-- Toast conatiner for add Event -->
+            <div id="event-toast" class="event-toast hidden">
+                ✨ Event added for <span id="toast-date"></span> – <button id="toast-view-btn">View Event</button>
+            </div>
         </div>
     `;
 }
