@@ -60,6 +60,11 @@ export function renderSettings() {
                             <label for="event-note">Event Description:
                             <textarea id="event-note"></textarea></label>
 
+                            <label for="event-recurring">
+                                <input type="checkbox" id="event-recurring" />
+                                Make it Recurring
+                            </label>
+
                             <button type="submit">Save Event</button>
                             <button type="button" class="cancel-modal-add">Cancel</button>
                         </form> 
@@ -90,6 +95,11 @@ export function renderSettings() {
 
                             <label for="edit-event-notes">Notes:<br />
                             <textarea id="edit-event-notes"></textarea></label>
+
+                            <label for="edit-event-recurring">
+                                <input type="checkbox" id="edit-event-recurring" />
+                                Recurring Event
+                            </label>
 
                             <button type="submit" class="save-event-btn">Save Changes</button>&nbsp;&nbsp;<button type="button" class="cancel-modal-edit">Cancel</button>      
                         </form>
@@ -186,7 +196,13 @@ function openEditModal(eventId) {
             document.getElementById("edit-event-name").value = event.title;
             document.getElementById("edit-event-type").value = event.type || "General";
             document.getElementById("edit-event-date").value = event.date;
+            // If using Flatpickr, also set its selected date
+            const editDateInput = document.getElementById("edit-event-date");
+            if (editDateInput._flatpickr) {
+                editDateInput._flatpickr.setDate(event.date, true);
+            }
             document.getElementById("edit-event-notes").value = event.notes || "";
+            document.getElementById("edit-event-recurring").checked = event.recurring || false;
 
             // Store original event date for reference
             form.setAttribute("data-original-id", event.id);
@@ -415,6 +431,7 @@ async function handleAddEventSubmit(event) {
     const eventType = document.getElementById("event-type").value;
     const eventDate = document.getElementById("event-date").value;
     const eventNotes = document.getElementById("event-note").value.trim();
+    const eventRecurring = document.getElementById("event-recurring").checked;
 
     // Ensure required fields are filled
     if (!eventName || !eventDate) {
@@ -428,7 +445,8 @@ async function handleAddEventSubmit(event) {
         title: eventName,
         type: eventType,
         date: eventDate,
-        notes: eventNotes
+        notes: eventNotes,
+        recurring: eventRecurring,
     };
 
     let existing = [];
@@ -540,6 +558,8 @@ async function handleEditEventSubmit(event) {
         date: document.getElementById("edit-event-date").value,
         notes: document.getElementById("edit-event-notes").value.trim()
     };
+
+    updatedEvent.recurring = document.getElementById("edit-event-recurring").checked;
 
     console.log("✨ Submitting update for event ID:", originalId, updatedEvent);
 

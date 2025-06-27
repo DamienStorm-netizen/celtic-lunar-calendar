@@ -565,7 +565,7 @@ async function enhanceCalendarTable(modalContainer, monthName) {
                 return;
             }
             const formattedGregorianDate = `${gregorian.gregorianYear}-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
-  
+
              // Check if this date has an eclipse
              const eclipseEvent = eclipses.find(e => e.date.startsWith(formattedGregorianDate));
 
@@ -618,31 +618,24 @@ async function enhanceCalendarTable(modalContainer, monthName) {
                 console.log("No holiday, No marking");
             }
 
-            // 💜 Highlight Custom Event Days
-            const today = new Date();
-            const currentYear = today.getFullYear();
-
-            const prefs = getMysticalPrefs(); // make sure this is declared above if not already
-
-            const matchingEvents = customEvents.filter(event => {
-                const eventDate = new Date(event.date);
-                const eventDateISO = eventDate.toISOString().split("T")[0];
-                const todayISO = new Date().toISOString().split("T")[0];
-
-                const isTodayOrFuture = eventDateISO >= todayISO;
-                const isSameDate = eventDateISO === formattedGregorianDate;
-
-                // Only include if past events are shown OR it's today/future
-                return isSameDate && (prefs.showPastEvents || isTodayOrFuture);
+            // ————— Highlight Custom Events (including recurring) —————
+            // Use already-fetched customEvents array
+            // Extract month/day from this cell’s date
+            const [ , cellMonth, cellDay] = formattedGregorianDate.split("-");
+            customEvents.forEach(event => {
+                const [eYear, eMonth, eDay] = event.date.split("-");
+                // If recurring, match only month/day; otherwise match full date
+                const matches = event.recurring
+                    ? (eMonth === cellMonth && eDay === cellDay)
+                    : (event.date === formattedGregorianDate);
+                if (matches) {
+                    cell.classList.add("custom-event-day");
+                    cell.setAttribute(
+                        "title",
+                        `${event.title}${event.notes ? " — " + event.notes : ""}`
+                    );
+                }
             });
-
-            if (matchingEvents.length > 0) {
-                console.log(`Marking ${day} as Custom Event: ${matchingEvents.map(e => e.title).join(", ")}`);
-                cell.classList.add("custom-event-day");
-                cell.setAttribute("title", `Custom Event: ${matchingEvents.map(e => e.title).join(", ")}`);
-            } else {
-                console.log(`Custom event not found for ${formattedGregorianDate}`);
-            }
 
             // Assign click behaviour to each date cell
             cell.addEventListener("click", () => {
@@ -1140,7 +1133,14 @@ async function getCustomEvents(gregorianMonth, gregorianDay, gregorianYear) {
         const monthStr = String(gregorianMonth).padStart(2, "0");
         const dayStr = String(gregorianDay).padStart(2, "0");
         const targetDate = `${gregorianYear}-${monthStr}-${dayStr}`;
-        return events.filter(event => event.date === targetDate);
+        return events.filter(event => {
+            const [eYear, eMonth, eDay] = event.date.split("-");
+            if (event.recurring) {
+                // match month/day each year
+                return eMonth === monthStr && eDay === dayStr;
+            }
+            return event.date === targetDate;
+        });
 
     } catch (error) {
         console.error("Error fetching events:", error);

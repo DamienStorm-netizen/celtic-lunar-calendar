@@ -181,7 +181,8 @@ export function renderHome() {
               date: isoDate,
               title: `Celtic Birthday`,
               type: "🎂 Birthday",
-              notes: `Lunar: ${document.getElementById("lunarDateOutput").textContent}, Sign: ${document.getElementById("celticSignOutput").textContent}`
+              notes: `Lunar: ${document.getElementById("lunarDateOutput").textContent}, Sign: ${document.getElementById("celticSignOutput").textContent}`,
+              recurring: true
             };
             // Save locally
             const existing = loadCustomEvents();
@@ -474,23 +475,26 @@ export function getUnnamedMoonPoem() {
     
         // 5D) Add custom events
         upcomingDates.forEach(date => {
-          const event = customEvents.find(e => e.date === date);
-          if (event) {
-            upcomingEvents.push({
+          customEvents.forEach(event => {
+            const [eYear, eMonth, eDay] = event.date.split("-");
+            const matches = event.recurring
+              ? date.endsWith(`-${eMonth}-${eDay}`)
+              : date === event.date;
+            if (matches) {
+              upcomingEvents.push({
                 type: "custom-event",
-                category: event.type, // 👈 this is your "💜 Romantic", "🔥 Date", etc.
+                category: event.type,
                 title: event.title,
                 description: event.notes || "A personal milestone.",
-                date: event.date
+                date
               });
-          }
+            }
+          });
         });
   
-        const prefs = getMysticalPrefs();
   
-      // Mystical Troubleshooting
-      console.log("🌟 Mystical Preferences:", prefs);
-  
+      // Load user preferences for filtering
+      const prefs = getMysticalPrefs();
       /* 🎭 Apply mystical filters (Settings)*/
       const filteredEvents = upcomingEvents.filter(event => {
           if (event.type === "holiday" && !prefs.showHolidays) return false;
