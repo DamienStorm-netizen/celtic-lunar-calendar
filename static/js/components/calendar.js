@@ -781,7 +781,7 @@ function waitForImagesToLoad(container, callback) {
 }
 
 // Function to fetch and display the details for a selected Celtic date
-async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
+export async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
 
      // ✅ Ensure modalContainer is defined first!
     const modalContainer = document.getElementById("modal-container");

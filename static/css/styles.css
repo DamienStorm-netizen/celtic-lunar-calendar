@@ -219,6 +219,10 @@ html, body {
   }
 }
 
+.highlight-pulse {
+  animation: highlightPulse 1s ease-in-out;
+}
+
 
 /* Apply to Modal */
 /*
