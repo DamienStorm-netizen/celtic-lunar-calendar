@@ -6,6 +6,7 @@ import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
 import { starFieldSVG } from "../constants/starField.js";
 
 import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils/dateUtils.js';
+import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../utils/dateUtils.js';
 
 // Helper: Return ISO start/end dates for any Celtic month in a given cycle year
 function getMonthRangeISO(monthName, cycleYear) {
@@ -363,6 +364,7 @@ function showModal(monthName) {
                             <input type="text" id="event-name" required /></li>
                         <li><label for="event-type">Type of Event</label>
                             <select id="event-type" name="event-type">
+                                <option value="🔥 Date">🔥 Date</option>
                                 <option value="😎 Friends">😎 Friends</option>
                                 <option value="🎉 Celebrations">🎉 Celebrations</option>
                                 <option value="🌸 My Cycle">🌸 My Cycle</option>
@@ -440,14 +442,68 @@ function showModal(monthName) {
                 theme: "moonveil"
             });
 
-            document.getElementById("add-event-form").addEventListener("submit", (e) => {
-                e.preventDefault();
-              
-                // 🌟 Save the event here...
-              
-                // Switch to Calendar tab
-                document.getElementById("tab-calendar").click();
+            document.getElementById("add-event-form").addEventListener("submit", async (e) => {
+              e.preventDefault();
+
+              const eventName = document.getElementById("event-name").value.trim();
+              const eventType = document.getElementById("event-type").value;
+              const eventDate = document.getElementById("event-date").value;
+              const eventNotes = document.getElementById("event-note").value.trim();
+
+              if (!eventName || !eventDate) {
+                alert("Please enter both an event name and date.");
+                return;
+              }
+
+              const newEvent = {
+                id: Date.now().toString(),
+                title: eventName,
+                type: eventType,
+                date: eventDate,
+                notes: eventNotes,
+                recurring: false
+              };
+
+              // Save to backend
+              const response = await fetch("/api/custom-events", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newEvent)
               });
+              if (!response.ok) {
+                alert("Failed to add event.");
+                return;
+              }
+
+              // Refresh calendar events
+              await setupCalendarEvents();
+
+              // Show confirmation via SweetAlert2
+              const wd    = getCelticWeekdayFromGregorian(eventDate);
+              const lunar = convertGregorianToCeltic(eventDate);
+              const [monthName, dayStr] = lunar.split(" ");
+
+              Swal.fire({
+                icon: 'success',
+                title: `Event saved for ${wd}, ${lunar}`,
+                showCancelButton: true,
+                confirmButtonText: 'View Event'
+              }).then(result => {
+                if (result.isConfirmed) {
+                  // Open the day modal
+                  document.querySelector('.nav-link#nav-calendar').click();
+                  setTimeout(() => {
+                    showDayModal(parseInt(dayStr, 10), monthName, eventDate, newEvent.id);
+                    // highlight the newly added event slide
+                    const slideEl = document.querySelector(`.custom-event-slide[data-event-id="${newEvent.id}"]`);
+                    if (slideEl) {
+                      slideEl.classList.add('highlight-pulse');
+                      setTimeout(() => slideEl.classList.remove('highlight-pulse'), 2000);
+                    }
+                  }, 300);
+                }
+              });
+            });
         }
     }
 }
@@ -781,7 +837,9 @@ function waitForImagesToLoad(container, callback) {
 }
 
 // Function to fetch and display the details for a selected Celtic date
-async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
+export async function showDayModal(day, monthName, formattedGregorianDate, eventId = null) {
+    const celticMonth = monthName;
+    const celticDay = day;
 
      // ✅ Ensure modalContainer is defined first!
     const modalContainer = document.getElementById("modal-container");
@@ -907,7 +965,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             "🏥 Health": "🏥",
             "💜 Romantic": "💜",
             "🖥️ Professional": "🖥️",
-            "🔥 Date": "🔥" // If you use custom labels
+            "🔥 Date!!": "🔥" // If you use custom labels
           };
 
 
@@ -984,19 +1042,7 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             `;
         }
 
-        let eventsHTML = Array.isArray(events) && events.length > 0
-        ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="goldenTitle">Your Event</h3>
-            ${events.map(event => {
-                const icon = iconMap[event.type] || "🌟"; // fallback
-                return `
-                    <p><span class="event-title">${event.title}</span><br />
-                    <div class="custom-event-icon">${icon}</div>
-                    <span class="event-note">${event.notes || 'No additional details.'}</span><br />
-                    <span class="event-type">${event.type}</span></p>
-                `;
-            }).join('')}`
-        : "";
+        // No longer needed: eventsHTML (custom events will be rendered as individual slides)
 
         // Update modal with lunar details
         modalDetails.innerHTML = `
@@ -1010,12 +1056,21 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
                         zodiacHTML, 
                         holidayHTML, 
                         eclipseHTML, 
-                        eventsHTML,
+                        // eventsHTML removed
                         celticMonth,
                         celticDay,
                         formattedGregorianDate,
                         fullMoonName // ✨ Add this line 
                         })}
+                    ${events.map(evt => `
+                        <div class="day-slide custom-event-slide" data-event-id="${evt.id}">
+                          <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+                          <h3 class="goldenTitle">Your Event</h3>
+                          <p>${evt.title}</p>
+                          ${evt.notes ? `<p>${evt.notes}</p>` : ''}
+                          <p>${evt.type}</p>
+                        </div>
+                    `).join('')}
                 </div>
 
                <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
@@ -1024,29 +1079,40 @@ async function showDayModal(celticDay, celticMonth, formattedGregorianDate) {
             </div>
         `;
 
-        // 🍃 Simple Day Carousel (show/hide)
-        const allSlides = Array.from(document.querySelectorAll('.day-slide'));
+        // 🍃 Simple Day Carousel (show/hide) with direct event slide support
+        const allSlides = Array.from(modalContainer.querySelectorAll('.day-slide'));
         let currentSlide = 0;
         // Initialize slides: only show the first
         allSlides.forEach((slide, i) => {
           slide.style.display = i === currentSlide ? 'flex' : 'none';
         });
         const showSlide = (index) => {
-          // hide current
           allSlides[currentSlide].style.display = 'none';
-          // wrap index
           currentSlide = (index + allSlides.length) % allSlides.length;
-          // show new
           allSlides[currentSlide].style.display = 'flex';
         };
         // Prev/Next buttons
         document.querySelector('.day-carousel-prev').addEventListener('click', () => showSlide(currentSlide - 1));
         document.querySelector('.day-carousel-next').addEventListener('click', () => showSlide(currentSlide + 1));
-        // Swipe support
-        initSwipe(document.querySelector('.day-carousel'), {
+        // Swipe support and capture instance
+        const swipeInstance = initSwipe(modalContainer.querySelector('.day-carousel'), {
           onSwipeLeft: () => showSlide(currentSlide + 1),
           onSwipeRight: () => showSlide(currentSlide - 1)
         });
+        // If an eventId was passed, jump the carousel to that slide
+        if (eventId) {
+          const eventSlide = modalContainer.querySelector(`.custom-event-slide[data-event-id="${eventId}"]`);
+          if (eventSlide) {
+            const idx = allSlides.indexOf(eventSlide);
+            // Only call slideTo if it exists on the returned instance
+            if (swipeInstance && typeof swipeInstance.slideTo === 'function') {
+              swipeInstance.slideTo(idx);
+            } else {
+              // Fallback: manually show the correct slide
+              showSlide(idx);
+            }
+          }
+        }
 
         // Add event listener for the "Back" button
         const backButton = document.getElementById("back-to-month");
@@ -1202,7 +1268,6 @@ function generateDaySlides({
     holidayHTML, 
     eclipseHTML, 
     zodiacHTML,
-    eventsHTML, 
     celticMonth, 
     celticDay, 
     formattedGregorianDate,
@@ -1258,7 +1323,6 @@ function generateDaySlides({
         ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
         ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
         ${zodiacHTML ? `<div class="day-slide">${zodiacHTML}</div>` : ""}
-        ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
 
         <div class="day-slide">
             <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />

@@ -1,6 +1,32 @@
 import { convertGregorianToCeltic, getCelticWeekday, getCelticWeekdayFromGregorian } from "../utils/dateUtils.js";
-import { applyMysticalSettings } from "./calendar.js"; // or wherever it's defined
-import { saveCustomEvents } from "../utils/localStorage.js";
+import { applyMysticalSettings, showDayModal } from "./calendar.js";
+import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
+
+// Helper to show a toast and wire up “View it now”
+function showEventToast(id, gregorianDate) {
+  const toast       = document.getElementById("event-toast");
+  const toastDate   = document.getElementById("toast-date");
+  const toastButton = document.getElementById("toast-view-btn");
+
+  // Build the Celtic date string
+  const weekday = getCelticWeekdayFromGregorian(gregorianDate);
+  const lunar   = convertGregorianToCeltic(gregorianDate);
+  toastDate.textContent = `${weekday}, ${lunar}`;
+
+  // Reveal and auto-hide
+  toast.classList.remove("hidden");
+  setTimeout(() => toast.classList.add("hidden"), 6000);
+
+  // “View it now” jumps you to that date and pulses the event
+  toastButton.onclick = () => {
+    document.querySelector('.nav-link#nav-calendar').click();
+    showCalendarForDate(new Date(gregorianDate));         // your function to switch month
+    const el = document.querySelector(`[data-event-id="${id}"]`);
+    if (el) el.classList.add("highlight-pulse");
+    setTimeout(() => el && el.classList.remove("highlight-pulse"), 2000);
+    toast.classList.add("hidden");
+  };
+}
 
 export function renderSettings() {
     return `
@@ -154,6 +180,11 @@ export function renderSettings() {
 
             <!-- Shooting Stars on close overlay -->
             <div id="shooting-stars-container"></div>
+
+            <!-- Toast conatiner for add Event -->
+            <div id="event-toast" class="event-toast hidden">
+                ✨ Event added for <span id="toast-date"></span> – <button id="toast-view-btn">View Event</button>
+            </div>
         </div>
     `;
 }
@@ -453,10 +484,10 @@ async function handleAddEventSubmit(event) {
     try {
         existing = loadCustomEvents();
         if (!Array.isArray(existing)) existing = [];
-        } catch (e) {
-            console.warn("Failed to load custom events from localStorage:", e);
-            existing = [];
-        }
+    } catch (e) {
+        console.warn("Failed to load custom events from localStorage:", e);
+        existing = [];
+    }
 
     const customEvents = [...existing, newEvent];
     saveCustomEvents(customEvents);
@@ -490,29 +521,71 @@ async function handleAddEventSubmit(event) {
         setTimeout(() => {
             const allEvents = document.querySelectorAll(".event-item");
             const newEventElement = Array.from(allEvents).find(el =>
-                el.textContent.includes(title) && el.textContent.includes(date)
+                el.textContent.includes(eventName) && el.textContent.includes(eventDate)
             );
 
-    if (newEventElement) {
-        newEventElement.classList.add("event-highlight");
-        newEventElement.scrollIntoView({ behavior: "smooth", block: "center" });
-        // Sparkle sparkle
-        newEventElement.classList.add("event-highlight-glow");
-        newEventElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            if (newEventElement) {
+                newEventElement.classList.add("event-highlight");
+                newEventElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                // Sparkle sparkle
+                newEventElement.classList.add("event-highlight-glow");
+                newEventElement.scrollIntoView({ behavior: "smooth", block: "center" });
 
-        // ✨ Remove highlight after a few seconds
-        setTimeout(() => {
-            newEventElement.classList.remove("event-highlight");
-            newEventElement.classList.remove("event-highlight-glow");
-        }, 3000);
-    }
-}, 200);
+                // ✨ Remove highlight after a few seconds
+                setTimeout(() => {
+                    newEventElement.classList.remove("event-highlight");
+                    newEventElement.classList.remove("event-highlight-glow");
+                }, 3000);
+            }
+        }, 200);
 
         // ✨ Clear form
         document.getElementById("event-name").value = "";
         document.getElementById("event-date").value = "";
         document.getElementById("event-type").value = "General";
         document.getElementById("event-note").value = "";
+
+        // AFTER you’ve saved the newEvent and refreshed your list…
+        // showEventToast(newEvent.id, eventDate);
+
+    // Show confirmation via SweetAlert2 with the actual Celtic date
+    if (typeof Swal !== "undefined" && Swal.fire) {
+        // Show confirmation via SweetAlert2 with the actual Celtic date
+        const wd    = getCelticWeekdayFromGregorian(eventDate);
+        const lunar = convertGregorianToCeltic(eventDate);
+
+        Swal.fire({
+            title: `Event saved for ${wd}, ${lunar}`,
+            html: '<img src="/static/assets/icons/logo-icon.png" class="swal2-logo-icon" alt="Lunar Logo">',
+            customClass: {
+                popup: 'celestial-toast'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'View Event',
+            cancelButtonText: 'Cancel'
+        })
+        .then(result => {
+          if (result.isConfirmed) {
+            // Switch to the main calendar view
+            document.querySelector('.nav-link#nav-calendar').click();
+
+            // After calendar view renders, open the day modal directly
+            const [monthName, dayStr] = lunar.split(' ');
+            setTimeout(() => {
+              showDayModal(parseInt(dayStr, 10), monthName, eventDate, newEvent.id);
+              // Highlight the newly added event
+              const evt = document.querySelector(`[data-event-id="${newEvent.id}"]`);
+              if (evt) {
+                evt.classList.add('highlight-pulse');
+                setTimeout(() => evt.classList.remove('highlight-pulse'), 2000);
+              }
+            }, 300);
+          }
+        });
+    } else {
+        // fallback: just show the toast
+        showEventToast(newEvent.id, eventDate);
+    }
 
     } catch (error) {
         console.error("❌ Error adding event:", error);
