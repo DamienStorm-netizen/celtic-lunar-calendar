@@ -1033,19 +1033,7 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
             `;
         }
 
-        let eventsHTML = Array.isArray(events) && events.length > 0
-        ? `<img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
-            <h3 class="goldenTitle">Your Event</h3>
-            ${events.map(event => {
-                const icon = iconMap[event.type] || "🌟"; // fallback
-                return `
-                    <p><span class="event-title">${event.title}</span><br />
-                    <div class="custom-event-icon">${icon}</div>
-                    <span class="event-note">${event.notes || 'No additional details.'}</span><br />
-                    <span class="event-type">${event.type}</span></p>
-                `;
-            }).join('')}`
-        : "";
+        // No longer needed: eventsHTML (custom events will be rendered as individual slides)
 
         // Update modal with lunar details
         modalDetails.innerHTML = `
@@ -1059,12 +1047,21 @@ export async function showDayModal(celticDay, celticMonth, formattedGregorianDat
                         zodiacHTML, 
                         holidayHTML, 
                         eclipseHTML, 
-                        eventsHTML,
+                        // eventsHTML removed
                         celticMonth,
                         celticDay,
                         formattedGregorianDate,
                         fullMoonName // ✨ Add this line 
                         })}
+                    ${events.map(evt => `
+                        <div class="day-slide custom-event-slide">
+                          <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
+                          <h3 class="goldenTitle">Your Event</h3>
+                          <p>${evt.title}</p>
+                          ${evt.notes ? `<p>${evt.notes}</p>` : ''}
+                          <p>${evt.type}</p>
+                        </div>
+                    `).join('')}
                 </div>
 
                <button class="day-carousel-next"><img src="static/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
@@ -1251,7 +1248,6 @@ function generateDaySlides({
     holidayHTML, 
     eclipseHTML, 
     zodiacHTML,
-    eventsHTML, 
     celticMonth, 
     celticDay, 
     formattedGregorianDate,
@@ -1307,7 +1303,6 @@ function generateDaySlides({
         ${holidayHTML ? `<div class="day-slide">${holidayHTML}</div>` : ""}
         ${eclipseHTML ? `<div class="day-slide">${eclipseHTML}</div>` : ""}
         ${zodiacHTML ? `<div class="day-slide">${zodiacHTML}</div>` : ""}
-        ${eventsHTML ? `<div class="day-slide">${eventsHTML}</div>` : ""}
 
         <div class="day-slide">
             <img src='static/assets/images/decor/divider.png' class='divider' alt='Divider' />
