@@ -572,7 +572,7 @@ async function handleAddEventSubmit(event) {
             // After calendar view renders, open the day modal directly
             const [monthName, dayStr] = lunar.split(' ');
             setTimeout(() => {
-              showDayModal(parseInt(dayStr, 10), monthName, eventDate);
+              showDayModal(parseInt(dayStr, 10), monthName, eventDate, newEvent.id);
               // Highlight the newly added event
               const evt = document.querySelector(`[data-event-id="${newEvent.id}"]`);
               if (evt) {
