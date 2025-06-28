@@ -555,11 +555,14 @@ async function handleAddEventSubmit(event) {
         const lunar = convertGregorianToCeltic(eventDate);
 
         Swal.fire({
-          icon: 'success',
-          title: `Event saved for ${wd}, ${lunar}`,
-          showCancelButton: true,
-          confirmButtonText: 'View Event',
-          cancelButtonText: 'Close'
+            title: `Event saved for ${wd}, ${lunar}`,
+            html: '<img src="/static/assets/icons/logo-icon.png" class="swal2-logo-icon" alt="Lunar Logo">',
+            customClass: {
+                popup: 'celestial-toast'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'View Event',
+            cancelButtonText: 'Cancel'
         })
         .then(result => {
           if (result.isConfirmed) {
