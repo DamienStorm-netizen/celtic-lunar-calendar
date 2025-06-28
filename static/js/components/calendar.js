@@ -6,6 +6,7 @@ import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
 import { starFieldSVG } from "../constants/starField.js";
 
 import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils/dateUtils.js';
+import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../utils/dateUtils.js';
 
 // Helper: Return ISO start/end dates for any Celtic month in a given cycle year
 function getMonthRangeISO(monthName, cycleYear) {
@@ -440,14 +441,62 @@ function showModal(monthName) {
                 theme: "moonveil"
             });
 
-            document.getElementById("add-event-form").addEventListener("submit", (e) => {
-                e.preventDefault();
-              
-                // 🌟 Save the event here...
-              
-                // Switch to Calendar tab
-                document.getElementById("tab-calendar").click();
+            document.getElementById("add-event-form").addEventListener("submit", async (e) => {
+              e.preventDefault();
+
+              const eventName = document.getElementById("event-name").value.trim();
+              const eventType = document.getElementById("event-type").value;
+              const eventDate = document.getElementById("event-date").value;
+              const eventNotes = document.getElementById("event-note").value.trim();
+
+              if (!eventName || !eventDate) {
+                alert("Please enter both an event name and date.");
+                return;
+              }
+
+              const newEvent = {
+                id: Date.now().toString(),
+                title: eventName,
+                type: eventType,
+                date: eventDate,
+                notes: eventNotes,
+                recurring: false
+              };
+
+              // Save to backend
+              const response = await fetch("/api/custom-events", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newEvent)
               });
+              if (!response.ok) {
+                alert("Failed to add event.");
+                return;
+              }
+
+              // Refresh calendar events
+              await setupCalendarEvents();
+
+              // Show confirmation via SweetAlert2
+              const wd    = getCelticWeekdayFromGregorian(eventDate);
+              const lunar = convertGregorianToCeltic(eventDate);
+              const [monthName, dayStr] = lunar.split(" ");
+
+              Swal.fire({
+                icon: 'success',
+                title: `Event saved for ${wd}, ${lunar}`,
+                showCancelButton: true,
+                confirmButtonText: 'View Event'
+              }).then(result => {
+                if (result.isConfirmed) {
+                  // Open the day modal
+                  document.querySelector('.nav-link#nav-calendar').click();
+                  setTimeout(() => {
+                    showDayModal(parseInt(dayStr, 10), monthName, eventDate);
+                  }, 300);
+                }
+              });
+            });
         }
     }
 }
