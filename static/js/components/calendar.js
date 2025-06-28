@@ -364,13 +364,14 @@ function showModal(monthName) {
                             <input type="text" id="event-name" required /></li>
                         <li><label for="event-type">Type of Event</label>
                             <select id="event-type" name="event-type">
+                                <option value="🔥 Date">🔥 Date</option>
                                 <option value="😎 Friends">😎 Friends</option>
-                                    <option value="🎉 Celebrations">🎉 Celebrations</option>
-                                    <option value="🌸 My Cycle">🌸 My Cycle</option>
-                                    <option value="💡 General" active>💡 General</option>
-                                    <option value="🏥 Health">🏥 Health</option>
-                                    <option value="💜 Romantic">💜 Romantic</option>
-                                    <option value="🖥️ Professional">🖥️ Professional</option>
+                                <option value="🎉 Celebrations">🎉 Celebrations</option>
+                                <option value="🌸 My Cycle">🌸 My Cycle</option>
+                                <option value="💡 General" active>💡 General</option>
+                                <option value="🏥 Health">🏥 Health</option>
+                                <option value="💜 Romantic">💜 Romantic</option>
+                                <option value="🖥️ Professional">🖥️ Professional</option>
                             </select></li>
                         <li><label for="event-note">Event Description</label>
                             <textarea id="event-note" rows="1" cols="35"></textarea></li>
