@@ -41,63 +41,42 @@ export function convertCelticToGregorian(celticMonth, celticDay, baseYear = new 
 }
 
 // Convert Gregorian date string (YYYY-MM-DD or Date) to Celtic date string (e.g., "Janus 3")
+import { getMonthRangeISO } from '../components/calendar.js';
+
 export function convertGregorianToCeltic(gregorianDate) {
-    // Parse input into year, month, day
-    let year, month, day;
-    if (typeof gregorianDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(gregorianDate)) {
-        [year, month, day] = gregorianDate.split("-").map(Number);
-    } else {
-        const d = new Date(gregorianDate);
-        if (isNaN(d.getTime())) {
-            console.error("Invalid Gregorian date:", gregorianDate);
-            return "Invalid Date";
+    // Parse into a Date
+    const d = typeof gregorianDate === 'string'
+        ? new Date(gregorianDate + 'T00:00:00Z')
+        : new Date(gregorianDate);
+    if (isNaN(d)) {
+        console.error("Invalid Gregorian date:", gregorianDate);
+        return "Invalid Date";
+    }
+
+    const year = d.getUTCFullYear();
+    const dec23 = Date.UTC(year, 11, 23);
+    // Determine the cycle year: if date >= Dec 23, it belongs to next cycle
+    const cycleYear = d.getTime() >= dec23 ? year + 1 : year;
+    const monthNames = [
+        "Nivis", "Janus", "Brigid", "Flora",
+        "Maia", "Juno", "Solis", "Terra",
+        "Lugh", "Pomona", "Autumna", "Eira", "Aether", "Mirabilis"
+    ];
+
+    for (const month of monthNames) {
+        const { startISO, endISO } = getMonthRangeISO(month, cycleYear);
+        const start = new Date(startISO + 'T00:00:00Z');
+        const end   = new Date(endISO   + 'T00:00:00Z');
+        if (d >= start && d <= end) {
+            const diffDays = Math.floor((d.getTime() - start.getTime()) / 86400000);
+            if (month === "Mirabilis") {
+                // intercalary days: first is Solis, second (if leap) is Noctis
+                return diffDays === 0
+                    ? "Mirabilis Solis"
+                    : "Mirabilis Noctis";
+            }
+            return `${month} ${diffDays + 1}`;
         }
-        year = d.getFullYear();
-        month = d.getMonth() + 1;
-        day = d.getDate();
-    }
-
-    // Compute UTC timestamps for comparison
-    const inputUTC = Date.UTC(year, month - 1, day);
-    const dec23UTC = Date.UTC(year, 11, 23);
-
-    // Determine cycle start year
-    const cycleStartYear = inputUTC >= dec23UTC ? year : year - 1;
-    const cycleStartUTC = Date.UTC(cycleStartYear, 11, 23);
-
-    // Days since cycle start
-    const diffDays = Math.floor((inputUTC - cycleStartUTC) / 86400000);
-
-    // Determine if this cycle includes Mirabilis Noctis (leap)
-    const isLeap = isLeapYear(cycleStartYear + 1);
-    const daysInMonthCycle = 13 * 28;        // 364 days for 13 months
-    const totalCycleDays = daysInMonthCycle + 1 + (isLeap ? 1 : 0);
-
-    // If outside the whole cycle, unknown
-    if (diffDays < 0 || diffDays >= totalCycleDays) {
-        return "Unknown Date";
-    }
-
-    // Standard months (Nivis through Aether)
-    if (diffDays < daysInMonthCycle) {
-        const monthNames = [
-            "Nivis", "Janus", "Brigid", "Flora",
-            "Maia", "Juno", "Solis", "Terra",
-            "Lugh", "Pomona", "Autumna", "Eira", "Aether"
-        ];
-        const monthIndex = Math.floor(diffDays / 28);
-        const dayInMonth = (diffDays % 28) + 1;
-        return `${monthNames[monthIndex]} ${dayInMonth}`;
-    }
-
-    // Intercalary day one
-    if (diffDays === daysInMonthCycle) {
-        return "Mirabilis Solis";
-    }
-
-    // Intercalary day two (only on leap cycles)
-    if (isLeap && diffDays === daysInMonthCycle + 1) {
-        return "Mirabilis Noctis";
     }
 
     return "Unknown Date";

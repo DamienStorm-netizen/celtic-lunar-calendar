@@ -9,7 +9,7 @@ import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils
 import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../utils/dateUtils.js';
 
 // Helper: Return ISO start/end dates for any Celtic month in a given cycle year
-function getMonthRangeISO(monthName, cycleYear) {
+export function getMonthRangeISO(monthName, cycleYear) {
   let startDate, endDate;
   switch (monthName) {
     case "Nivis":
