@@ -4,7 +4,7 @@ import { getCelticWeekday, convertGregorianToCeltic, getCelticWeekdayFromGregori
 import { getMysticalPrefs } from "./settings.js";
 import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
-//import { fetchComingEvents } from "./home.js";
+import { showDayModal } from "./calendar.js";
 
 export function renderHome() {
     // Return the HTML and then in the next tickß attach overlay & swipe
@@ -200,11 +200,36 @@ export function renderHome() {
             .then(() => {
               // Refresh home carousel to include the new birthday
               fetchComingEvents();
-              alert("Birthday added to your calendar!");
+              // SweetAlert2 confirmation instead of alert
+              const wd    = getCelticWeekdayFromGregorian(isoDate);
+              const lunar = convertGregorianToCeltic(isoDate);
+              if (typeof Swal !== "undefined" && Swal.fire) {
+                Swal.fire({
+                  icon: 'success',
+                  title: `Event saved for ${wd}, ${lunar}`,
+                  showCancelButton: true,
+                  confirmButtonText: 'View Event',
+                  cancelButtonText: 'Cancel'
+                })
+                .then(result => {
+                  if (result.isConfirmed) {
+                    document.querySelector('.nav-link#nav-calendar').click();
+                    setTimeout(() => {
+                      const [monthName, dayStr] = lunar.split(' ');
+                      showDayModal(parseInt(dayStr, 10), monthName, isoDate);
+                    }, 300);
+                  }
+                });
+              }
             })
             .catch(err => {
               console.error("Error adding birthday event:", err);
-              alert("Oops! Could not add your birthday event.");
+              if (typeof Swal !== "undefined" && Swal.fire) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops! Could not add your birthday event.'
+                });
+              }
             });
         });
 

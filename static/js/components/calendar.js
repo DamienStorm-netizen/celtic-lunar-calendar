@@ -9,7 +9,7 @@ import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils
 import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../utils/dateUtils.js';
 
 // Helper: Return ISO start/end dates for any Celtic month in a given cycle year
-function getMonthRangeISO(monthName, cycleYear) {
+export function getMonthRangeISO(monthName, cycleYear) {
   let startDate, endDate;
   switch (monthName) {
     case "Nivis":
@@ -1426,6 +1426,7 @@ export function applyMysticalSettings(prefs) {
     }
 
     // 🌒 Control Eclipse visibility based on preferences
+    /*
     const eclipseElements = document.querySelectorAll(".eclipse-day");
     eclipseElements.forEach(el => {
         el.style.display = prefs.showEclipses ? "table-cell" : "none";
@@ -1435,6 +1436,7 @@ export function applyMysticalSettings(prefs) {
     if (eclipseSection && eclipseSection.textContent.includes("Eclipse")) {
         eclipseSection.parentElement.style.display = prefs.showEclipses ? "block" : "none";
     }
+        */
 }
 
 // Add only one submit listener for calendar page

@@ -5,7 +5,7 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ What is the Lunar Almanac app?</span>
+                <span>What is the Lunar Almanac app?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
@@ -17,7 +17,7 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ How do I contact the creators?</span>
+                <span>How do I contact the creators?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
@@ -29,7 +29,7 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ How do I know which Celtic Zodiac sign I am?</span>
+                <span>How do I know which Celtic Zodiac sign I am?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
@@ -41,7 +41,7 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ What are the special days and festivals?</span>
+                <span>What are the special days and festivals?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
@@ -53,7 +53,7 @@ export function renderFaq() {
 
          <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ Can I track my menstrual cycle or personal milestones?</span>
+                <span>Can I track my menstrual cycle or personal milestones?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
@@ -65,7 +65,7 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ Why does the calendar look different from the one I’m used to?</span>
+                <span>Why does the calendar look different from the one I’m used to?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
@@ -77,7 +77,7 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ What do the icons and symbols mean?</span>
+                <span>What do the icons and symbols mean?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
@@ -89,7 +89,7 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ Does the app work offline?</span>
+                <span>Does the app work offline?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
@@ -101,7 +101,7 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
-                <span>❓ Where can I go to learn more?</span>
+                <span>Where can I go to learn more?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
