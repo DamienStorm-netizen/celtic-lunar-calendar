@@ -286,29 +286,54 @@ export async function fetchCelticDate() {
 
 // Fetch the Celtic Zodiac sign for the day
 export async function fetchCelticZodiac() {
-    try {
-        const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD
-        const response = await fetch(`/zodiac?date=${today}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+  try {
+    // 1) Get today's Celtic month and day
+    const todayCeltic = await fetchCelticDate();
+    if (!todayCeltic) throw new Error("No Celtic date available");
+    const { celticMonth, celticDay } = todayCeltic;
 
-        const zodiacData = await response.json();
+    // 2) Map lunar month to tree zodiac sign
+    const signMap = {
+      Nivis:   "Birch",
+      Janus:   "Rowan",
+      Brigid:  "Alder",
+      Flora:   "Willow",
+      Maia:    "Hawthorn",
+      Juno:    "Oak",
+      Solis:   "Holly",
+      Terra:   "Oak", // Placeholder, logic below overrides for Terra
+      Lugh:    "Holly",
+      Pomona:  "Hazel",
+      Autumna: "Vine",
+      Eira:    "Ivy",
+      Aether:  "Reed",
+      Mirabilis: "Elder"
+    };
 
-        // Select the container for the Zodiac details
-        const zodiacContainer = document.querySelector('.celtic-zodiac-details');
-
-        if (zodiacContainer) {
-            zodiacContainer.innerHTML = `
-            <div class="zodiac-modal-trigger" data-zodiac="${zodiacData.zodiac_sign}">
-                <img class="celtic-zodiac-image" src="static/assets/images/zodiac/zodiac-${zodiacData.zodiac_sign.toLowerCase()}.png" alt="${zodiacData.zodiac_sign}" />
-                <p>${zodiacData.zodiac_sign}</p>
-            </div>
-            `;
-        }
-    } catch (error) {
-        console.error('Failed to fetch Celtic Zodiac:', error);
+    // New logic for Terra: day 1 is Oak, rest are Holly
+    let signName;
+    if (celticMonth === 'Terra') {
+      // On Terra: day 1 is Oak, all subsequent days are Holly
+      signName = celticDay === 1 ? 'Oak' : 'Holly';
+    } else {
+      signName = signMap[celticMonth] || '';
     }
+
+    // 3) Render into the Zodiac container
+    const container = document.querySelector('.celtic-zodiac-details');
+    if (container) {
+      container.innerHTML = `
+        <div class="zodiac-modal-trigger" data-zodiac="${signName}">
+          <img class="celtic-zodiac-image"
+               src="static/assets/images/zodiac/zodiac-${signName.toLowerCase()}.png"
+               alt="${signName}" />
+          <p>${signName}</p>
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error('Failed to fetch Celtic Zodiac:', error);
+  }
 }
 
 // Fetch the Moon Phase dynamically and update the home screen
