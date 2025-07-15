@@ -1,0 +1,77 @@
+
+/* 🌕 Moon Veil Theme for flatpickr ✨ */
+
+.flatpickr-calendar {
+  border: 5px solid pink !important;
+  background: radial-gradient(circle at center, #1e1e2e 0%, #0f0f1f 100%) !important;
+  color: #fff6ea !important;
+  border: 1px solid #ffd700;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 223, 127, 0.4), 0 0 40px rgba(255, 245, 200, 0.2);
+  font-family: 'Libre Baskerville', serif;
+  border-radius: 12px;
+  overflow: hidden; /* Add this line to clip overflowing content */
+}
+
+.flatpickr-months {
+  background: linear-gradient(to right, #4b0082, #8a2be2);
+  color: #fff6ea;
+  text-shadow: 0 0 5px #ffd700;
+}
+
+.flatpickr-monthDropdown-months, .flatpickr-current-month input.cur-year {
+  background: transparent;
+  color: #ffd700;
+  border: none;
+  font-weight: bold;
+}
+
+.flatpickr-current-month {
+  color: #ffd700 !important;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+.flatpickr-weekday {
+  color: #ffd700 !important;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+.flatpickr-day {
+  background: transparent;
+  border-radius: 6px;
+  color: #fff6ea !important;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.flatpickr-day:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: scale(1.1);
+}
+
+.flatpickr-day.today {
+  background: #ffd700;
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 10px #ffdf7e;
+}
+
+.flatpickr-day.selected {
+  background: linear-gradient(to right, #ffdf7e, #ffc107);
+  color: #1e1e1e;
+  font-weight: bold;
+  box-shadow: 0 0 15px #ffea80;
+}
+
+.flatpickr-day.disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
+  color: #777;
+  background: transparent;
+  opacity: 0.5;
+}
+
+/* Time picker (if enabled) */
+.flatpickr-time {
+  background-color: #2a184e;
+  border-top: 1px solid #ffd700;
+  color: #fff6ea;
+}

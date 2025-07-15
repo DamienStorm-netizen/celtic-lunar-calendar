@@ -16,19 +16,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 moon_descriptions = {
     "New Moon": "The start of a new lunar cycle, symbolising new beginnings and intentions.",
-    "Full Moon": {
-        "Wolf Moon": "Named after the howling of hungry wolves in midwinter, this moon symbolises strength and survival in the coldest time of the year.",
-        "Snow Moon": "Reflecting the heavy snowfall of late winter, the Snow Moon represents the purity and quiet beauty of the season.",
-        "Worm Moon": "Named for the thawing ground and the return of worms, this moon signals the rebirth of the soil as spring approaches.",
-        "Flower Moon": "Named for the abundance of blooming flowers, this moon symbolises growth and beauty in full swing.",
-        "Strawberry Moon": "A tribute to the ripening of strawberries, this moon marks the sweet beginning of summer.",
-        "Thunder Moon": "Named for summer’s frequent thunderstorms, this moon carries the energy of midsummer storms. Also known as Buck Moon.",
-        "Grain Moon": "Reflecting the ripening fields of grain, this moon celebrates abundance and gratitude for the first harvest. Also known as Sturgeon Moon.",
-        "Harvest Moon": "The full moon closest to the autumn equinox, the Harvest Moon lights the way for farmers gathering crops late into the night.",
-        "Hunter's Moon": "Traditionally aiding hunters in tracking game, this moon symbolises preparation and sustenance",
-        "Frost Moon": "Named for the first frost of the season, this moon marks the transition to winter’s stillness. Also known as Beaver Moon.",
-        "Cold Moon": "Reflecting the chill of winter’s embrace, this moon represents endurance and reflection."
-    },
     "First Quarter": "A time for taking action on your goals as the moon waxes.",
     "Last Quarter": "A reflective phase as the moon wanes, encouraging release and gratitude."
 }
@@ -173,6 +160,8 @@ def get_festivals_linked_to_phases(phase: str = None, moon_name: str = None):
 def dynamic_moon_phases(start_date: str, end_date: str):
     from datetime import datetime
 
+def dates_match(date_str1, date_str2):
+
     start = datetime.fromisoformat(start_date).date()
     end = datetime.fromisoformat(end_date).date()
     moon_phases = calculate_lunar_phases(start, end)
@@ -180,24 +169,16 @@ def dynamic_moon_phases(start_date: str, end_date: str):
     for phase in moon_phases:
         phase_name = phase["phase"]
         if phase_name == "Full Moon":
-            # Assign specific names and descriptions based on the month
-            month = datetime.fromisoformat(phase["date"]).month
-           
-            if month == 1:
-                phase["moonName"] = "Wolf Moon"
-                phase["description"] = moon_descriptions["Full Moon"]["Wolf Moon"]
-            elif month == 2:
-                phase["moonName"] = "Snow Moon"
-                phase["description"] = moon_descriptions["Full Moon"]["Snow Moon"]
-            elif month == 3:
-                phase["moonName"] = "Worm Moon"
-                phase["description"] = moon_descriptions["Full Moon"]["Worm Moon"]
-            elif month == 5:
-                phase["moonName"] = "Flower Moon"
-                phase["description"] = moon_descriptions["Full Moon"]["Flower Moon"]
+            # Look up named full moons in calendar_data.json
+            full_moons_list = calendar_data.get("full_moons", [])
+            match = next((fm for fm in full_moons_list if dates_match(fm["date"], phase["date"])), None)
+            if match:
+                phase["moonName"]    = match["name"]
+                phase["description"] = match["description"]
+                phase["poem"]        = match.get("poem", "")
             else:
+                # Fallback for unnamed full moons
                 phase["moonName"] = "Full Moon"
-                # 🌕 Mystical fallback poetry for unnamed Full Moons
                 fallback_poems = [
                     "The moon glows gently this month, unnamed yet full of secrets.",
                     "A nameless moon rises, wrapped in silver mystery.",
@@ -206,14 +187,15 @@ def dynamic_moon_phases(start_date: str, end_date: str):
                     "A soft and silent full moon drifts through the veil, untethered by name.",
                     "The full moon of this month remains unnamed, like a forgotten spell in the night sky."
                 ]
-                phase["description"] = random.choice(fallback_poems)
-
+                phase["description"] = moon_descriptions.get("Full Moon", "No description available.")
+                phase["poem"] = random.choice(fallback_poems)
         else:
             # Add generic description for other phases
             phase["moonName"] = None
             phase["description"] = moon_descriptions.get(phase_name, "No description available.")
 
-    return moon_phases
+    # return moon_phases
+    return datetime.fromisoformat(date_str1).date() == datetime.fromisoformat(date_str2).date() 
 
 #  Extend the /lunar-phases endpoint to include the poem field.
 @app.get("/lunar-phases/poetry")
