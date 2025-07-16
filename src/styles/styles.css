@@ -393,15 +393,15 @@ html, body {
 
 @font-face {
   font-family: 'Cinzel Decorative';
-  src: url('/assets/fonts/cinzeldecorative-regular-webfont.woff2') format('woff2'),
-       url('/assets/fonts/cinzeldecorative-regular-webfont.woff') format('woff');
+  src: url('/assets/fonts/cinzeldecorative-regular.woff2') format('woff2'),
+       url('/assets/fonts/cinzeldecorative-regular.woff') format('woff');
   font-weight: 400; /* Regular weight */
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Cinzel Decorative';
-  src: url('/assets/fonts/cinzeldecorative-bold-webfont.woff2') format('woff2'),
+  src: url('/assets/fonts/cinzeldecorative-bold.woff2') format('woff2'),
        url('/assets/fonts/cinzeldecorative-bold.woff') format('woff');
   font-weight: 700; /* Bold weight */
   font-style: normal;
@@ -409,8 +409,8 @@ html, body {
 
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/assets/fonts/librebaskerville-regular-webfont.woff2') format('woff2'),
-       url('/assets/fonts/librebaskerville-regular-webfont.woff') format('woff');
+  src: url('/assets/fonts/librebaskerville-regular.woff2') format('woff2'),
+       url('/assets/fonts/librebaskerville-regular.woff') format('woff');
   font-weight: 400; /* Normal weight */
   font-style: normal;
 }
