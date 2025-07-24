@@ -307,51 +307,57 @@
             "description": "Named for the thawing ground and the return of worms, this moon signals the rebirth of the soil as spring approaches.",
             "poem": "Earth stirs beneath the Worm Moon’s gaze,\nRoots awaken, breaking haze.\nLife returns in subtle tune—\nA promise sown beneath the moon."
         },
+       {
+            "name": "Pink Moon",
+            "date": "2025-04-13",
+            "description": "Named for the blooming pink phlox that herald early spring, this moon celebrates renewal and the first flush of colour after winter.",
+            "poem": "Beneath soft petals, the Pink Moon glows,\nAwakening earth where new life grows.\nIn twilight’s blush, hopes intertwine—\nSpring’s tender promise, pure and fine."
+        },
         {
             "name": "Flower Moon",
-            "date": "2025-05-12",
+            "date": "2025-05-11",
             "description": "Named for the abundance of blooming flowers, this moon symbolises growth and beauty in full swing.",
             "poem": "Blossoms bow to the Flower Moon’s delight,\nPetals unfurl in fragrant night.\nBeauty blooms in every glade—\nA tapestry by moonlight made."
         },
         {
             "name": "Strawberry Moon",
-            "date": "2025-06-11",
+            "date": "2025-06-10",
             "description": "A tribute to the ripening of strawberries, this moon marks the sweet beginning of summer.",
             "poem": "Strawberry Moon in roseate hue,\nRipens fruit and dreams anew.\nSweetness lingers in the air—\nA taste of summer everywhere."
         },
         {
             "name": "Thunder Moon",
-            "date": "2025-07-10",
+            "date": "2025-07-09",
             "description": "Named for the thunderstorms that mark the beginning of summer, this moon symbolises the power of nature to bring about change.",
-            "poem": 
-        }
+            "poem": "Thunder Moon beats in fervent drums,\nStorm‑lit skies where power hums.\nRainfall cleanses, lightning sings,\nChange rides bold on summer wings."
+        },
         {
             "name": "Grain Moon",
-            "date": "2025-08-09",
+            "date": "2025-08-07",
             "description": "Reflecting the ripening fields of grain, this moon celebrates abundance and gratitude for the first harvest. Also known as Sturgeon Moon.",
             "poem": "Amber seas beneath the Grain Moon’s light,\nHarvest songs fill up the night.\nGratitude for fields grown gold—\nStories of abundance told."
         },
         {
             "name": "Harvest Moon",
-            "date": "2025-09-08",
+            "date": "2025-09-06",
             "description": "The full moon closest to the autumn equinox, the Harvest Moon lights the way for farmers gathering crops late into the night.",
             "poem": "Harvest Moon climbs, bold and bright,\nGuiding hands through autumn’s night.\nBeneath her glow the fields are blessed—\nEarth’s generosity confessed."
         },
         {
             "name": "Hunter's Moon",
-            "date": "2025-10-08",
+            "date": "2025-10-05",
             "description": "Traditionally aiding hunters in tracking game, this moon symbolises preparation and sustenance.",
             "poem": "Hunter’s Moon, a lantern high,\nTracks the quarry through the sky.\nPreparation, skill, and lore—\nWinter’s promise at the door."
         },
         {
             "name": "Frost Moon",
-            "date": "2025-11-07",
+            "date": "2025-11-04",
             "description": "Named for the first frost of the season, this moon marks the transition to winter’s stillness. Also known as Beaver Moon.",
             "poem": "Frost Moon weaves a silver thread,\nBlankets earth where dreams are spread.\nStillness settles, cold and deep—\nThe world prepares for winter’s sleep."
         },
         {
             "name": "Cold Moon",
-            "date": "2025-12-07",
+            "date": "2025-12-04",
             "description": "Reflecting the chill of winter’s embrace, this moon represents endurance and reflection.",
             "poem": "Cold Moon reigns in icy blue,\nEndurance shines in all we do.\nReflection calls through darkest night—\nAwait the sun’s returning light."
         }

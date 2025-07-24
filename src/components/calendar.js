@@ -7,6 +7,9 @@ import { starFieldSVG } from "../constants/starField.js";
 
 import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils/dateUtils.js';
 import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../utils/dateUtils.js';
+// 🌕 Named full‑moon data (Wolf, Snow, etc.)
+import calendarData from "../../Prod Server/calendar_data.json" assert { type: "json" };
+const FULL_MOONS = calendarData.full_moons;
 
 // Helper: Return ISO start/end dates for any Celtic month in a given cycle year
 export function getMonthRangeISO(monthName, cycleYear) {
@@ -530,7 +533,7 @@ function showModal(monthName) {
     }
 }
 
- // Close modal
+// Close modal
  function closeModal() {
     console.log("Click Close Button");
     const modalContainer = document.getElementById("modal-container");
@@ -1004,6 +1007,13 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
 
         console.log("🧐 Formatted Gregorian Date Used for Matching:", formattedGregorianDate);
 
+        // 🌕 Named-moon override
+        const namedMoon = FULL_MOONS.find(m => m.date === formattedGregorianDate);
+        const moonLabel = namedMoon ? namedMoon.name : "Full Moon";
+        const moonText  = namedMoon
+            ? (namedMoon.poem || namedMoon.description).replace(/\n/g, "<br/>")
+            : `Full Moon phase with ${illumination}% illumination.`;
+
         // Ensure date format consistency
         const festivalEvent = festivals.find(f => {
             const festivalDate = new Date(f.date).toISOString().split("T")[0]; // Normalize format
@@ -1082,7 +1092,8 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
                         celticMonth,
                         celticDay,
                         formattedGregorianDate,
-                        fullMoonName // ✨ Add this line 
+                        moonLabel,
+                        moonText
                         })}
                     ${events.map(evt => `
                         <div class="day-slide custom-event-slide" data-event-id="${evt.id}">
@@ -1293,7 +1304,8 @@ function generateDaySlides({
     celticMonth, 
     celticDay, 
     formattedGregorianDate,
-    fullMoonName // ✨ Add this too! 
+    moonLabel,
+    moonText
 }) {
     const randomMystical = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
 
@@ -1324,21 +1336,29 @@ function generateDaySlides({
     }
 
     return `
-    <div class="day-slide">
+   <div class="day-slide">
         <h3 class="goldenTitle">${celticMonth === "Mirabilis" ? mirabilisTitle : weekday}</h3>
         ${celticMonth !== "Mirabilis" ? `<p><span class="celticDate">${celticMonth} ${celticDay}</span></p>` : ""}
         ${celticMonth !== "Mirabilis" ? `
             <div class="moon-phase-graphic moon-centered">
                 ${lunarData.graphic}
             </div>` : ""}
-            <h3 class="moon-phase-name">
-                ${fullMoonName ? fullMoonName + " 🌕" : lunarData.phase + " 🌙"}
-            </h3>
+        <h3 class="moon-phase-name">
+            ${lunarData.phase.toLowerCase() === "full moon"
+                ? moonLabel + " 🌕"
+                : lunarData.phase + " 🌙"}
+        </h3>
         <div class="mirabilis-graphic">
             ${mirabilisSymbol}
         </div>
         ${mirabilisPoem ? `<blockquote class="mirabilis-poem">${mirabilisPoem}</blockquote>` : ""}
-        ${celticMonth !== "Mirabilis" ? `<p class="moon-description">${moonDescription}</p>`: ""}
+        ${celticMonth !== "Mirabilis"
+            ? `<p class="moon-description">${
+                  lunarData.phase.toLowerCase() === "full moon"
+                      ? moonText
+                      : moonDescription
+              }</p>`
+            : ""}
     </div>
 
         ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}
