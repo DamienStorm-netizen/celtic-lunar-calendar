@@ -80,6 +80,24 @@ export function getMonthRangeISO(monthName, cycleYear) {
   };
 }
 
+// prefer = "current" (default) keeps the window for the *current* cycle.
+// prefer = "future" will advance one cycle if the window already ended.
+export function resolveMonthWindow(monthName, today = new Date(), prefer = "current") {
+  const dec23Cutoff = Date.UTC(today.getUTCFullYear(), 11, 23);
+  let cycle = (today.getTime() >= dec23Cutoff) ? today.getUTCFullYear() + 1 : today.getUTCFullYear();
+
+  let { startISO, endISO } = getMonthRangeISO(monthName, cycle);
+
+  if (prefer === "future") {
+    const todayISO = today.toISOString().split("T")[0];
+    if (endISO < todayISO) {
+      cycle += 1;
+      ({ startISO, endISO } = getMonthRangeISO(monthName, cycle));
+    }
+  }
+  return { startISO, endISO, cycle };
+}
+
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
 let lastOpenedMonth = null; // Keep track of the last opened month modal
@@ -412,23 +430,25 @@ function showModal(monthName) {
 
             // Assign click behaviours to Mirabilis
             // 🌟 Add these *after* the modal content is injected:
-            setTimeout(() => {
-                const crestSolis = document.getElementById("crest-solis");
-                if (crestSolis) {
+            if (monthName === 'Mirabilis') {
+                const today = new Date();
+                const leap = isLeapYear(today.getFullYear());
+                setTimeout(() => {
+                    const crestSolis = document.getElementById("crest-solis");
+                    if (crestSolis) {
                     crestSolis.addEventListener("click", () => {
                         showDayModal(1, "Mirabilis", "2025-12-22");
                     });
-                }
+                    }
 
-                if (leap) {
+                    if (leap) { // <- leap exists only in this branch
                     const crestNoctis = document.getElementById("crest-noctis");
                     if (crestNoctis) {
-                        crestNoctis.addEventListener("click", () => {
-                            showDayModal(2, "Mirabilis", "2025-12-23");
-                        });
+                        showDayModal(2, "Mirabilis", "2025-12-23");
                     }
-                }
-    }, 0); // ⏳ Waits for DOM to render first
+                    }
+                }, 0);
+            }
 
             // Apply fade-in effect
             modalContainer.classList.add("fade-in");
@@ -570,140 +590,134 @@ function setupCalendarTabNavigation() {
 async function enhanceCalendarTable(modalContainer, monthName) {
     console.log(`Enhancing calendar for ${monthName}...`);
 
-    // Convert monthName to a zero-padded monthIndex
-    const monthNames = ["Nivis", "Janus", "Flora", "Maia", "Juno", "Solis", "Terra", "Lugh", "Pomona", "Brigid", "Autumna", "Eira", "Aether"];
-    const monthIndex = String(monthNames.indexOf(monthName) + 1).padStart(2, "0");
-
-    // Ensure national holidays are fetched before using them
     if (cachedNationalHolidays.length === 0) {
-        await fetchNationalHolidays(); // Fetch if not already cached
+        await fetchNationalHolidays();
     }
-  
+
     const todayCeltic = await getCelticDate();
     if (!todayCeltic) {
         console.error("Could not fetch Celtic date. Highlight skipped.");
         return;
     }
-  
+
     const { celticMonth, celticDay } = todayCeltic;
     const tableCells = modalContainer.querySelectorAll(".calendar-grid td");
 
-    // Fetch eclipses
     const eclipses = await fetchEclipseEvents();
     console.log("Fetched Eclipse Data:", eclipses);
 
-    // Fetch national holidays **before using them**
     if (!cachedNationalHolidays || cachedNationalHolidays.length === 0) {
         console.log("Fetching national holidays...");
         cachedNationalHolidays = await fetchNationalHolidays();
     }
 
-    // Fetch lunar phases, festivals and national holidays
-    const lunarData = await fetchMoonPhases(monthName);
-    console.log("🌙 lunarData array:", lunarData);
+    // 🔧 One window to rule them all (use the same range for cells, moons, holidays)
+    const { startISO, endISO, cycle } = resolveMonthWindow(monthName, new Date(), "current");
+    const baseYearForMonth = parseInt(endISO.split("-")[0], 10);
 
-    // Fetch custom events
+    // Fetch lunar phases for this exact window
+    const lunarData = await fetchMoonPhasesBetween(startISO, endISO);
+    console.log("🌙 lunarData array (", startISO, "→", endISO, "):", lunarData);
+
     const customEvents = await fetchCustomEvents();
     console.log("Custom events retrieved:", customEvents);
 
-    // Fetch festivals once before the loop
-    const festivals = await fetchFestivals(); // ✅ This runs BEFORE we start checking each cell
-  
+    const festivals = await fetchFestivals();
+
+    // Preferences (fallback defaults)
+    const prefs = (typeof getMysticalPrefs === "function")
+      ? getMysticalPrefs()
+      : { showHolidays: true, showCustomEvents: true, showPastEvents: true };
+
     tableCells.forEach((cell) => {
         const day = parseInt(cell.textContent, 10);
         console.log(`📅 Checking table cell: ${day}`);
 
-        if (!isNaN(day)) {
-            console.log(`✅ Table Cell Detected: ${day} in ${monthName}`);
+        if (isNaN(day)) return;
 
-            // Convert the Celtic day back to Gregorian
-            const gregorian = convertCelticToGregorian(monthName, day);
-            if (!gregorian) {
-                console.error(`Failed to convert ${monthName} ${day} to Gregorian.`);
-                return;
-            }
-            const formattedGregorianDate = `${gregorian.gregorianYear}-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
+        console.log(`✅ Table Cell Detected: ${day} in ${monthName}`);
 
-             // Check if this date has an eclipse
-             const eclipseEvent = eclipses.find(e => e.date.startsWith(formattedGregorianDate));
+        const gregorian = convertCelticToGregorian(monthName, day, baseYearForMonth);
+        if (!gregorian) {
+            console.error(`Failed to convert ${monthName} ${day} to Gregorian.`);
+            return;
+        }
+        const formattedGregorianDate = `${gregorian.gregorianYear}-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
 
-             if (eclipseEvent) {
-                 console.log(`🌑 Marking ${day} as Eclipse Day: ${eclipseEvent.title}`);
-                 cell.classList.add("eclipse-day");
-                 cell.setAttribute("title", `${eclipseEvent.title} 🌘`);
-             }
+        const eclipseEvent = eclipses.find(e => e.date.startsWith(formattedGregorianDate));
+        if (eclipseEvent) {
+            console.log(`🌑 Marking ${day} as Eclipse Day: ${eclipseEvent.title}`);
+            cell.classList.add("eclipse-day");
+            cell.setAttribute("title", `${eclipseEvent.title} 🌘`);
+        }
 
-            // Find the corresponding moon event
-            const moonEvent = lunarData.find(moon => moon.date === formattedGregorianDate);
-            console.log("Coverted Gregorian date is ", formattedGregorianDate);
-            if (moonEvent && moonEvent.phase && moonEvent.phase.toLowerCase() === "full moon") {
-                console.log(`🌕 Marking ${day} as Full Moon: ${moonEvent.moonName || moonEvent.phase}`);
-                cell.classList.add("full-moon-day");
+        const moonEvent = lunarData.find(moon => moon.date.startsWith(formattedGregorianDate));
+        console.log("Coverted Gregorian date is ", formattedGregorianDate);
+        if (moonEvent && moonEvent.phase && moonEvent.phase.toLowerCase() === "full moon") {
+            console.log(`🌕 Marking ${day} as Full Moon: ${moonEvent.moonName || moonEvent.phase}`);
+            cell.classList.add("full-moon-day");
+            const moonLabel = `${moonEvent.moonName || moonEvent.phase} 🌕`;
+            cell.setAttribute("title", moonLabel);
+        }
 
-                const moonLabel = `${moonEvent.moonName || moonEvent.phase} 🌕`;
-                cell.setAttribute("title", moonLabel);
-            }
+        if (monthName === celticMonth && day === celticDay) {
+            cell.classList.add("highlight-today");
+        }
 
-            // Highlight today's Celtic date if it matches the current month and day
-            if (monthName === celticMonth && day === celticDay) {
-                cell.classList.add("highlight-today");
-            }
+        const festival = festivals.find(h => h.date === formattedGregorianDate);
+        if (festival) {
+            console.log(`Marking ${formattedGregorianDate} as Festival: ${festival.title}`);
+            cell.classList.add("festival-day");
+            cell.setAttribute("title", `${festival.title} 🎉`);
+        }
 
-            // Normalize date format for easy comparison
-            const formattedDay = String(day).padStart(2, "0");
-            const formattedDate = `2025-${monthIndex}-${formattedDay}`;
-
-            // Highlight festivals
-            const festival = cachedFestivals.find(h => h.date === formattedGregorianDate);
-        
-            if (festival) {
-                console.log(`Marking ${formattedGregorianDate} as Festival: ${festival.title}`);
-                cell.classList.add("festival-day");
-                cell.setAttribute("title", `${festival.title} 🎉`);
-            } else {
-                console.log("No holfestivaliday, No marking");
-            }
-
-            // Highlight national holidays
-            const holiday = cachedNationalHolidays.find(h => h.date === formattedGregorianDate);
-            
+        // Holidays
+        if (prefs.showHolidays) {
+            const holiday = cachedNationalHolidays.find(h => h.date === formattedGregorianDate && h.date >= startISO && h.date <= endISO);
             if (holiday) {
                 console.log(`Marking ${formattedGregorianDate} as National Holiday: ${holiday.title}`);
                 cell.classList.add("national-holiday");
                 cell.setAttribute("title", `${holiday.title} 🎉`);
-            } else {
-                console.log("No holiday, No marking");
             }
+        }
 
-            // ————— Highlight Custom Events (including recurring) —————
-            // Use already-fetched customEvents array
-            // Extract month/day from this cell’s date
-            const [ , cellMonth, cellDay] = formattedGregorianDate.split("-");
+        // Custom events
+        const [, cellMonth, cellDay] = formattedGregorianDate.split("-");
+        if (prefs.showCustomEvents) {
             customEvents.forEach(event => {
                 const [eYear, eMonth, eDay] = event.date.split("-");
-                // If recurring, match only month/day; otherwise match full date
+
+                // Past/future helpers
+                const sameMonthDay = (eMonth === cellMonth && eDay === cellDay);
+                const isPast       = event.date < startISO;
+                const futureMatch  = (!event.recurring && monthName === "Nivis" && sameMonthDay && parseInt(eYear, 10) === baseYearForMonth + 1);
+                const pastMatch    = (!event.recurring && prefs.showPastEvents && isPast && sameMonthDay);
+
+                // Hide past singles only when toggle is OFF
+                if (!prefs.showPastEvents && !event.recurring && isPast) {
+                    return; // skip past single events entirely
+                }
+
                 const matches = event.recurring
-                    ? (eMonth === cellMonth && eDay === cellDay)
-                    : (event.date === formattedGregorianDate);
+                    ? sameMonthDay
+                    : (event.date === formattedGregorianDate || futureMatch || pastMatch);
+
                 if (matches) {
                     cell.classList.add("custom-event-day");
                     cell.setAttribute(
                         "title",
                         `${event.title}${event.notes ? " — " + event.notes : ""}`
                     );
+                    cell.setAttribute("data-event-id", event.id || `${event.title}-${event.date}`);
                 }
             });
-
-            // Assign click behaviour to each date cell
-            cell.addEventListener("click", () => {
-                console.log(`Clicked on day ${day} in the month of ${monthName}, Gregorian: ${formattedGregorianDate}`);
-                showDayModal(day, monthName,formattedGregorianDate); // Pass formattedGregorianDate
-            });
         }
+
+        cell.addEventListener("click", () => {
+            console.log(`Clicked on day ${day} in the month of ${monthName}, Gregorian: ${formattedGregorianDate}`);
+            showDayModal(day, monthName, formattedGregorianDate);
+        });
     });
-
-    applyMysticalSettings(getMysticalPrefs());
-
 }
 
 // Fetch national holidays dynamically
@@ -762,12 +776,7 @@ async function fetchEclipseEvents() {
 export async function fetchMoonPhases(celticMonth) {
   console.log(`Fetching moon phases for ${celticMonth}...`);
 
-  // Determine anchor year based on first day of the Celtic month
-  const firstGregorian = convertCelticToGregorian(celticMonth, 1);
-  const anchorYear = firstGregorian.gregorianYear;
-
-  // Get the ISO date range for this Celtic month
-  const { startISO, endISO } = getMonthRangeISO(celticMonth, anchorYear);
+  const { startISO, endISO } = resolveMonthWindow(celticMonth, new Date(), "current");
   if (!startISO || !endISO) {
     console.error("Invalid Celtic month in fetchMoonPhases:", celticMonth);
     return [];
@@ -781,6 +790,18 @@ export async function fetchMoonPhases(celticMonth) {
     return moonData;
   } catch (error) {
     console.error("❌ Error fetching moon phases:", error);
+    return [];
+  }
+}
+
+// Helper to fetch moon phases for an explicit ISO range
+async function fetchMoonPhasesBetween(startISO, endISO) {
+  try {
+    const res = await fetch(`/dynamic-moon-phases?start_date=${startISO}&end_date=${endISO}`);
+    if (!res.ok) throw new Error("Failed to fetch moon phases");
+    return await res.json();
+  } catch (e) {
+    console.error("❌ Error fetching moon phases (range):", e);
     return [];
   }
 }

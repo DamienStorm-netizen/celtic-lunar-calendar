@@ -166,6 +166,13 @@ export function renderSettings() {
                             </span>
                         </label>
                     </li>
+                    <li class="mystical-toggle">
+                        <span>Show Past Events</span>
+                        <label class="switch">
+                            <input type="checkbox" id="show-past-events" data-on="🕰️" data-off="🚫" />
+                            <span class="slider round"></span>
+                        </label>
+                    </li>
                 <ul>
             </section>
 
@@ -196,6 +203,7 @@ export function getMysticalPrefs() {
         mysticalSuggestions: true,
         showHolidays: true,
         showCustomEvents: true, // ✅ This line makes all the difference
+        showPastEvents: true,
         showConstellations: true
     };
 
@@ -284,7 +292,8 @@ export function setupSettingsEvents() {
     const defaultPreferences = {
         mysticalSuggestions: true,
         showHolidays: true,
-        showCustomEvents: true // 💜 Add this line!
+        showCustomEvents: true,
+        showPastEvents: true
     };
 
     
@@ -334,6 +343,7 @@ export function setupSettingsEvents() {
     document.getElementById("toggle-mystical").checked = prefs.mysticalSuggestions;
     document.getElementById("show-holidays").checked = prefs.showHolidays;
     document.getElementById("show-custom-events").checked = prefs.showCustomEvents;
+    document.getElementById("show-past-events").checked = prefs.showPastEvents;
 
     function updateToggleIcons() {
         document.querySelectorAll(".switch input[type='checkbox']").forEach(input => {
@@ -778,6 +788,12 @@ function attachEventHandlers() {
         prefs.showCustomEvents = e.target.checked;
         saveMysticalPrefs(prefs);
         applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
+    });
+    document.getElementById("show-past-events").addEventListener("change", (e) => {
+        const prefs = getMysticalPrefs();
+        prefs.showPastEvents = e.target.checked;
+        saveMysticalPrefs(prefs);
+        applyMysticalSettings(prefs);
     });
 
     // Removed toggle-constellations and constellation-layer event handler
