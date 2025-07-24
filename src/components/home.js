@@ -74,7 +74,10 @@ export function renderHome() {
                 <p><strong>Your Lunar Birthday is </strong> <span id="lunarDateOutput"></span></p>
                 <img class="birthdayZodiacImage" src="/assets/images/zodiac/zodiac-willow.png" alt="Willow" />
                 <p><strong>Your Celtic Zodiac Sign:</strong> <span id="celticSignOutput"></span></p>
-                <p><strong>Zodiac Traits:</strong> <span id="traitsOutput"></span></p>
+                <p id="traitsParagraph" class="hidden">
+                  <strong>Zodiac Traits:</strong>
+                  <span id="traitsOutput"></span>
+                </p>
 
                 <button id="addBirthdayEvent" class="gold-button">Add to My Calendar</button>
                 </div>
@@ -133,7 +136,8 @@ export function renderHome() {
           .then(res => res.json())
           .then(data => {
             data.zodiac.forEach(sign => {
-              zodiacTraits[sign.name] = sign.symbolism;
+              // store with a lowercase, trimmed key for reliable lookup
+              zodiacTraits[sign.name.trim().toLowerCase()] = sign.symbolism;
             });
           })
           .catch(err => console.error("Failed to load zodiac data:", err));
@@ -166,26 +170,14 @@ export function renderHome() {
           } catch (e) {
             console.error("Zodiac fetch/all error:", e);
           }
-          // 🔄 Ensure zodiacTraits is populated, or refetch if missing
-          if (!zodiacTraits[signName]) {
-            try {
-              const traitResp = await fetch("/static/calendar_data.json");
-              if (traitResp.ok) {
-                const traitData = await traitResp.json();
-                traitData.zodiac.forEach(sign => {
-                  if (sign.name && sign.symbolism) {
-                    zodiacTraits[sign.name] = sign.symbolism;
-                  }
-                });
-              } else {
-                console.warn("Could not refresh zodiacTraits; status:", traitResp.status);
-              }
-            } catch (e) {
-              console.error("Error reloading zodiacTraits:", e);
-            }
+          
+          const lookupKey = (signName || "").trim().toLowerCase();
+          if (!zodiacTraits[lookupKey]) {
+            console.warn(`⚠️ Traits for ${signName} not found in initial load. ` +
+                        `Either the sign name is wrong or the JSON lacks that entry.`);
           }
 
-          const traits = zodiacTraits[signName] || "No traits found.";
+          const traits = zodiacTraits[lookupKey] || "No traits found.";
           document.getElementById("lunarDateOutput").textContent = lunarDate;
           document.getElementById("celticSignOutput").textContent = signName;
           document.getElementById("traitsOutput").textContent = traits;
