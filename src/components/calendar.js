@@ -12,7 +12,7 @@ import calendarData from "../../Prod Server/calendar_data.json" assert { type: "
 const FULL_MOONS = calendarData.full_moons;
 
 // Helper: find the named full moon within ±windowDays (defaults to 1 day)
-function getNamedMoonForDate(isoDate, windowDays = 1) {
+export function getNamedMoonForDate(isoDate, windowDays = 1) {
   const target = new Date(isoDate + "T00:00:00Z").getTime();
   return FULL_MOONS.find(moon => {
     const ts = new Date(moon.date + "T00:00:00Z").getTime();

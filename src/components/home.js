@@ -5,6 +5,7 @@ import { getMysticalPrefs } from "./settings.js";
 import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { showDayModal } from "./calendar.js";
+import { getNamedMoonForDate } from "./calendar.js";
 
 export function renderHome() {
     // Return the HTML and then in the next tickß attach overlay & swipe
@@ -165,6 +166,25 @@ export function renderHome() {
           } catch (e) {
             console.error("Zodiac fetch/all error:", e);
           }
+          // 🔄 Ensure zodiacTraits is populated, or refetch if missing
+          if (!zodiacTraits[signName]) {
+            try {
+              const traitResp = await fetch("/static/calendar_data.json");
+              if (traitResp.ok) {
+                const traitData = await traitResp.json();
+                traitData.zodiac.forEach(sign => {
+                  if (sign.name && sign.symbolism) {
+                    zodiacTraits[sign.name] = sign.symbolism;
+                  }
+                });
+              } else {
+                console.warn("Could not refresh zodiacTraits; status:", traitResp.status);
+              }
+            } catch (e) {
+              console.error("Error reloading zodiacTraits:", e);
+            }
+          }
+
           const traits = zodiacTraits[signName] || "No traits found.";
           document.getElementById("lunarDateOutput").textContent = lunarDate;
           document.getElementById("celticSignOutput").textContent = signName;
@@ -482,19 +502,24 @@ export function getUnnamedMoonPoem() {
           }
       });
     
-        // 5B) Add Full Moons (already works)
+      // 5B) Add Named (or plain) Full Moons — ±2-day window
         upcomingDates.forEach(date => {
-          const moonEvent = lunarData.find(moon => moon.date === date && moon.phase === "Full Moon");
+          // Is this date the exact peak?
+          const moonEvent = lunarData.find(m => m.date === date && m.phase === "Full Moon");
           if (moonEvent) {
+            // Use helper to see if the date is inside a named-moon window
+            const named = getNamedMoonForDate(date, 2);  // ±2 days → 5-day span
             upcomingEvents.push({
               type: "full-moon",
-              title: moonEvent.moonName || "Full Moon",
-              description: moonEvent.description || "A night of celestial power.",
+              title: named ? named.name : (moonEvent.moonName || "Full Moon"),
+              description: named
+                ? (named.description || "A night of celestial power.")
+                : (moonEvent.description || "A night of celestial power."),
               date
             });
           }
         });
-        
+                
   
       // 🌑 Add Lunar & Solar Eclipses (Updated)
       for (const eclipse of eclipses) {
@@ -577,6 +602,7 @@ export function getUnnamedMoonPoem() {
 
       if (document.getElementById("coming-events-container")) {
           populateComingEventsCarousel(eventsFromToday);
+          console.log("🌕 Upcoming events array:", eventsFromToday);
       }
   
       } catch (error) {
