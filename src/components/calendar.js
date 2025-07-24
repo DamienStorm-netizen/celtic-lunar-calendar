@@ -11,6 +11,15 @@ import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../util
 import calendarData from "../../Prod Server/calendar_data.json" assert { type: "json" };
 const FULL_MOONS = calendarData.full_moons;
 
+// Helper: find the named full moon within ±windowDays (defaults to 1 day)
+function getNamedMoonForDate(isoDate, windowDays = 1) {
+  const target = new Date(isoDate + "T00:00:00Z").getTime();
+  return FULL_MOONS.find(moon => {
+    const ts = new Date(moon.date + "T00:00:00Z").getTime();
+    return Math.abs(target - ts) / 86400000 <= windowDays;
+  });
+}
+
 // Helper: Return ISO start/end dates for any Celtic month in a given cycle year
 export function getMonthRangeISO(monthName, cycleYear) {
   let startDate, endDate;
@@ -932,9 +941,10 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
         if (!data || data.length === 0) {
             throw new Error("Invalid lunar data received");
         }
-        const lunarData = data[0];
-        console.log("🌙 lunarData.graphic is:", lunarData.graphic);
-        const fullMoonName = lunarData.moonName;
+        const lunarData = data[0] || {};          // Always have an object
+        let illumination;   // declare early so later references never choke
+
+        // --- REMOVE EARLIER DUPLICATE NAMED MOON LOGIC BLOCK HERE ---
   
         // Format the Gregorian month
         const gMonth = getFormattedMonth(monthStr);
@@ -1007,12 +1017,26 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
 
         console.log("🧐 Formatted Gregorian Date Used for Matching:", formattedGregorianDate);
 
-        // 🌕 Named-moon override
-        const namedMoon = FULL_MOONS.find(m => m.date === formattedGregorianDate);
-        const moonLabel = namedMoon ? namedMoon.name : "Full Moon";
-        const moonText  = namedMoon
-            ? (namedMoon.poem || namedMoon.description).replace(/\n/g, "<br/>")
-            : `Full Moon phase with ${illumination}% illumination.`;
+        // 🌕 Named‑moon & phase handling (3‑day window)
+        const phase = lunarData.phase ?? "Unknown phase";
+
+        illumination = (typeof lunarData.illumination === "number")
+          ? (lunarData.illumination * 100).toFixed(2)
+          : null;
+
+        const defaultText = illumination != null
+          ? `${phase} phase with ${illumination}% illumination.`
+          : phase;
+
+        const namedMoon = getNamedMoonForDate(formattedGregorianDate, 2); // ±2 days → 5‑day span
+
+        const moonLabel = namedMoon
+          ? namedMoon.name
+          : (phase.toLowerCase() === "full moon" ? "Full Moon" : phase);
+
+        const moonText = namedMoon
+          ? (namedMoon.poem || namedMoon.description || "").replace(/\n/g, "<br/>")
+          : defaultText;
 
         // Ensure date format consistency
         const festivalEvent = festivals.find(f => {
@@ -1318,6 +1342,10 @@ function generateDaySlides({
         ? lunarData.description
         : "The moon stirs in silence tonight, her secrets cloaked.";
 
+    // A day is considered 'full / named' if it matches our 3‑day window logic
+    const isNamedOrFull = (moonLabel && moonLabel !== "Full Moon")
+      || lunarData.phase.toLowerCase() === "full moon";
+
     // 🌞🌚 Determine whether Solis or Noctis
     let mirabilisTitle = "Mirabilis";
     let mirabilisPoem = "";
@@ -1344,21 +1372,17 @@ function generateDaySlides({
                 ${lunarData.graphic}
             </div>` : ""}
         <h3 class="moon-phase-name">
-            ${lunarData.phase.toLowerCase() === "full moon"
-                ? moonLabel + " 🌕"
-                : lunarData.phase + " 🌙"}
+          ${isNamedOrFull ? `${moonLabel} 🌕` : `${lunarData.phase} 🌙`}
         </h3>
         <div class="mirabilis-graphic">
             ${mirabilisSymbol}
         </div>
         ${mirabilisPoem ? `<blockquote class="mirabilis-poem">${mirabilisPoem}</blockquote>` : ""}
         ${celticMonth !== "Mirabilis"
-            ? `<p class="moon-description">${
-                  lunarData.phase.toLowerCase() === "full moon"
-                      ? moonText
-                      : moonDescription
-              }</p>`
-            : ""}
+          ? `<p class="moon-description">${
+                isNamedOrFull ? moonText : moonDescription
+            }</p>`
+          : ""}
     </div>
 
         ${festivalHTML ? `<div class="day-slide">${festivalHTML}</div>` : ""}

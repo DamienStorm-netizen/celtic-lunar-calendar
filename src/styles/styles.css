@@ -2234,11 +2234,11 @@ blockquote.moon-poem {
 
 .moon-description {
     font-family: "Libre Baskerville", serif;
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-style: italic;
     text-align: center;
     margin-top: 8px;
-    padding: 0 20px;
+    padding: 0px;
     color: #fff6ea;
     width: 250px;
 }
