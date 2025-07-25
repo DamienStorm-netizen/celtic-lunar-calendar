@@ -51,7 +51,8 @@ export function renderAbout() {
 
         <div class="creators-wrapper">
             <div class="creator">
-                <h3>Eclipsed Realities 🌌</h3>
+                <h3>Eclipsed Realities</h3>
+                <a href="https://eclipsedrealities.com" target="_blank"><img src="static/assets/images/decor/er-logo.png" width="175px" alt="Eclipsed Realities" class="er-logo" /></a>
                 <p>
                     A collective of <strong>tech sorcerers and celestial coders</strong>, shaping digital landscapes where time bends, 
                     moon phases whisper, and history breathes again. From the <strong>rhythms of the stars</strong> to the <strong>logic of algorithms</strong>, we bridge the ethereal with the tangible.
