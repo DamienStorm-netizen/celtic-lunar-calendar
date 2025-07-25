@@ -336,8 +336,10 @@ function showModal(monthName) {
                         <div class="mirabilis-crest crest-noctis ${leap ? '' : 'disabled'}" id="crest-noctis" title="${leap ? 'Click to enter Mirabilis Noctis' : 'Appears only in leap years'}">
                             <img src="/assets/images/months/mirabilis-noctis.png" alt="Mirabilis Noctis" />
                             <p>Mirabilis Noctis</p>
-                         </div>
+                        </div>
                     </div>
+
+                    <a id="zodiac-learn-more" class="settings-btn celtic-zodiac-btn" href="https://open.substack.com/pub/playgroundofthesenses/p/mirabilis?r=3ngp34&utm_campaign=post&utm_medium=web" target="_blank" style="display: inline-block;">Learn More</a>
                     `;
             } else {
                 modalDetails.innerHTML = `
@@ -1469,7 +1471,7 @@ export function applyMysticalSettings(prefs) {
     });
 
     // ✨ Toggle Mystical Suggestions display logic
-    const showMystical = prefs.mysticalSuggestions;
+    const showMystical = true;
     const mysticalArea = document.getElementById("mystical-insight");
 
     // (Eclipse block display now always handled by presence, not prefs.showEclipses)

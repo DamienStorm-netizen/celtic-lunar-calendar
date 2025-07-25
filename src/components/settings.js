@@ -142,13 +142,6 @@ export function renderSettings() {
                 <p class="settings-subheader">Fine-tune your Almanac.</p>
 
                 <ul class="mystical-list">
-                    <li class="mystical-toggle">
-                        <span>Enable Mystical Suggestions</span>
-                        <label class="switch">
-                        <input type="checkbox" id="toggle-mystical" data-on="🔮" data-off="✨" />
-                        <span class="slider round"></span>
-                        </label>
-                    </li>
                     
                     <li class="mystical-toggle">
                         <span>Show National Holidays</span>
@@ -340,7 +333,6 @@ export function setupSettingsEvents() {
         
 
     const prefs = getMysticalPrefs();
-    document.getElementById("toggle-mystical").checked = prefs.mysticalSuggestions;
     document.getElementById("show-holidays").checked = prefs.showHolidays;
     document.getElementById("show-custom-events").checked = prefs.showCustomEvents;
     document.getElementById("show-past-events").checked = prefs.showPastEvents;
