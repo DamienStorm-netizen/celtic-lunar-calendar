@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lunar Almanac</title>
-    <link rel="stylesheet" href="static/css/styles.css">
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Lunar Almanac</title>
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="theme-color" content="#d0bfff" />
+  <script type="module" crossorigin src="/assets/index-BSV90RTa.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CBNqJppU.css">
+<link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
 <body>
   <div id="preloader">
-    <img src="static/assets/icons/logo-icon.png" alt="Celtic Calendar Logo" />
+    <img src="/assets/icons/logo-icon.png" alt="Celtic Calendar Logo" />
   </div>
   <div class="container">
     <header>
@@ -16,27 +19,27 @@
           <ul class="nav-list">
             <li>
               <a href="#home" class="nav-link" id="nav-home">
-                <img src="static/assets/icons/logo-icon.png" alt="Home" class="nav-icon" />
+                <img src="/assets/icons/logo-icon.png" alt="Home" class="nav-icon" />
               </a>
             </li>
             <li>
               <a href="#calendar" class="nav-link" id="nav-calendar">
-                <img src="static/assets/icons/calendar-icon.png" alt="Calendar" class="nav-icon" />
+                <img src="/assets/icons/calendar-icon.png" alt="Calendar" class="nav-icon" />
               </a>
             </li>
             <li>
               <a href="#insights" class="nav-link" id="nav-insights">
-                <img src="static/assets/icons/insights-icon.png" alt="Insights" class="nav-icon" />
+                <img src="/assets/icons/insights-icon.png" alt="Insights" class="nav-icon" />
               </a>
             </li>
             <li>
               <a href="#faq" class="nav-link" id="nav-faq">
-                <img src="static/assets/icons/faq-icon.png" alt="faq" class="nav-icon" />
+                <img src="/assets/icons/faq-icon.png" alt="faq" class="nav-icon" />
               </a>
             </li>
             <li>
               <a href="#settings" class="nav-link" id="nav-settings">
-                <img src="static/assets/icons/settings-icon.png" alt="Settings" class="nav-icon" />
+                <img src="/assets/icons/settings-icon.png" alt="Settings" class="nav-icon" />
               </a>
             </li>
           </ul>
@@ -52,22 +55,20 @@
     <footer>
       <nav>
           <a href="#settings" class="footer-link">Settings</a>
-          <img src="static/assets/images/decor/knot.png" alt="Celtic Knot" class="footer-knot">
+          <img src="/assets/images/decor/knot.png" alt="Celtic Knot" class="footer-knot">
           <a href="#about" class="footer-link">About</a>
-          <img src="static/assets/images/decor/knot.png" alt="Celtic Knot" class="footer-knot">
+          <img src="/assets/images/decor/knot.png" alt="Celtic Knot" class="footer-knot">
           <a href="#privacy" class="footer-link">Privacy</a>
       </nav>
     
   </footer>
 </div>
 
-<script src="static/js/router.js" type="module"></script>
-<script src="static/js/utils/preloader.js" type="module"></script>
 <!-- Flatpickr Core -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <!-- Your Custom Moon Veil Theme -->
-<link rel="stylesheet" href="/static/css/moonveil-theme.css">
+<link rel="stylesheet" href="/s/moonveil-theme.css">
 
 <!-- index.html -->
 <div id="event-toast" class="event-toast hidden">
@@ -76,7 +77,19 @@
   <button id="event-toast-view">View it now</button>
 </div>
 
-</body>
+<!-- PWA registration script  -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/sw.js')
+      .then(reg => console.log('🌕 Service worker registered!', reg))
+      .catch(err => console.error('⚠️ Service worker failed:', err));
+  }
+</script>
+
 <!-- SweetAlert2 for polished event confirmation -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Vite runtime  -->
+
+</body>
 </html>
