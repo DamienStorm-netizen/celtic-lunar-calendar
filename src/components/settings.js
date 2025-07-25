@@ -203,7 +203,7 @@ export function getMysticalPrefs() {
         mysticalSuggestions: true,
         showHolidays: true,
         showCustomEvents: true, // ✅ This line makes all the difference
-        showPastEvents: true,
+        showPastEvents: false,
         showConstellations: true
     };
 
@@ -293,7 +293,7 @@ export function setupSettingsEvents() {
         mysticalSuggestions: true,
         showHolidays: true,
         showCustomEvents: true,
-        showPastEvents: true
+        showPastEvents: false
     };
 
     

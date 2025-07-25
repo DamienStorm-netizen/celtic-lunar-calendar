@@ -53,8 +53,8 @@ export function getMonthRangeISO(monthName, cycleYear) {
       endDate   = new Date(Date.UTC(cycleYear,    6,  6));
       break;
     case "Terra":
-      startDate = new Date(Date.UTC(cycleYear,    6,  7));
-      endDate   = new Date(Date.UTC(cycleYear,    7,  3));
+      startDate = new Date(Date.UTC(cycleYear,    6,  8));
+      endDate   = new Date(Date.UTC(cycleYear,    7,  4));
       break;
     case "Lugh":
       startDate = new Date(Date.UTC(cycleYear,    7,  4));
@@ -696,12 +696,14 @@ async function enhanceCalendarTable(modalContainer, monthName) {
         // Custom events
         const [, cellMonth, cellDay] = formattedGregorianDate.split("-");
         if (prefs.showCustomEvents) {
+            // --- NEW: today's ISO for past-event logic ---
+            const todayISO = new Date().toISOString().split("T")[0];
             customEvents.forEach(event => {
                 const [eYear, eMonth, eDay] = event.date.split("-");
 
                 // Past/future helpers
                 const sameMonthDay = (eMonth === cellMonth && eDay === cellDay);
-                const isPast       = event.date < startISO;
+                const isPast = event.date < todayISO;   // ✓ now truly “before today”
                 const futureMatch  = (!event.recurring && monthName === "Nivis" && sameMonthDay && parseInt(eYear, 10) === baseYearForMonth + 1);
                 const pastMatch    = (!event.recurring && prefs.showPastEvents && isPast && sameMonthDay);
 
@@ -1018,11 +1020,25 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
         console.log("🧐 Formatted Gregorian Date Used for Matching:", formattedGregorianDate);
 
         // 🌕 Named‑moon & phase handling (3‑day window)
-        const phase = lunarData.phase ?? "Unknown phase";
 
         illumination = (typeof lunarData.illumination === "number")
-          ? (lunarData.illumination * 100).toFixed(2)
-          : null;
+            ? (lunarData.illumination * 100).toFixed(2)
+            : null;
+  
+        let phase = lunarData.phase ?? "Unknown phase";
+
+        if (illumination != null) {
+            const illumVal = parseFloat(illumination);
+            // ≤ 1 %: always New Moon
+            if (illumVal <= 1) {
+                phase = "New Moon";
+            } else if (illumVal <= 5 && /crescent/i.test(phase)) {
+                phase = "New Moon";
+            }
+        }
+
+        // Propagate the corrected phase so downstream code sees it
+        lunarData.phase = phase;
 
         const defaultText = illumination != null
           ? `${phase} phase with ${illumination}% illumination.`
@@ -1343,8 +1359,10 @@ function generateDaySlides({
         : "The moon stirs in silence tonight, her secrets cloaked.";
 
     // A day is considered 'full / named' if it matches our 3‑day window logic
-    const isNamedOrFull = (moonLabel && moonLabel !== "Full Moon")
-      || lunarData.phase.toLowerCase() === "full moon";
+   // Named/full if the label differs from the raw phase OR it really is full
+    const isNamedOrFull =
+        moonLabel.toLowerCase() !== lunarData.phase.toLowerCase() ||
+        lunarData.phase.toLowerCase() === "full moon";
 
     // 🌞🌚 Determine whether Solis or Noctis
     let mirabilisTitle = "Mirabilis";
@@ -1372,7 +1390,7 @@ function generateDaySlides({
                 ${lunarData.graphic}
             </div>` : ""}
         <h3 class="moon-phase-name">
-          ${isNamedOrFull ? `${moonLabel} 🌕` : `${lunarData.phase} 🌙`}
+          ${isNamedOrFull ? `${moonLabel} ` : `${lunarData.phase} `}
         </h3>
         <div class="mirabilis-graphic">
             ${mirabilisSymbol}

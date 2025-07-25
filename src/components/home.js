@@ -584,13 +584,16 @@ export function getUnnamedMoonPoem() {
       const now = new Date();
       const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-      // Filter out any events before today
-      const eventsFromToday = filteredEvents.filter(evt => {
-          const [eY, eM, eD] = evt.date.split('-').map(Number);
-          const evtDateObj = new Date(eY, eM - 1, eD);
-          return evtDateObj >= todayLocal;
-      });
-      console.log("Events from today onward:", eventsFromToday);
+      // We only hide past events when the user says so
+      const eventsFromToday = prefs.showPastEvents
+        ? filteredEvents                               // keep everything
+        : filteredEvents.filter(evt => {
+            const [y, m, d] = evt.date.split('-').map(Number);
+            const evtDate = new Date(y, m - 1, d);
+            return evtDate >= todayLocal;              // drop if before today
+          });
+
+      console.log("Events heading to the carousel:", eventsFromToday);
 
       if (document.getElementById("coming-events-container")) {
           populateComingEventsCarousel(eventsFromToday);
