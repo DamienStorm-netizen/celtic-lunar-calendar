@@ -294,14 +294,18 @@ export function setupSettingsEvents() {
         localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
     }
 
-    // Prevent duplicate listeners
+    // Prevent duplicate listeners (guard against missing elements)
     const editForm = document.getElementById("edit-event-form");
-    editForm.removeEventListener("submit", handleEditEventSubmit); // clear old if any
-    editForm.addEventListener("submit", handleEditEventSubmit);   // bind fresh ✨
+    if (editForm) {
+      editForm.removeEventListener("submit", handleEditEventSubmit);
+      editForm.addEventListener("submit", handleEditEventSubmit);
+    }
 
     const addEventForm = document.getElementById("add-event-form");
-    addEventForm.removeEventListener("submit", handleAddEventSubmit); // clear old
-    addEventForm.addEventListener("submit", handleAddEventSubmit);    // attach fresh
+    if (addEventForm) {
+      addEventForm.removeEventListener("submit", handleAddEventSubmit);
+      addEventForm.addEventListener("submit", handleAddEventSubmit);
+    }
 
 
     // Hide overlay and make it clickable
@@ -709,86 +713,102 @@ async function handleDeleteEvent(eventId) {
 
 function attachEventHandlers() {
 
-    // Add a Custom Event
-    document.getElementById("add-event-button").addEventListener("click", () => {
-        showAddEventModal();
+  // Add a Custom Event
+  const addBtn = document.getElementById("add-event-button");
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      showAddEventModal();
     });
+  }
 
-     // Redirect to About Page
-     document.getElementById("about-page-button").addEventListener("click", () => {
-        console.log("Clicked on About link");
-        window.location.hash = "about";
+  // Redirect to About Page
+  const aboutBtn = document.getElementById("about-page-button");
+  if (aboutBtn) {
+    aboutBtn.addEventListener("click", () => {
+      console.log("Clicked on About link");
+      window.location.hash = "about";
     });
+  }
 
-    // Edit a Custom Event 
-    document.querySelectorAll(".settings-edit-event").forEach(button => {
-        button.addEventListener("click", (event) => {
-            console.log("Edit button clicked!");  // Debugging
-            const eventId = event.target.getAttribute("data-id"); // Or "data-id" if that’s how you're storing it
-            if (eventId) {
-                openEditModal(eventId); // 💫 Open the modal with the correct event info
-            } else {
-                console.error("No data-id attribute found on edit button.");
-            }
-        });
+  // Edit a Custom Event 
+  document.querySelectorAll(".settings-edit-event").forEach(button => {
+    button.addEventListener("click", (event) => {
+      console.log("Edit button clicked!");  // Debugging
+      const eventId = event.target.getAttribute("data-id"); // Or "data-id" if that’s how you're storing it
+      if (eventId) {
+        openEditModal(eventId); // 💫 Open the modal with the correct event info
+      } else {
+        console.error("No data-id attribute found on edit button.");
+      }
     });
+  });
 
-    // Delete a Custom Event
-    document.querySelectorAll(".settings-delete-event").forEach(button => {
-        button.addEventListener("click", (event) => {
-            console.log("Delete button clicked!!!");
-    
-            // Check if the event target is correct
-            const targetButton = event.target;
-            if (!targetButton) {
-                console.error("Error: event.target is undefined.");
-                return;
-            }
-    
-            // Ensure the data-date attribute is being read correctly
-            const eventId = targetButton.getAttribute("data-id");
-            if (!eventId) {
-                console.error("Error: data-id attribute not found.");
-                return;
-            }
-    
-            console.log("Attempting to delete event on:", eventId);
-    
-            // Call the delete function
-            handleDeleteEvent(eventId);
-        });
-    });
+  // Delete a Custom Event
+  document.querySelectorAll(".settings-delete-event").forEach(button => {
+    button.addEventListener("click", (event) => {
+      console.log("Delete button clicked!!!");
 
-    // Set Mystical Preferences
-    document.getElementById("toggle-mystical").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.mysticalSuggestions = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
-    
-    
-    document.getElementById("show-holidays").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showHolidays = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
+      // Check if the event target is correct
+      const targetButton = event.target;
+      if (!targetButton) {
+        console.error("Error: event.target is undefined.");
+        return;
+      }
 
-    document.getElementById("show-custom-events").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showCustomEvents = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
-    });
-    document.getElementById("show-past-events").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showPastEvents = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
+      // Ensure the data-date attribute is being read correctly
+      const eventId = targetButton.getAttribute("data-id");
+      if (!eventId) {
+        console.error("Error: data-id attribute not found.");
+        return;
+      }
 
-    // Removed toggle-constellations and constellation-layer event handler
+      console.log("Attempting to delete event on:", eventId);
+
+      // Call the delete function
+      handleDeleteEvent(eventId);
+    });
+  });
+
+  // Set Mystical Preferences
+  const toggleMystical = document.getElementById("toggle-mystical");
+  if (toggleMystical) {
+    toggleMystical.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.mysticalSuggestions = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
+    });
+  }
+
+  const showHolidays = document.getElementById("show-holidays");
+  if (showHolidays) {
+    showHolidays.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showHolidays = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
+    });
+  }
+
+  const showCustom = document.getElementById("show-custom-events");
+  if (showCustom) {
+    showCustom.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showCustomEvents = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
+    });
+  }
+
+  const showPast = document.getElementById("show-past-events");
+  if (showPast) {
+    showPast.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showPastEvents = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
+    });
+  }
 }
 
 export function saveMysticalPrefs(prefs) {

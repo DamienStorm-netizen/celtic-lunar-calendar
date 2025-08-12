@@ -6,6 +6,7 @@ import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { showDayModal } from "./calendar.js";
 import { getNamedMoonForDate } from "./calendar.js";
+import { api } from "../utils/api.js";
 
 export function renderHome() {
     // Return the HTML and then in the next tickß attach overlay & swipe
@@ -132,11 +133,10 @@ export function renderHome() {
 
         // Load zodiac data and build traits map
         let zodiacTraits = {};
-        fetch("/static/calendar_data.json")
-          .then(res => res.json())
+        
+        api.calendarData()
           .then(data => {
             data.zodiac.forEach(sign => {
-              // store with a lowercase, trimmed key for reliable lookup
               zodiacTraits[sign.name.trim().toLowerCase()] = sign.symbolism;
             });
           })
@@ -350,36 +350,32 @@ export async function fetchCelticZodiac() {
 
 // Fetch the Moon Phase dynamically and update the home screen
 export async function fetchDynamicMoonPhase() {
-    const today = new Date().toISOString().split('T')[0]; // Today's date in ISO format
+    const today = new Date().toISOString().split("T")[0];
     try {
-        const response = await fetch(`/dynamic-moon-phases?start_date=${today}&end_date=${today}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        // Always go through the API helper so the request hits the backend base URL
+        const data = await api.dynamicMoonPhases(today, today);
+        if (!Array.isArray(data) || data.length === 0) {
+            console.warn("No moon phase data available.");
+            return;
         }
 
-        const data = await response.json();
-        if (data.length > 0) {
-            const moonPhase = data[0];
+        const moonPhase = data[0];
 
-            // Select the container for the moon phase
-            const moonPhaseContainer = document.querySelector('.moon-phase');
-
-            // Update the UI with moon phase details
+        // Select the container for the moon phase
+        const moonPhaseContainer = document.querySelector('.moon-phase');
+        if (moonPhaseContainer) {
             moonPhaseContainer.innerHTML = `
                 <div class="moon-phase-details">
                     <div class="moon-phase-graphic">${moonPhase.graphic}</div>
-                    <p>${moonPhase.moonName || moonPhase.phase} </p>
-                    <!-- <span>${moonPhase.poem || 'A sliver of light...'}</span> -->
+                    <p>${moonPhase.moonName || moonPhase.phase}</p>
                 </div>
             `;
-            // Show poem under the moon
-            const poemContainer = document.querySelector('.moon-poem');
-            if (poemContainer) {
-                poemContainer.textContent = moonPhase.poem || '';
-            }
-            console.log(moonPhase.graphic);
-        } else {
-            console.warn('No moon phase data available.');
+        }
+
+        // Show poem under the moon
+        const poemContainer = document.querySelector('.moon-poem');
+        if (poemContainer) {
+            poemContainer.textContent = moonPhase.poem || '';
         }
     } catch (error) {
         console.error('Failed to fetch moon phase:', error);
@@ -702,11 +698,7 @@ export async function fetchMoonPhases(celticMonth) {
     const { start, end } = celticMonthMapping[celticMonth];
 
     try {
-        // Call the API for moon phases within the given date range
-        const response = await fetch(`/dynamic-moon-phases?start_date=${start}&end_date=${end}`);
-        if (!response.ok) throw new Error("Failed to fetch moon phases");
-
-        const moonData = await response.json();
+        const moonData = await api.dynamicMoonPhases(start, end);
         console.log("🌙 Moon Phases Retrieved:", moonData);
         return moonData;
     } catch (error) {
@@ -1043,7 +1035,7 @@ document.addEventListener('click', async (e) => {
           <p id="zodiac-element">${data.element}</p>
           <h3 class="subheader">Associated Animal</h3>
           <p id="zodiac-animal">${data.animal}</p>
-          <a class="home-modal-btn" href="${data.url || '#'}" target="_blank" style="${data.url ? '' : 'display:none;'}">Learn More</a>
+          <a class="home-modal-btn" href="${data.url || '#'}" target="_blank" rel="noopener noreferrer" style="${data.url ? '' : 'display:none;'}">Learn More</a>
         `;
   
         // Show modal + overlay

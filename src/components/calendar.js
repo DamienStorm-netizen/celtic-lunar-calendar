@@ -2,17 +2,30 @@ import { getMysticalPrefs } from "./settings.js";
 import { saveCustomEvents } from "../utils/localStorage.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
-import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
+import { initSwipe } from "../utils/swipeHandler.js";
 import { starFieldSVG } from "../constants/starField.js";
+import { api } from "../utils/api.js";
 
 import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils/dateUtils.js';
 import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../utils/dateUtils.js';
-// 🌕 Named full‑moon data (Wolf, Snow, etc.)
-import calendarData from "../../Prod Server/calendar_data.json" assert { type: "json" };
-const FULL_MOONS = calendarData.full_moons;
+
+// 🌕 Declare globally
+let FULL_MOONS = [];
+
+async function initCalendar() {
+  const calendarData = await api.calendarData();
+  FULL_MOONS = calendarData.full_moons || [];
+}
+
+initCalendar();
 
 // Helper: find the named full moon within ±windowDays (defaults to 1 day)
 export function getNamedMoonForDate(isoDate, windowDays = 1) {
+  if (FULL_MOONS.length === 0) {
+    console.warn("🔮 Full moon data not yet loaded!");
+    return null;
+  }
+
   const target = new Date(isoDate + "T00:00:00Z").getTime();
   return FULL_MOONS.find(moon => {
     const ts = new Date(moon.date + "T00:00:00Z").getTime();
@@ -738,54 +751,19 @@ async function enhanceCalendarTable(modalContainer, monthName) {
 
 // Fetch national holidays dynamically
 async function fetchNationalHolidays() {
-    console.log('Fetching national holidays now!!');
-    try {
-        const response = await fetch("/api/national-holidays");
-        if (!response.ok) throw new Error("Failed to fetch national holidays");
-        const data = await response.json();
-        cachedNationalHolidays = data; // Store globally for reuse
-        console.log("✅ National Holidays Fetched:", cachedNationalHolidays);
-        return data;
-    } catch (error) {
-        console.error("Error fetching national holidays:", error);
-        return [];
-    }
+    const data = await api.nationalHolidays();
+    cachedNationalHolidays = data;
+    return data;
 }
 
 async function getCelticDate() {
-    try {
-        const response = await fetch("/api/celtic-date");
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        return {
-            celticMonth: data.month, // "Janus"
-            celticDay: parseInt(data.celtic_day, 10), // 19
-        };
-    } catch (error) {
-        console.error("Failed to fetch Celtic date:", error);
-        return null;
-    }
+    const data = await api.celticDate();
+    return { celticMonth: data.month, celticDay: parseInt(data.celtic_day, 10) };
 }
 
 async function fetchEclipseEvents() {
-    try {
-        console.log("🌘 Calling fetchEclipseEvents()...");
-        const response = await fetch("/api/eclipse-events");
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const eclipseData = await response.json();
-        console.log("✅ Eclipse Data Retrieved:", eclipseData);
-
-        return eclipseData;
-    } catch (error) {
-        console.error("❌ Failed to fetch eclipse events:", error);
-        return [];
-    }
+    const eclipseData = await api.eclipseEvents();
+    return eclipseData;
 }
 
 // Fetch lunar phases dynamically for a given Celtic month
@@ -799,55 +777,35 @@ export async function fetchMoonPhases(celticMonth) {
   }
 
   try {
-    const response = await fetch(`/dynamic-moon-phases?start_date=${startISO}&end_date=${endISO}`);
-    if (!response.ok) throw new Error("Failed to fetch moon phases");
-    const moonData = await response.json();
-    console.log("🌙 Moon Phases Retrieved:", moonData);
-    return moonData;
-  } catch (error) {
-    console.error("❌ Error fetching moon phases:", error);
-    return [];
-  }
+        const moonData = await api.dynamicMoonPhases(startISO, endISO);
+        console.log("🌙 Moon Phases Retrieved:", moonData);
+        return moonData;
+    } catch (error) {
+        console.error("❌ Error fetching moon phases:", error);
+        return [];
+    }   
 }
 
 // Helper to fetch moon phases for an explicit ISO range
 async function fetchMoonPhasesBetween(startISO, endISO) {
   try {
-    const res = await fetch(`/dynamic-moon-phases?start_date=${startISO}&end_date=${endISO}`);
-    if (!res.ok) throw new Error("Failed to fetch moon phases");
-    return await res.json();
-  } catch (e) {
-    console.error("❌ Error fetching moon phases (range):", e);
-    return [];
-  }
+        return await api.dynamicMoonPhases(startISO, endISO);
+    } catch (e) {
+        console.error("❌ Error fetching moon phases (range):", e);
+        return [];
+    }
 }
 
 // Fetch custom events dynamically
 async function fetchCustomEvents() {
-    try {
-        const response = await fetch("/api/custom-events");
-        if (!response.ok) throw new Error("Failed to fetch custom events");
-        return await response.json();
-    } catch (error) {
-        console.error("Error fetching custom events:", error);
-        return [];
-    }
+    return await api.customEvents();
 }
 
 // Fetch Celtic festivals dynamically
 async function fetchFestivals() {
-    console.log('Fetching Festivals now!!');
-    try {
-        const response = await fetch("/festivals");
-        if (!response.ok) throw new Error("Failed to fetch festivals");
-        const data = await response.json();
-        cachedFestivals = data; // Store globally for reuse
-        console.log("✅ Festivals Fetched:", cachedFestivals);
-        return data;
-    } catch (error) {
-        console.error("Error fetching festivals:", error);
-        return [];
-    }
+    const data = await api.festivals();
+    cachedFestivals = data;
+    return data;
 }
 
 function waitForImagesToLoad(container, callback) {
@@ -936,13 +894,9 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
     const dateStr = `${year}-${monthStr}-${dayStr}`;
   
     try {
-        // Call the dynamic endpoint using the constructed date string
-        const response = await fetch(`/dynamic-moon-phases?start_date=${dateStr}&end_date=${dateStr}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (!data || data.length === 0) {
+       // Call the dynamic endpoint via the API helper so it always hits the backend
+        const data = await api.dynamicMoonPhases(dateStr, dateStr);
+        if (!Array.isArray(data) || data.length === 0) {
             throw new Error("Invalid lunar data received");
         }
         const lunarData = data[0] || {};          // Always have an object
@@ -1244,11 +1198,8 @@ function getCelticZodiacName(gregorianMonth, gregorianDay) {
 
 async function fetchZodiacInfoByName(name) {
     try {
-        const response = await fetch("/api/calendar-data");
-        if (!response.ok) throw new Error("Failed to fetch zodiac info");
-
-        const data = await response.json();
-        return data.zodiac.find(z => z.name === name) || null;
+        const data = await api.calendarData();
+        return data.zodiac.find(z => z.name === name) || null;  
     } catch (error) {
         console.error("Error fetching zodiac info:", error);
         return null;
