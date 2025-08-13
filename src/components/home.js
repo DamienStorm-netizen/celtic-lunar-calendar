@@ -1,12 +1,19 @@
 import { initSwipe } from "../utils/swipeHandler.js";
 import { getEventIcon } from "../utils/eventUtils.js";
-import { getCelticWeekday, convertGregorianToCeltic, getCelticWeekdayFromGregorian } from "../utils/dateUtils.js";
+
 import { getMysticalPrefs } from "./settings.js";
-import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
+import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
-import { showDayModal } from "./calendar.js";
-import { getNamedMoonForDate } from "./calendar.js";
+import { starFieldSVG } from "../constants/starField.js";
 import { api } from "../utils/api.js";
+
+import {
+  getCelticWeekday,
+  convertCelticToGregorian,
+  isLeapYear,
+  convertGregorianToCeltic,
+  getCelticWeekdayFromGregorian
+} from "../utils/dateUtils.js";
 
 export function renderHome() {
     // Return the HTML and then in the next tickß attach overlay & swipe
@@ -21,10 +28,8 @@ export function renderHome() {
                 <div class="moon-column">
                     <p class="goldenTitle">Tonight's Moon</p>
                     <div class="moon-phase">
-                        <div class="moon-graphic">
-                            <h4 class="moon-phase-name"></h4>
-                        </div>
-                        <h4 class="moon-phase-name"></h4>
+                        <div class="moon-graphic"></div>
+                          <h4 class="moon-phase-name"></h4>
                     </div>
                 </div>
                 <!-- Celtic Zodiac Column -->
@@ -1028,7 +1033,7 @@ document.addEventListener('click', async (e) => {
         document.getElementById('home-zodiac-modal-details').innerHTML = `
           <h2 id="zodiac-name">${data.name}</h2>
           <p id="zodiac-date-range">${data.celtic_date}</p>
-          <img id="zodiac-image" src="static/assets/images/zodiac/zodiac-${data.name.toLowerCase()}.png" alt="${data.name}" />
+          <img id="zodiac-image" src="/assets/images/zodiac/zodiac-${data.name.toLowerCase()}.png" alt="${data.name}" />
           <h3 class="subheader">Three Key Traits</h3>
           <p id="zodiac-traits">${data.symbolism}</p>
           <h3 class="subheader">Associated Element</h3>

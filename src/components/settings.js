@@ -562,7 +562,7 @@ async function handleAddEventSubmit(event) {
 
         Swal.fire({
             title: `Event saved for ${wd}, ${lunar}`,
-            html: '<img src="/src/assets/icons/logo-icon.png" class="swal2-logo-icon" alt="Lunar Logo">',
+            html: '<img src="/assets/icons/logo-icon.png" class="swal2-logo-icon" alt="Lunar Logo">',
             customClass: {
                 popup: 'celestial-toast'
             },

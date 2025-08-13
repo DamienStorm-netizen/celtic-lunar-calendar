@@ -1,5 +1,4 @@
 export function renderAbout() {
-    const app = document.getElementById('app');
     return `
    <section id="about" class="about-container">
     <div class="about-content">
@@ -13,7 +12,7 @@ export function renderAbout() {
         <div class="about-section">
             <h2>The Lunar Almanac</h2>
             <p>
-                Rooted in ancient traditions, this almanac follows the rhythm of <strong>13 lunar months<strong>, 
+                Rooted in ancient traditions, this almanac follows the rhythm of <strong>13 lunar months</strong>, 
                 each aligned with a sacred tree of the <strong>Celtic Tree Zodiac</strong>. The moon is our guide, 
                 leading us through the changing seasons, whispering secrets of transformation and renewal.
             </p>
@@ -33,9 +32,9 @@ export function renderAbout() {
         <div class="about-section">
             <h2>The Inspiration</h2>
             <p>
-                This almanac was created to reconnect us with the <strong>cosmic dance of the universe<strong>. 
+                This almanac was created to reconnect us with the <strong>cosmic dance of the universe</strong>. 
                 Inspired by the wisdom of the <strong>druids</strong>, the poetry of the <strong>stars</strong>, and the <strong>whispers 
-                of the <strong>wind</strong>, it serves as a guide through the mystical passage of time.
+                of the wind</strong>, it serves as a guide through the mystical passage of time.
             </p>
             <blockquote class="quote">
                 "The moon, with her silvery light, knows the secrets of time untold."
@@ -52,7 +51,7 @@ export function renderAbout() {
         <div class="creators-wrapper">
             <div class="creator">
                 <h3>Eclipsed Realities</h3>
-                <a href="https://eclipsedrealities.com" target="_blank"><img src="static/assets/images/decor/er-logo.png" width="175px" alt="Eclipsed Realities" class="er-logo" /></a>
+                <a href="https://eclipsedrealities.com" target="_blank"><img src="/assets/images/decor/er-logo.png" width="175px" alt="Eclipsed Realities" class="er-logo" /></a>
                 <p>
                     A collective of <strong>tech sorcerers and celestial coders</strong>, shaping digital landscapes where time bends, 
                     moon phases whisper, and history breathes again. From the <strong>rhythms of the stars</strong> to the <strong>logic of algorithms</strong>, we bridge the ethereal with the tangible.
@@ -62,18 +61,18 @@ export function renderAbout() {
 
             <div class="creator">
                 <h3>Playground of the Senses</h3>
-                <a href="https://playgroundofthesenses.substack.com" target="_blank"><img src="static/assets/images/decor/playground-logo.webp" alt="Playground of the Senses" class="playground-logo" /></a>
+                <a href="https://playgroundofthesenses.substack.com" target="_blank"><img src="/assets/images/decor/playground-logo.webp" alt="Playground of the Senses" class="playground-logo" /></a>
                 <p>
-                    A sanctuary where <strong>myth and magic entwine</strong>, where each moment is <strong>a spell woven in ink and sound,<strong> 
+                    A sanctuary where <strong>myth and magic entwine</strong>, where each moment is <strong>a spell woven in ink and sound</strong>, 
                     a place where the <strong>past and future dance as one</strong>. Words shimmer, symbols awaken, and the unseen 
                     world steps into view.
+                    </p>
                     <p><a href="https://playgroundofthesenses.substack.com" target="_blank">Playground of the Senses</a></p>
-                </p>
             </div>
     </div>
 
     <p>
-        Together, we have crafted something more than an almanac <strong>a celestial compass</strong>, an <strong>invitation to wonder</strong>, 
+        Together, we have crafted something more than an almanac—<strong>a celestial compass</strong>, an <strong>invitation to wonder</strong>, 
         and a bridge between <strong>the known and the unknown</strong>. May you walk its path <strong>with open heart and star-lit eyes.</strong> ✨
     </p>
 </div>

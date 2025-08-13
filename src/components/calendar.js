@@ -1,13 +1,17 @@
 import { getMysticalPrefs } from "./settings.js";
-import { saveCustomEvents } from "../utils/localStorage.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { initSwipe } from "../utils/swipeHandler.js";
 import { starFieldSVG } from "../constants/starField.js";
 import { api } from "../utils/api.js";
 
-import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils/dateUtils.js';
-import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../utils/dateUtils.js';
+import {
+  getCelticWeekday,
+  convertCelticToGregorian,
+  isLeapYear,
+  convertGregorianToCeltic,
+  getCelticWeekdayFromGregorian
+} from "../utils/dateUtils.js";
 
 // 🌕 Declare globally
 let FULL_MOONS = [];
@@ -468,11 +472,13 @@ function showModal(monthName) {
                     });
                     }
 
-                    if (leap) { // <- leap exists only in this branch
-                    const crestNoctis = document.getElementById("crest-noctis");
-                    if (crestNoctis) {
-                        showDayModal(2, "Mirabilis", "2025-12-23");
-                    }
+                    if (leap) {
+                        const crestNoctis = document.getElementById("crest-noctis");
+                        if (crestNoctis) {
+                            crestNoctis.addEventListener("click", () => {
+                            showDayModal(2, "Mirabilis", "2025-12-23");
+                            });
+                        }
                     }
                 }, 0);
             }
@@ -859,7 +865,9 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
     modalContainer.classList.remove("hidden");
 
     const constellationOverlay = document.getElementById("constellation-layer");
-    constellationOverlay.className = `${celticMonth.toLowerCase()}-stars`;
+    if (constellationOverlay) {
+        constellationOverlay.className = `${celticMonth.toLowerCase()}-stars`;
+    }
   
     // Convert the Celtic date to Gregorian
     const gregorian = convertCelticToGregorian(celticMonth, celticDay);
@@ -870,9 +878,6 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
 
     const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
     const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
-
-    const zodiacName = getCelticZodiacName(gregorian.gregorianMonth, gregorian.gregorianDay);
-    const zodiacSign = await fetchZodiacInfoByName(zodiacName);
 
      // Get additional data
     //const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
@@ -1326,11 +1331,11 @@ function generateDaySlides({
         if (celticDay === 1) {
             mirabilisTitle = "Mirabilis Solis";
             mirabilisPoem = "The sun dances on the edge of time,<br />Golden and defiant, it bends the chime.<br />A sacred spark, a seed of light,<br />That births the wheel in radiant flight.";
-            mirabilisSymbol = `<img src="static/assets/images/months/mirabilis-solis-notext.png" class="mirabilis-symbol" alt="Solis Symbol" />`;
+            mirabilisSymbol = `<img src="/assets/images/months/mirabilis-solis-notext.png" class="mirabilis-symbol" alt="Solis Symbol" />`;
         } else if (celticDay === 2) {
             mirabilisTitle = "Mirabilis Noctis";
             mirabilisPoem = "A breath of shadow, soft and still,\nA second hush upon the hill.\nShe stirs in dreams beneath the veil,\nWhere moonlight writes the ancient tale.";
-            mirabilisSymbol = `<img src="static/assets/images/months/mirabilis-noctis-notext.png" class="mirabilis-symbol" alt="Noctis Symbol" />`;
+            mirabilisSymbol = `<img src="/assets/images/months/mirabilis-noctis-notext.png" class="mirabilis-symbol" alt="Noctis Symbol" />`;
         }
     }
 
@@ -1517,9 +1522,6 @@ document.addEventListener("submit", async (event) => {
             });
 
             // Fetch all events again and save them to localStorage
-            // Instantly update localStorage without refetching
-            customEvents.push(newEvent);
-            saveCustomEvents(customEvents);
 
             if (!response.ok) throw new Error("Failed to add event.");
 
