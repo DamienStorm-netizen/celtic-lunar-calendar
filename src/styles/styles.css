@@ -54,7 +54,7 @@ html, body {
   background-color: rgba(0, 0, 0, 0.4); /* If you want a semi-transparent background */
   border-radius: 10px;
   padding: 20px; /* Add some padding around the modal to prevent clipping */
-  overflow: hidden; /* Stop rogue elements from overflowing */
+  overflow: visible; /* Stop rogue elements from overflowing */
   max-width: 100vw;
   box-sizing: border-box;
 }
@@ -64,7 +64,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  width: 400px;  /* Limit modal width */
+  width: clamp(320px, 86vw, 380px); /* fluid: narrow on small screens, capped on large */
   background: linear-gradient(to bottom, #0b0f1a 10%, #1a1a2f 100%);
   border-radius: 10px; /* Add some rounded corners */
   padding: 0px;
@@ -73,10 +73,10 @@ html, body {
   max-height: 90vh; /* Prevents the modal from exceeding 90% of the viewport height */
   /*scrollbar-width: thin;  Ensures a minimal, non-intrusive scrollbar */
   overflow: visible;
-  max-height: none;  /* Remove any scroll limit */
   /*overflow-x: hidden;
   overflow-y: auto; */ /*Enables scrolling inside the modal if content overflows */
   box-sizing: border-box;
+  margin-inline: auto;
 }
 
 #close-modal {
@@ -132,6 +132,12 @@ html, body {
 
 #modal-details::-webkit-scrollbar-track {
   background: #1E1E1E;
+}
+
+/* Generic modal content (home/settings) */
+.modal .modal-content {
+  width: clamp(300px, 86vw, 360px);
+  margin-inline: auto;
 }
 
 /* ✦ Add a magical twinkle animation */
@@ -331,23 +337,6 @@ html, body {
   animation: fadeOut 0.3s ease-out forwards;
 }
 
-@keyframes fadeIn {
-  from {
-      opacity: 0;
-  }
-  to {
-      opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-      opacity: 1;
-  }
-  to {
-      opacity: 0;
-  }
-}
 
 /**************************************  */
 /* TOAST CONTAINER  */
@@ -488,7 +477,6 @@ h1, .main-title {
   position: relative;
   width: 100%;
   max-width: 480px !important; /* Adjust for mobile-first design */
-  min-height: 500px !important;
   margin: 0 auto;   /* Centres the container */
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Optional: Adds a soft shadow */
   border: 1px solid #6a0dad; /* Optional: Adds a border */
@@ -527,7 +515,7 @@ h1, .main-title {
   100% { background-color: #b86bff; }
 }
 
-/******************************************** /
+/**********************************************/
 /* SPLASH SCREEN */
 /**********************************************/
 
@@ -690,7 +678,7 @@ blockquote.moon-poem {
 }
 
 .tree-of-life {
-  background-image: url(/assets//images/decor/treeoflife-fade.png);
+  background-image: url(/assets/images/decor/treeoflife-fade.png);
   background-repeat: no-repeat;
   width: 100%;
   background-position-x: center;
@@ -875,12 +863,6 @@ blockquote.moon-poem {
 .scrollable-content::-webkit-scrollbar-track {
   background: #1E1E1E; /* Dark backdrop */
   border-radius: 10px;
-}
-
-.scrollable-content::-webkit-scrollbar-thumb {
-  background-color: #ffd700; /* Golden glow */
-  border-radius: 10px;
-  border: 2px solid #1E1E1E;
 }
 
 .scrollable-content::-webkit-scrollbar-thumb {
@@ -1246,7 +1228,6 @@ blockquote.moon-poem {
 
 .detailsMoonPhase {
   margin:0;
-  font-size: 0.7em;
   font-family: 'Libre Baskerville', serif;
   color: #fff6ea;
   font-size: 1em;
@@ -1815,7 +1796,7 @@ blockquote.moon-poem {
 }
 
 .bottomBar {
-  background-image: url("/assets//images/decor/celtic-knot-bg.png");
+  background-image: url("/assets/images/decor/celtic-knot-bg.png");
   background-repeat: no-repeat;
   background-size: 100%;
   height: 25px;
@@ -2133,15 +2114,6 @@ blockquote.moon-poem {
   animation: moonDustFadeOut 0.8s ease forwards;
 }
 
-@keyframes arcanePulse {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(255, 223, 127, 0.6);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(255, 255, 127, 0.9);
-  }
-}
-
 /*** Celestial Moon Background ***/
 #constellation-layer {
   background-color: rgba(0, 0, 0, 0.55);
@@ -2287,7 +2259,7 @@ blockquote.moon-poem {
 }
 
 .mirabilis-intro p {
-  color: 
+  color: #D7E0FF; 
 }
 
 .mirabilis-image {
@@ -3945,6 +3917,12 @@ footer nav {
     width: 250px;
     margin: 0 auto;
   }
+}
+
+@media (max-width: 420px) {
+  .calendar-modal { 
+    padding: 10px; /* was 20px */
+  } 
 }
 
 @media (max-width: 414px) {
