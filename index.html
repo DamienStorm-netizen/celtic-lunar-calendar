@@ -76,14 +76,7 @@
   <button id="event-toast-view">View it now</button>
 </div>
 
-<!-- PWA registration script  -->
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/static/sw.js')
-      .then(reg => console.log('🌕 Service worker registered!', reg))
-      .catch(err => console.error('⚠️ Service worker failed:', err));
-  }
-</script>
+<!-- PWA service worker is disabled during local development; VitePWA will inject the correct registration in production builds. -->
 
 <!-- SweetAlert2 for polished event confirmation -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

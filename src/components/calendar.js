@@ -8,9 +8,9 @@ import { api } from "../utils/api.js";
 import {
   getCelticWeekday,
   convertCelticToGregorian,
-  isLeapYear,
   convertGregorianToCeltic,
-  getCelticWeekdayFromGregorian
+  getCelticWeekdayFromGregorian,
+  getMonthRangeISO
 } from "../utils/dateUtils.js";
 
 // 🌕 Declare globally
@@ -35,78 +35,6 @@ export function getNamedMoonForDate(isoDate, windowDays = 1) {
     const ts = new Date(moon.date + "T00:00:00Z").getTime();
     return Math.abs(target - ts) / 86400000 <= windowDays;
   });
-}
-
-// Helper: Return ISO start/end dates for any Celtic month in a given cycle year
-export function getMonthRangeISO(monthName, cycleYear) {
-  let startDate, endDate;
-  switch (monthName) {
-    case "Nivis":
-      startDate = new Date(Date.UTC(cycleYear - 1, 11, 23));
-      endDate   = new Date(Date.UTC(cycleYear,    0, 19));
-      break;
-    case "Janus":
-      startDate = new Date(Date.UTC(cycleYear,    0, 20));
-      endDate   = new Date(Date.UTC(cycleYear,    1, 16));
-      break;
-    case "Brigid":
-      startDate = new Date(Date.UTC(cycleYear,    1, 17));
-      endDate   = new Date(Date.UTC(cycleYear,    2, 16));
-      break;
-    case "Flora":
-      startDate = new Date(Date.UTC(cycleYear,    2, 17));
-      endDate   = new Date(Date.UTC(cycleYear,    3, 13));
-      break;
-    case "Maia":
-      startDate = new Date(Date.UTC(cycleYear,    3, 14));
-      endDate   = new Date(Date.UTC(cycleYear,    4, 11));
-      break;
-    case "Juno":
-      startDate = new Date(Date.UTC(cycleYear,    4, 12));
-      endDate   = new Date(Date.UTC(cycleYear,    5,  8));
-      break;
-    case "Solis":
-      startDate = new Date(Date.UTC(cycleYear,    5,  9));
-      endDate   = new Date(Date.UTC(cycleYear,    6,  6));
-      break;
-    case "Terra":
-      startDate = new Date(Date.UTC(cycleYear,    6,  8));
-      endDate   = new Date(Date.UTC(cycleYear,    7,  4));
-      break;
-    case "Lugh":
-      startDate = new Date(Date.UTC(cycleYear,    7,  4));
-      endDate   = new Date(Date.UTC(cycleYear,    7, 31));
-      break;
-    case "Pomona":
-      startDate = new Date(Date.UTC(cycleYear,    8,  1));
-      endDate   = new Date(Date.UTC(cycleYear,    8, 28));
-      break;
-    case "Autumna":
-      startDate = new Date(Date.UTC(cycleYear,    8, 29));
-      endDate   = new Date(Date.UTC(cycleYear,    9, 26));
-      break;
-    case "Eira":
-      startDate = new Date(Date.UTC(cycleYear,    9, 27));
-      endDate   = new Date(Date.UTC(cycleYear,   10, 23));
-      break;
-    case "Aether":
-      startDate = new Date(Date.UTC(cycleYear,   10, 24));
-      endDate   = new Date(Date.UTC(cycleYear,   11, 21));
-      break;
-    case "Mirabilis":
-      const isLeap = isLeapYear(cycleYear);
-      startDate = new Date(Date.UTC(cycleYear,   11, 22));
-      endDate   = new Date(Date.UTC(cycleYear,   11, 22 + (isLeap ? 1 : 0)));
-      break;
-    default:
-      console.error("Unknown Celtic month in getMonthRangeISO:", monthName);
-      return { startISO: null, endISO: null };
-  }
-  const pad = (n) => String(n).padStart(2, "0");
-  return {
-    startISO: `${startDate.getUTCFullYear()}-${pad(startDate.getUTCMonth() + 1)}-${pad(startDate.getUTCDate())}`,
-    endISO:   `${endDate.getUTCFullYear()}-${pad(endDate.getUTCMonth() + 1)}-${pad(endDate.getUTCDate())}`
-  };
 }
 
 // prefer = "current" (default) keeps the window for the *current* cycle.

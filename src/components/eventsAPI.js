@@ -22,7 +22,7 @@ export async function deleteCustomEvent(date) {
         if (!response.ok) throw new Error("Failed to delete event");
 
         console.log(`Deleted event on ${date}`);
-        loadCustomEvents(); // Refresh the list
+        return true; // let caller decide how to refresh UI
     } catch (error) {
         console.error("Error deleting event:", error);
     }
@@ -40,7 +40,7 @@ export async function updateCustomEvent(date, updatedData) {
         if (!response.ok) throw new Error("Failed to update event");
 
         console.log(`Updated event on ${date}`);
-        loadCustomEvents(); // Refresh the list
+        return true; // let caller decide how to refresh UI
     } catch (error) {
         console.error("Error updating event:", error);
     }

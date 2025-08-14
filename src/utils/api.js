@@ -1,13 +1,18 @@
-const API_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
-
-if (!API_BASE && import.meta.env.DEV) {
-  console.warn('[LunarAlmanac] VITE_API_BASE is empty. Set it in .env.development or .env.production.');
+const RAW_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
+// If RAW_BASE is empty, use the current origin so relative paths work in dev with Vite's proxy
+const API_BASE = RAW_BASE || (typeof window !== "undefined" ? window.location.origin : "");
+if (!RAW_BASE && import.meta.env.DEV) {
+  console.warn('[LunarAlmanac] VITE_API_BASE is empty; using same-origin with Vite proxy.');
 }
 
 function url(path, params) {
-  const u = new URL(API_BASE + path);
-  if (params) for (const [k, v] of Object.entries(params))
-    if (v !== undefined && v !== null && v !== "") u.searchParams.set(k, v);
+  // Build a fully qualified URL against API_BASE (or current origin in dev)
+  const u = new URL(path, API_BASE);
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null && v !== "") u.searchParams.set(k, v);
+    }
+  }
   return u.toString();
 }
 
@@ -19,7 +24,7 @@ async function get(path, params) {
 
 export const api = {
   // health
-  health: () => get('/healthz'),
+  health: () => get('/api/healthz'),
 
   // shared data
   calendarData: () => get('/api/calendar-data'),
@@ -27,10 +32,10 @@ export const api = {
 
   // moon phases
   dynamicMoonPhases: (startISO, endISO) =>
-    get('/dynamic-moon-phases', { start_date: startISO, end_date: endISO }),
+    get('/api/dynamic-moon-phases', { start_date: startISO, end_date: endISO }),
 
   // domain data
-  festivals:        () => get('/festivals'),
+  festivals:        () => get('/api/festivals'),
   eclipseEvents:    () => get('/api/eclipse-events'),
   nationalHolidays: () => get('/api/national-holidays'),
 

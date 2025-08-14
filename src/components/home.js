@@ -15,6 +15,75 @@ import {
   getCelticWeekdayFromGregorian
 } from "../utils/dateUtils.js";
 
+// Normalize many possible inputs into a strict ISO date string (YYYY-MM-DD)
+function toISODate(input) {
+  if (!input) return null;
+
+  if (input instanceof Date) {
+    const y = input.getFullYear();
+    const m = String(input.getMonth() + 1).padStart(2, "0");
+    const d = String(input.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  if (typeof input === "string") {
+    // Accept plain YYYY-MM-DD or a full ISO timestamp
+    const m = input.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : null;
+  }
+
+  if (typeof input === "object") {
+    // Support shapes like { year, month, day } or { gregorianYear, gregorianMonth, gregorianDay }
+    const y = input.year ?? input.y ?? input.gregorianYear;
+    const m = input.month ?? input.m ?? input.gregorianMonth;
+    const d = input.day ?? input.d ?? input.gregorianDay;
+    if (y && m && d) {
+      return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    }
+  }
+
+  return null;
+}
+
+// Format an ISO date "YYYY-MM-DD" as "Month D" (e.g., "August 14")
+function formatMonthDay(iso) {
+  if (!iso) return "";
+  try {
+    const [y, m, d] = iso.split("-").map(Number);
+    // Use UTC to avoid off-by-one shifts in some time zones
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    return dt.toLocaleDateString(undefined, {
+      month: "long",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+  } catch {
+    return iso; // fallback
+  }
+}
+
+// Given an ISO 'YYYY-MM-DD' and an array of zodiac objects ({name,start_date,end_date}),
+// return the matching sign name (or 'Unknown').
+function findZodiacByGregorian(isoDate, zodiacArray) {
+  if (!isoDate || !Array.isArray(zodiacArray)) return "Unknown";
+  const [, m, d] = isoDate.split("-").map(Number);
+
+  const match = zodiacArray.find(sign => {
+    const [, sMonth, sDay] = sign.start_date.split("-").map(Number);
+    const [, eMonth, eDay] = sign.end_date.split("-").map(Number);
+
+    const afterStart = (m > sMonth) || (m === sMonth && d >= sDay);
+    const beforeEnd  = (m < eMonth) || (m === eMonth && d <= eDay);
+
+    // Handle ranges that wrap the year end (e.g., Nov 25 – Jan 1)
+    return (sMonth < eMonth || (sMonth === eMonth && sDay <= eDay))
+      ? (afterStart && beforeEnd)
+      : (afterStart || beforeEnd);
+  });
+
+  return match?.name || "Unknown";
+}
+
 export function renderHome() {
     // Return the HTML and then in the next tickß attach overlay & swipe
     const html = `
@@ -141,6 +210,8 @@ export function renderHome() {
         
         api.calendarData()
           .then(data => {
+            // Keep the full zodiac array around for later lookups
+            window.__ALL_ZODIAC = data.zodiac;
             data.zodiac.forEach(sign => {
               zodiacTraits[sign.name.trim().toLowerCase()] = sign.symbolism;
             });
@@ -155,25 +226,13 @@ export function renderHome() {
           const lunarDate = convertGregorianToCeltic(isoDate);
           // Fetch all signs and pick matching by month/day
           let signName = "";
-          try {
-            const resp = await fetch('/zodiac/all');
-            const allSigns = await resp.json();
-            const [by, bMonth, bDay] = isoDate.split('-').map(Number);
-            const match = allSigns.find(sign => {
-              const [ , sMonth, sDay] = sign.start_date.split('-').map(Number);
-              const [ , eMonth, eDay] = sign.end_date.split('-').map(Number);
-              const afterStart = (bMonth > sMonth) || (bMonth === sMonth && bDay >= sDay);
-              const beforeEnd = (bMonth < eMonth) || (bMonth === eMonth && bDay <= eDay);
-              if (sMonth < eMonth || (sMonth === eMonth && sDay <= eDay)) {
-                return afterStart && beforeEnd;
-              } else {
-                // wraps year boundary
-                return afterStart || beforeEnd;
-              }
-            });
-            signName = match?.name || 'Unknown';
+         try {
+            const zodiacArray = (window.__ALL_ZODIAC || (await api.calendarData()).zodiac);
+            window.__ALL_ZODIAC = zodiacArray;
+
+            signName = findZodiacByGregorian(isoDate, zodiacArray);
           } catch (e) {
-            console.error("Zodiac fetch/all error:", e);
+            console.error("Zodiac lookup error:", e);
           }
           
           const lookupKey = (signName || "").trim().toLowerCase();
@@ -274,6 +333,13 @@ export async function fetchCelticDate() {
         const weekday = getCelticWeekday(parseInt(data.celtic_day, 10));
         console.log("Fetched Celtic Date:", data);
 
+        // Build a reliable ISO date and a friendly display string
+        const gConv = convertCelticToGregorian(data.month, parseInt(data.celtic_day, 10));
+        const gregISO =
+          toISODate(data.gregorian_date) ||
+          (gConv ? `${gConv.gregorianYear}-${gConv.gregorianMonth}-${gConv.gregorianDay}` : null);
+        const gregDisplay = formatMonthDay(gregISO);
+
         // Ensure the data contains the necessary values
         if (!data || !data.month || !data.celtic_day) {
             throw new Error("Incomplete Celtic date data received.");
@@ -283,16 +349,16 @@ export async function fetchCelticDate() {
         const dateContainer = document.querySelector('.celtic-date');
         if (dateContainer) {
             dateContainer.innerHTML = `
-            <h1 id="celtic-day">${weekday}</h1>
-            <p><span id="celtic-month">${data.month} ${data.celtic_day}</span> / <span id="gregorian-month">${data.gregorian_date}</span></p>
-        `;
+              <h1 id="celtic-day">${weekday}</h1>
+              <p><span id="celtic-month">${data.month} ${data.celtic_day}</span> / <span id="gregorian-month">${gregDisplay}</span></p>
+            `;
         }
 
         // ✅ Return structured data so other functions can use it
         return {
             celticMonth: data.month,
             celticDay: parseInt(data.celtic_day, 10),
-            gregorianDate: data.gregorian_date
+            gregorianDate: gregISO
         };
 
     } catch (error) {
@@ -304,40 +370,22 @@ export async function fetchCelticDate() {
 // Fetch the Celtic Zodiac sign for the day
 export async function fetchCelticZodiac() {
   try {
-    // 1) Get today's Celtic month and day
+    // 1) Get today’s Celtic date (also gives us today's Gregorian ISO)
     const todayCeltic = await fetchCelticDate();
     if (!todayCeltic) throw new Error("No Celtic date available");
-    const { celticMonth, celticDay } = todayCeltic;
 
-    // 2) Map lunar month to tree zodiac sign
-    const signMap = {
-      Nivis:   "Birch",
-      Janus:   "Rowan",
-      Brigid:  "Alder",
-      Flora:   "Willow",
-      Maia:    "Hawthorn",
-      Juno:    "Oak",
-      Solis:   "Holly",
-      Terra:   "Oak", // Placeholder, logic below overrides for Terra
-      Lugh:    "Holly",
-      Pomona:  "Hazel",
-      Autumna: "Vine",
-      Eira:    "Ivy",
-      Aether:  "Reed",
-      Mirabilis: "Elder"
-    };
+    const { gregorianDate } = todayCeltic; // e.g. "2025-08-14"
 
-    // New logic for Terra: day 1 is Oak, rest are Holly
-    let signName;
-    if (celticMonth === 'Terra') {
-      // On Terra: day 1 is Oak, all subsequent days are Holly
-      signName = celticDay === 1 ? 'Oak' : 'Holly';
-    } else {
-      signName = signMap[celticMonth] || '';
-    }
+    // 2) Load zodiac ranges once and cache
+    const data = window.__ALL_ZODIAC ? { zodiac: window.__ALL_ZODIAC } : await api.calendarData();
+    const zodiacArray = data.zodiac || [];
+    window.__ALL_ZODIAC = zodiacArray;
 
-    // 3) Render into the Zodiac container
-    const container = document.querySelector('.celtic-zodiac-details');
+    // 3) Determine which sign today’s Gregorian date falls into
+    const signName = findZodiacByGregorian(gregorianDate, zodiacArray);
+
+    // 4) Render the card
+    const container = document.querySelector(".celtic-zodiac-details");
     if (container) {
       container.innerHTML = `
         <div class="zodiac-modal-trigger" data-zodiac="${signName}">
@@ -349,7 +397,7 @@ export async function fetchCelticZodiac() {
       `;
     }
   } catch (error) {
-    console.error('Failed to fetch Celtic Zodiac:', error);
+    console.error("Failed to fetch Celtic Zodiac:", error);
   }
 }
 
@@ -426,36 +474,34 @@ export function getUnnamedMoonPoem() {
       try {
         // 1) Get the Celtic date (to figure out today’s Gregorian date).
         const todayCeltic = await fetchCelticDate();
+
         if (!todayCeltic) {
           console.error("Could not fetch Celtic date. No upcoming events displayed.");
           return;
         }
-    
-        const { celticMonth, celticDay, gregorianDate } = todayCeltic;
-        if (!gregorianDate || typeof gregorianDate !== "string") {
-          console.error("🚨 gregorianDate is missing or not a string!", gregorianDate);
-          return;
-        }
-    
-        // 2) Convert “March 11” => monthName="March", day="11"
-        const [monthName, day] = gregorianDate.split(" ");
-        const gregorianMonth = getMonthNumber(monthName);  // e.g. "03"
-        const gregorianDay   = day.padStart(2, "0");       // e.g. "11"
-    
-        const todayDate = new Date(`2025-${gregorianMonth}-${gregorianDay}`);
+
+        const { celticMonth } = todayCeltic; // we no longer need the formatted gregorianDate
+
+        // Use the actual current date as the anchor for the next 7 days
+        const now = new Date();
+        const todayDate = new Date(Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate()
+        ));
+
+        const pad = (n) => String(n).padStart(2, "0");
         const upcomingDates = [];
     
         // 3) Generate next 5 days in YYYY-MM-DD
         for (let i = 0; i < 7; i++) {
-          const futureDate = new Date(todayDate);
-          futureDate.setDate(todayDate.getDate() + i);
-    
-          const y  = futureDate.getFullYear();
-          const m  = String(futureDate.getMonth() + 1).padStart(2, "0");
-          const d  = String(futureDate.getDate()).padStart(2, "0");
-          const iso = `${y}-${m}-${d}`;
-          upcomingDates.push(iso);
-        }
+          const d = new Date(todayDate);
+          d.setUTCDate(todayDate.getUTCDate() + i);
+          const y = d.getUTCFullYear();
+          const m = pad(d.getUTCMonth() + 1);
+          const dd = pad(d.getUTCDate());
+          upcomingDates.push(`${y}-${m}-${dd}`);
+      }
         console.log("Next 5 Gregorian Dates:", upcomingDates);
     
         // 4) Fetch all data in parallel
@@ -582,7 +628,6 @@ export function getUnnamedMoonPoem() {
     
       console.log("Final Upcoming Events Array:", upcomingEvents);
       // Determine local today at midnight
-      const now = new Date();
       const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
       // We only hide past events when the user says so
@@ -650,7 +695,7 @@ function getCelticMonthFromDate(dateStr) {
 export async function fetchFestivals() {
     try {
         // Fetch the festival data (assuming it's served from an endpoint)
-        const response = await fetch('/festivals'); 
+        const response = await fetch('/api/festivals'); 
         if (!response.ok) throw new Error("Failed to fetch special days");
 
         const specialDays = await response.json();
@@ -1026,8 +1071,18 @@ document.addEventListener('click', async (e) => {
       console.log("🔮 Zodiac Trigger Clicked!", signName);
   
       try {
-        const res = await fetch(`/zodiac/insights/${signName}`);
-        const data = await res.json();
+        // Use the data we already loaded from /api/calendar-data
+        const zodiacArray =
+          window.__ALL_ZODIAC || (await api.calendarData()).zodiac;
+
+        const data = zodiacArray.find(
+          z => z.name.toLowerCase() === signName.toLowerCase()
+        );
+
+        if (!data) {
+          console.error("No zodiac insight found for:", signName);
+          return;
+        }
   
         // Inject modal content
         document.getElementById('home-zodiac-modal-details').innerHTML = `

@@ -15,25 +15,33 @@ export default defineConfig(({ mode }) => {
     },
     // Dev-only proxy so your frontend can call the backend without CORS pain.
     server: {
+      host: true,
+      port: 5173,
+      strictPort: true,
       proxy: {
-        '/api':           { target: API_URL, changeOrigin: true },
-        '/calendar':      { target: API_URL, changeOrigin: true },
-        '/lunar-phases':  { target: API_URL, changeOrigin: true },
-        '/festivals':     { target: API_URL, changeOrigin: true },
-        '/notifications': { target: API_URL, changeOrigin: true },
-        '/celtic-today':  { target: API_URL, changeOrigin: true },
-        '/zodiac':        { target: API_URL, changeOrigin: true },
+        // All frontend calls should go to /api/... in dev. We strip the /api
+        // prefix and forward to the FastAPI server at API_URL.
+        '/api': {
+          target: API_URL,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
 
-        // legacy JSON filename → real API endpoint
+        // Back-compat: legacy static JSON filename → real API endpoint.
+        // If anything still requests /calendar_data.json in dev,
+        // forward it to the backend's /calendar-data route.
         '/calendar_data.json': {
           target: API_URL,
           changeOrigin: true,
-          rewrite: () => '/api/calendar-data',
+          secure: false,
+          rewrite: () => '/calendar-data',
         },
       },
     },
     plugins: [
       VitePWA({
+        devOptions: { enabled: false },
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
         manifest: {
