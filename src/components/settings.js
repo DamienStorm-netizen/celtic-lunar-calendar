@@ -209,9 +209,6 @@ export function getMysticalPrefs() {
     return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
 }
 
-import { fetchCustomEvents, deleteCustomEvent } from "./eventsAPI.js";
-
-
 function openEditModal(eventId) {
     const modal = document.getElementById("edit-event-modal");
     const form = document.getElementById("edit-event-form");
