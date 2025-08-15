@@ -1,7 +1,7 @@
 import { api } from "../utils/api.js";
 import { loadCustomEvents } from "../utils/localStorage.js";
 
-// Merge and de-duplicate events from backend & local by (date|name) key.
+// Merge and de-duplicate events from backend & local by (date|title|name) key.
 // Prefer the LOCAL version when both exist so we keep client-assigned IDs.
 function mergeEventsPreferLocal(localList = [], backendList = []) {
   const map = new Map();
@@ -9,20 +9,26 @@ function mergeEventsPreferLocal(localList = [], backendList = []) {
   // Seed with backend copy first
   backendList.forEach(evt => {
     if (!evt) return;
-    const key = `${evt.date}|${evt.name}`;
+    const title = evt.title ?? evt.name ?? "";
+    const key = `${evt.date}|${title}`;
     map.set(key, { ...evt });
   });
 
   // Overlay with local; keep whichever has an id, and prefer local fields
   localList.forEach(evt => {
     if (!evt) return;
-    const key = `${evt.date}|${evt.name}`;
+    const title = evt.title ?? evt.name ?? "";
+    const key = `${evt.date}|${title}`;
     const prev = map.get(key) || {};
     map.set(key, { ...prev, ...evt, id: evt.id || prev.id });
   });
 
   // Ensure every event has a stable id for UI lookups
-  return Array.from(map.values()).map(e => (e && e.id ? e : { ...e, id: `${e.date}|${e.name}` }));
+  return Array.from(map.values()).map(e => {
+    if (e && e.id) return e;
+    const title = e.title ?? e.name ?? "";
+    return { ...e, id: `${e.date}|${title}` };
+  });
 }
 
 // Fetch all custom events (backend first, fallback to localStorage).
@@ -57,7 +63,11 @@ export async function fetchCustomEvents() {
 // Delete a custom event (best-effort; backend API remains authoritative).
 export async function deleteCustomEvent(date) {
   try {
-    const response = await fetch(`/api/custom-events/${date}`, { method: "DELETE", cache: "no-store", headers: { "Cache-Control": "no-store" } });
+    const response = await fetch(`/api/custom-events/${encodeURIComponent(date)}`, {
+      method: "DELETE",
+      cache: "no-store",
+      headers: { "Cache-Control": "no-store" }
+    });
     if (!response.ok) throw new Error("Failed to delete event");
     console.log(`Deleted event on ${date}`);
     return true;
@@ -69,7 +79,7 @@ export async function deleteCustomEvent(date) {
 // Update an existing event
 export async function updateCustomEvent(date, updatedData) {
   try {
-    const response = await fetch(`/api/custom-events/${date}`, {
+    const response = await fetch(`/api/custom-events/${encodeURIComponent(date)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
       cache: "no-store",

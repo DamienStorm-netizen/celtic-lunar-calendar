@@ -600,28 +600,36 @@ async function handleAddEventSubmit(event) {
 }
 
 function populateEventList(events) {
-    const container = document.getElementById("event-list-container");
-    container.innerHTML = ""; // Clear placeholder text
+  const container = document.getElementById("event-list-container");
+  container.innerHTML = ""; // Clear placeholder text
 
-    events.forEach(event => {
-        console.log("Processing event:", event); // Debugging
+  if (!events || events.length === 0) {
+    container.innerHTML = `<p class="empty-note">No custom events yet. Add your first one above ✨</p>`;
+    return;
+  }
 
-        const eventElement = document.createElement("div");
-        eventElement.classList.add("event-item");
-        eventElement.innerHTML = `
-            <ul class="settings-event-list">
-                <li><h3>${event.title} - ${event.type}</h3></li>
-                <li>${event.date}</li>
-                <li>${event.notes || "No notes added."}</li>
-                <li><button class="settings-edit-event" data-id="${event.id}">Edit</button><button class="settings-delete-event" data-id="${event.id}">Delete</button></li>
-            </ul>
-        `;
+  events.forEach(event => {
+    const stableId = event.id || `${event.date}|${event.title || event.name || ""}`;
 
-        container.appendChild(eventElement);
-    });
+    const eventElement = document.createElement("div");
+    eventElement.classList.add("event-item");
+    eventElement.innerHTML = `
+      <ul class="settings-event-list">
+        <li><h3>${event.title || event.name} - ${event.type || "custom-event"}</h3></li>
+        <li>${event.date}</li>
+        <li>${event.notes || "No notes added."}</li>
+        <li>
+          <button class="settings-edit-event" data-id="${stableId}">Edit</button>
+          <button class="settings-delete-event" data-id="${stableId}">Delete</button>
+        </li>
+      </ul>
+    `;
 
-    // ✅ Attach event handlers *after* buttons exist
-    attachEventHandlers();
+    container.appendChild(eventElement);
+  });
+
+  // ✅ Attach event handlers *after* buttons exist
+  attachEventHandlers();
 }
 
 // Function to handle Edit Event - PUT
@@ -732,11 +740,11 @@ function attachEventHandlers() {
 
   // Edit a Custom Event 
   document.querySelectorAll(".settings-edit-event").forEach(button => {
-    button.addEventListener("click", (event) => {
-      console.log("Edit button clicked!");  // Debugging
-      const eventId = event.target.getAttribute("data-id"); // Or "data-id" if that’s how you're storing it
+    button.addEventListener("click", (e) => {
+      console.log("Edit button clicked!");
+      const eventId = e.currentTarget?.dataset?.id;
       if (eventId) {
-        openEditModal(eventId); // 💫 Open the modal with the correct event info
+        openEditModal(eventId);
       } else {
         console.error("No data-id attribute found on edit button.");
       }
@@ -745,26 +753,14 @@ function attachEventHandlers() {
 
   // Delete a Custom Event
   document.querySelectorAll(".settings-delete-event").forEach(button => {
-    button.addEventListener("click", (event) => {
+    button.addEventListener("click", (e) => {
       console.log("Delete button clicked!!!");
-
-      // Check if the event target is correct
-      const targetButton = event.target;
-      if (!targetButton) {
-        console.error("Error: event.target is undefined.");
-        return;
-      }
-
-      // Ensure the data-date attribute is being read correctly
-      const eventId = targetButton.getAttribute("data-id");
+      const eventId = e.currentTarget?.dataset?.id;
       if (!eventId) {
         console.error("Error: data-id attribute not found.");
         return;
       }
-
       console.log("Attempting to delete event on:", eventId);
-
-      // Call the delete function
       handleDeleteEvent(eventId);
     });
   });
