@@ -6,7 +6,7 @@ import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
 function showEventToast(id, gregorianDate) {
   const toast       = document.getElementById("event-toast");
   const toastDate   = document.getElementById("toast-date");
-  const toastButton = document.getElementById("toast-view-btn");
+  const toastButton = document.getElementById("event-toast-view");
 
   // Build the Celtic date string
   const weekday = getCelticWeekdayFromGregorian(gregorianDate);
