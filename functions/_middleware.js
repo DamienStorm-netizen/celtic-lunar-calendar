@@ -6,7 +6,6 @@ export async function onRequest(context) {
 
   // Add/adjust paths here if you add new backend endpoints
   const needsProxy =
-    p.startsWith("/api/") ||
     p.startsWith("/festivals") ||
     p.startsWith("/dynamic-moon-phases") ||
     p.startsWith("/zodiac/");
