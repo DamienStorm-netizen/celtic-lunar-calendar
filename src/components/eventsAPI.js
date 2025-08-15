@@ -1,15 +1,28 @@
 import { api } from "../utils/api.js";
 import { loadCustomEvents } from "../utils/localStorage.js";
 
-// Merge and de-duplicate events from multiple sources by (date|name) key
-function dedupeEvents(...lists) {
+// Merge and de-duplicate events from backend & local by (date|name) key.
+// Prefer the LOCAL version when both exist so we keep client-assigned IDs.
+function mergeEventsPreferLocal(localList = [], backendList = []) {
   const map = new Map();
-  lists.flat().forEach(evt => {
+
+  // Seed with backend copy first
+  backendList.forEach(evt => {
     if (!evt) return;
-    const key = `${evt.date}|${evt.name}`; // stable enough for our use-case
-    if (!map.has(key)) map.set(key, evt);
+    const key = `${evt.date}|${evt.name}`;
+    map.set(key, { ...evt });
   });
-  return Array.from(map.values());
+
+  // Overlay with local; keep whichever has an id, and prefer local fields
+  localList.forEach(evt => {
+    if (!evt) return;
+    const key = `${evt.date}|${evt.name}`;
+    const prev = map.get(key) || {};
+    map.set(key, { ...prev, ...evt, id: evt.id || prev.id });
+  });
+
+  // Ensure every event has a stable id for UI lookups
+  return Array.from(map.values()).map(e => (e && e.id ? e : { ...e, id: `${e.date}|${e.name}` }));
 }
 
 // Fetch all custom events (backend first, fallback to localStorage).
@@ -29,7 +42,7 @@ export async function fetchCustomEvents() {
     // ignore local read issues
   }
 
-  const merged = dedupeEvents(backend, local);
+  const merged = mergeEventsPreferLocal(local, backend);
   // Debug breadcrumb: surface counts in console (and window) so we can compare prod vs dev.
   try {
     const info = { total: merged.length, backend: backend.length, local: local.length };
