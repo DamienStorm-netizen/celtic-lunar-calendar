@@ -1,6 +1,12 @@
 import { convertGregorianToCeltic, getCelticWeekday, getCelticWeekdayFromGregorian } from "../utils/dateUtils.js";
 import { applyMysticalSettings, showDayModal } from "./calendar.js";
 import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
+import { fetchCustomEvents, deleteCustomEvent, updateCustomEvent } from "./eventsAPI.js";
+
+// --- helpers used by edit/delete to robustly match events ---
+const eventKey = (e) => `${e?.date}|${e?.title ?? e?.name ?? ''}`;
+const matchesByIdOrKey = (e, id, key) =>
+  (e && String(e.id) === String(id)) || (key && eventKey(e) === key);
 
 // Helper to show a toast and wire up “View it now”
 function showEventToast(id, gregorianDate) {
@@ -619,8 +625,20 @@ function populateEventList(events) {
         <li>${event.date}</li>
         <li>${event.notes || "No notes added."}</li>
         <li>
-          <button class="settings-edit-event" data-id="${stableId}">Edit</button>
-          <button class="settings-delete-event" data-id="${stableId}">Delete</button>
+          <!-- when rendering each card -->
+        <li>
+        <button
+            class="settings-edit-event"
+            data-id="${stableId}"
+            data-key="${evt.date}|${evt.title ?? evt.name ?? ''}"
+        >Edit</button>
+
+        <button
+            class="settings-delete-event"
+            data-id="${stableId}"
+            data-key="${evt.date}|${evt.title ?? evt.name ?? ''}"
+        >Delete</button>
+        </li>
         </li>
       </ul>
     `;
@@ -809,4 +827,193 @@ function attachEventHandlers() {
 
 export function saveMysticalPrefs(prefs) {
     localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
+}
+
+// --- Delegated click handling for Edit/Delete in the settings list ---
+export function setupSettingsEvents() {
+  // Attach once, after the settings view is rendered
+  const list = document.getElementById("event-list-container");
+  if (list) {
+    list.addEventListener(
+      "click",
+      (e) => {
+        const btn = e.target.closest(".settings-edit-event, .settings-delete-event");
+        if (!btn || !list.contains(btn)) return;
+
+        const payload = {
+          id: btn.dataset.id || "",
+          key: btn.dataset.key || "",
+        };
+
+        if (btn.classList.contains("settings-edit-event")) {
+          openEditModal(payload);
+        } else if (btn.classList.contains("settings-delete-event")) {
+          handleDeleteEvent(payload);
+        }
+      },
+      { passive: true }
+    );
+  }
+}
+
+// Utility: build our stable composite key
+function _eventKey(e) {
+  return `${e?.date}|${e?.title ?? e?.name ?? ""}`;
+}
+
+// Utility: match by id OR composite key
+function _matches(e, id, key) {
+  return String(e?.id) === String(id) || _eventKey(e) === key;
+}
+
+// Open the Edit modal, prefilling fields for the selected event
+async function openEditModal(arg) {
+  const id = typeof arg === "object" ? arg.id : arg;
+  const key = typeof arg === "object" ? arg.key : undefined;
+
+  let all = [];
+  try {
+    all = await fetchCustomEvents(); // merged backend + local
+  } catch (e) {
+    console.warn("fetchCustomEvents failed in openEditModal:", e);
+  }
+  if (!Array.isArray(all) || all.length === 0) {
+    try {
+      all = loadCustomEvents() || [];
+    } catch {}
+  }
+
+  const evt = all.find((e) => _matches(e, id, key));
+  if (!evt) {
+    console.error("Event not found.", { id, key });
+    return;
+  }
+
+  // Fill fields
+  const modal = document.getElementById("edit-event-modal");
+  const overlay = document.getElementById("modal-overlay");
+  const nameEl = document.getElementById("edit-event-name");
+  const typeEl = document.getElementById("edit-event-type");
+  const dateEl = document.getElementById("edit-event-date");
+  const notesEl = document.getElementById("edit-event-notes");
+  const recEl = document.getElementById("edit-event-recurring");
+
+  if (nameEl) nameEl.value = evt.title ?? evt.name ?? "";
+  if (typeEl) typeEl.value = evt.category ?? evt.type ?? "💡 General";
+  if (dateEl) dateEl.value = evt.date || "";
+  if (notesEl) notesEl.value = evt.note ?? evt.notes ?? "";
+  if (recEl) recEl.checked = !!evt.recurring;
+
+  // Show modal + overlay
+  modal?.classList.remove("hidden");
+  modal?.classList.add("show");
+  overlay?.classList.remove("hidden");
+  overlay?.classList.add("show");
+
+  // SAVE
+  const form = document.getElementById("edit-event-form");
+  if (form) {
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+
+      const updated = {
+        ...evt,
+        title: nameEl?.value?.trim() || evt.title || evt.name || "",
+        name: nameEl?.value?.trim() || evt.name || evt.title || "",
+        category: typeEl?.value || evt.category || evt.type || "💡 General",
+        type: "custom-event",
+        date: dateEl?.value || evt.date,
+        notes: notesEl?.value ?? evt.notes ?? "",
+        recurring: !!recEl?.checked,
+      };
+
+      // Update local first for instant UX
+      try {
+        const local = Array.isArray(loadCustomEvents?.()) ? loadCustomEvents() : [];
+        const idx = local.findIndex((e) => _matches(e, evt.id, _eventKey(evt)));
+        if (idx >= 0) local[idx] = { ...local[idx], ...updated };
+        else local.push(updated);
+        saveCustomEvents(local);
+      } catch (err) {
+        console.warn("Local save failed in openEditModal:", err);
+      }
+
+      // Best-effort backend update (keyed by date)
+      try {
+        if (updated.date) {
+          await updateCustomEvent(updated.date, updated);
+        }
+      } catch (err) {
+        console.warn("Backend update warning:", err);
+      }
+
+      // Hide modal and optionally refresh the list if a renderer exists
+      modal?.classList.remove("show");
+      modal?.classList.add("hidden");
+      overlay?.classList.remove("show");
+      overlay?.classList.add("hidden");
+
+      try {
+        window.renderCustomEventsList?.();
+      } catch {}
+    };
+  }
+
+  // Close (X) button
+  const closeBtn = document.querySelector(".close-modal-edit");
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      modal?.classList.remove("show");
+      modal?.classList.add("hidden");
+      overlay?.classList.remove("show");
+      overlay?.classList.add("hidden");
+    };
+  }
+}
+
+// Delete the selected event (local first, then backend best-effort)
+async function handleDeleteEvent(arg) {
+  const id = typeof arg === "object" ? arg.id : arg;
+  const key = typeof arg === "object" ? arg.key : undefined;
+
+  let all = [];
+  try {
+    all = await fetchCustomEvents();
+  } catch (e) {
+    console.warn("fetchCustomEvents failed in handleDeleteEvent:", e);
+  }
+  if (!Array.isArray(all) || all.length === 0) {
+    try {
+      all = loadCustomEvents() || [];
+    } catch {}
+  }
+
+  const victim = all.find((e) => _matches(e, id, key));
+  if (!victim) {
+    console.error("Delete: event not found.", { id, key });
+    return;
+  }
+
+  // Remove from local
+  try {
+    const local = Array.isArray(loadCustomEvents?.()) ? loadCustomEvents() : [];
+    const next = local.filter((e) => !_matches(e, victim.id, _eventKey(victim)));
+    saveCustomEvents(next);
+  } catch (err) {
+    console.warn("Local delete failed in handleDeleteEvent:", err);
+  }
+
+  // Best-effort backend delete (by date)
+  try {
+    if (victim.date) {
+      await deleteCustomEvent(victim.date);
+    }
+  } catch (err) {
+    console.warn("Backend delete warning:", err);
+  }
+
+  // Refresh the list if a renderer exists
+  try {
+    window.renderCustomEventsList?.();
+  } catch {}
 }
