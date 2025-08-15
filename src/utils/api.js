@@ -26,7 +26,13 @@ function url(path, params) {
 }
 
 async function get(path, params) {
-  const res = await fetch(url(path, params), { headers: { Accept: "application/json" } });
+  const res = await fetch(
+    url(path, params),
+    {
+      headers: { Accept: "application/json", "Cache-Control": "no-store" },
+      cache: "no-store"
+    }
+  );
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return res.json();
 }
@@ -48,8 +54,8 @@ export const api = {
   eclipseEvents:    () => get('/api/eclipse-events'),
   nationalHolidays: () => get('/api/national-holidays'),
 
-  // custom events
-  customEvents:   () => get('/api/custom-events'),
+  // add a cache-busting query param so CF never serves a stale list
+  customEvents:   () => get('/api/custom-events', { t: Date.now() }),
   addCustomEvent: (evt) => post('/api/custom-events', evt),
 };
 
