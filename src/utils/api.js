@@ -1,13 +1,22 @@
 const RAW_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
-// If RAW_BASE is empty, use the current origin so relative paths work in dev with Vite's proxy
+// If RAW_BASE is empty, use the current origin so relative paths work in dev with Vite's proxy (or CF Pages Functions).
 const API_BASE = RAW_BASE || (typeof window !== "undefined" ? window.location.origin : "");
 if (!RAW_BASE && import.meta.env.DEV) {
   console.warn('[LunarAlmanac] VITE_API_BASE is empty; using same-origin with Vite proxy.');
 }
 
+/**
+ * Normalize request path:
+ * - In dev (no RAW_BASE), we keep "/api/..." so the Vite proxy (or CF Pages Functions) can rewrite it.
+ * - In prod with an explicit RAW_BASE (Render backend), strip the leading "/api" segment.
+ */
+function normalizePath(path) {
+  return (RAW_BASE && path.startsWith("/api")) ? path.replace(/^\/api/, "") : path;
+}
+
 function url(path, params) {
-  // Build a fully qualified URL against API_BASE (or current origin in dev)
-  const u = new URL(path, API_BASE);
+  // Build a fully qualified URL against API_BASE
+  const u = new URL(normalizePath(path), API_BASE);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       if (v !== undefined && v !== null && v !== "") u.searchParams.set(k, v);

@@ -34,3 +34,7 @@ static/
 
 # --- service worker maps (optional) ---
 workbox-*.js.map
+
+# Python cache
+__pycache__/
+*.pyc
