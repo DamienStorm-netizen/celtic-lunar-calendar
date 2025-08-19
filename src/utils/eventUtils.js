@@ -14,7 +14,8 @@ export function getEventIcon(event) {
       "🏥 Health": "🏥",
       "💜 Romantic": "💜",
       "🖥️ Professional": "🖥️",
-      "🔥 Date": "🔥"
+      "🔥 Date": "🔥",
+      "🎂 Birthday": "🎂"
     };
   
     if (event.type === "custom-event" && event.category) {

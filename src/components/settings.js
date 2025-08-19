@@ -140,34 +140,50 @@ export function renderSettings() {
 
             <!-- Mystical Preferences -->
             <section id="mystical-settings">
-                <h2>🔮 Mystical Preferences</h2>
-                <p class="settings-subheader">Fine-tune your Almanac.</p>
+              <h2>🔮 Mystical Preferences</h2>
+              <p class="settings-subheader">Fine-tune your Almanac.</p>
 
-                <ul class="mystical-list">
-                    <li class="mystical-toggle">
-                        <span>Show National Holidays</span>
-                        <label class="switch">
-                        <input type="checkbox" id="show-holidays" data-on="🎉" data-off="🧾" />
-                        <span class="slider round"></span>
-                        </label>
-                    </li>
+              <ul class="mystical-list">
+                <li class="mystical-toggle">
+                  <span>Show National Holidays</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-holidays" data-on="🎉" data-off="🧾" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
 
-                    <li class="mystical-toggle">
-                        <span>Show Custom Events</span>
-                        <label class="switch">
-                        <input type="checkbox" id="show-custom-events" data-on="💜" data-off="🖤" />
-                        <span class="slider round"></span>
-                        </label>
-                    </li>
+                <li class="mystical-toggle">
+                  <span>Show Custom Events</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-custom-events" data-on="💜" data-off="🖤" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
 
-                    <li class="mystical-toggle">
-                        <span>Show Past Events</span>
-                        <label class="switch">
-                        <input type="checkbox" id="show-past-events" data-on="🕰️" data-off="🚫" />
-                        <span class="slider round"></span>
-                        </label>
-                    </li>
-                </ul>
+                <li class="mystical-toggle">
+                  <span>Show Moon Phases</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-moons" data-on="🌕" data-off="🌘" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
+
+                <li class="mystical-toggle">
+                  <span>Show Eclipses</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-eclipses" data-on="🌑" data-off="☀️" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
+
+                <li class="mystical-toggle">
+                  <span>Show Past Events</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-past-events" data-on="🕰️" data-off="🚫" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
+              </ul>
             </section>
 
             <br />
@@ -188,16 +204,17 @@ export function renderSettings() {
 
 // 🌟 Updated: Display mystical preferences including Custom Events
 export function getMysticalPrefs() {
-    const saved = localStorage.getItem("mysticalPrefs");
-    const defaults = {
-        mysticalSuggestions: true,
-        showHolidays: true,
-        showCustomEvents: true, // ✅ This line makes all the difference
-        showPastEvents: false,
-        showConstellations: true
-    };
-
-    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+  const saved = localStorage.getItem("mysticalPrefs");
+  const defaults = {
+    mysticalSuggestions: true,
+    showHolidays: true,
+    showCustomEvents: true,
+    showMoons: true,        // ✅ new default
+    showEclipses: true,     // ✅ new default
+    showPastEvents: false,
+    showConstellations: true
+  };
+  return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
 }
 
 // Function to show add event modal
@@ -490,7 +507,6 @@ async function handleEditEventSubmit(event) {
 }
 
 export function attachEventHandlers() {
-
   // Add a Custom Event
   const addBtn = document.getElementById("add-event-button");
   if (addBtn) {
@@ -539,6 +555,26 @@ export function attachEventHandlers() {
     });
   }
 
+  const showMoons = document.getElementById("show-moons");
+  if (showMoons) {
+    showMoons.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showMoons = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
+    });
+  }
+
+  const showEclipses = document.getElementById("show-eclipses");
+  if (showEclipses) {
+    showEclipses.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showEclipses = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
+    });
+  }
+
   const showPast = document.getElementById("show-past-events");
   if (showPast) {
     showPast.addEventListener("change", (e) => {
@@ -548,6 +584,13 @@ export function attachEventHandlers() {
       applyMysticalSettings(prefs);
     });
   }
+
+  // Ensure the switches reflect saved prefs when Settings opens
+  _syncMysticalToggleUI();
+
+  // Initialize the Gregorian → Lunar picker and ensure toggle icons sync for iPad/Safari
+  initConversionPicker();
+  _syncToggleIcons();
 }
 
 export function saveMysticalPrefs(prefs) {
@@ -579,6 +622,78 @@ export function setupSettingsEvents() {
       { passive: true }
     );
   }
+}
+
+// Keep toggle UI in sync with saved preferences
+function _syncMysticalToggleUI() {
+  const prefs = getMysticalPrefs();
+  const map = {
+    "show-holidays": prefs.showHolidays,
+    "show-custom-events": prefs.showCustomEvents,
+    "show-moons": prefs.showMoons,
+    "show-eclipses": prefs.showEclipses,
+    "show-past-events": prefs.showPastEvents
+  };
+  Object.entries(map).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!val;
+  });
+}
+
+/**
+ * Copy data-on/off from the input onto the .slider so CSS on iPad/Safari
+ * can read the correct icon for each toggle.
+ */
+function _syncToggleIcons() {
+  document.querySelectorAll("#mystical-settings .mystical-toggle .switch").forEach(label => {
+    const input  = label.querySelector("input[type='checkbox']");
+    const slider = label.querySelector(".slider");
+    if (!input || !slider) return;
+    const on  = input.getAttribute("data-on");
+    const off = input.getAttribute("data-off");
+    if (on)  slider.setAttribute("data-on", on);
+    if (off) slider.setAttribute("data-off", off);
+  });
+}
+
+/**
+ * Initialize flatpickr for the "Gregorian → Lunar" converter input
+ * and update the rendered lunar date when the user picks a date.
+ */
+function initConversionPicker() {
+  const input = document.getElementById("convert-to-celtic");
+  const outEl = document.querySelector(".converted-date");
+  if (!input || !outEl || typeof flatpickr !== "function") {
+    // Nothing to wire up (or flatpickr not loaded on this view)
+    return;
+  }
+
+  // iOS-friendly: prevent keyboard from covering the picker
+  input.setAttribute("readonly", "readonly");
+  input.setAttribute("aria-haspopup", "dialog");
+
+  const fp = flatpickr(input, {
+    altInput: true,
+    altFormat: "F j, Y",
+    dateFormat: "Y-m-d",
+    allowInput: false,
+    clickOpens: true,
+    theme: "moonveil",
+    onChange: (_selectedDates, dateStr) => {
+      if (!dateStr) return;
+      try {
+        const weekday = getCelticWeekdayFromGregorian(dateStr);
+        const lunar   = convertGregorianToCeltic(dateStr);
+        outEl.textContent = `${weekday}, ${lunar}`;
+      } catch (err) {
+        console.warn("Failed to convert picked date → lunar:", err);
+      }
+    }
+  });
+
+  // Make sure it opens on tap/click/focus (esp. on iPad)
+  input.addEventListener("click", () => fp.open());
+  input.addEventListener("focus", () => fp.open(), { once: true });
 }
 
 // Utility: build our stable composite key

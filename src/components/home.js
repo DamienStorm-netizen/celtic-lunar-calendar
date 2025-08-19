@@ -4,13 +4,13 @@ import { getEventIcon } from "../utils/eventUtils.js";
 import { getMysticalPrefs } from "./settings.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
-import { starFieldSVG } from "../constants/starField.js";
 import { api } from "../utils/api.js";
+import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
+import { showDayModal } from "./calendar.js";
 
 import {
   getCelticWeekday,
   convertCelticToGregorian,
-  isLeapYear,
   convertGregorianToCeltic,
   getCelticWeekdayFromGregorian
 } from "../utils/dateUtils.js";
@@ -87,7 +87,7 @@ function findZodiacByGregorian(isoDate, zodiacArray) {
 export function renderHome() {
     // Return the HTML and then in the next tickß attach overlay & swipe
     const html = `
-        <section class="home" class="fade-in">
+        <section class="home fade-in">
             <div id="modal-overlay" class="modal-overlay hidden"></div>
             <div class="celtic-date"></div>
             <div class="celtic-info-container">
@@ -147,7 +147,7 @@ export function renderHome() {
 
                 <div id="birthdayResults" class="birthday-results hidden">
                 <p><strong>Your Lunar Birthday is </strong> <span id="lunarDateOutput"></span></p>
-                <img class="birthdayZodiacImage" src="/assets/images/zodiac/zodiac-willow.png" alt="Willow" />
+                <img class="birthdayZodiacImage" src="" alt="" style="display:none;" />
                 <p><strong>Your Celtic Zodiac Sign:</strong> <span id="celticSignOutput"></span></p>
                 <p id="traitsParagraph" class="hidden">
                   <strong>Zodiac Traits:</strong>
@@ -222,8 +222,13 @@ export function renderHome() {
         revealBtn.addEventListener("click", async () => {
           if (!birthdateInput.value) return;
           const isoDate = birthdateInput.value; // "YYYY-MM-DD"
+
           // Lunar date using our existing utility
-          const lunarDate = convertGregorianToCeltic(isoDate);
+          let lunarDate = convertGregorianToCeltic(isoDate);
+          if (!lunarDate || /unknown/i.test(lunarDate)) {
+            lunarDate = computeCelticFromGregorianLoose(isoDate);
+          }
+
           // Fetch all signs and pick matching by month/day
           let signName = "";
          try {
@@ -246,6 +251,14 @@ export function renderHome() {
           document.getElementById("celticSignOutput").textContent = signName;
           document.getElementById("traitsOutput").textContent = traits;
           resultsBox.classList.remove("hidden");
+          // Set birthday zodiac image now that we know the sign
+          const imgEl = document.querySelector(".birthdayZodiacImage");
+          if (imgEl && signName) {
+            const slug = slugifyCharm(signName).toLowerCase();
+            imgEl.src = `/assets/images/zodiac/zodiac-${slug}.png`;
+            imgEl.alt = signName;
+            imgEl.style.removeProperty("display");
+          }
         });
 
         // Hook up Add to Calendar button
@@ -278,7 +291,11 @@ export function renderHome() {
               fetchComingEvents();
               // SweetAlert2 confirmation instead of alert
               const wd    = getCelticWeekdayFromGregorian(isoDate);
-              const lunar = convertGregorianToCeltic(isoDate);
+              const lunarAttempt = convertGregorianToCeltic(isoDate);
+              const lunar = (!lunarAttempt || /unknown/i.test(lunarAttempt))
+                ? computeCelticFromGregorianLoose(isoDate)
+                : lunarAttempt;
+                
               if (typeof Swal !== "undefined" && Swal.fire) {
                 Swal.fire({
                   icon: 'success',
@@ -390,7 +407,7 @@ export async function fetchCelticZodiac() {
       container.innerHTML = `
         <div class="zodiac-modal-trigger" data-zodiac="${signName}">
           <img class="celtic-zodiac-image"
-               src="/assets/images/zodiac/zodiac-${signName.toLowerCase()}.png"
+               src="/assets/images/zodiac/zodiac-${slugifyCharm(signName).toLowerCase()}.png"
                alt="${signName}" />
           <p>${signName}</p>
         </div>
@@ -493,7 +510,7 @@ export function getUnnamedMoonPoem() {
         const pad = (n) => String(n).padStart(2, "0");
         const upcomingDates = [];
     
-        // 3) Generate next 5 days in YYYY-MM-DD
+        // 3) Generate next 7 days in YYYY-MM-DD
         for (let i = 0; i < 7; i++) {
           const d = new Date(todayDate);
           d.setUTCDate(todayDate.getUTCDate() + i);
@@ -502,7 +519,7 @@ export function getUnnamedMoonPoem() {
           const dd = pad(d.getUTCDate());
           upcomingDates.push(`${y}-${m}-${dd}`);
       }
-        console.log("Next 5 Gregorian Dates:", upcomingDates);
+        console.log("Next 7 Gregorian Dates:", upcomingDates);
     
         // 4) Fetch all data in parallel
         const [festivals, lunarData, holidays, customEvents, eclipses] = await Promise.all([
@@ -547,13 +564,11 @@ export function getUnnamedMoonPoem() {
           const moonEvent = lunarData.find(m => m.date === date && m.phase === "Full Moon");
           if (moonEvent) {
             // Use helper to see if the date is inside a named-moon window
-            const named = getNamedMoonForDate(date, 2);  // ±2 days → 5-day span
+           const named = (typeof getNamedMoonForDate === "function") ? getNamedMoonForDate(date, 2) : null;
             upcomingEvents.push({
               type: "full-moon",
-              title: named ? named.name : (moonEvent.moonName || "Full Moon"),
-              description: named
-                ? (named.description || "A night of celestial power.")
-                : (moonEvent.description || "A night of celestial power."),
+              title: named?.name || moonEvent.moonName || "Full Moon",
+              description: named?.description || moonEvent.description || "A night of celestial power.",
               date
             });
           }
@@ -617,8 +632,8 @@ export function getUnnamedMoonPoem() {
       /* 🎭 Apply mystical filters (Settings)*/
       const filteredEvents = upcomingEvents.filter(event => {
           if (event.type === "holiday" && !prefs.showHolidays) return false;
-          if (event.type === "full-moon" && !prefs.showMoons) return false;
-          if (event.type === "eclipse" && !prefs.showEclipses) return false;
+          if (event.type === "full-moon" && prefs.showMoons === false) return false;
+          if (event.type === "eclipse" && prefs.showEclipses === false) return false;
           if (event.type === "custom-event" && !prefs.showCustomEvents) return false;
           return true; // Keep everything else
       });
@@ -651,45 +666,92 @@ export function getUnnamedMoonPoem() {
       }
 }
 
+// Reusable boundaries for Celtic months (month indices are 0-based)
+const CELTIC_BOUNDS = [
+  { name: "Janus",   start: [0, 20],  end: [1, 16] },  // Jan 20 – Feb 16
+  { name: "Brigid",  start: [1, 17],  end: [2, 16] },  // Feb 17 – Mar 16
+  { name: "Flora",   start: [2, 17],  end: [3, 13] },  // Mar 17 – Apr 13
+  { name: "Maia",    start: [3, 14],  end: [4, 11] },  // Apr 14 – May 11
+  { name: "Juno",    start: [4, 12],  end: [5, 8]  },  // May 12 – Jun 8
+  { name: "Solis",   start: [5, 9],   end: [6, 6]  },  // Jun 9 – Jul 6
+  { name: "Terra",   start: [6, 7],   end: [7, 3]  },  // Jul 7 – Aug 3
+  { name: "Lugh",    start: [7, 4],   end: [7, 31] },  // Aug 4 – Aug 31
+  { name: "Pomona",  start: [8, 1],   end: [8, 28] },  // Sep 1 – Sep 28
+  { name: "Autumna", start: [8, 29],  end: [9, 26] },  // Sep 29 – Oct 26
+  { name: "Eira",    start: [9, 27],  end: [10, 23] }, // Oct 27 – Nov 23
+  { name: "Aether",  start: [10, 24], end: [11, 21] }, // Nov 24 – Dec 21
+  { name: "Nivis",   start: [11, 22], end: [0, 19] }   // Dec 22 – Jan 19
+];
+
+// Fallback: compute Celtic "Month Day" from a Gregorian ISO string using CELTIC_BOUNDS
+function computeCelticFromGregorianLoose(dateStr) {
+  const iso = toISODate(dateStr);
+  if (!iso) return "Unknown Date";
+  const [year, month, day] = iso.split("-").map(Number);
+  const monthIndex = month - 1;
+
+  // Find the Celtic entry that contains this Gregorian date
+  let entryFound = null;
+  for (const entry of CELTIC_BOUNDS) {
+    const [sM, sD] = entry.start;
+    const [eM, eD] = entry.end;
+    const afterStart = (monthIndex > sM) || (monthIndex === sM && day >= sD);
+    const beforeEnd  = (monthIndex < eM) || (monthIndex === eM && day <= eD);
+    const inRange = sM <= eM ? (afterStart && beforeEnd) : (afterStart || beforeEnd);
+    if (inRange) { entryFound = entry; break; }
+  }
+  if (!entryFound) return "Unknown Date";
+
+  const [sM, sD] = entryFound.start;
+  const [eM] = entryFound.end;
+
+  // Determine the actual start year if the range wraps year-end
+  let startYear = year;
+  if (sM > eM) { // wraps across December -> January
+    if (monthIndex <= eM) startYear = year - 1;
+  }
+
+  const start = new Date(Date.UTC(startYear, sM, sD));
+  const target = new Date(Date.UTC(year, monthIndex, day));
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  const diffDays = Math.floor((target - start) / ONE_DAY) + 1; // 1-indexed
+  const dayInCeltic = Math.max(1, Math.min(28, diffDays));     // clamp to 1..28
+
+  return `${entryFound.name} ${dayInCeltic}`;
+}
+
 
 function getCelticMonthFromDate(dateStr) {
-    // Assuming your cleanDate is in format "2025-04-09"
-    const [year, month, day] = dateStr.split("-").map(Number);
-    const dateObj = new Date(year, month - 1, day);
-    const dayOfMonth = dateObj.getDate();
-    const monthIndex = dateObj.getMonth();
-  
-    // 🎑 Your Celtic mapping logic
-    const celticMap = [
-      { name: "Janus", start: [0, 20], end: [1, 16] },
-      { name: "Brigid", start: [1, 17], end: [2, 16] },
-      { name: "Flora",  start: [2, 17], end: [3, 13] },
-      { name: "Maia",   start: [4, 14], end: [5, 11] },
-      { name: "Juno",   start: [5, 12], end: [6, 8] },
-      { name: "Solis",  start: [6, 9],  end: [7, 6] },
-      { name: "Terra",  start: [7, 7],  end: [8, 3] },
-      { name: "Lugh",   start: [8, 4],  end: [8, 31] },
-      { name: "Pomona", start: [9, 1],  end: [9, 28] },
-      { name: "Autumna",start: [9, 29], end: [10, 26] },
-      { name: "Eira",   start: [10, 27], end: [11, 23] },
-      { name: "Aether", start: [11, 24], end: [12, 21] },
-      { name: "Nivis",  start: [12, 22], end: [0, 19] }
-    ];
-  
-    for (const entry of celticMap) {
-      const [startMonth, startDay] = entry.start;
-      const [endMonth, endDay] = entry.end;
-  
-      const afterStart = (monthIndex > startMonth) || (monthIndex === startMonth && dayOfMonth >= startDay);
-      const beforeEnd = (monthIndex < endMonth) || (monthIndex === endMonth && dayOfMonth <= endDay);
-  
-      if (startMonth <= endMonth ? afterStart && beforeEnd : afterStart || beforeEnd) {
-        return entry.name;
-      }
-    }
-  
-    return "Janus"; // fallback
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const dateObj = new Date(year, month - 1, day);
+  const dayOfMonth = dateObj.getDate();
+  const monthIndex = dateObj.getMonth(); // 0-based
+
+  const celticMap = [
+    { name: "Janus",   start: [0, 20],  end: [1, 16] },  // Jan 20 – Feb 16
+    { name: "Brigid",  start: [1, 17],  end: [2, 16] },  // Feb 17 – Mar 16
+    { name: "Flora",   start: [2, 17],  end: [3, 13] },  // Mar 17 – Apr 13
+    { name: "Maia",    start: [3, 14],  end: [4, 11] },  // Apr 14 – May 11
+    { name: "Juno",    start: [4, 12],  end: [5, 8]  },  // May 12 – Jun 8
+    { name: "Solis",   start: [5, 9],   end: [6, 6]  },  // Jun 9 – Jul 6
+    { name: "Terra",   start: [6, 7],   end: [7, 3]  },  // Jul 7 – Aug 3
+    { name: "Lugh",    start: [7, 4],   end: [7, 31] },  // Aug 4 – Aug 31
+    { name: "Pomona",  start: [8, 1],   end: [8, 28] },  // Sep 1 – Sep 28
+    { name: "Autumna", start: [8, 29],  end: [9, 26] },  // Sep 29 – Oct 26
+    { name: "Eira",    start: [9, 27],  end: [10, 23] }, // Oct 27 – Nov 23
+    { name: "Aether",  start: [10, 24], end: [11, 21] }, // Nov 24 – Dec 21
+    { name: "Nivis",   start: [11, 22], end: [0, 19] }   // Dec 22 – Jan 19
+  ];
+
+  for (const entry of celticMap) {
+    const [sM, sD] = entry.start;
+    const [eM, eD] = entry.end;
+    const afterStart = (monthIndex > sM) || (monthIndex === sM && dayOfMonth >= sD);
+    const beforeEnd  = (monthIndex < eM) || (monthIndex === eM && dayOfMonth <= eD);
+    if (sM <= eM ? (afterStart && beforeEnd) : (afterStart || beforeEnd)) return entry.name;
   }
+  return "Janus";
+}
 
   // Fetch upcoming festivals based on the Celtic calendar
 export async function fetchFestivals() {
@@ -705,7 +767,7 @@ export async function fetchFestivals() {
             type: "festival",
             title: day.name,
             description: day.description || "A sacred celebration.",
-            date: new Date(day.date).toISOString().split('T')[0]  // Normalize format
+            date: toISODate(day.date) || String(day.date).slice(0, 10)  // Normalize format
         }));
 
         console.log('📅 Festival data processed:', festivalData);
@@ -894,25 +956,6 @@ export function populateComingEventsCarousel(events) {
 
     carouselContainer.innerHTML = ""; // Clear previous slides
 
-    const typeIconMap = {
-        "festival": "🔥",
-        "full-moon": "🌕",
-        "eclipse": "🌑",
-        "holiday": "🎊"
-    };
-
-    // Generate featured icon for custom event slide
-    const iconMap = {
-        "😎 Friends": "😎",
-        "🎉 Celebrations": "🎉",
-        "🌸 My Cycle": "🌸",
-        "💡 General": "💡",
-        "🏥 Health": "🏥",
-        "💜 Romantic": "💜",
-        "🖥️ Professional": "🖥️",
-        "🔥 Date": "🔥" // If you use custom labels
-      };
-
     events.forEach((event, index) => {
         const slide = document.createElement("div");
         slide.classList.add("coming-events-slide");
@@ -936,6 +979,10 @@ export function populateComingEventsCarousel(events) {
         carouselContainer.appendChild(slide);
     });
 
+    // Ensure arrows are visible when we have events
+    document.querySelector(".coming-events-carousel-prev")?.classList.remove("hidden");
+    document.querySelector(".coming-events-carousel-next")?.classList.remove("hidden");
+
     //Fallback poetry for carousel
     if (!Array.isArray(events) || events.length === 0) {
         // 🔮 Hide arrows when no events exist
@@ -945,15 +992,6 @@ export function populateComingEventsCarousel(events) {
             leftArrow.classList.add("hidden");
             rightArrow.classList.add("hidden");
         }
-
-        const mysticalMessages = [
-            "💫 The stars whisper, but no great events stir. The journey continues in quiet contemplation... 💫",
-            "✨ The wind carries no omens today, only the gentle breath of the earth. Rest in the rhythm of the moment. ✨",
-            "🔮 The threads of fate are still weaving. In the quiet, new paths may emerge... 🔮",
-            "🦉 Even in stillness, the world turns. The wise ones know that the silence holds its own kind of magic. 🦉",
-            "🔥 No great fires are lit, no grand feasts are planned, but the embers of time still glow beneath the surface. 🔥",
-            "🌟 Tonight, the universe is quiet, waiting. Perhaps the next moment holds something unseen... 🌟"
-        ];
         
         const message = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)];
         carouselContainer.innerHTML = `
@@ -973,6 +1011,11 @@ export function initializeCarouselNavigation() {
     const nextButton = document.querySelector(".coming-events-carousel-next");
     let currentSlide = 0;
     let autoScroll;
+
+    if (slides.length <= 1) {
+      slides[0]?.classList.add("active");
+      return;
+    }
 
     function showSlide(index) {
         slides.forEach((slide, i) => {
@@ -1033,83 +1076,86 @@ export function getMonthNumber(monthName) {
     return months[monthName] || null;
 }
 
+if (!window.__HOME_WIRED__) {
 
-document.addEventListener("DOMContentLoaded", async () => {
-    console.log("🏡 Home screen loaded, fetching upcoming events...");
-    await fetchComingEvents(); // ✅ this already calls populateComingEventsCarousel internally
-});
-
-// 🌟 Attach modal close handler only once
-document.addEventListener('click', (e) => {
-    if (
-      e.target.classList.contains('close-button-home') ||
-      e.target.classList.contains('mystical-close') ||
-      e.target.id === 'modal-overlay'
-    ) {
-      console.log("✨ Closing the Zodiac Modal...");
-      document.getElementById('home-zodiac-modal').classList.remove('show');
-      document.getElementById('home-zodiac-modal').classList.add('hidden');
-
-      document.body.classList.remove('modal-open');
-  
-      const overlay = document.getElementById('modal-overlay');
-      if (overlay) {
-        overlay.classList.add('hidden');
-        overlay.classList.remove('show');
-      } else {
-        console.log("🌫️ Cannot find overlay");
-      }
-    }
+  document.addEventListener("DOMContentLoaded", async () => {
+      console.log("🏡 Home screen loaded, fetching upcoming events...");
+      await fetchComingEvents(); // ✅ this already calls populateComingEventsCarousel internally
   });
 
-// 🌟 Zodiac modal trigger
-document.addEventListener('click', async (e) => {
-    if (e.target.closest('.zodiac-modal-trigger')) {
-      const trigger = e.target.closest('.zodiac-modal-trigger');
-      const signName = trigger.dataset.zodiac;
-  
-      console.log("🔮 Zodiac Trigger Clicked!", signName);
-  
-      try {
-        // Use the data we already loaded from /api/calendar-data
-        const zodiacArray =
-          window.__ALL_ZODIAC || (await api.calendarData()).zodiac;
+  // 🌟 Attach modal close handler only once
+  document.addEventListener('click', (e) => {
+      if (
+        e.target.classList.contains('close-button-home') ||
+        e.target.classList.contains('mystical-close') ||
+        e.target.id === 'modal-overlay'
+      ) {
+        console.log("✨ Closing the Zodiac Modal...");
+        document.getElementById('home-zodiac-modal').classList.remove('show');
+        document.getElementById('home-zodiac-modal').classList.add('hidden');
 
-        const data = zodiacArray.find(
-          z => z.name.toLowerCase() === signName.toLowerCase()
-        );
-
-        if (!data) {
-          console.error("No zodiac insight found for:", signName);
-          return;
-        }
-  
-        // Inject modal content
-        document.getElementById('home-zodiac-modal-details').innerHTML = `
-          <h2 id="zodiac-name">${data.name}</h2>
-          <p id="zodiac-date-range">${data.celtic_date}</p>
-          <img id="zodiac-image" src="/assets/images/zodiac/zodiac-${data.name.toLowerCase()}.png" alt="${data.name}" />
-          <h3 class="subheader">Three Key Traits</h3>
-          <p id="zodiac-traits">${data.symbolism}</p>
-          <h3 class="subheader">Associated Element</h3>
-          <p id="zodiac-element">${data.element}</p>
-          <h3 class="subheader">Associated Animal</h3>
-          <p id="zodiac-animal">${data.animal}</p>
-          <a class="home-modal-btn" href="${data.url || '#'}" target="_blank" rel="noopener noreferrer" style="${data.url ? '' : 'display:none;'}">Learn More</a>
-        `;
-  
-        // Show modal + overlay
-        const modal = document.getElementById('home-zodiac-modal');
+        document.body.classList.remove('modal-open');
+    
         const overlay = document.getElementById('modal-overlay');
-        modal.classList.remove('hidden');
-        modal.classList.add('show');
-        overlay?.classList.remove('hidden');
-        overlay?.classList.add('show');
-
-        document.body.classList.add('modal-open');
-  
-      } catch (err) {
-        console.error("Failed to load zodiac insight:", err);
+        if (overlay) {
+          overlay.classList.add('hidden');
+          overlay.classList.remove('show');
+        } else {
+          console.log("🌫️ Cannot find overlay");
+        }
       }
-    }
-  });
+    });
+
+  // 🌟 Zodiac modal trigger
+  document.addEventListener('click', async (e) => {
+      if (e.target.closest('.zodiac-modal-trigger')) {
+        const trigger = e.target.closest('.zodiac-modal-trigger');
+        const signName = trigger.dataset.zodiac;
+    
+        console.log("🔮 Zodiac Trigger Clicked!", signName);
+    
+        try {
+          // Use the data we already loaded from /api/calendar-data
+          const zodiacArray =
+            window.__ALL_ZODIAC || (await api.calendarData()).zodiac;
+
+          const data = zodiacArray.find(
+            z => z.name.toLowerCase() === signName.toLowerCase()
+          );
+
+          if (!data) {
+            console.error("No zodiac insight found for:", signName);
+            return;
+          }
+    
+          // Inject modal content
+          document.getElementById('home-zodiac-modal-details').innerHTML = `
+            <h2 id="zodiac-name">${data.name}</h2>
+            <p id="zodiac-date-range">${data.celtic_date}</p>
+            <img id="zodiac-image" src="/assets/images/zodiac/zodiac-${slugifyCharm(signName).toLowerCase()}.png" alt="${data.name}" />
+            <h3 class="subheader">Three Key Traits</h3>
+            <p id="zodiac-traits">${data.symbolism}</p>
+            <h3 class="subheader">Associated Element</h3>
+            <p id="zodiac-element">${data.element}</p>
+            <h3 class="subheader">Associated Animal</h3>
+            <p id="zodiac-animal">${data.animal}</p>
+            <a class="home-modal-btn" href="${data.url || '#'}" target="_blank" rel="noopener noreferrer" style="${data.url ? '' : 'display:none;'}">Learn More</a>
+          `;
+    
+          // Show modal + overlay
+          const modal = document.getElementById('home-zodiac-modal');
+          const overlay = document.getElementById('modal-overlay');
+          modal.classList.remove('hidden');
+          modal.classList.add('show');
+          overlay?.classList.remove('hidden');
+          overlay?.classList.add('show');
+
+          document.body.classList.add('modal-open');
+    
+        } catch (err) {
+          console.error("Failed to load zodiac insight:", err);
+        }
+      }
+    });
+    window.__HOME_WIRED__ = true;
+} 

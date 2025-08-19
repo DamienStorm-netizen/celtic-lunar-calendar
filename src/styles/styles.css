@@ -1567,11 +1567,22 @@ blockquote.moon-poem {
 }
 
 /* 💜 Custom Event Day */
+
 .custom-holiday-day {
   background-color: rgba(30, 144, 255, 0.5) !important;
   color: #fff;
   font-weight: bold;
   box-shadow: 0 0 10px rgba(103, 58, 183, 0.8);
+  border-radius: 5px;
+}
+
+/* 💙 National Holiday (blue) */
+.calendar-grid td.national-holiday,
+.national-holiday.legendBox {
+  background: linear-gradient(135deg, rgba(30, 144, 255, 0.9) 0%, rgba(65, 105, 225, 0.95) 100%);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(30, 144, 255, 0.75);
   border-radius: 5px;
 }
 
@@ -2014,6 +2025,8 @@ blockquote.moon-poem {
 .mystical-suggestion-block img {
   width: 250px;
 }
+
+
 
 .custom-event-icon {
   position: relative;
@@ -3656,6 +3669,87 @@ body.modal-open {
   font-weight: 400;
 }
 
+/* Stable layout for settings toggles (helps on iPad) */
+#mystical-settings .mystical-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+#mystical-settings .mystical-toggle > span {
+  flex: 1 1 auto;
+}
+#mystical-settings .mystical-toggle .switch {
+  flex: 0 0 auto;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Mystical Preferences — switch */
+.mystical-list .switch {
+  --w: 68px;
+  --h: 36px;
+  position: relative;
+  display: inline-block;
+  width: var(--w);
+  height: var(--h);
+}
+
+.mystical-list .switch input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mystical-list .switch .slider {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #7b3fe4;            /* your purple track */
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.15);
+  transition: background .25s ease;
+}
+
+/* knob */
+.mystical-list .switch .slider::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(var(--h) - 8px);
+  height: calc(var(--h) - 8px);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  transition: transform .25s ease;
+}
+
+/* icon (only one pseudo-element; we swap the content) */
+.mystical-list .switch .slider::after {
+  content: attr(data-off);         /* default (unchecked) */
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* when ON (checked), move knob right & change icon to data-on */
+.mystical-list .switch input:checked + .slider::before {
+  transform: translateX(calc(var(--w) - var(--h)));
+}
+
+.mystical-list .switch input:checked + .slider::after {
+  content: attr(data-on);
+}
+
 .mystical-toggle {
   display: flex;
   justify-content: space-between;
@@ -3721,7 +3815,6 @@ body.modal-open {
 
 .slider:before {
   position: absolute;
-  content: "✨";
   height: 22px;
   width: 22px;
   left: 4px;
@@ -3729,7 +3822,7 @@ body.modal-open {
   background-color: #f9f3ec;
   border-radius: 50%;
   transition: 0.4s;
-  font-size: 14px;
+  font-size: 14px;  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3744,7 +3837,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(22px);
-  content: "🔮";
+  content: attr(data-on);
 }
 
 /* Rounded version */
@@ -3950,4 +4043,9 @@ footer nav {
   .festival-slide {
     padding: 10px;
   }
+}
+
+/* iOS Safari: avoid weird input zoom/jank in custom controls */
+@supports (-webkit-touch-callout: none) {
+  #mystical-settings .switch input { font-size: 16px; }
 }
