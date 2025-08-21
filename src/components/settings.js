@@ -779,10 +779,10 @@ async function openEditModal(arg) {
       }
 
       // Best-effort backend update (keyed by date)
+      // Update by id (preferred) or composite key fallback
       try {
-        if (updated.date) {
-          await updateCustomEvent(updated.date, updated);
-        }
+        const targetId = updated.id || _eventKey(updated);
+        await updateCustomEvent(targetId, updated);
       } catch (err) {
         console.warn("Backend update warning:", err);
       }
@@ -844,13 +844,13 @@ async function handleDeleteEvent(arg) {
   }
 
   // Best-effort backend delete (by date)
-  try {
-    if (victim.date) {
-      await deleteCustomEvent(victim.date);
-    }
-  } catch (err) {
-    console.warn("Backend delete warning:", err);
-  }
+  // Delete by id (preferred) or composite key fallback
+try {
+  const targetId = victim.id || _eventKey(victim);
+  await deleteCustomEvent(targetId);
+} catch (err) {
+  console.warn("Backend delete warning:", err);
+}
 
   // Refresh the list if a renderer exists
   try {

@@ -61,32 +61,31 @@ export async function fetchCustomEvents() {
 }
 
 // Delete a custom event (best-effort; backend API remains authoritative).
-export async function deleteCustomEvent(date) {
+export async function deleteCustomEvent(idOrKey) {
   try {
-    const response = await fetch(`/api/custom-events/${encodeURIComponent(date)}`, {
+    const response = await fetch(`/api/custom-events/${encodeURIComponent(idOrKey)}`, {
       method: "DELETE",
       cache: "no-store",
       headers: { "Cache-Control": "no-store" }
     });
     if (!response.ok) throw new Error("Failed to delete event");
-    console.log(`Deleted event on ${date}`);
+    console.log(`Deleted event ${idOrKey}`);
     return true;
   } catch (error) {
     console.error("Error deleting event:", error);
   }
 }
 
-// Update an existing event
-export async function updateCustomEvent(date, updatedData) {
+export async function updateCustomEvent(idOrKey, updatedData) {
   try {
-    const response = await fetch(`/api/custom-events/${encodeURIComponent(date)}`, {
+    const response = await fetch(`/api/custom-events/${encodeURIComponent(idOrKey)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
       cache: "no-store",
       body: JSON.stringify(updatedData),
     });
     if (!response.ok) throw new Error("Failed to update event");
-    console.log(`Updated event on ${date}`);
+    console.log(`Updated event ${idOrKey}`);
     return true;
   } catch (error) {
     console.error("Error updating event:", error);
