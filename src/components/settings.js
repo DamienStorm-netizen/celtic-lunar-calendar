@@ -30,6 +30,14 @@ function showEventToast(id, gregorianDate) {
   };
 }
 
+// Utility: mark a button (or any element) as busy/idle
+function setBusy(el, isBusy = true) {
+  if (!el) return;
+  el.disabled = !!isBusy;
+  el.setAttribute("aria-busy", String(!!isBusy));
+  el.classList.toggle("is-busy", !!isBusy);
+}
+
 export function renderSettings() {
     return `
         <div id="settings-container" class="fade-in">
@@ -281,6 +289,12 @@ async function handleAddEventSubmit(event) {
         return;
     }
 
+    // Identify the submit button (works in all browsers)
+    const submitBtn =
+      event.submitter ||
+      document.querySelector("#add-event-form button[type='submit']");
+    setBusy(submitBtn, true);
+
     // Construct event object
     const newEvent = {
         id: Date.now().toString(),
@@ -414,6 +428,9 @@ async function handleAddEventSubmit(event) {
     } catch (error) {
         console.error("❌ Error adding event:", error);
         alert("Oops! Something went wrong while adding your event.");
+    } finally {
+      // always release the button
+      setBusy(submitBtn, false);
     }
 }
 
@@ -616,7 +633,7 @@ export function setupSettingsEvents() {
         if (btn.classList.contains("settings-edit-event")) {
           openEditModal(payload);
         } else if (btn.classList.contains("settings-delete-event")) {
-          handleDeleteEvent(payload);
+          handleDeleteEvent(payload, btn);
         }
       },
       { passive: true }
@@ -756,46 +773,51 @@ async function openEditModal(arg) {
     form.onsubmit = async (e) => {
       e.preventDefault();
 
-      const updated = {
-        ...evt,
-        title: nameEl?.value?.trim() || evt.title || evt.name || "",
-        name: nameEl?.value?.trim() || evt.name || evt.title || "",
-        category: typeEl?.value || evt.category || evt.type || "💡 General",
-        type: "custom-event",
-        date: dateEl?.value || evt.date,
-        notes: notesEl?.value ?? evt.notes ?? "",
-        recurring: !!recEl?.checked,
-      };
+      const saveBtn = e.submitter || form.querySelector(".save-event-btn");
+      setBusy(saveBtn, true);
 
-      // Update local first for instant UX
       try {
-        const local = Array.isArray(loadCustomEvents?.()) ? loadCustomEvents() : [];
-        const idx = local.findIndex((e) => _matches(e, evt.id, _eventKey(evt)));
-        if (idx >= 0) local[idx] = { ...local[idx], ...updated };
-        else local.push(updated);
-        saveCustomEvents(local);
-      } catch (err) {
-        console.warn("Local save failed in openEditModal:", err);
+        const updated = {
+          ...evt,
+          title: nameEl?.value?.trim() || evt.title || evt.name || "",
+          name: nameEl?.value?.trim() || evt.name || evt.title || "",
+          category: typeEl?.value || evt.category || evt.type || "💡 General",
+          type: "custom-event",
+          date: dateEl?.value || evt.date,
+          notes: notesEl?.value ?? evt.notes ?? "",
+          recurring: !!recEl?.checked,
+        };
+
+        // Update local first for instant UX
+        try {
+          const local = Array.isArray(loadCustomEvents?.()) ? loadCustomEvents() : [];
+          const idx = local.findIndex((e) => _matches(e, evt.id, _eventKey(evt)));
+          if (idx >= 0) local[idx] = { ...local[idx], ...updated };
+          else local.push(updated);
+          saveCustomEvents(local);
+        } catch (err) {
+          console.warn("Local save failed in openEditModal:", err);
+        }
+
+        // Best-effort backend update (keyed by date)
+        // Update by id (preferred) or composite key fallback
+        try {
+          const targetId = updated.id || _eventKey(updated);
+          await updateCustomEvent(targetId, updated);
+        } catch (err) {
+          console.warn("Backend update warning:", err);
+        }
+
+        // Hide modal and optionally refresh the list if a renderer exists
+        modal?.classList.remove("show");
+        modal?.classList.add("hidden");
+        overlay?.classList.remove("show");
+        overlay?.classList.add("hidden");
+
+        try { window.renderCustomEventsList?.(); } catch {}
+      } finally {
+        setBusy(saveBtn, false);
       }
-
-      // Best-effort backend update (keyed by date)
-      // Update by id (preferred) or composite key fallback
-      try {
-        const targetId = updated.id || _eventKey(updated);
-        await updateCustomEvent(targetId, updated);
-      } catch (err) {
-        console.warn("Backend update warning:", err);
-      }
-
-      // Hide modal and optionally refresh the list if a renderer exists
-      modal?.classList.remove("show");
-      modal?.classList.add("hidden");
-      overlay?.classList.remove("show");
-      overlay?.classList.add("hidden");
-
-      try {
-        window.renderCustomEventsList?.();
-      } catch {}
     };
   }
 
@@ -812,50 +834,47 @@ async function openEditModal(arg) {
 }
 
 // Delete the selected event (local first, then backend best-effort)
-async function handleDeleteEvent(arg) {
+async function handleDeleteEvent(arg, btnEl) {
   const id = typeof arg === "object" ? arg.id : arg;
   const key = typeof arg === "object" ? arg.key : undefined;
 
-  let all = [];
+  setBusy(btnEl, true); // NEW
+
   try {
-    all = await fetchCustomEvents();
-  } catch (e) {
-    console.warn("fetchCustomEvents failed in handleDeleteEvent:", e);
-  }
-  if (!Array.isArray(all) || all.length === 0) {
+    let all = [];
+    try { all = await fetchCustomEvents(); }
+    catch (e) { console.warn("fetchCustomEvents failed in handleDeleteEvent:", e); }
+    if (!Array.isArray(all) || all.length === 0) {
+      try { all = loadCustomEvents() || []; } catch {}
+    }
+
+    const victim = all.find((e) => _matches(e, id, key));
+    if (!victim) {
+      console.error("Delete: event not found.", { id, key });
+      return;
+    }
+
+    // Remove from local
     try {
-      all = loadCustomEvents() || [];
-    } catch {}
+      const local = Array.isArray(loadCustomEvents?.()) ? loadCustomEvents() : [];
+      const next = local.filter((e) => !_matches(e, victim.id, _eventKey(victim)));
+      saveCustomEvents(next);
+    } catch (err) {
+      console.warn("Local delete failed in handleDeleteEvent:", err);
+    }
+
+    // Backend delete (by id or composite key fallback)
+    try {
+      const targetId = victim.id || _eventKey(victim);
+      await deleteCustomEvent(targetId);
+    } catch (err) {
+      console.warn("Backend delete warning:", err);
+    }
+
+    try { window.renderCustomEventsList?.(); } catch {}
+  } finally {
+    setBusy(btnEl, false); // NEW
   }
-
-  const victim = all.find((e) => _matches(e, id, key));
-  if (!victim) {
-    console.error("Delete: event not found.", { id, key });
-    return;
-  }
-
-  // Remove from local
-  try {
-    const local = Array.isArray(loadCustomEvents?.()) ? loadCustomEvents() : [];
-    const next = local.filter((e) => !_matches(e, victim.id, _eventKey(victim)));
-    saveCustomEvents(next);
-  } catch (err) {
-    console.warn("Local delete failed in handleDeleteEvent:", err);
-  }
-
-  // Best-effort backend delete (by date)
-  // Delete by id (preferred) or composite key fallback
-try {
-  const targetId = victim.id || _eventKey(victim);
-  await deleteCustomEvent(targetId);
-} catch (err) {
-  console.warn("Backend delete warning:", err);
-}
-
-  // Refresh the list if a renderer exists
-  try {
-    window.renderCustomEventsList?.();
-  } catch {}
 }
 
 // Fetch and paint the settings list

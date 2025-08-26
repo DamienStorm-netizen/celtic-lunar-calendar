@@ -3,6 +3,7 @@ import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { initSwipe } from "../utils/swipeHandler.js";
 import { starFieldSVG } from "../constants/starField.js";
+import { getEventIcon } from "../utils/eventUtils.js";
 import { api } from "../utils/api.js";
 
 import {
@@ -22,6 +23,14 @@ async function initCalendar() {
 }
 
 initCalendar();
+
+// Busy helper (same as Settings)
+function setBusy(el, isBusy = true) {
+  if (!el) return;
+  el.disabled = !!isBusy;
+  el.setAttribute("aria-busy", String(!!isBusy));
+  el.classList.toggle("is-busy", !!isBusy);
+}
 
 // Helper: find the named full moon within ±windowDays (defaults to 1 day)
 export function getNamedMoonForDate(isoDate, windowDays = 1) {
@@ -443,68 +452,92 @@ function showModal(monthName) {
                 theme: "moonveil"
             });
 
-            document.getElementById("add-event-form").addEventListener("submit", async (e) => {
-              e.preventDefault();
+            // helper: disable/restore the submit button
+function setBusy(btn, on) {
+  if (!btn) return;
+  // remember original label once
+  if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+  btn.disabled = on;
+  btn.textContent = on ? "Saving…" : btn.dataset.label;
+}
 
-              const eventName = document.getElementById("event-name").value.trim();
-              const eventType = document.getElementById("event-type").value;
-              const eventDate = document.getElementById("event-date").value;
-              const eventNotes = document.getElementById("event-note").value.trim();
+const addForm = document.getElementById("add-event-form");
+if (addForm) {
+  addForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-              if (!eventName || !eventDate) {
-                alert("Please enter both an event name and date.");
-                return;
-              }
+    const submitBtn = e.submitter || addForm.querySelector(".add-event-button");
+    setBusy(submitBtn, true);
 
-              const newEvent = {
-                id: Date.now().toString(),
-                title: eventName,
-                type: eventType,
-                date: eventDate,
-                notes: eventNotes,
-                recurring: false
-              };
+    const eventName  = document.getElementById("event-name").value.trim();
+    const eventType  = document.getElementById("event-type").value;
+    const eventDate  = document.getElementById("event-date").value;
+    const eventNotes = document.getElementById("event-note").value.trim();
 
-              // Save to backend
-              const response = await fetch("/api/custom-events", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newEvent)
-              });
-              if (!response.ok) {
-                alert("Failed to add event.");
-                return;
-              }
+    if (!eventName || !eventDate) {
+      alert("Please enter both an event name and date.");
+      setBusy(submitBtn, false);
+      return;
+    }
 
-              // Refresh calendar events
-              await setupCalendarEvents();
+    // keep newEvent in scope for the SweetAlert branch
+    const newEvent = {
+      id: Date.now().toString(),
+      title: eventName,
+      type: "custom-event",     // <- consistent with Settings
+      category: eventType,       // <- use the selected value from the form
+      date: eventDate,
+      notes: eventNotes,
+      recurring: false
+    };
 
-              // Show confirmation via SweetAlert2
-              const wd    = getCelticWeekdayFromGregorian(eventDate);
-              const lunar = convertGregorianToCeltic(eventDate);
-              const [monthName, dayStr] = lunar.split(" ");
+    try {
+      // go through API helper so dev/prod just works
+      await api.addCustomEvent(newEvent);
 
-              Swal.fire({
-                icon: 'success',
-                title: `Event saved for ${wd}, ${lunar}`,
-                showCancelButton: true,
-                confirmButtonText: 'View Event'
-              }).then(result => {
-                if (result.isConfirmed) {
-                  // Open the day modal
-                  document.querySelector('.nav-link#nav-calendar').click();
-                  setTimeout(() => {
-                    showDayModal(parseInt(dayStr, 10), monthName, eventDate, newEvent.id);
-                    // highlight the newly added event slide
-                    const slideEl = document.querySelector(`.custom-event-slide[data-event-id="${newEvent.id}"]`);
-                    if (slideEl) {
-                      slideEl.classList.add('highlight-pulse');
-                      setTimeout(() => slideEl.classList.remove('highlight-pulse'), 2000);
-                    }
-                  }, 300);
-                }
-              });
-            });
+      // (optional) refresh the grid decorations for this month without re-wiring everything
+      // await enhanceCalendarTable(document.getElementById("modal-container"), lastOpenedMonth);
+
+      // ✅ Success UI
+      const wd    = getCelticWeekdayFromGregorian(eventDate);
+      const lunar = convertGregorianToCeltic(eventDate);
+
+      // Handle Mirabilis special case
+      let monthLabel, dayStr;
+      if (lunar.startsWith("Mirabilis")) {
+        monthLabel = "Mirabilis";
+        dayStr = lunar.includes("Noctis") ? "2" : "1";
+      } else {
+        [monthLabel, dayStr] = lunar.split(" ");
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: `Event saved for ${wd}, ${lunar}`,
+        showCancelButton: true,
+        confirmButtonText: "View Event"
+      }).then(result => {
+        if (result.isConfirmed) {
+          document.querySelector(".nav-link#nav-calendar").click();
+          setTimeout(() => {
+            showDayModal(parseInt(dayStr, 10), monthLabel, eventDate, newEvent.id);
+            const slideEl = document.querySelector(`.custom-event-slide[data-event-id="${newEvent.id}"]`);
+            if (slideEl) {
+              slideEl.classList.add("highlight-pulse");
+              setTimeout(() => slideEl.classList.remove("highlight-pulse"), 2000);
+            }
+          }, 300);
+        }
+      });
+
+    } catch (err) {
+      console.error("Add from calendar failed:", err);
+      alert("Oops! Couldn’t save that event. Please try again.");
+    } finally {
+      setBusy(submitBtn, false);
+    }
+  });
+}
         }
     }
 }
@@ -941,21 +974,34 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
             ? getMysticalPrefs()
             : { showEclipses: true };
 
-        // Generate featured icon for custom event slide
-        const iconMap = {
-            "😎 Friends": "😎",
-            "🎉 Celebrations": "🎉",
-            "🌸 My Cycle": "🌸",
-            "💡 General": "💡",
-            "🏥 Health": "🏥",
-            "💜 Romantic": "💜",
-            "🖥️ Professional": "🖥️",
-            "🔥 Date!!": "🔥" // If you use custom labels
-          };
+        
+        // grab the first emoji in a string (works for fire, hearts, etc.)
+        function firstEmoji(s = "") {
+            const m = s.match(/\p{Extended_Pictographic}/u);
+            return m ? m[0] : "";
+        }
+
+        // loose text-based fallback if there’s no emoji and no exact map hit
+        function iconFromLoose(label = "") {
+            const t = label.toLowerCase();
+            if (t.includes("date"))       return "🔥";
+            if (t.includes("friend"))     return "😎";
+            if (t.includes("celebrat"))   return "🎉";
+            if (t.includes("cycle"))      return "🌸";
+            if (t.includes("health"))     return "🏥";
+            if (t.includes("romantic") ||
+                t.includes("love"))       return "💜";
+            if (t.includes("pro") ||
+                t.includes("work") ||
+                t.includes("career"))     return "🖥️";
+            return "💡";
+        }
 
 
         console.log("Formatted Gregorian date used with eclipses: ", formattedGregorianDate);
         console.log("Today Eclipse data fetched: ", eclipseEvent);
+
+        
 
         // Find the festival for this date
         const festivals = await fetchFestivals();
@@ -1063,7 +1109,33 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
             `;
         }
 
-        // No longer needed: eventsHTML (custom events will be rendered as individual slides)
+        // safely escape user text
+        const escapeHtml = (s = "") =>
+        String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+        // build a beautiful slide for a single event
+        function renderEventSlide(evt) {
+            const label = (evt.category || evt.type || "💡 General").trim();
+            const icon  = getEventIcon(evt);
+            const titleSafe = escapeHtml(evt.title || "Untitled event");
+            const notesHtml = evt.notes
+                ? `<p class="event-notes">${escapeHtml(evt.notes).replace(/\n/g, "<br/>")}</p>`
+                : "";
+
+            return `
+            <div class="day-slide custom-event-slide" data-event-id="${evt.id}">
+                <img src="/assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h2 class="event-card__title">${titleSafe}</h2>
+                 <div class="event-card-wrapper">
+                    <div class="event-card">
+                        <div class="event-card__icon">💜</div> <!-- icon floats above -->
+                        ${notesHtml}
+                    </div>
+                
+                </div> 
+            </div>
+`;
+        }
 
         // Update modal with lunar details
         modalDetails.innerHTML = `
@@ -1077,22 +1149,13 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
                         zodiacHTML, 
                         holidayHTML, 
                         eclipseHTML, 
-                        // eventsHTML removed
                         celticMonth,
                         celticDay,
                         formattedGregorianDate,
                         moonLabel,
                         moonText
                         })}
-                    ${events.map(evt => `
-                        <div class="day-slide custom-event-slide" data-event-id="${evt.id}">
-                          <img src='/assets/images/decor/divider.png' class='divider' alt='Divider' />
-                          <h3 class="goldenTitle">Your Event</h3>
-                          <p>${evt.title}</p>
-                          ${evt.notes ? `<p>${evt.notes}</p>` : ''}
-                          <p>${evt.type}</p>
-                        </div>
-                    `).join('')}
+                    ${events.map(renderEventSlide).join("")}
                 </div>
 
                <button class="day-carousel-next"><img src="/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
@@ -1210,11 +1273,7 @@ function getFormattedMonth(monthNum) {
 async function getCustomEvents(gregorianMonth, gregorianDay, gregorianYear) {
     console.log("Fetching custom events...");
     try {
-        const response = await fetch("/api/custom-events");
-        if (!response.ok) throw new Error("Failed to fetch events");
-
-        const events = await response.json();
-
+        const events = await api.customEvents();
         const monthStr = String(gregorianMonth).padStart(2, "0");
         const dayStr = String(gregorianDay).padStart(2, "0");
         const targetDate = `${gregorianYear}-${monthStr}-${dayStr}`;
@@ -1453,59 +1512,3 @@ export function applyMysticalSettings(prefs) {
   // 3) If the month modal is open, rebuild the grid markers so prefs take effect immediately
   _refreshMonthGridIfOpen(prefs);
 }
-
-// Add only one submit listener for calendar page
-document.addEventListener("submit", async (event) => {
-    const isCalendarForm = event.target && event.target.id === "add-event-form";
-    const isOnCalendarPage = window.location.hash === "#calendar";
-
-    if (isCalendarForm && isOnCalendarPage) {
-        event.preventDefault();
-        console.log("✨ Adding new custom event from CALENDAR...");
-
-        const eventName = document.getElementById("event-name").value.trim();
-        const eventType = document.getElementById("event-type").value.trim();
-        const eventNotes = document.getElementById("event-note").value.trim();
-        const eventDate = document.getElementById("event-date").value;
-
-        if (!eventName || !eventDate) {
-            alert("Please enter a valid event name and date.");
-            return;
-        }
-
-        const formattedDate = new Date(eventDate).toISOString().split("T")[0];
-
-        const newEvent = {
-            id: Date.now().toString(), // ✨ Unique identifier based on timestamp
-            title: eventName,
-            type: eventType || "General",
-            notes: eventNotes || "",
-            date: formattedDate
-        };
-
-        console.log("🎉 Event to be added (Calendar):", newEvent);
-
-        try {
-            const response = await fetch("/api/custom-events", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(newEvent)
-            });
-
-            // Fetch all events again and save them to localStorage
-
-            if (!response.ok) throw new Error("Failed to add event.");
-
-            const result = await response.json();
-            console.log("✅ Event added from Calendar:", result);
-
-            // Reopen the modal with updated info!
-            showModal(lastOpenedMonth);
-
-        } catch (error) {
-            console.error("❌ Error adding calendar event:", error);
-        }
-    }
-});

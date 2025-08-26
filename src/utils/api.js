@@ -39,7 +39,7 @@ async function get(path, params) {
 
 export const api = {
   // health
-  health: () => get('/api/healthz'),
+ // health: () => get('/api/healthz'),
 
   // shared data
   calendarData: () => get('/api/calendar-data'),
