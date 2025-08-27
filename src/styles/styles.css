@@ -325,8 +325,15 @@ html, body {
   */
 
 /* Date Click Feedback */
+/* Highlight today's cell in calendar modal */
 .calendar-day.highlight-today {
   animation: highlightPulse 0.5s ease-in-out;
+}
+
+td.highlight-today {
+  background-color: rgba(255, 215, 0, 0.2);
+  border-radius: 6px;
+  animation: highlightPulse 1s ease-in-out;
 }
 
 .fade-in {
@@ -666,6 +673,70 @@ header {
   color: #f5d742; 
   font-size: 1.2em;
   font-family: 'Cinzel Decorative', serif;
+}
+
+/* Make the Celtic date on the home screen clearly clickable */
+.clickable-date {
+  cursor: pointer;
+  position: relative;
+  color: #f5d742;
+  text-decoration: none;
+  animation: datePulse 3s infinite ease-in-out;
+}
+
+.clickable-date::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg,
+      transparent,
+      #f5d742,
+      #ff8c00,
+      #f5d742,
+      transparent);
+  background-size: 200% auto;
+  /* gives room for the shimmer to move */
+  transform: scaleX(1);
+  /* always visible */
+  border-radius: 2px;
+  animation: shimmerWave 6s infinite linear;
+}
+
+/* Text glow pulse */
+@keyframes datePulse {
+
+  0%,
+  100% {
+    text-shadow:
+      0 0 6px rgba(245, 215, 66, 0.7),
+      0 0 12px rgba(245, 215, 66, 0.9),
+      0 0 20px rgba(255, 140, 0, 0.7);
+  }
+
+  50% {
+    text-shadow:
+      0 0 12px rgba(245, 215, 66, 1),
+      0 0 24px rgba(255, 140, 0, 1),
+      0 0 36px rgba(245, 215, 66, 1);
+  }
+}
+
+/* Underline shimmer wave */
+@keyframes shimmerWave {
+  0% {
+    background-position: 200% center;
+  }
+
+  50% {
+    background-position: 100% center;
+  }
+
+  100% {
+    background-position: -200% center;
+  }
 }
 
 #gregorian-month {

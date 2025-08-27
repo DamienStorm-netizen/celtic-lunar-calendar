@@ -11,7 +11,8 @@ import {
   convertCelticToGregorian,
   convertGregorianToCeltic,
   getCelticWeekdayFromGregorian,
-  getMonthRangeISO
+  getMonthRangeISO,
+  isLeapYear
 } from "../utils/dateUtils.js";
 
 // 🌕 Declare globally
@@ -198,20 +199,39 @@ export async function setupCalendarEvents() {
         return;
     }
 
-    // Hide overlay and make it clickable
-    document.getElementById("modal-overlay").addEventListener("click", () => {
-        console.log("Click on Overlay");
-    
-        if (modalContainer.classList.contains("show")) {
-            modalContainer.classList.remove("show");
-            modalContainer.classList.add("hidden");
-        }
-    
-        // Hide the overlay itself
-        document.getElementById("modal-overlay").classList.remove("show");
-        document.getElementById("modal-overlay").classList.add("hidden");
-    });
-    
+    // Hide overlay and make it clickable (idempotent wiring)
+    // Hide overlay and make it clickable (idempotent wiring)
+    const overlayEl = document.getElementById("modal-overlay");
+    if (overlayEl && !overlayEl.__wired) {
+        overlayEl.addEventListener("click", () => {
+            console.log("Click on Overlay");
+            const modalContent = modalContainer.querySelector("#modal-content");
+            if (modalContent) {
+                modalContent.classList.remove("fade-in");
+                modalContent.classList.add("fade-out");
+                modalContent.addEventListener("animationend", () => {
+                    if (modalContainer.classList.contains("show")) {
+                        modalContainer.classList.remove("show");
+                        modalContainer.classList.add("hidden");
+                    }
+                    overlayEl.classList.remove("show");
+                    overlayEl.classList.add("hidden");
+                    document.body.classList.remove("modal-open");
+                    modalContent.classList.remove("fade-out");
+                }, { once: true });
+            } else {
+                if (modalContainer.classList.contains("show")) {
+                    modalContainer.classList.remove("show");
+                    modalContainer.classList.add("hidden");
+                }
+                overlayEl.classList.remove("show");
+                overlayEl.classList.add("hidden");
+                document.body.classList.remove("modal-open");
+            }
+        }); // ✅ close addEventListener callback
+
+        overlayEl.__wired = true; // ✅ runs once after listener is attached
+    }
 
     // Attach event listener to close modal
     modalClose.addEventListener("click", closeModal);
@@ -250,7 +270,7 @@ export async function setupCalendarEvents() {
 }
 
 // Open modal window and insert HTML
-function showModal(monthName) {
+export function showModal(monthName) {
 
     lastOpenedMonth = monthName; // ✅ Store the last opened month
     console.log("📅 Last opened month set to:", lastOpenedMonth);
@@ -265,13 +285,6 @@ function showModal(monthName) {
     document.getElementById("modal-overlay").classList.add("show");
     document.getElementById("modal-overlay").classList.remove("hidden");
 
-    // Make overlay clickable
-    document.getElementById("modal-overlay").addEventListener("click", () => {
-        console.log("Click on overlay");
-        // Hide the overlay itself
-        document.getElementById("modal-overlay").classList.remove("show");
-        document.getElementById("modal-overlay").classList.add("hidden");
-    });
 
  
     modalContainer.classList.remove("hidden");
@@ -283,6 +296,36 @@ function showModal(monthName) {
         if (modalDetails) {
             modalContainer.classList.add("show");
             document.body.classList.add("modal-open"); // Prevent scrolling
+
+            // Play fade-in on modal content
+            const modalContent = modalContainer.querySelector("#modal-content");
+            if (modalContent) {
+                modalContent.classList.remove("fade-out");
+                modalContent.classList.add("fade-in");
+                modalContent.addEventListener("animationend", () => {
+                    modalContent.classList.remove("fade-in");
+                }, { once: true });
+            }
+
+
+            // ✦ Highlight today's date cell if it matches this month
+            try {
+              const todayISO = new Date().toISOString().split("T")[0];
+              const celticToday = convertGregorianToCeltic(todayISO);
+              if (celticToday && celticToday.startsWith(monthName)) {
+                const parts = celticToday.split(" ");
+                const todayDay = parseInt(parts[1], 10);
+                const cells = modalDetails.querySelectorAll(".calendar-grid td");
+                cells.forEach(td => {
+                  if (td.textContent.trim() === String(todayDay)) {
+                    td.classList.add("highlight-today");
+                    td.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }
+                });
+              }
+            } catch (err) {
+              console.warn("Highlight today failed:", err);
+            }
 
             if (monthName === 'Mirabilis') {
                 const today = new Date();
@@ -452,14 +495,6 @@ function showModal(monthName) {
                 theme: "moonveil"
             });
 
-            // helper: disable/restore the submit button
-function setBusy(btn, on) {
-  if (!btn) return;
-  // remember original label once
-  if (!btn.dataset.label) btn.dataset.label = btn.textContent;
-  btn.disabled = on;
-  btn.textContent = on ? "Saving…" : btn.dataset.label;
-}
 
 const addForm = document.getElementById("add-event-form");
 if (addForm) {
@@ -543,19 +578,32 @@ if (addForm) {
 }
 
 // Close modal
- function closeModal() {
+function closeModal() {
     console.log("Click Close Button");
     const modalContainer = document.getElementById("modal-container");
+    const overlayEl = document.getElementById("modal-overlay");
+    const modalContent = modalContainer?.querySelector("#modal-content");
 
-    document.body.classList.remove("modal-open"); //Add scrollbars to body
+    const immediateHide = () => {
+        if (modalContainer) {
+            modalContainer.classList.add("hidden");
+            modalContainer.classList.remove("show");
+        }
+        overlayEl?.classList.add("hidden");
+        overlayEl?.classList.remove("show");
+        document.body.classList.remove("modal-open");
+    };
 
-    if (modalContainer) {
-        modalContainer.classList.add("hidden");
-    }    
-
-    // Show the modal overlay
-    document.getElementById("modal-overlay").classList.add("hidden");
-    document.getElementById("modal-overlay").classList.remove("show");
+    if (modalContent) {
+        modalContent.classList.remove("fade-in");
+        modalContent.classList.add("fade-out");
+        modalContent.addEventListener("animationend", () => {
+            modalContent.classList.remove("fade-out");
+            immediateHide();
+        }, { once: true });
+    } else {
+        immediateHide();
+    }
 }
 
 // Fetch monthly tag line

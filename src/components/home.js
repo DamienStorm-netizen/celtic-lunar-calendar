@@ -6,7 +6,8 @@ import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { api } from "../utils/api.js";
 import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
-import { showDayModal } from "./calendar.js";
+import { showDayModal, showModal } from "./calendar.js";
+import { starFieldSVG } from "../constants/starField.js";
 
 import {
   getCelticWeekday,
@@ -60,6 +61,75 @@ function formatMonthDay(iso) {
   } catch {
     return iso; // fallback
   }
+}
+
+// Ensure the Calendar-style modal exists on the Home screen
+function ensureCalendarModalOnHome() {
+  let modalContainer = document.getElementById("modal-container");
+  if (!modalContainer) {
+    // Inject a minimal calendar-compatible modal shell
+    const shell = document.createElement("div");
+    shell.id = "modal-container";
+    shell.className = "calendar-modal hidden";
+    shell.innerHTML = `
+        <div id="modal-content">
+          <div id="constellation-layer">
+            <svg class="constellation-stars" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+              ${starFieldSVG}
+              <defs>
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="5" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <!-- Example Orion Constellation -->
+              <circle cx="100" cy="120" r="2" fill="#f7e98c" filter="url(#glow)" />
+              <circle cx="140" cy="160" r="2" fill="#f7e98c" filter="url(#glow)" />
+              <circle cx="180" cy="200" r="2" fill="#f7e98c" filter="url(#glow)" />
+              <polyline points="100,120 140,160 180,200" stroke="#ffd700" stroke-width="0.5" fill="none" />
+            </svg>
+          </div>
+          <button id="close-modal" class="mystical-close">✦</button>
+          <div id="modal-details"></div>
+        </div>
+      `;
+    document.body.appendChild(shell);
+    modalContainer = shell;
+  }
+  // Ensure overlay exists for home (renderHome already adds it; this is a safe fallback)
+  let overlay = document.getElementById("modal-overlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "modal-overlay";
+    overlay.className = "modal-overlay hidden";
+    document.body.appendChild(overlay);
+  }
+  // Wire up close behaviors (id names match calendar.js expectations)
+  const closeBtn = modalContainer.querySelector("#close-modal");
+  if (closeBtn && !closeBtn.__wired) {
+    closeBtn.addEventListener("click", () => {
+      modalContainer.classList.add("hidden");
+      modalContainer.classList.remove("show");
+      overlay.classList.add("hidden");
+      overlay.classList.remove("show");
+      document.body.classList.remove("modal-open");
+    });
+    closeBtn.__wired = true;
+  }
+  if (!overlay.__wired) {
+    overlay.addEventListener("click", () => {
+      modalContainer.classList.add("hidden");
+      modalContainer.classList.remove("show");
+      overlay.classList.add("hidden");
+      overlay.classList.remove("show");
+      document.body.classList.remove("modal-open");
+    });
+    overlay.__wired = true;
+  }
+  return modalContainer;
 }
 
 // Given an ISO 'YYYY-MM-DD' and an array of zodiac objects ({name,start_date,end_date}),
@@ -171,16 +241,28 @@ export function renderHome() {
     `;
     // After the HTML is injected into the DOM, attach overlay handler and swipe listener
     setTimeout(() => {
-        // Overlay click for modal close (existing code)…
-
+        // Overlay click for modal close (idempotent, also closes calendar shell if open)
         const overlay = document.getElementById("modal-overlay");
-        if (overlay) {
-            overlay.addEventListener("click", () => {
-                document.getElementById("home-zodiac-modal")?.classList.remove("show");
-                document.getElementById("home-zodiac-modal")?.classList.add("hidden");
-                overlay.classList.remove("show");
-                overlay.classList.add("hidden");
-            });
+        if (overlay && !overlay.__homeZodiacWired) {
+          overlay.addEventListener("click", () => {
+            // Close Home's zodiac modal if present
+            const hz = document.getElementById("home-zodiac-modal");
+            if (hz && hz.classList.contains("show")) {
+              hz.classList.remove("show");
+              hz.classList.add("hidden");
+            }
+            // Close calendar-style modal shell if present
+            const calShell = document.getElementById("modal-container");
+            if (calShell && calShell.classList.contains("show")) {
+              calShell.classList.remove("show");
+              calShell.classList.add("hidden");
+            }
+            // Hide overlay + restore scroll lock
+            overlay.classList.remove("show");
+            overlay.classList.add("hidden");
+            document.body.classList.remove("modal-open");
+          });
+          overlay.__homeZodiacWired = true;
         }
 
         // Step 1: Swipe listener sanity check
@@ -369,6 +451,39 @@ export async function fetchCelticDate() {
               <h1 id="celtic-day">${weekday}</h1>
               <p><span id="celtic-month">${data.month} ${data.celtic_day}</span> / <span id="gregorian-month">${gregDisplay}</span></p>
             `;
+        }
+
+        // Make the Celtic date (e.g., "Lugh 23") act like the Calendar's "Today" button
+        const dateClickable = dateContainer?.querySelector("#celtic-month");
+        if (dateClickable) {
+          // Accessibility + affordance
+          dateClickable.classList.add("clickable-date");
+          dateClickable.setAttribute("role", "button");
+          dateClickable.setAttribute("tabindex", "0");
+          dateClickable.setAttribute("aria-label", "Open this month's calendar");
+          dateClickable.setAttribute("title", "Open this month's calendar");
+
+          // Capture today's values from this invocation so we do not re-fetch
+          const todayCelticMonth = data.month;
+
+          const openMonthModal = () => {
+            try {
+              // Ensure we have a calendar-compatible modal shell on Home
+              ensureCalendarModalOnHome();
+              // Now render the MONTH view into that modal without leaving Home
+              showModal(todayCelticMonth);
+            } catch (e) {
+              console.error("Failed to open today's modal from home date:", e);
+            }
+          };
+
+          dateClickable.addEventListener("click", openMonthModal);
+          dateClickable.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openMonthModal();
+            }
+          });
         }
 
         // ✅ Return structured data so other functions can use it
