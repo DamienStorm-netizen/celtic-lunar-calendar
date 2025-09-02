@@ -43,6 +43,7 @@ html, body {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* iOS dynamic viewport */
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -50,21 +51,26 @@ html, body {
   background: rgba(0, 0, 0, 0.45);
   padding: env(safe-area-inset-top) 12px 12px 12px; /* iOS safe area */
   overscroll-behavior: contain; /* keep scroll inside modal */
-  padding-top: 16px; /* anchor near top on desktop */
+  padding-top: calc(env(safe-area-inset-top) + 8px); /* keep below notch/nav */
 }
 
 /* Inner content should scroll if it overflows */
 .modal .modal-content {
   position: relative;
-  max-height: calc(100vh - 32px);   /* top padding accounted */
+  max-height: calc(100dvh - 80px);
   overflow-y: auto;                 /* enable scroll */
+  overflow-x: hidden;               /* no horizontal bar */
   -webkit-overflow-scrolling: touch;/* momentum on iOS */
 }
 
 /* Lock background when modal is open (JS toggles this class) */
 body.modal-open {
   overflow: hidden;           /* disable background scroll */
-  touch-action: none;         /* extra help on iOS */
+}
+@media (min-width: 768px) {
+  .modal {
+    padding-top: 56px; /* clear the sticky nav on iPad/desktop */
+  }
 }
 body.modal-open .container {
   overflow: hidden !important;
