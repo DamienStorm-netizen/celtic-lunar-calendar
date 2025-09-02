@@ -423,7 +423,8 @@ export function renderHome() {
 // Fetch the Celtic date dynamically and update the home screen
 export async function fetchCelticDate() {
     try {
-        const response = await fetch('/api/celtic-date');
+        const localISO = toISODate(new Date());
+        const response = await fetch(`/api/celtic-date?date=${localISO}`);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -535,7 +536,7 @@ export async function fetchCelticZodiac() {
 
 // Fetch the Moon Phase dynamically and update the home screen
 export async function fetchDynamicMoonPhase() {
-    const today = new Date().toISOString().split("T")[0];
+    const today = toISODate(new Date());
     try {
         // Always go through the API helper so the request hits the backend base URL
         const data = await api.dynamicMoonPhases(today, today);

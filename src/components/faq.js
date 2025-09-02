@@ -17,12 +17,24 @@ export function renderFaq() {
 
         <div class="accordion-item">
             <button class="accordion-header">
+                <span>What are the Lunar days of the week?</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p>
+                    The days of the Lunar week are Moonday, Trésda, Wyrdsday, Thornsday, Freyasday, Emberveil, and Sunveil.
+                </p>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header">
                 <span>How do I contact the creators?</span>
                 <span class="accordion-icon">+</span>
             </button>
             <div class="accordion-content">
                 <p>
-                    Just email us at hello@lunaralmanac.app. We love hearing from our users!
+                    Just email us at <a src=-"mailto:admin@eclipsedrealities.com">admin@eclipsedrealities.com</a>. We love hearing from our users!
                 </p>
             </div>
         </div>
@@ -34,7 +46,7 @@ export function renderFaq() {
             </button>
             <div class="accordion-content">
                 <p>
-                    Enter your birthdate and the app will reveal your Celtic Zodiac sign, along with detailed traits and symbolic lore.
+                    Enter your birthdate at the bottom of the home screen and the app will reveal your Celtic Zodiac sign, along with detailed traits and symbolic lore.
                 </p>
             </div>
         </div>
