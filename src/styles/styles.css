@@ -35,6 +35,40 @@ html, body {
 
 /**********************************************/
 /*** MODAL STRUCTURE ***/
+
+/* Generic overlay modal (home/settings) */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 1100; /* above page content, below toast */
+  background: rgba(0, 0, 0, 0.45);
+  padding: env(safe-area-inset-top) 12px 12px 12px; /* iOS safe area */
+  overscroll-behavior: contain; /* keep scroll inside modal */
+  padding-top: 16px; /* anchor near top on desktop */
+}
+
+/* Inner content should scroll if it overflows */
+.modal .modal-content {
+  position: relative;
+  max-height: calc(100vh - 32px);   /* top padding accounted */
+  overflow-y: auto;                 /* enable scroll */
+  -webkit-overflow-scrolling: touch;/* momentum on iOS */
+}
+
+/* Lock background when modal is open (JS toggles this class) */
+body.modal-open {
+  overflow: hidden;           /* disable background scroll */
+  touch-action: none;         /* extra help on iOS */
+}
+body.modal-open .container {
+  overflow: hidden !important;
+}
 /**********************************************/
 
 /* Calendar Modal */
@@ -873,9 +907,9 @@ blockquote.moon-poem {
 
 .close-button-home {
   position: absolute;
-  top: -10px;
-  right: 10px;
-  z-index: 10;
+  top: 8px;
+  right: 8px;
+  z-index: 9999;
 }
 
 .home-modal-btn {
@@ -913,16 +947,16 @@ blockquote.moon-poem {
 
 /* modal scroll bar */
 
+/* Modal scrollable content (updated for 85vh and iOS momentum) */
 .scrollable-content {
-  max-height: 80vh;
+  max-height: 85vh;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: #ffd700 #1E1E1E; /* Gold on dark */
   padding: 15px;
   border-radius: 10px;
-}
-
-.scrollable-content {
+  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
 

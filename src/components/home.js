@@ -265,6 +265,41 @@ export function renderHome() {
           overlay.__homeZodiacWired = true;
         }
 
+        // Ensure Home Zodiac modal open/close wiring + scroll lock
+        const homeZodiacModal = document.getElementById("home-zodiac-modal");
+        const homeZodiacClose = document.querySelector('.close-button-home');
+
+        // Open on click of the rendered trigger card
+        if (!document.__homeZodiacOpenWired) {
+          document.addEventListener('click', (ev) => {
+            const trigger = ev.target.closest('.zodiac-modal-trigger');
+            if (!trigger) return;
+            if (homeZodiacModal) {
+              homeZodiacModal.classList.remove('hidden');
+              homeZodiacModal.classList.add('show');
+              // show overlay and lock background scroll
+              const ov = document.getElementById('modal-overlay');
+              if (ov) { ov.classList.remove('hidden'); ov.classList.add('show'); }
+              document.body.classList.add('modal-open');
+            }
+          });
+          document.__homeZodiacOpenWired = true;
+        }
+
+        // Close button inside the Home Zodiac modal
+        if (homeZodiacClose && !homeZodiacClose.__wired) {
+          homeZodiacClose.addEventListener('click', () => {
+            if (homeZodiacModal) {
+              homeZodiacModal.classList.add('hidden');
+              homeZodiacModal.classList.remove('show');
+            }
+            const ov = document.getElementById('modal-overlay');
+            if (ov) { ov.classList.add('hidden'); ov.classList.remove('show'); }
+            document.body.classList.remove('modal-open');
+          });
+          homeZodiacClose.__wired = true;
+        }
+
         // Step 1: Swipe listener sanity check
         requestAnimationFrame(() => {
           const swipeTarget = document.getElementById("coming-events-carousel");
