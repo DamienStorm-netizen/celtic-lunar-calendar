@@ -1,5 +1,6 @@
 import { slugifyCharm } from "../utils/slugifyCharm.js";
 import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
+import { api } from "../utils/api.js";
 
 export function renderInsights() {
   return `
@@ -82,7 +83,7 @@ export function renderInsights() {
     </div>
 
       <div id="modal-overlay" class="modal-overlay hidden"></div>
-      <div id="zodiac-modal" class="modal">
+      <div id="zodiac-modal" class="modal hidden">
         <div class="modal-content">
           <button id="close-modal" class="mystical-close">
             ✦
@@ -407,27 +408,24 @@ export function initializeCelticZodiac() {
 
   // Celtic Zodiac Modal
   const zodiacModal = document.getElementById("zodiac-modal");
-  const closeModal = document.querySelector(".mystical-close");
+  const closeModal = zodiacModal.querySelector("#close-modal");
   const zodiacItems = document.querySelectorAll(".zodiac-item");
 
-   // Hide overlay and make it clickable
-   document.getElementById("modal-overlay").addEventListener("click", () => {
-
-    console.log("Click on Overlay");
-    const celticZodiacModal = document.getElementById("zodiac-modal");
-
-    if (celticZodiacModal.classList.contains("show")) {
-      celticZodiacModal.classList.remove("show");
-      celticZodiacModal.classList.add("hidden");
-    }
-
-    // Locate open modal to centre of viewport
-    document.body.classList.add('modal-open');
-
-    // Hide the overlay itself
-    document.getElementById("modal-overlay").classList.remove("show");
-    document.getElementById("modal-overlay").classList.add("hidden");
-});
+  // Hide overlay and make it clickable (defensive)
+  const insightsOverlay = document.getElementById("modal-overlay");
+  if (insightsOverlay && !insightsOverlay.__insightsWired) {
+    insightsOverlay.addEventListener("click", () => {
+      const celticZodiacModal = document.getElementById("zodiac-modal");
+      if (celticZodiacModal && celticZodiacModal.classList.contains("show")) {
+        celticZodiacModal.classList.remove("show");
+        celticZodiacModal.classList.add("hidden");
+      }
+      document.body.classList.remove('modal-open');
+      insightsOverlay.classList.remove("show");
+      insightsOverlay.classList.add("hidden");
+    });
+    insightsOverlay.__insightsWired = true;
+  }
 
   // Assign click behaviour to thumbs
   zodiacItems.forEach(item => {
@@ -447,260 +445,235 @@ export function initializeCelticZodiac() {
     document.body.classList.remove('modal-open');
 
     // Reset transform manually (ghosts hate this)
-    zodiacModal.style.transform = 'translate(-50%, -50%) scale(0.95)';
+    zodiacModal.style.transform = 'none';
   });
 }
 
 async function showZodiacModal(zodiacName) {
   const modal = document.getElementById("zodiac-modal");
   const overlay = document.getElementById("modal-overlay");
-  const learnMoreBtn = document.querySelector(".celtic-zodiac-btn"); // 👈 Add this line here!
+  const learnMoreBtn = document.querySelector(".celtic-zodiac-btn");
 
+  // Ensure overlay & modal live under <body> (prevents clipping and partial overlays on iOS)
+  if (overlay && overlay.parentElement !== document.body) document.body.appendChild(overlay);
+  if (modal && modal.parentElement !== document.body) document.body.appendChild(modal);
+
+  // Open at the top with a tiny buffer
+  if (modal) {
+    modal.style.transform = "none";
+    modal.style.alignItems = "flex-start"; // belt-and-suspenders to match CSS
+  }
+  const contentEl = modal?.querySelector(".modal-content");
+  if (contentEl) {
+    contentEl.style.marginTop = "8px"; // small visual buffer below the header
+    contentEl.scrollTop = 0;           // always start at the very top
+    contentEl.style.webkitOverflowScrolling = "touch"; // iPhone momentum
+    contentEl.style.overflowY = "auto";
+  }
+
+  // Show modal + overlay and lock background scroll
+  if (overlay) { overlay.classList.remove("hidden"); overlay.classList.add("show"); }
+  if (modal) { modal.classList.remove("hidden"); modal.classList.add("show"); }
+  document.body.classList.add("modal-open");
+
+  // Fallback-friendly lookup from bundled calendar data
+  let zodiacEntry = null;
   try {
-      const response = await fetch(`/zodiac/insights/${encodeURIComponent(zodiacName)}`);
-      if (!response.ok) {
-          throw new Error(`Zodiac sign '${zodiacName}' not found`);
-      }
+    const data = await api.calendarData();
+    const list = Array.isArray(data?.zodiac) ? data.zodiac : [];
+    zodiacEntry = list.find(
+      (s) => s?.name?.toLowerCase() === String(zodiacName).toLowerCase()
+    );
+    if (!zodiacEntry) throw new Error("Zodiac not found in calendar data");
+  } catch (e) {
+    console.error("Error loading zodiac modal:", e);
+    // Graceful fallback when nothing loads
+    document.getElementById("zodiac-name").textContent = zodiacName;
+    document.getElementById("zodiac-date-range").textContent = "";
+    document.getElementById("zodiac-description").textContent =
+      "The stars are shy just now. Please try again in a moment.";
 
-      const zodiacEntry = await response.json();
-
-      // 🪄 Show modal
-      modal.classList.remove("hidden");
-      overlay.classList.remove("hidden");
-      requestAnimationFrame(() => {
-          modal.classList.add("show");
-          overlay.classList.add("show");
-      });
-
-      // 🪄 Scroll modal into centre of viewport
-      setTimeout(() => {
-        const modal = document.getElementById("zodiac-modal");
-        if (modal) {
-          modal.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }, 100); // Delay ensures styles are applied
-
-      const imageSlugZodiac = slugifyCharm(zodiacName);
-
-      // 🖼️ Populate modal content
-      document.getElementById("zodiac-name").textContent = zodiacEntry.name;
-      document.getElementById("zodiac-date-range").textContent = zodiacEntry.celtic_date;
-      document.getElementById("zodiac-image").src = `/assets/images/zodiac/zodiac-${imageSlugZodiac}.png`;
-      document.getElementById("zodiac-description").textContent = zodiacEntry.symbolism;
-      document.getElementById("zodiac-traits").textContent = zodiacEntry.symbolism;
-      document.getElementById("zodiac-element").textContent = zodiacEntry.element || "Element unknown";
-      document.getElementById("zodiac-animal").textContent = zodiacEntry.animal;
-      document.getElementById("zodiac-mythology").textContent = zodiacEntry.mythical_creature;
-
-      console.log("Zodiac url is ", zodiacEntry.url);
-
-      if (zodiacEntry.url) {
-        learnMoreBtn.style.display = "inline-block";
-        learnMoreBtn.setAttribute("href", zodiacEntry.url);
-        learnMoreBtn.setAttribute("target", "_blank");
-      } else {
-          learnMoreBtn.style.display = "none"; // Hide if there's no link
-      }
-
-  } catch (error) {
-      console.error("Error loading zodiac modal:", error);
+    overlay?.classList.add("show");
+    overlay?.classList.remove("hidden");
+    modal?.classList.add("show");
+    modal?.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+    return;
   }
 
+  // Populate modal fields safely
+  const nameEl = document.getElementById("zodiac-name");
+  const dateEl = document.getElementById("zodiac-date-range");
+  const imgEl = document.getElementById("zodiac-image");
+  const descEl = document.getElementById("zodiac-description");
+  const traitsEl = document.getElementById("zodiac-traits");
+  const elemEl = document.getElementById("zodiac-element");
+  const animalEl = document.getElementById("zodiac-animal");
 
+  nameEl.textContent = zodiacEntry.name || zodiacName;
+  // Try several keys for the date range
+  const friendlyRange =
+    zodiacEntry.date_range ||
+    zodiacEntry.celtic_date_range ||
+    (zodiacEntry.start_date && zodiacEntry.end_date
+      ? `${zodiacEntry.start_date.replace(/^[0-9]{4}-/, "")} to ${zodiacEntry.end_date.replace(/^[0-9]{4}-/, "")}`
+      : "");
+  dateEl.textContent = friendlyRange;
+
+  if (imgEl && zodiacEntry.name) {
+    const slug = slugifyCharm(zodiacEntry.name).toLowerCase();
+    imgEl.src = `/assets/images/zodiac/zodiac-${slug}.png`;
+    imgEl.alt = zodiacEntry.name;
+  }
+
+  descEl.textContent = zodiacEntry.description || zodiacEntry.summary || "";
+  traitsEl.textContent = zodiacEntry.symbolism || zodiacEntry.traits || "";
+  elemEl.textContent = zodiacEntry.element || "";
+  animalEl.textContent = zodiacEntry.animal || "";
+
+  if (learnMoreBtn) {
+    const href = zodiacEntry.url || zodiacEntry.link || "#";
+    learnMoreBtn.setAttribute("href", href);
+  }
+
+  // Show modal & overlay and lock background scroll
+  overlay?.classList.add("show");
+  overlay?.classList.remove("hidden");
+  modal?.classList.add("show");
+  modal?.classList.remove("hidden");
+  document.body.classList.add("modal-open");
 }
-
-// ********************************
-// CELTIC FESTIVALS
-// ********************************
-
+// ————————————————————————————————
+// Festivals carousel wiring (prev/next + optional swipe)
+// Exported because insightsInit.js imports it
 export function initializeFestivalCarousel() {
-  const slides = document.querySelectorAll(".festival-slide");
-  const prevButton = document.querySelector(".festival-carousel-prev");
-  const nextButton = document.querySelector(".festival-carousel-next");
+  const scope = document.getElementById("festivals");
+  if (!scope) return;
 
-  const sparkleSound = new Audio('/assets/sound/sparkle.wav');
-  sparkleSound.volume = 0.6; // adjust as needed
+  const slides = Array.from(scope.querySelectorAll(".festival-slide"));
+  const prevBtn = scope.querySelector(".festival-carousel-prev");
+  const nextBtn = scope.querySelector(".festival-carousel-next");
+  if (slides.length === 0) return;
 
-  let currentSlide = 0;
-
-  function showSlide(index) {
-      slides.forEach((slide, i) => {
-          slide.classList.remove("active");
-          slide.style.opacity = 0;
-          if (i === index) {
-              slide.classList.add("active");
-              setTimeout(() => slide.style.opacity = 1, 300);
-          }
-      });
+  let index = slides.findIndex(s => s.classList.contains("active"));
+  if (index < 0) {
+    index = 0;
+    slides[0].classList.add("active");
   }
 
-  prevButton.addEventListener("click", () => {
-    if (document.getElementById("festivals").classList.contains("active")) {
-      sparkleSound.currentTime = 0;
-      sparkleSound.play();
+  const show = (i) => {
+    slides.forEach(s => s.classList.remove("active"));
+    slides[i].classList.add("active");
+  };
+
+  prevBtn?.addEventListener("click", () => {
+    index = (index - 1 + slides.length) % slides.length;
+    show(index);
+  });
+
+  nextBtn?.addEventListener("click", () => {
+    index = (index + 1) % slides.length;
+    show(index);
+  });
+
+  // Optional swipe support (no-op if initSwipe is not available)
+  const container = scope.querySelector(".carousel-container") || scope;
+  try {
+    if (typeof initSwipe === "function" && container) {
+      initSwipe(container, {
+        onSwipeLeft:  () => nextBtn?.click(),
+        onSwipeRight: () => prevBtn?.click()
+      });
     }
-    
-    currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
-    showSlide(currentSlide);
-  });
-
-  nextButton.addEventListener("click", () => {
-    if (document.getElementById("festivals").classList.contains("active")) {
-      sparkleSound.currentTime = 0;
-      sparkleSound.play();
-    }
-    
-    currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
-    showSlide(currentSlide);
-  });
-
-  // 🎠 Swipe support for festival carousel
-  const festivalContainer = document.getElementById("festival-carousel");
-  initSwipe(festivalContainer, {
-    onSwipeLeft: () => nextButton.click(),
-    onSwipeRight: () => prevButton.click()
-  });
-
-  // Start with the first festival as the default
-  showSlide(currentSlide);
+  } catch (err) {
+    console.warn("Festival swipe init skipped:", err);
+  }
 }
 
-// ********************************
-// MOON POETRY
-// ********************************
-
+// ————————————————————————————————
+// Moon Poetry carousel wiring (prev/next + optional swipe)
 export function initializeMoonPoetry() {
-  const slides = document.querySelectorAll(".moon-slide");
-  const prevButton = document.querySelector(".carousel-prev");
-  const nextButton = document.querySelector(".carousel-next");
+  const scope = document.getElementById("moon-poetry");
+  if (!scope) return;
 
-  const harpSound = new Audio("/assets/sound/harp.wav"); // Load sound file
-  harpSound.volume = 0.6; // adjust as needed
+  const slides = Array.from(scope.querySelectorAll(".moon-slide"));
+  const prevBtn = scope.querySelector(".carousel-prev");
+  const nextBtn = scope.querySelector(".carousel-next");
+  if (slides.length === 0) return;
 
-  let currentSlide = 0;
-
-  function showSlide(index) {
-      slides.forEach((slide, i) => {
-          slide.classList.remove("active");
-          slide.style.opacity = 0; // Start fade out
-          if (i === index) {
-              slide.classList.add("active");
-              setTimeout(() => slide.style.opacity = 1, 300); // Fade in
-          }
-      });
-
-      // Move background slightly for parallax effect
-      const bgOffset = index * 5; // Adjust movement speed
-      document.querySelector(".moon-carousel").style.backgroundPosition = `${bgOffset}px ${bgOffset}px`;
+  let index = slides.findIndex(s => s.classList.contains("active"));
+  if (index < 0) {
+    index = 0;
+    slides[0].classList.add("active");
   }
 
-  prevButton.addEventListener("click", () => {
-    harpSound.currentTime = 0; // Reset sound for instant replay
-    harpSound.play(); // Play sound effect
+  const show = (i) => {
+    slides.forEach(s => s.classList.remove("active"));
+    slides[i].classList.add("active");
+  };
 
-    currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
-    showSlide(currentSlide);
+  prevBtn?.addEventListener("click", () => {
+    index = (index - 1 + slides.length) % slides.length;
+    show(index);
   });
 
-  nextButton.addEventListener("click", () => {
-    harpSound.currentTime = 0;
-    harpSound.play();
-
-    currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
-    showSlide(currentSlide);
+  nextBtn?.addEventListener("click", () => {
+    index = (index + 1) % slides.length;
+    show(index);
   });
 
-  // 🎠 Swipe support for moon poetry carousel
-  const moonContainer = document.querySelector(".moon-carousel");
-  initSwipe(moonContainer, {
-    onSwipeLeft: () => nextButton.click(),
-    onSwipeRight: () => prevButton.click()
-  });
-
-  // Function to determine the current Celtic month dynamically
-  function getCurrentCelticMonth() {
-    const today = new Date();
-    const day = today.getDate();
-    const month = today.getMonth(); // 0 = January, 1 = February, etc.
-    const year = today.getFullYear();
-  
-    // For example, use these fixed boundaries (based on your JSON):
-    const celticCalendar = [
-      // Note: For proper conversion you may need to adjust December of the previous year.
-      { name: "Janus", start: { month: 0, day: 20 }, end: { month: 1, day: 16 } },      // Jan 20 to Feb 16
-      { name: "Brigid", start: { month: 1, day: 17 }, end: { month: 2, day: 16 } },     // Feb 17 to Mar 16
-      { name: "Flora",  start: { month: 2, day: 17 }, end: { month: 3, day: 13 } },     // Mar 17 to Apr 13
-      { name: "Maia",  start: { month: 4, day: 14 }, end: { month: 5, day: 11 } },
-      { name: "Juno",  start: { month: 5, day: 12 }, end: { month: 6, day: 8 } },
-      { name: "Solis",  start: { month: 6, day: 9 }, end: { month: 7, day: 6 } },
-      { name: "Terra",  start: { month: 7, day: 7 }, end: { month: 8, day: 3 } },
-      { name: "Lugh",  start: { month: 8, day: 4 }, end: { month: 8, day: 31 } },
-      { name: "Pomona",  start: { month: 9, day: 1 }, end: { month: 9, day: 28 } },
-      { name: "Autumna",  start: { month: 9, day: 29 }, end: { month: 10, day: 26 } },
-      { name: "Eira",  start: { month: 10, day: 27 }, end: { month: 11, day: 23 } },
-      { name: "Aether",  start: { month: 11, day: 24 }, end: { month: 12, day: 21 } },
-      { name: "Nivis",  start: { month: 12, day: 23 }, end: { month: 0, day: 19 } }          
-    ];
-  
-    // Find the Celtic month that includes today's Gregorian date.
-    // (This simple approach assumes that today's month falls entirely within one Celtic month.)
-    const todayCeltic = celticCalendar.find(({ start, end }) => {
-      const afterStart = (month > start.month) || (month === start.month && day >= start.day);
-      const beforeEnd = (month < end.month) || (month === end.month && day <= end.day);
-      return afterStart && beforeEnd;
-    });
-  
-    return todayCeltic ? todayCeltic.name : "Janus"; // Default to Janus if no match
+  const container = scope.querySelector(".moon-carousel") || scope;
+  try {
+    if (typeof initSwipe === "function" && container) {
+      initSwipe(container, {
+        onSwipeLeft:  () => nextBtn?.click(),
+        onSwipeRight: () => prevBtn?.click()
+      });
+    }
+  } catch (err) {
+    console.warn("Moon Poetry swipe init skipped:", err);
+  }
 }
 
-function setInitialMoon() {
-  const celticMonth = getCurrentCelticMonth();
- const moonMapping = {
-    Nivis: "snow-moon",
-    Janus: "wolf-moon",
-    Brigid: "worm-moon",
-    Flora: "pink-moon",
-    Juno: "flower-moon",
-    Solis: "strawberry-moon",
-    Terra: "thunder-moon",
-    Lugh: "grain-moon",
-    Pomona: "harvest-moon",
-    Autumna: "hunters-moon",
-    Eira: "frost-moon",
-    Aether: "cold-moon"
-};
-
-  console.log("This month is ", celticMonth);
-
-  const firstMoon = moonMapping[celticMonth] || "snow-moon";
-  const initialIndex = [...document.querySelectorAll(".moon-slide")].findIndex(slide => slide.id === firstMoon);
-  currentSlide = initialIndex !== -1 ? initialIndex : 0;
-  showSlide(currentSlide);
-
-}
-
-  // Set the correct moon when the page loads
-  setInitialMoon();
-}
-
+// ————————————————————————————————
+// Reveal the Zodiac tiles on scroll using IntersectionObserver (with fallback)
 export function revealZodiacOnScroll() {
-  const zodiacs = document.querySelectorAll('.zodiac-item');
+  const selector = ".zodiac-item.hidden";
+  const hiddenItems = Array.from(document.querySelectorAll(selector));
+  if (hiddenItems.length === 0) return;
 
-  const observer = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        entry.target.classList.remove('hidden');
-        observer.unobserve(entry.target); // Stop observing once revealed
+  if (document.__zodiacRevealWired) return;
+  document.__zodiacRevealWired = true;
+
+  const revealEl = (el) => {
+    el.classList.remove("hidden");
+    el.classList.add("show");
+  };
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          revealEl(entry.target);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { root: null, rootMargin: "0px 0px -10% 0px", threshold: 0.15 });
+
+    hiddenItems.forEach((el) => io.observe(el));
+  } else {
+    const onScroll = () => {
+      const h = window.innerHeight || document.documentElement.clientHeight;
+      hiddenItems.forEach((el) => {
+        if (!el.classList.contains("hidden")) return;
+        const r = el.getBoundingClientRect();
+        if (r.top < h * 0.9) revealEl(el);
+      });
+      if (!document.querySelector(selector)) {
+        window.removeEventListener("scroll", onScroll);
       }
-    });
-  }, {
-    threshold: 0.15 // You can tweak this for earlier/later reveals
-  });
-
-  zodiacs.forEach(item => {
-    observer.observe(item);
-  });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
 }
-
-document.addEventListener("DOMContentLoaded", revealZodiacOnScroll);

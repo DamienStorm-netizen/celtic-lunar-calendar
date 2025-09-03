@@ -54,6 +54,27 @@ html, body {
   padding-top: calc(env(safe-area-inset-top) + 8px); /* keep below notch/nav */
 }
 
+/* Full-screen clickable overlay for modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  /* dynamic viewport for iOS */
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1050;
+  /* below .modal (1100), above app */
+  display: none;
+}
+
+.modal-overlay.show { display: block; }
+
+.modal-overlay.hidden {
+  display: none;
+}
+
 /* Inner content should scroll if it overflows */
 .modal .modal-content {
   position: relative;
@@ -61,17 +82,14 @@ html, body {
   overflow-y: auto;                 /* enable scroll */
   overflow-x: hidden;               /* no horizontal bar */
   -webkit-overflow-scrolling: touch;/* momentum on iOS */
+  touch-action: pan-y;              /* allow vertical gestures on iOS */
 }
 
 /* Lock background when modal is open (JS toggles this class) */
 body.modal-open {
   overflow: hidden;           /* disable background scroll */
 }
-@media (min-width: 768px) {
-  .modal {
-    padding-top: 56px; /* clear the sticky nav on iPad/desktop */
-  }
-}
+
 body.modal-open .container {
   overflow: hidden !important;
 }
@@ -123,6 +141,35 @@ body.modal-open .container {
   top: -13px;
   right: -14px;
   z-index: 9999; /* Ensure it's really on top */
+}
+
+/* Ensure the Insights (zodiac) modal close star sits inside the box */
+#zodiac-modal #close-modal {
+  top: 8px;
+  right: 8px;
+}
+
+/* Compact top spacing for the Insights zodiac modal */
+#zodiac-modal.modal {
+  align-items: flex-start;
+  /* stick content to the top */
+  padding-top: calc(env(safe-area-inset-top) + 8px);
+  /* small safe-area buffer */
+}
+
+/* Keep the card snug under the header */
+#zodiac-modal .modal-content {
+  margin-top: 0;
+}
+
+/* Home (Today card) Zodiac modal: top-aligned and capped width */
+#home-zodiac-modal.modal {
+  align-items: flex-start;                     /* keep content near the top */
+  padding-top: calc(env(safe-area-inset-top) + 8px);
+}
+#home-zodiac-modal .modal-content {
+  width: clamp(300px, 86vw, 380px);            /* keep it phone-sized like calendar */
+  margin-top: 0;                               /* no extra gap */
 }
 
 
@@ -2715,18 +2762,25 @@ span.celtic-zodiac-date {
 }
 
 .modal-content {
-  width: 400px; /* Make sure this is fixed for both views */
-  max-width: 90vw;
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  max-width: min(92vw, 420px);
+  /* cap width, never stretch full screen */
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+
   background: #1E1E2A;
   padding: 20px;
   border-radius: 10px;
   text-align: center;
   color: #D7E0FF;
-  max-width: 80%;
-  box-shadow: 0 0 20px rgba(255, 223, 127, 0.8);
-  margin: 0 auto;
   box-shadow: 0 0 25px rgba(173, 216, 230, 0.4), 0 0 50px rgba(138, 43, 226, 0.2);
-  transition: box-shadow 0.3s ease-in-out;
+  margin: 0 auto;
+  flex: 0 1 auto;
+  /* don’t let flexbox stretch it */
 }
 
 #modal-content:hover {
@@ -2735,14 +2789,25 @@ span.celtic-zodiac-date {
 
 .modal {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.95); /* Do NOt remove */
-  transition: opacity 0.3s ease-out, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  inset: 0;
+  /* full-screen container */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* start near the top */
+  padding-top: 12px;
+  /* breathing room under the nav */
   opacity: 0;
-  /*visibility: hidden;*/
   pointer-events: none;
+  transform: none;
+  /* <-- important: no translate centering */
+  transition: opacity 0.25s ease-out;
   z-index: 1000;
+}
+
+.modal.show {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .modal p {
@@ -2755,14 +2820,6 @@ span.celtic-zodiac-date {
 .modal,
 .modal-overlay {
   will-change: opacity, transform;
-}
-
-.modal.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: auto;
-  /*visibility: visible;
-  pointer-events: all;*/
 }
 
 body.modal-open {
@@ -3749,28 +3806,17 @@ body.modal-open {
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6); /* soft dark veil */
-  z-index: 999; /* just below the modal which is 999 */
-  backdrop-filter: blur(2px); /* optional shimmer */
-  /*transition: opacity 0.3s ease-in-out;*/
-  /*opacity: 0;*/
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
   pointer-events: none;
+  z-index: 900;
+  transition: opacity 0.2s ease;
 }
 
 .modal-overlay.show {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(15, 15, 30, 0.6);
-  z-index: 999; /* Just below modal */
-  cursor: pointer;
-  pointer-events: auto; /* 🪄 This is the key */
+  opacity: 1;
+  pointer-events: auto;
 }
 
 #event-list-container {
@@ -4259,10 +4305,19 @@ footer nav {
   }
 }
 
+@media (min-width: 768px) {
+
+  /* Override the generic 56px top padding on tablet/desktop just for Insights */
+  #zodiac-modal.modal {
+    padding-top: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .modal {
     width: 95vw; /* Almost full width on smaller screens */
     padding: 15px;
+    padding-top: 56px;  
     height: 90vh; /* Prevents it from being too tall */
   }
   .container {

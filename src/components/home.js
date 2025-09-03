@@ -274,6 +274,24 @@ export function renderHome() {
           document.addEventListener('click', (ev) => {
             const trigger = ev.target.closest('.zodiac-modal-trigger');
             if (!trigger) return;
+            // Defensive relocation and iOS-friendly scroll/top-align
+            // Make sure modal and overlay live directly under <body> so position:fixed uses the viewport
+            const ov = document.getElementById('modal-overlay');
+            if (ov && ov.parentElement !== document.body) document.body.appendChild(ov);
+            if (homeZodiacModal && homeZodiacModal.parentElement !== document.body) document.body.appendChild(homeZodiacModal);
+
+            // Top-align and iOS-friendly scrolling for the inner content
+            if (homeZodiacModal) {
+              homeZodiacModal.style.transform = 'none';
+              homeZodiacModal.style.alignItems = 'flex-start';
+              const c = homeZodiacModal.querySelector('.modal-content');
+              if (c) {
+                c.style.marginTop = '8px';
+                c.style.overflowY = 'auto';
+                c.style.webkitOverflowScrolling = 'touch';
+                c.scrollTop = 0;
+              }
+            }
             if (homeZodiacModal) {
               homeZodiacModal.classList.remove('hidden');
               homeZodiacModal.classList.add('show');
@@ -296,6 +314,9 @@ export function renderHome() {
             const ov = document.getElementById('modal-overlay');
             if (ov) { ov.classList.add('hidden'); ov.classList.remove('show'); }
             document.body.classList.remove('modal-open');
+            // Reset any inline styles set on open (safe but not required)
+            const c = homeZodiacModal?.querySelector('.modal-content');
+            if (c) c.style.marginTop = '0px';
           });
           homeZodiacClose.__wired = true;
         }
