@@ -3700,6 +3700,34 @@ body.modal-open {
   padding-right: 35px;
   color: #ffd700;
   font-family: 'Libre Baskerville', serif;
+  /* Ensure proper mobile touch handling */
+  touch-action: manipulation;
+  pointer-events: auto;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* Ensure flatpickr calendar appears above all modals on mobile */
+.flatpickr-calendar {
+  z-index: 10000 !important;
+  position: fixed !important;
+}
+
+/* Mobile-specific flatpickr fixes */
+@media (max-width: 768px) {
+  .flatpickr-input {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    min-height: 44px; /* iOS minimum touch target */
+  }
+  
+  .flatpickr-calendar {
+    /* Ensure calendar is properly sized on mobile */
+    max-width: 90vw;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: 20% !important;
+  }
 }
 
 .lunar-date-row {

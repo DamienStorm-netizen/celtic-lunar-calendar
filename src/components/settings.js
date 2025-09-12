@@ -51,7 +51,7 @@ export function renderSettings() {
                 <h2>🌗 Date Conversion</h2>
                 <p class="settings-subheader">Gregorian to Lunar Date</p>
                 <ul class="conversion-settings">
-                    <li>Gregorian Date: <input type="text" id="convert-to-celtic" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
+                    <li>Gregorian Date: <input type="date" id="convert-to-celtic" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
                    <li class="lunar-date-row"><span class="lunar-label">Lunar Date:</span><span class="converted-date">Trésda, Juno 9</span></li>
                 </ul>
             
@@ -657,16 +657,11 @@ function initConversionPicker() {
     return;
   }
 
-  // iOS-friendly: prevent keyboard from covering the picker
-  input.setAttribute("readonly", "readonly");
-  input.setAttribute("aria-haspopup", "dialog");
-
-  const fp = flatpickr(input, {
+  // Use the same simple approach as the working birthdateInput
+  flatpickr(input, {
     altInput: true,
     altFormat: "F j, Y",
     dateFormat: "Y-m-d",
-    allowInput: false,
-    clickOpens: true,
     theme: "moonveil",
     onChange: (_selectedDates, dateStr) => {
       if (!dateStr) return;
@@ -679,10 +674,6 @@ function initConversionPicker() {
       }
     }
   });
-
-  // Make sure it opens on tap/click/focus (esp. on iPad)
-  input.addEventListener("click", () => fp.open());
-  input.addEventListener("focus", () => fp.open(), { once: true });
 }
 
 // Utility: build our stable composite key

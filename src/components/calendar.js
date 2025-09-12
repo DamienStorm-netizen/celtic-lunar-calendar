@@ -419,7 +419,7 @@ export function showModal(monthName) {
                         </label>
 
                         <label for="event-date">Date:
-                            <input type="text" id="event-date" class="flatpickr-input celtic-form-input" placeholder="Pick your date 🌕" required />
+                            <input type="date" id="event-date" class="flatpickr-input celtic-form-input" placeholder="Pick your date 🌕" required />
                         </label>
 
                         <label for="event-note">Event Description:
@@ -496,12 +496,10 @@ export function showModal(monthName) {
             // ✅ Call enhancement only when the modal is displayed
             enhanceCalendarTable(modalContainer, monthName);
 
-            flatpickr("#event-date", {
-                altInput: true,
-                altFormat: "F j, Y",
-                dateFormat: "Y-m-d",
-                theme: "moonveil"
-            });
+            // Initialize flatpickr when the Add Event tab becomes active
+            setTimeout(() => {
+                initEventDatePicker();
+            }, 100);
 
 
 const addForm = document.getElementById("add-event-form");
@@ -633,7 +631,21 @@ async function fetchTagline(monthName) {
     }
 }
 
-// Sets up the 3 tabs inside the  modal
+// Simple datepicker initialization like the working birthdateInput
+function initEventDatePicker() {
+    const eventDateInput = document.getElementById("event-date");
+    if (!eventDateInput) return;
+    
+    // Use the same simple approach as the working birthdateInput
+    flatpickr("#event-date", {
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
+        theme: "moonveil"
+    });
+}
+
+// Sets up the 3 tabs inside the modal
 function setupCalendarTabNavigation() {
     const tabs = document.querySelectorAll(".calendar-tab-button");
     const contents = document.querySelectorAll(".calendar-tab-content");
@@ -649,6 +661,13 @@ function setupCalendarTabNavigation() {
         // Activate the clicked tab
         tab.classList.add("active");
         document.getElementById(targetId).classList.add("active");
+        
+        // If switching to the Add Event tab, ensure datepicker is properly initialized
+        if (targetId === "tab-content-add") {
+            setTimeout(() => {
+                initEventDatePicker();
+            }, 50);
+        }
       });
     });
 }

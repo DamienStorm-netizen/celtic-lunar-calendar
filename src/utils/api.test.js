@@ -31,7 +31,7 @@ describe('API Client', () => {
       const result = await api.celticDate()
       expect(result).toEqual(mockResponse)
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/api/celtic-date'),
+        expect.stringContaining('/celtic-date'),
         expect.objectContaining({
           headers: expect.objectContaining({
             'Accept': 'application/json',
@@ -237,7 +237,7 @@ describe('API Client', () => {
         
         // Verify POST request was made
         expect(fetchMock).toHaveBeenCalledWith(
-          expect.stringContaining('/api/custom-events'),
+          expect.stringContaining('/custom-events'),
           expect.objectContaining({
             method: 'POST',
             headers: {

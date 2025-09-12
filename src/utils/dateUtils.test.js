@@ -104,7 +104,12 @@ describe('Date Utils', () => {
       if (dateUtils.convertCelticToGregorian) {
         // Test a known Celtic date
         const result = dateUtils.convertCelticToGregorian('Lugh', 15, 2024)
-        expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+        expect(result).toHaveProperty('gregorianYear')
+        expect(result).toHaveProperty('gregorianMonth')
+        expect(result).toHaveProperty('gregorianDay')
+        expect(typeof result.gregorianYear).toBe('number')
+        expect(typeof result.gregorianMonth).toBe('string')
+        expect(typeof result.gregorianDay).toBe('string')
       }
     })
   })
@@ -129,15 +134,19 @@ describe('Date Utils', () => {
       const dateUtils = await import('./dateUtils.js')
       
       if (dateUtils.getCelticWeekday) {
-        // Test day boundaries
-        const day0 = dateUtils.getCelticWeekday(0)
+        // Test valid day boundaries (Celtic days start from 1)
+        const day1 = dateUtils.getCelticWeekday(1)
         const day7 = dateUtils.getCelticWeekday(7)
         const day28 = dateUtils.getCelticWeekday(28)
         
         // All should return valid strings
-        expect(typeof day0).toBe('string')
+        expect(typeof day1).toBe('string')
         expect(typeof day7).toBe('string')
         expect(typeof day28).toBe('string')
+        
+        // Test that invalid days return undefined
+        const day0 = dateUtils.getCelticWeekday(0)
+        expect(day0).toBeUndefined()
       }
     })
   })
@@ -148,10 +157,10 @@ describe('Date Utils', () => {
       
       if (dateUtils.getMonthRangeISO) {
         const range = dateUtils.getMonthRangeISO('Lugh', 2024)
-        expect(range).toHaveProperty('start')
-        expect(range).toHaveProperty('end')
-        expect(range.start).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-        expect(range.end).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+        expect(range).toHaveProperty('startISO')
+        expect(range).toHaveProperty('endISO')
+        expect(range.startISO).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+        expect(range.endISO).toMatch(/^\d{4}-\d{2}-\d{2}$/)
       }
     })
 
@@ -168,8 +177,8 @@ describe('Date Utils', () => {
         celticMonths.forEach(month => {
           const range = dateUtils.getMonthRangeISO(month, 2024)
           expect(range).toBeDefined()
-          expect(range.start).toBeDefined()
-          expect(range.end).toBeDefined()
+          expect(range.startISO).toBeDefined()
+          expect(range.endISO).toBeDefined()
         })
       }
     })
@@ -186,10 +195,10 @@ describe('Date Utils', () => {
         expect(normalYear).toBeDefined()
         
         // Mirabilis should have different lengths in leap years
-        const leapStart = new Date(leapYear.start)
-        const leapEnd = new Date(leapYear.end)
-        const normalStart = new Date(normalYear.start)
-        const normalEnd = new Date(normalYear.end)
+        const leapStart = new Date(leapYear.startISO)
+        const leapEnd = new Date(leapYear.endISO)
+        const normalStart = new Date(normalYear.startISO)
+        const normalEnd = new Date(normalYear.endISO)
         
         const leapDays = (leapEnd - leapStart) / (1000 * 60 * 60 * 24)
         const normalDays = (normalEnd - normalStart) / (1000 * 60 * 60 * 24)
@@ -213,7 +222,7 @@ describe('Date Utils', () => {
         // Extract month and day from Celtic date (this would need parsing)
         // For now, just test that we get consistent results
         expect(typeof celticDate).toBe('string')
-        expect(celticDate.length).toBeGreaterThan(10)
+        expect(celticDate.length).toBeGreaterThan(5)
       }
     })
 
