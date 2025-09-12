@@ -1,0 +1,254 @@
+name: 🧪 Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Test on Node.js ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 21.x]
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    - name: 🧪 Run unit tests
+      run: npm run test:run
+
+    - name: 📊 Generate coverage report
+      run: npm run test:coverage
+
+    - name: 📤 Upload coverage reports to Codecov
+      if: matrix.node-version == '20.x'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: 💾 Cache test results
+      uses: actions/cache@v4
+      with:
+        path: |
+          coverage/
+          test-results/
+        key: test-results-${{ runner.os }}-${{ matrix.node-version }}-${{ github.sha }}
+        restore-keys: |
+          test-results-${{ runner.os }}-${{ matrix.node-version }}-
+          test-results-${{ runner.os }}-
+
+  lint:
+    name: 🧹 Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    # Add these scripts to package.json if you want linting
+    # - name: 🧹 Run ESLint
+    #   run: npm run lint
+
+    # - name: 🎨 Check Prettier formatting
+    #   run: npm run format:check
+
+    - name: 🔍 Check for security vulnerabilities
+      run: npm audit --audit-level=moderate
+
+  build:
+    name: 🏗️ Build Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    - name: 🏗️ Build production bundle
+      run: npm run build
+
+    - name: 📦 Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-files
+        path: dist/
+        retention-days: 7
+
+  integration:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    
+    services:
+      # Add this if you want to test against a real API
+      # postgres:
+      #   image: postgres:13
+      #   env:
+      #     POSTGRES_PASSWORD: test
+      #   options: >-
+      #     --health-cmd pg_isready
+      #     --health-interval 10s
+      #     --health-timeout 5s
+      #     --health-retries 5
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    # Mock API tests (since we don't have a test backend deployed)
+    - name: 🧪 Run integration tests
+      run: npm run test:run -- --run --testPathPattern="api"
+      env:
+        VITE_API_BASE: http://localhost:8000
+
+    # TODO: Add E2E tests when ready
+    # - name: 🎭 Install Playwright
+    #   run: npx playwright install --with-deps
+    # 
+    # - name: 🧪 Run E2E tests
+    #   run: npm run test:e2e
+
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    - name: 🔍 Run security audit
+      run: npm audit --audit-level=high
+
+    - name: 🛡️ Check for known vulnerabilities
+      run: |
+        # Check for common security issues in frontend code
+        echo "Checking for potential XSS vulnerabilities..."
+        ! grep -r "innerHTML.*=" src/ --include="*.js" || echo "⚠️ Found innerHTML usage - verify XSS protection"
+        
+        echo "Checking for hardcoded secrets..."
+        ! grep -r -i "api[_-]?key\|secret\|password\|token" src/ --include="*.js" --exclude-dir=test || echo "⚠️ Potential secrets found"
+
+  compatibility:
+    name: 🌐 Browser Compatibility  
+    runs-on: ubuntu-latest
+    needs: [build]
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    - name: 📥 Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-files
+        path: dist/
+
+    # Basic compatibility checks
+    - name: 🔍 Check for modern JS features
+      run: |
+        echo "Checking built files for compatibility issues..."
+        # Check for ES6+ features that might not be transpiled
+        if grep -r "const\|let\|=>" dist/ --include="*.js" 2>/dev/null; then
+          echo "✅ Modern JavaScript features found (ensure proper transpilation)"
+        fi
+        
+        # Check for required polyfills
+        if grep -r "fetch\|Promise\|async\|await" dist/ --include="*.js" 2>/dev/null; then
+          echo "ℹ️ Async features detected - ensure polyfills for older browsers"
+        fi
+
+  performance:
+    name: ⚡ Performance Check
+    runs-on: ubuntu-latest
+    needs: [build]
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 📥 Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-files
+        path: dist/
+
+    - name: 📊 Analyze bundle size
+      run: |
+        echo "📦 Bundle Size Analysis"
+        echo "======================="
+        du -sh dist/
+        echo ""
+        echo "📄 Individual Files:"
+        find dist/ -name "*.js" -o -name "*.css" | sort | while read file; do
+          size=$(du -h "$file" | cut -f1)
+          echo "  $size - $(basename "$file")"
+        done
+        echo ""
+        echo "🎯 Performance Recommendations:"
+        total_size=$(du -s dist/ | cut -f1)
+        if [ $total_size -gt 2048 ]; then
+          echo "  ⚠️ Bundle size >2MB - consider code splitting"
+        else
+          echo "  ✅ Bundle size looks good"
+        fi

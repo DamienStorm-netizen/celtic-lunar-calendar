@@ -4,6 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Lunar Almanac</title>
+  
+  <!-- Content Security Policy for XSS Protection -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+    style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+    img-src 'self' data: https: blob:;
+    connect-src 'self' https://*.render.com;
+    font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+  ">
+  
   <link rel="stylesheet" href="/src/styles/styles.css">
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#d0bfff" />
@@ -63,9 +78,13 @@
   </footer>
 </div>
 
-<!-- Flatpickr Core -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- Flatpickr Core with Subresource Integrity -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" 
+      integrity="sha384-6aHdH0HgsLYgxfgdJlFrlWQZXrPvvQCF6HrIY7YW/Ujo8lWd7mFOTbKZFdS0MF/s" 
+      crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr" 
+        integrity="sha384-V6TZKqfj/g+MgCFZ5vgdK5T4AJD4hc8nPK6nQJYeH6TkXdGJVT8sBW1vGrMU5U5" 
+        crossorigin="anonymous"></script>
 <!-- Your Custom Moon Veil Theme -->
 <link rel="stylesheet" href="/s/moonveil-theme.css">
 
@@ -78,8 +97,10 @@
 
 <!-- PWA service worker is disabled during local development; VitePWA will inject the correct registration in production builds. -->
 
-<!-- SweetAlert2 for polished event confirmation -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- SweetAlert2 for polished event confirmation with SRI -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" 
+        integrity="sha384-/XJQ6BqUdHAJu4T9ZQr8JLgNJVGlnKIZ2S9DnSz6sBL8vP1nQjXyHw1h5FwHQwO" 
+        crossorigin="anonymous"></script>
 
 <!-- Vite runtime  -->
 <script type="module" src="/src/main.js"></script>

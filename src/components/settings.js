@@ -2,6 +2,8 @@ import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from "../util
 import { applyMysticalSettings, showDayModal } from "./calendar.js";
 import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
 import { fetchCustomEvents, deleteCustomEvent, updateCustomEvent } from "./eventsAPI.js";
+import { showCelticModal, hideCelticModal } from "../utils/modalOverlay.js";
+import { escapeHtml, sanitizeForAttribute, createElement, validateEventData } from "../utils/security.js";
 
 
 // Helper to show a toast and wire up “View it now”
@@ -41,7 +43,6 @@ function setBusy(el, isBusy = true) {
 export function renderSettings() {
     return `
         <div id="settings-container" class="fade-in">
-            <div id="modal-overlay" class="modal-overlay hidden"></div>
             <h1 class="settings-title">Settings</h1>
 
             <!-- Custom Events Management -->
@@ -69,78 +70,6 @@ export function renderSettings() {
                     <p>Loading your magical events...</p>
                 </div>
 
-                <!--- ADD Custom Event --->
-                <div id="add-event-modal" class="modal modal-settings">
-                    <div class="modal-content">
-                        <span class="close-modal-add  mystical-close">✦</span>
-                        <h2>Add New Event</h2>
-                        <form id="add-event-form">
-                            <label for="event-name">Event Name:
-                            <input type="text" id="event-name" required /></label>
-
-                            <label for="event-type">Type of Event:<br />
-                            <select id="event-type">
-                                <option value="🔥 Date">🔥 Date</option>
-                                        <option value="😎 Friends">😎 Friends</option>
-                                        <option value="🎉 Celebrations">🎉 Celebrations</option>
-                                        <option value="🌸 My Cycle">🌸 My Cycle</option>
-                                        <option value="💡 General" active>💡 General</option>
-                                        <option value="🏥 Health">🏥 Health</option>
-                                        <option value="💜 Romantic">💜 Romantic</option>
-                                        <option value="🖥️ Professional">🖥️ Professional</option>
-                            </select></label>
-
-                            <label for="event-date">Date:<br />
-                            <input type="date" id="event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></label>
-
-                            <label for="event-note">Event Description:
-                            <textarea id="event-note"></textarea></label>
-
-                            <label for="event-recurring">
-                                <input type="checkbox" id="event-recurring" />
-                                Make it Recurring
-                            </label>
-
-                            <button type="submit">Save Event</button>
-                            <button type="button" class="cancel-modal-add">Cancel</button>
-                        </form> 
-                    </div>
-                </div>
-
-                <!--- EDIT Custom Event -->
-                <div id="edit-event-modal" class="modal modal-settings">
-                    <div class="modal-content">
-                        <span class="close-modal-edit mystical-close">✦</span>
-                        <h2>Edit Your Event</h2>
-                        <form id="edit-event-form">
-                            <label for="edit-event-name">Event Name:<input type="text" id="edit-event-name" required /></label>
-                            <label for="edit-event-type">Type:
-                            <select id="edit-event-type">
-                                <option value="🔥 Date">🔥 Date</option>
-                                <option value="😎 Friends">😎 Friends</option>
-                                <option value="🎉 Celebrations">🎉 Celebrations</option>
-                                <option value="🌸 My Cycle">🌸 My Cycle</option>
-                                <option value="💡 General" active>💡 General</option>
-                                <option value="🏥 Health">🏥 Health</option>
-                                <option value="💜 Romantic">💜 Romantic</option>
-                                <option value="🖥️ Professional">🖥️ Professional</option>
-                            </select></label>
-
-                            <label for="edit-event-date">Date:<br />
-                            <input type="date" id="edit-event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></label>
-
-                            <label for="edit-event-notes">Notes:<br />
-                            <textarea id="edit-event-notes"></textarea></label>
-
-                            <label for="edit-event-recurring">
-                                <input type="checkbox" id="edit-event-recurring" />
-                                Recurring Event
-                            </label>
-
-                            <button type="submit" class="save-event-btn">Save Changes</button>&nbsp;&nbsp;<button type="button" class="cancel-modal-edit">Cancel</button>      
-                        </form>
-                    </div>
-                </div>
             </section>
 
             <br />
@@ -227,67 +156,86 @@ export function getMysticalPrefs() {
 
 // Function to show add event modal
 function showAddEventModal() {
-    
     console.log("📝 Open Add Event Modal...");
-    const modal = document.getElementById("add-event-modal");
-    // Show Modal
-    modal.classList.remove("hidden");
-    modal.classList.add("show");
-    // Show the modal overlay
-    document.getElementById("modal-overlay").classList.add("show");
-    document.getElementById("modal-overlay").classList.remove("hidden");
+    
+    const modalContent = `
+        <h2 class="goldenTitle">Add New Event</h2>
+        <form id="add-event-form" style="text-align: left;">
+            <label for="event-name">Event Name:
+                <input type="text" id="event-name" required class="celtic-form-input" />
+            </label>
 
-    // Wire the Add form submit
-    const addForm = document.getElementById("add-event-form");
-    if (addForm) addForm.onsubmit = handleAddEventSubmit;
+            <label for="event-type">Type of Event:
+                <select id="event-type" class="celtic-form-input">
+                    <option value="🔥 Date">🔥 Date</option>
+                    <option value="😎 Friends">😎 Friends</option>
+                    <option value="🎉 Celebrations">🎉 Celebrations</option>
+                    <option value="🌸 My Cycle">🌸 My Cycle</option>
+                    <option value="💡 General" selected>💡 General</option>
+                    <option value="🏥 Health">🏥 Health</option>
+                    <option value="💜 Romantic">💜 Romantic</option>
+                    <option value="🖥️ Professional">🖥️ Professional</option>
+                </select>
+            </label>
 
-    // Close modal and hide overlay when clicking the close button
-    document.querySelectorAll(".cancel-modal-add, .close-modal-add").forEach(btn => {
-      btn.addEventListener("click", () => {
-        modal.classList.remove("show");
-        modal.classList.add("hidden");
-        const overlay = document.getElementById("modal-overlay");
-        overlay.classList.remove("show");
-        overlay.classList.add("hidden");
-      }, { once: true });
-    });
+            <label for="event-date">Date:
+                <input type="date" id="event-date" required class="celtic-form-input" />
+            </label>
 
-    // Close modal and hide overlay when clicking the X link
-    document.querySelectorAll(".close-modal-add").forEach(button => {
-        button.addEventListener("click", () => {
-            // Hide modal
-            modal.classList.remove("show");
-            modal.classList.add("hidden");
-            // Show the modal overlay
-            document.getElementById("modal-overlay").classList.remove("show");
-            document.getElementById("modal-overlay").classList.add("hidden");
-        });
-    });
+            <label for="event-note">Event Description:
+                <textarea id="event-note" class="celtic-form-textarea"></textarea>
+            </label>
 
+            <label for="event-recurring" class="celtic-form-checkbox-container">
+                <input type="checkbox" id="event-recurring" class="celtic-form-checkbox" />
+                <span class="celtic-form-checkbox-label">Make it Recurring</span>
+            </label>
+
+            <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+                <button type="submit" class="settings-btn">Save Event</button>
+                <button type="button" class="settings-btn" id="cancel-add-event">Cancel</button>
+            </div>
+        </form> 
+    `;
+
+    // Show Celtic modal
+    const modal = showCelticModal(modalContent, { id: 'add-event-modal' });
+    
+    // Wire the form submit
+    const addForm = modal.querySelector("#add-event-form");
+    if (addForm) {
+        addForm.onsubmit = handleAddEventSubmit;
+    }
+    
+    // Wire cancel button
+    const cancelBtn = modal.querySelector("#cancel-add-event");
+    if (cancelBtn) {
+        cancelBtn.onclick = () => hideCelticModal('add-event-modal');
+    }
 }
 
 // Function to handle event submission - ADD
 async function handleAddEventSubmit(event) {
-
-    // Hide overlay
-    document.getElementById("modal-overlay").classList.add("hidden");
-    document.getElementById("modal-overlay").classList.remove("show");
-
     console.log("Adding an event");
     event.preventDefault(); // Prevent default form submission behavior
 
-    // Grab form values
-    const eventName = document.getElementById("event-name").value.trim();
-    const eventType = document.getElementById("event-type").value;
-    const eventDate = document.getElementById("event-date").value;
-    const eventNotes = document.getElementById("event-note").value.trim();
-    const eventRecurring = document.getElementById("event-recurring").checked;
+    // Grab and validate form values
+    const rawEventData = {
+        title: document.getElementById("event-name").value.trim(),
+        category: document.getElementById("event-type").value,
+        date: document.getElementById("event-date").value,
+        notes: document.getElementById("event-note").value.trim(),
+        recurring: document.getElementById("event-recurring").checked
+    };
 
-    // Ensure required fields are filled
-    if (!eventName || !eventDate) {
-        alert("Please enter both an event name and date.");
+    // Validate and sanitize input
+    const validation = validateEventData(rawEventData);
+    if (!validation.isValid) {
+        alert("Please fix the following errors:\n" + validation.errors.join("\n"));
         return;
     }
+
+    const { title: eventName, category: eventType, date: eventDate, notes: eventNotes, recurring: eventRecurring } = validation.sanitized;
 
     // Identify the submit button (works in all browsers)
     const submitBtn =
@@ -336,12 +284,8 @@ async function handleAddEventSubmit(event) {
         const result = await response.json();
         console.log("✅ Event added successfully:", result);
 
-        // Close modal & refresh event list
-        const addModal = document.getElementById("add-event-modal");
-        addModal.classList.remove("show");
-        addModal.classList.add("hidden");
-        document.getElementById("modal-overlay").classList.remove("show");
-        document.getElementById("modal-overlay").classList.add("hidden");
+        // Close Celtic modal & refresh event list
+        hideCelticModal('add-event-modal');
 
         // ✨ Refresh the list with live data!
         const updatedEvents = await fetchCustomEvents();
@@ -446,28 +390,56 @@ function populateEventList(events) {
   events.forEach(event => {
     const stableId = event.id || `${event.date}|${event.title || event.name || ""}`;
 
+    // Create event element safely without innerHTML
     const eventElement = document.createElement("div");
     eventElement.classList.add("event-item");
-    eventElement.innerHTML = `
-        <ul class="settings-event-list">
-            <li><h3>${event.title || event.name} - ${event.category || event.type || "custom-event"}</h3></li>
-            <li>${event.date}</li>
-            <li>${event.notes || "No notes added."}</li>
-            <li>
-            <button
-                class="settings-edit-event"
-                data-id="${stableId}"
-                data-key="${event.date}|${event.title ?? event.name ?? ''}"
-            >Edit</button>
-            <button
-                class="settings-delete-event"
-                data-id="${stableId}"
-                data-key="${event.date}|${event.title ?? event.name ?? ''}"
-            >Delete</button>
-            </li>
-        </ul>
-        `;
-
+    
+    const ul = document.createElement("ul");
+    ul.classList.add("settings-event-list");
+    
+    // Title and category (safely escaped)
+    const titleLi = document.createElement("li");
+    const h3 = document.createElement("h3");
+    h3.textContent = `${event.title || event.name || 'Untitled'} - ${event.category || event.type || "custom-event"}`;
+    titleLi.appendChild(h3);
+    ul.appendChild(titleLi);
+    
+    // Date
+    const dateLi = document.createElement("li");
+    dateLi.textContent = event.date;
+    ul.appendChild(dateLi);
+    
+    // Notes (safely escaped)
+    const notesLi = document.createElement("li");
+    notesLi.textContent = event.notes || "No notes added.";
+    ul.appendChild(notesLi);
+    
+    // Buttons
+    const buttonsLi = document.createElement("li");
+    
+    const editButton = createElement("button", {
+      className: "settings-edit-event",
+      textContent: "Edit",
+      attributes: {
+        "data-id": sanitizeForAttribute(stableId),
+        "data-key": sanitizeForAttribute(`${event.date}|${event.title ?? event.name ?? ''}`)
+      }
+    });
+    
+    const deleteButton = createElement("button", {
+      className: "settings-delete-event",
+      textContent: "Delete",
+      attributes: {
+        "data-id": sanitizeForAttribute(stableId),
+        "data-key": sanitizeForAttribute(`${event.date}|${event.title ?? event.name ?? ''}`)
+      }
+    });
+    
+    buttonsLi.appendChild(editButton);
+    buttonsLi.appendChild(deleteButton);
+    ul.appendChild(buttonsLi);
+    
+    eventElement.appendChild(ul);
     container.appendChild(eventElement);
   });
 
@@ -746,29 +718,51 @@ async function openEditModal(arg) {
     return;
   }
 
-  // Fill fields
-  const modal = document.getElementById("edit-event-modal");
-  const overlay = document.getElementById("modal-overlay");
-  const nameEl = document.getElementById("edit-event-name");
-  const typeEl = document.getElementById("edit-event-type");
-  const dateEl = document.getElementById("edit-event-date");
-  const notesEl = document.getElementById("edit-event-notes");
-  const recEl = document.getElementById("edit-event-recurring");
+  const modalContent = `
+    <h2 class="goldenTitle">Edit Your Event</h2>
+    <form id="edit-event-form" style="text-align: left;">
+        <label for="edit-event-name">Event Name:
+            <input type="text" id="edit-event-name" value="${evt.title ?? evt.name ?? ""}" required class="celtic-form-input" />
+        </label>
+        
+        <label for="edit-event-type">Type:
+            <select id="edit-event-type" class="celtic-form-input">
+                <option value="🔥 Date" ${(evt.category ?? evt.type) === "🔥 Date" ? "selected" : ""}>🔥 Date</option>
+                <option value="😎 Friends" ${(evt.category ?? evt.type) === "😎 Friends" ? "selected" : ""}>😎 Friends</option>
+                <option value="🎉 Celebrations" ${(evt.category ?? evt.type) === "🎉 Celebrations" ? "selected" : ""}>🎉 Celebrations</option>
+                <option value="🌸 My Cycle" ${(evt.category ?? evt.type) === "🌸 My Cycle" ? "selected" : ""}>🌸 My Cycle</option>
+                <option value="💡 General" ${(evt.category ?? evt.type) === "💡 General" ? "selected" : ""}>💡 General</option>
+                <option value="🏥 Health" ${(evt.category ?? evt.type) === "🏥 Health" ? "selected" : ""}>🏥 Health</option>
+                <option value="💜 Romantic" ${(evt.category ?? evt.type) === "💜 Romantic" ? "selected" : ""}>💜 Romantic</option>
+                <option value="🖥️ Professional" ${(evt.category ?? evt.type) === "🖥️ Professional" ? "selected" : ""}>🖥️ Professional</option>
+            </select>
+        </label>
 
-  if (nameEl) nameEl.value = evt.title ?? evt.name ?? "";
-  if (typeEl) typeEl.value = evt.category ?? evt.type ?? "💡 General";
-  if (dateEl) dateEl.value = evt.date || "";
-  if (notesEl) notesEl.value = evt.note ?? evt.notes ?? "";
-  if (recEl) recEl.checked = !!evt.recurring;
+        <label for="edit-event-date">Date:
+            <input type="date" id="edit-event-date" value="${evt.date || ""}" required class="celtic-form-input" />
+        </label>
 
-  // Show modal + overlay
-  modal?.classList.remove("hidden");
-  modal?.classList.add("show");
-  overlay?.classList.remove("hidden");
-  overlay?.classList.add("show");
+        <label for="edit-event-notes">Notes:
+            <textarea id="edit-event-notes" class="celtic-form-textarea">${evt.note ?? evt.notes ?? ""}</textarea>
+        </label>
 
-  // SAVE
-  const form = document.getElementById("edit-event-form");
+        <label for="edit-event-recurring" class="celtic-form-checkbox-container">
+            <input type="checkbox" id="edit-event-recurring" ${evt.recurring ? "checked" : ""} class="celtic-form-checkbox" />
+            <span class="celtic-form-checkbox-label">Recurring Event</span>
+        </label>
+
+        <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+            <button type="submit" class="settings-btn save-event-btn">Save Changes</button>
+            <button type="button" class="settings-btn" id="cancel-edit-event">Cancel</button>
+        </div>
+    </form>
+  `;
+
+  // Show Celtic modal
+  const modal = showCelticModal(modalContent, { id: 'edit-event-modal' });
+
+  // Wire form submit
+  const form = modal.querySelector("#edit-event-form");
   if (form) {
     form.onsubmit = async (e) => {
       e.preventDefault();
@@ -777,6 +771,12 @@ async function openEditModal(arg) {
       setBusy(saveBtn, true);
 
       try {
+        const nameEl = form.querySelector("#edit-event-name");
+        const typeEl = form.querySelector("#edit-event-type");
+        const dateEl = form.querySelector("#edit-event-date");
+        const notesEl = form.querySelector("#edit-event-notes");
+        const recEl = form.querySelector("#edit-event-recurring");
+
         const updated = {
           ...evt,
           title: nameEl?.value?.trim() || evt.title || evt.name || "",
@@ -808,12 +808,9 @@ async function openEditModal(arg) {
           console.warn("Backend update warning:", err);
         }
 
-        // Hide modal and optionally refresh the list if a renderer exists
-        modal?.classList.remove("show");
-        modal?.classList.add("hidden");
-        overlay?.classList.remove("show");
-        overlay?.classList.add("hidden");
-
+        // Hide Celtic modal and refresh the list
+        hideCelticModal('edit-event-modal');
+        
         try { window.renderCustomEventsList?.(); } catch {}
       } finally {
         setBusy(saveBtn, false);
@@ -821,15 +818,10 @@ async function openEditModal(arg) {
     };
   }
 
-  // Close (X) button
-  const closeBtn = document.querySelector(".close-modal-edit");
-  if (closeBtn) {
-    closeBtn.onclick = () => {
-      modal?.classList.remove("show");
-      modal?.classList.add("hidden");
-      overlay?.classList.remove("show");
-      overlay?.classList.add("hidden");
-    };
+  // Wire cancel button
+  const cancelBtn = modal.querySelector("#cancel-edit-event");
+  if (cancelBtn) {
+    cancelBtn.onclick = () => hideCelticModal('edit-event-modal');
   }
 }
 

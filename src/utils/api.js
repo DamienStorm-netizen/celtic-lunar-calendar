@@ -1,19 +1,43 @@
+/**
+ * @fileoverview API Client for Celtic Calendar App
+ * Handles all HTTP communication with the backend Celtic Calendar API
+ * Supports both development (Vite proxy) and production (Render.com) environments
+ */
+
+/**
+ * Raw API base URL from environment variables, with trailing slash removed
+ * @type {string}
+ */
 const RAW_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
-// If RAW_BASE is empty, use the current origin so relative paths work in dev with Vite's proxy (or CF Pages Functions).
+
+/**
+ * Final API base URL - uses environment setting or falls back to current origin
+ * @type {string}
+ */
 const API_BASE = RAW_BASE || (typeof window !== "undefined" ? window.location.origin : "");
+
+// Development warning for proxy configuration
 if (!RAW_BASE && import.meta.env.DEV) {
   console.warn('[LunarAlmanac] VITE_API_BASE is empty; using same-origin with Vite proxy.');
 }
 
 /**
- * Normalize request path:
- * - In dev (no RAW_BASE), we keep "/api/..." so the Vite proxy (or CF Pages Functions) can rewrite it.
- * - In prod with an explicit RAW_BASE (Render backend), strip the leading "/api" segment.
+ * Normalize request path for different environments
+ * In development, keeps "/api/..." for Vite proxy rewriting
+ * In production with explicit base URL, strips "/api" segment
+ * @param {string} path - API endpoint path
+ * @returns {string} Normalized path
  */
 function normalizePath(path) {
   return (RAW_BASE && path.startsWith("/api")) ? path.replace(/^\/api/, "") : path;
 }
 
+/**
+ * Build complete URL with query parameters
+ * @param {string} path - API endpoint path
+ * @param {Object.<string, any>} [params] - Query parameters to append
+ * @returns {string} Complete URL string
+ */
 function url(path, params) {
   // Build a fully qualified URL against API_BASE
   const u = new URL(normalizePath(path), API_BASE);
@@ -25,6 +49,13 @@ function url(path, params) {
   return u.toString();
 }
 
+/**
+ * Perform HTTP GET request with automatic JSON parsing
+ * @param {string} path - API endpoint path
+ * @param {Object.<string, any>} [params] - Query parameters
+ * @returns {Promise<any>} Parsed JSON response
+ * @throws {Error} HTTP error with status and status text
+ */
 async function get(path, params) {
   const res = await fetch(
     url(path, params),
@@ -37,28 +68,81 @@ async function get(path, params) {
   return res.json();
 }
 
+/**
+ * Celtic Calendar API client interface
+ * Provides methods for all backend interactions
+ * @namespace
+ */
 export const api = {
-  // health
- // health: () => get('/api/healthz'),
+  // Health and system endpoints
+  // health: () => get('/api/healthz'),
 
-  // shared data
+  /**
+   * Get static calendar data including month information and configurations
+   * @returns {Promise<Object>} Calendar configuration data
+   */
   calendarData: () => get('/api/calendar-data'),
-  celticDate:   () => get('/api/celtic-date'),
 
-  // moon phases
+  /**
+   * Get current Celtic date information
+   * @returns {Promise<Object>} Current Celtic date with lunar calculations
+   */
+  celticDate: () => get('/api/celtic-date'),
+
+  /**
+   * Get dynamic moon phases for a specific date range
+   * @param {string} startISO - Start date in ISO format (YYYY-MM-DD)
+   * @param {string} endISO - End date in ISO format (YYYY-MM-DD)
+   * @returns {Promise<Array>} Array of moon phase data objects
+   */
   dynamicMoonPhases: (startISO, endISO) =>
     get('/api/dynamic-moon-phases', { start_date: startISO, end_date: endISO }),
 
-  // domain data
-  festivals:        () => get('/api/festivals'),
-  eclipseEvents:    () => get('/api/eclipse-events'),
+  /**
+   * Get Celtic festivals and celebrations data
+   * @returns {Promise<Array>} Array of festival objects with dates and descriptions
+   */
+  festivals: () => get('/api/festivals'),
+
+  /**
+   * Get eclipse events data
+   * @returns {Promise<Array>} Array of eclipse objects with timing and visibility
+   */
+  eclipseEvents: () => get('/api/eclipse-events'),
+
+  /**
+   * Get national holidays data
+   * @returns {Promise<Array>} Array of holiday objects
+   */
   nationalHolidays: () => get('/api/national-holidays'),
 
-  // add a cache-busting query param so CF never serves a stale list
-  customEvents:   () => get('/api/custom-events', { t: Date.now() }),
+  /**
+   * Get user custom events with cache-busting
+   * Cache-busting timestamp prevents stale data from CDN/proxies
+   * @returns {Promise<Array>} Array of user-created event objects
+   */
+  customEvents: () => get('/api/custom-events', { t: Date.now() }),
+
+  /**
+   * Create a new custom event
+   * @param {Object} evt - Event object to create
+   * @param {string} evt.title - Event title/name
+   * @param {string} evt.date - Event date in YYYY-MM-DD format
+   * @param {string} [evt.notes] - Optional event notes
+   * @param {string} [evt.category] - Event category/type
+   * @param {boolean} [evt.recurring] - Whether event repeats annually
+   * @returns {Promise<Object>} Created event object with assigned ID
+   */
   addCustomEvent: (evt) => post('/api/custom-events', evt),
 };
 
+/**
+ * Perform HTTP POST request with JSON payload
+ * @param {string} path - API endpoint path
+ * @param {Object} body - Request payload object
+ * @returns {Promise<any>} Parsed JSON response
+ * @throws {Error} HTTP error with descriptive message
+ */
 async function post(path, body) {
   const res = await fetch(url(path), {
     method: 'POST',

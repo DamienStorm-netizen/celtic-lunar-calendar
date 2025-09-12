@@ -1,6 +1,39 @@
-// dateUtils.js
+/**
+ * @fileoverview Celtic Calendar Date Conversion Utilities
+ * Provides functions for converting between Gregorian and Celtic calendar systems
+ * Handles date normalization, Celtic weekdays, and month range calculations
+ */
 
-// Normalize many possible inputs into a strict ISO date string (YYYY-MM-DD)
+/**
+ * Celtic month names in order (13 months total)
+ * @type {string[]}
+ */
+const CELTIC_MONTHS = [
+  "Nivis", "Eira", "Brigid", "Ostara", "Maia", "Juno",
+  "Lugh", "Terra", "Autumna", "Samhain", "Aether", 
+  "Mirabilis", "Janus"
+];
+
+/**
+ * Celtic weekday names
+ * @type {string[]}
+ */
+const CELTIC_WEEKDAYS = [
+  "Lumina", "Stellae", "Ventis", "Aquae", "Terrae", "Ignis", "Spiritus"
+];
+
+/**
+ * Normalize various input formats into a strict ISO date string (YYYY-MM-DD)
+ * @param {Date|string|Object} input - Date input in various formats
+ * @param {number} [input.year] - Year (if object format)
+ * @param {number} [input.month] - Month (if object format)  
+ * @param {number} [input.day] - Day (if object format)
+ * @returns {string|null} ISO date string or null if invalid
+ * @example
+ * normalizeToISO(new Date(2024, 0, 15)) // "2024-01-15"
+ * normalizeToISO("2024-01-15T10:30:00Z") // "2024-01-15" 
+ * normalizeToISO({year: 2024, month: 1, day: 15}) // "2024-01-15"
+ */
 function normalizeToISO(input) {
   if (!input) return null;
 

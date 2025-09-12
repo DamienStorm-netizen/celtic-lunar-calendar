@@ -5,6 +5,7 @@ import { initSwipe } from "../utils/swipeHandler.js";
 import { starFieldSVG } from "../constants/starField.js";
 import { getEventIcon } from "../utils/eventUtils.js";
 import { api } from "../utils/api.js";
+// Removed showOverlay, hideOverlay imports to avoid conflicts with Celtic modals
 
 import {
   getCelticWeekday,
@@ -89,7 +90,6 @@ let lastOpenedMonth = null; // Keep track of the last opened month modal
 export function renderCalendar() {
     return `
       <section class="calendar" class="fade-in">
-        <div id="modal-overlay" class="modal-overlay hidden"></div>
 
             <h1 class="calendar-title">Calendar</h1>
 
@@ -199,38 +199,35 @@ export async function setupCalendarEvents() {
         return;
     }
 
-    // Hide overlay and make it clickable (idempotent wiring)
-    // Hide overlay and make it clickable (idempotent wiring)
-    const overlayEl = document.getElementById("modal-overlay");
-    if (overlayEl && !overlayEl.__wired) {
-        overlayEl.addEventListener("click", () => {
-            console.log("Click on Overlay");
+    // Listen for Celtic overlay clicks to close modal
+    if (!window.__calendarOverlayWired) {
+        document.addEventListener('celtic-overlay-click', () => {
             const modalContent = modalContainer.querySelector("#modal-content");
-            if (modalContent) {
-                modalContent.classList.remove("fade-in");
-                modalContent.classList.add("fade-out");
-                modalContent.addEventListener("animationend", () => {
+            if (modalContainer.classList.contains("show")) {
+                console.log("Click on Celtic Overlay");
+                if (modalContent) {
+                    modalContent.classList.remove("fade-in");
+                    modalContent.classList.add("fade-out");
+                    modalContent.addEventListener("animationend", () => {
+                        if (modalContainer.classList.contains("show")) {
+                            modalContainer.classList.remove("show");
+                            modalContainer.classList.add("hidden");
+                        }
+                        // Don't use hideOverlay() to avoid Celtic overlay conflicts
+                        document.body.classList.remove("modal-open");
+                        modalContent.classList.remove("fade-out");
+                    }, { once: true });
+                } else {
                     if (modalContainer.classList.contains("show")) {
                         modalContainer.classList.remove("show");
                         modalContainer.classList.add("hidden");
                     }
-                    overlayEl.classList.remove("show");
-                    overlayEl.classList.add("hidden");
+                    // Don't use hideOverlay() to avoid Celtic overlay conflicts
                     document.body.classList.remove("modal-open");
-                    modalContent.classList.remove("fade-out");
-                }, { once: true });
-            } else {
-                if (modalContainer.classList.contains("show")) {
-                    modalContainer.classList.remove("show");
-                    modalContainer.classList.add("hidden");
                 }
-                overlayEl.classList.remove("show");
-                overlayEl.classList.add("hidden");
-                document.body.classList.remove("modal-open");
             }
-        }); // ✅ close addEventListener callback
-
-        overlayEl.__wired = true; // ✅ runs once after listener is attached
+        });
+        window.__calendarOverlayWired = true;
     }
 
     // Attach event listener to close modal
@@ -281,9 +278,8 @@ export function showModal(monthName) {
         return;
     }
 
-    // Show the modal overlay
-    document.getElementById("modal-overlay").classList.add("show");
-    document.getElementById("modal-overlay").classList.remove("hidden");
+    // Show calendar modal with its own background overlay
+    // Don't use showOverlay() to avoid conflicts with Celtic modals
 
 
  
@@ -404,28 +400,40 @@ export function showModal(monthName) {
 
                     <!-- 💌 Add Event Form -->
                     <div id="tab-content-add" class="calendar-tab-content">
-                    <!-- <h3 class="goldenTitle">Add Your Event</h3> -->
-                    <form id="add-event-form">
-                        <ul>
-                        <li><label for="event-name">Event Name</label>
-                            <input type="text" id="event-name" required /></li>
-                        <li><label for="event-type">Type of Event</label>
-                            <select id="event-type" name="event-type">
+                    <form id="add-event-form" style="text-align: left; padding: 20px;">
+                        <label for="event-name">Event Name:
+                            <input type="text" id="event-name" required class="celtic-form-input" />
+                        </label>
+
+                        <label for="event-type">Type of Event:
+                            <select id="event-type" name="event-type" class="celtic-form-input">
                                 <option value="🔥 Date">🔥 Date</option>
                                 <option value="😎 Friends">😎 Friends</option>
                                 <option value="🎉 Celebrations">🎉 Celebrations</option>
                                 <option value="🌸 My Cycle">🌸 My Cycle</option>
-                                <option value="💡 General" active>💡 General</option>
+                                <option value="💡 General" selected>💡 General</option>
                                 <option value="🏥 Health">🏥 Health</option>
                                 <option value="💜 Romantic">💜 Romantic</option>
                                 <option value="🖥️ Professional">🖥️ Professional</option>
-                            </select></li>
-                        <li><label for="event-note">Event Description</label>
-                            <textarea id="event-note" rows="1" cols="35"></textarea></li>
-                        <li><label for="event-date">Date</label>
-                            <input type="text" id="event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
-                        <li><button type="submit" class="add-event-button">Add Event</button></li>
-                        </ul>
+                            </select>
+                        </label>
+
+                        <label for="event-date">Date:
+                            <input type="text" id="event-date" class="flatpickr-input celtic-form-input" placeholder="Pick your date 🌕" required />
+                        </label>
+
+                        <label for="event-note">Event Description:
+                            <textarea id="event-note" class="celtic-form-textarea"></textarea>
+                        </label>
+
+                        <label for="event-recurring" class="celtic-form-checkbox-container">
+                            <input type="checkbox" id="event-recurring" class="celtic-form-checkbox" />
+                            <span class="celtic-form-checkbox-label">Make it Recurring</span>
+                        </label>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button type="submit" class="add-event-button">Add Event</button>
+                        </div>
                     </form>
                     </div>
                 `;
@@ -508,6 +516,7 @@ if (addForm) {
     const eventType  = document.getElementById("event-type").value;
     const eventDate  = document.getElementById("event-date").value;
     const eventNotes = document.getElementById("event-note").value.trim();
+    const eventRecurring = document.getElementById("event-recurring").checked;
 
     if (!eventName || !eventDate) {
       alert("Please enter both an event name and date.");
@@ -523,7 +532,7 @@ if (addForm) {
       category: eventType,       // <- use the selected value from the form
       date: eventDate,
       notes: eventNotes,
-      recurring: false
+      recurring: eventRecurring
     };
 
     try {
@@ -581,7 +590,6 @@ if (addForm) {
 function closeModal() {
     console.log("Click Close Button");
     const modalContainer = document.getElementById("modal-container");
-    const overlayEl = document.getElementById("modal-overlay");
     const modalContent = modalContainer?.querySelector("#modal-content");
 
     const immediateHide = () => {
@@ -589,8 +597,7 @@ function closeModal() {
             modalContainer.classList.add("hidden");
             modalContainer.classList.remove("show");
         }
-        overlayEl?.classList.add("hidden");
-        overlayEl?.classList.remove("show");
+        // Don't use hideOverlay() to avoid Celtic overlay conflicts
         document.body.classList.remove("modal-open");
     };
 
