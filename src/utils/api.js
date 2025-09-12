@@ -11,14 +11,32 @@
 const RAW_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
 
 /**
- * Final API base URL - uses environment setting or falls back to current origin
+ * Detect if we're in production on Cloudflare Pages (or similar static host)
+ * @type {boolean}
+ */
+const isStaticProduction = !import.meta.env.DEV && !RAW_BASE && typeof window !== "undefined" && 
+  (window.location.hostname.includes('.pages.dev') || window.location.hostname.includes('playgroundofthesenses.com'));
+
+/**
+ * Final API base URL with production fallback for Cloudflare Pages
  * @type {string}
  */
-const API_BASE = RAW_BASE || (typeof window !== "undefined" ? window.location.origin : "");
+const API_BASE = RAW_BASE || 
+  (isStaticProduction ? "https://lunar-almanac-backend.onrender.com" : 
+  (typeof window !== "undefined" ? window.location.origin : ""));
 
 // Development warning for proxy configuration
 if (!RAW_BASE && import.meta.env.DEV) {
   console.warn('[LunarAlmanac] VITE_API_BASE is empty; using same-origin with Vite proxy.');
+}
+
+// Production runtime logging
+if (!import.meta.env.DEV) {
+  console.log('[LunarAlmanac] API Base URL:', API_BASE, { 
+    envVar: !!RAW_BASE, 
+    staticProd: isStaticProduction,
+    hostname: typeof window !== "undefined" ? window.location.hostname : 'unknown'
+  });
 }
 
 /**
