@@ -38,3 +38,6 @@ workbox-*.js.map
 # Python cache
 __pycache__/
 *.pyc
+
+# Backend directory (not needed for frontend deployment)
+lunar-almanac-backend/
