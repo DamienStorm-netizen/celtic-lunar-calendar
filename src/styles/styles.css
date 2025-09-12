@@ -4581,13 +4581,15 @@ footer {
   padding: 15px 0;
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
+  max-width: 480px;
   z-index: 100;
   box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
   font-family: 'Lora', serif;
-  /* Ensure footer stays at bottom on all devices */
+  border-radius: 0 0 15px 15px;
+  /* Match container rounded corners */
 }
 
 footer nav {
@@ -4686,9 +4688,12 @@ footer nav {
   footer {
     position: fixed !important;
     bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    max-width: 480px !important;
+    width: 100% !important;
     min-height: 60px;
+    border-radius: 0 0 15px 15px !important;
   }
   
   /* Add more padding for mobile content */
