@@ -570,11 +570,12 @@ h1,
   /* removed to prevent viewport-jumping on mobile */
   min-height: 100vh;
   /* ensures full screen but allows for footer scroll */
+  padding: 0 0 80px 0;
+  /* space for fixed footer at bottom */
   display: flex;
   flex-direction: column;
   border-radius: 15px;
   /* Optional: Add rounded corners for extra charm */
-  padding: 0;
   overflow-y: auto;
   /* this handles scrolling */
   -webkit-overflow-scrolling: touch;
@@ -4578,12 +4579,15 @@ footer {
   color: #fff;
   text-align: center;
   padding: 15px 0;
-  position: sticky;
+  position: fixed;
   bottom: 0;
-  z-index: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 100;
   box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
   font-family: 'Lora', serif;
-  /* Match the comp's font if using Google Fonts */
+  /* Ensure footer stays at bottom on all devices */
 }
 
 footer nav {
@@ -4676,6 +4680,20 @@ footer nav {
 
   .footer-link {
     font-size: 14px;
+  }
+  
+  /* Ensure footer stays at bottom on mobile devices */
+  footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    min-height: 60px;
+  }
+  
+  /* Add more padding for mobile content */
+  .container {
+    padding-bottom: 90px !important;
   }
 }
 
