@@ -393,20 +393,32 @@ export function renderHome() {
 export async function fetchCelticDate() {
     try {
         const localISO = toISODate(new Date());
+        
+        // Use local calculation as primary method to avoid backend timezone issues
+        const localCelticDate = convertGregorianToCeltic(localISO);
+        const [monthName, dayStr] = localCelticDate.split(' ');
+        const celticDay = parseInt(dayStr, 10);
+        const weekday = getCelticWeekdayFromGregorian(localISO);
+        
+        console.log("Using local Celtic date calculation:", localCelticDate);
+        
+        // Still fetch from backend for other data, but override the date calculation
         const response = await fetch(`/api/celtic-date?date=${localISO}`);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
-        const weekday = getCelticWeekday(parseInt(data.celtic_day, 10));
-        console.log("Fetched Celtic Date:", data);
+        
+        // Override backend date calculation with local calculation
+        data.month = monthName;
+        data.celtic_day = celticDay;
+        
+        console.log("Using corrected Celtic Date:", data);
 
         // Build a reliable ISO date and a friendly display string
         const gConv = convertCelticToGregorian(data.month, parseInt(data.celtic_day, 10));
-        const gregISO =
-          toISODate(data.gregorian_date) ||
-          (gConv ? `${gConv.gregorianYear}-${gConv.gregorianMonth}-${gConv.gregorianDay}` : null);
+        const gregISO = localISO; // Use the local ISO date we already calculated
         const gregDisplay = formatMonthDay(gregISO);
 
         // Ensure the data contains the necessary values
