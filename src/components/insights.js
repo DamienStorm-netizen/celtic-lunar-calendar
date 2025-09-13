@@ -391,19 +391,12 @@ export function initializeCelticZodiac() {
 
 async function showZodiacModal(zodiacName) {
   try {
-      const response = await fetch('/lunar-almanac-backend/prod_server/calendar_data.json');
+      const response = await fetch(`/zodiac/by-name?name=${encodeURIComponent(zodiacName)}`);
       if (!response.ok) {
-          throw new Error('Calendar data not found');
-      }
-
-      const calendarData = await response.json();
-      const zodiacEntry = calendarData.zodiac.find(entry => 
-          entry.name.toLowerCase() === zodiacName.toLowerCase()
-      );
-
-      if (!zodiacEntry) {
           throw new Error(`Zodiac sign '${zodiacName}' not found`);
       }
+
+      const zodiacEntry = await response.json();
 
       const imageSlugZodiac = slugifyCharm(zodiacName);
       

@@ -28,6 +28,27 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
 
+        // Zodiac endpoints proxy for insights modal functionality
+        '/zodiac': {
+          target: API_URL,
+          changeOrigin: true,
+          secure: false,
+        },
+
+        // Festivals endpoints proxy
+        '/festivals': {
+          target: API_URL,
+          changeOrigin: true,
+          secure: false,
+        },
+
+        // Dynamic moon phases endpoints proxy
+        '/dynamic-moon-phases': {
+          target: API_URL,
+          changeOrigin: true,
+          secure: false,
+        },
+
         // Back-compat: legacy static JSON filename → real API endpoint.
         // If anything still requests /calendar_data.json in dev,
         // forward it to the backend's /calendar-data route.
