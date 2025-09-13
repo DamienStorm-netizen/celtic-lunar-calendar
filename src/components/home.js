@@ -22,10 +22,10 @@ function toISODate(input) {
   if (!input) return null;
 
   if (input instanceof Date) {
-    // Use UTC methods to ensure consistent dates across timezones
-    const y = input.getUTCFullYear();
-    const m = String(input.getUTCMonth() + 1).padStart(2, "0");
-    const d = String(input.getUTCDate()).padStart(2, "0");
+    // Use local time methods to get the user's actual local date
+    const y = input.getFullYear();
+    const m = String(input.getMonth() + 1).padStart(2, "0");
+    const d = String(input.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
   }
 
