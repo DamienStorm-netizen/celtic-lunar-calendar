@@ -853,8 +853,20 @@ async function fetchNationalHolidays() {
 }
 
 async function getCelticDate() {
+    // Use local calculation to avoid backend timezone/off-by-one issues
+    const today = new Date();
+    const localISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const localCelticDate = convertGregorianToCeltic(localISO);
+    const [monthName, dayStr] = localCelticDate.split(' ');
+    const celticDay = parseInt(dayStr, 10);
+    
+    console.log("Calendar using local Celtic date calculation:", localCelticDate);
+    
+    // Still fetch from backend for consistency, but override the calculation
     const data = await api.celticDate();
-    return { celticMonth: data.month, celticDay: parseInt(data.celtic_day, 10) };
+    
+    // Use our corrected calculation
+    return { celticMonth: monthName, celticDay: celticDay };
 }
 
 async function fetchEclipseEvents() {
