@@ -4692,13 +4692,13 @@ footer nav {
     transform: translateX(-50%) !important;
     max-width: 480px !important;
     width: 100% !important;
-    min-height: 60px;
+    padding: 10px 0 !important;  /* Compact padding for mobile */
     border-radius: 0 0 15px 15px !important;
   }
   
   /* Add more padding for mobile content */
   .container {
-    padding-bottom: 90px !important;
+    padding-bottom: 60px !important;  /* Reduced to match smaller footer */
   }
 }
 
