@@ -1,95 +1,51 @@
-import { getMysticalPrefs } from "./settings.js";
-import { saveCustomEvents } from "../utils/localStorage.js";
+import { getMysticalPrefs } from "../utils/mysticalSettings.js";
 import { mysticalMessages } from "../constants/mysticalMessages.js";
 import { slugifyCharm } from "../utils/slugifyCharm.js";
-import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
+import { initSwipe } from "../utils/swipeHandler.js";
 import { starFieldSVG } from "../constants/starField.js";
+import { getEventIcon } from "../utils/eventUtils.js";
+import { api } from "../utils/api.js";
+// Removed showOverlay, hideOverlay imports to avoid conflicts with Celtic modals
 
-import { getCelticWeekday, convertCelticToGregorian, isLeapYear } from '../utils/dateUtils.js';
-import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from '../utils/dateUtils.js';
-// 🌕 Named full‑moon data (Wolf, Snow, etc.)
-import calendarData from "../../Prod Server/calendar_data.json" assert { type: "json" };
-const FULL_MOONS = calendarData.full_moons;
+import {
+  getCelticWeekday,
+  convertCelticToGregorian,
+  convertGregorianToCeltic,
+  getCelticWeekdayFromGregorian,
+  getMonthRangeISO,
+  isLeapYear
+} from "../utils/dateUtils.js";
+
+// 🌕 Declare globally
+let FULL_MOONS = [];
+
+async function initCalendar() {
+  const calendarData = await api.calendarData();
+  FULL_MOONS = calendarData.full_moons || [];
+}
+
+initCalendar();
+
+// Busy helper (same as Settings)
+function setBusy(el, isBusy = true) {
+  if (!el) return;
+  el.disabled = !!isBusy;
+  el.setAttribute("aria-busy", String(!!isBusy));
+  el.classList.toggle("is-busy", !!isBusy);
+}
 
 // Helper: find the named full moon within ±windowDays (defaults to 1 day)
 export function getNamedMoonForDate(isoDate, windowDays = 1) {
+  if (FULL_MOONS.length === 0) {
+    console.warn("🔮 Full moon data not yet loaded!");
+    return null;
+  }
+
   const target = new Date(isoDate + "T00:00:00Z").getTime();
   return FULL_MOONS.find(moon => {
     const ts = new Date(moon.date + "T00:00:00Z").getTime();
     return Math.abs(target - ts) / 86400000 <= windowDays;
   });
-}
-
-// Helper: Return ISO start/end dates for any Celtic month in a given cycle year
-export function getMonthRangeISO(monthName, cycleYear) {
-  let startDate, endDate;
-  switch (monthName) {
-    case "Nivis":
-      startDate = new Date(Date.UTC(cycleYear - 1, 11, 23));
-      endDate   = new Date(Date.UTC(cycleYear,    0, 19));
-      break;
-    case "Janus":
-      startDate = new Date(Date.UTC(cycleYear,    0, 20));
-      endDate   = new Date(Date.UTC(cycleYear,    1, 16));
-      break;
-    case "Brigid":
-      startDate = new Date(Date.UTC(cycleYear,    1, 17));
-      endDate   = new Date(Date.UTC(cycleYear,    2, 16));
-      break;
-    case "Flora":
-      startDate = new Date(Date.UTC(cycleYear,    2, 17));
-      endDate   = new Date(Date.UTC(cycleYear,    3, 13));
-      break;
-    case "Maia":
-      startDate = new Date(Date.UTC(cycleYear,    3, 14));
-      endDate   = new Date(Date.UTC(cycleYear,    4, 11));
-      break;
-    case "Juno":
-      startDate = new Date(Date.UTC(cycleYear,    4, 12));
-      endDate   = new Date(Date.UTC(cycleYear,    5,  8));
-      break;
-    case "Solis":
-      startDate = new Date(Date.UTC(cycleYear,    5,  9));
-      endDate   = new Date(Date.UTC(cycleYear,    6,  6));
-      break;
-    case "Terra":
-      startDate = new Date(Date.UTC(cycleYear,    6,  8));
-      endDate   = new Date(Date.UTC(cycleYear,    7,  4));
-      break;
-    case "Lugh":
-      startDate = new Date(Date.UTC(cycleYear,    7,  4));
-      endDate   = new Date(Date.UTC(cycleYear,    7, 31));
-      break;
-    case "Pomona":
-      startDate = new Date(Date.UTC(cycleYear,    8,  1));
-      endDate   = new Date(Date.UTC(cycleYear,    8, 28));
-      break;
-    case "Autumna":
-      startDate = new Date(Date.UTC(cycleYear,    8, 29));
-      endDate   = new Date(Date.UTC(cycleYear,    9, 26));
-      break;
-    case "Eira":
-      startDate = new Date(Date.UTC(cycleYear,    9, 27));
-      endDate   = new Date(Date.UTC(cycleYear,   10, 23));
-      break;
-    case "Aether":
-      startDate = new Date(Date.UTC(cycleYear,   10, 24));
-      endDate   = new Date(Date.UTC(cycleYear,   11, 21));
-      break;
-    case "Mirabilis":
-      const isLeap = isLeapYear(cycleYear);
-      startDate = new Date(Date.UTC(cycleYear,   11, 22));
-      endDate   = new Date(Date.UTC(cycleYear,   11, 22 + (isLeap ? 1 : 0)));
-      break;
-    default:
-      console.error("Unknown Celtic month in getMonthRangeISO:", monthName);
-      return { startISO: null, endISO: null };
-  }
-  const pad = (n) => String(n).padStart(2, "0");
-  return {
-    startISO: `${startDate.getUTCFullYear()}-${pad(startDate.getUTCMonth() + 1)}-${pad(startDate.getUTCDate())}`,
-    endISO:   `${endDate.getUTCFullYear()}-${pad(endDate.getUTCMonth() + 1)}-${pad(endDate.getUTCDate())}`
-  };
 }
 
 // prefer = "current" (default) keeps the window for the *current* cycle.
@@ -110,6 +66,22 @@ export function resolveMonthWindow(monthName, today = new Date(), prefer = "curr
   return { startISO, endISO, cycle };
 }
 
+// ————————————————————————————
+// ISO date helpers (prevent mismatches like 'YYYY-MM-DD' vs 'YYYY-MM-DDT00:00:00Z')
+function normalizeISODate(str) {
+  if (!str) return "";
+  const s = String(str);
+  // handle "YYYY-MM-DDTHH:MM:SSZ" or "YYYY-MM-DD HH:MM..."
+  return s.includes("T") ? s.split("T")[0] : s.split(" ")[0];
+}
+function sameISODate(a, b) {
+  return normalizeISODate(a) === normalizeISODate(b);
+}
+function withinISO(iso, startISO, endISO) {
+  return iso >= startISO && iso <= endISO;
+}
+// ————————————————————————————
+
 let cachedNationalHolidays = []; // Store national holidays globally
 let cachedFestivals = {}; // Store festivals globally
 let lastOpenedMonth = null; // Keep track of the last opened month modal
@@ -118,7 +90,6 @@ let lastOpenedMonth = null; // Keep track of the last opened month modal
 export function renderCalendar() {
     return `
       <section class="calendar" class="fade-in">
-        <div id="modal-overlay" class="modal-overlay hidden"></div>
 
             <h1 class="calendar-title">Calendar</h1>
 
@@ -228,33 +199,51 @@ export async function setupCalendarEvents() {
         return;
     }
 
-    // Hide overlay and make it clickable
-    document.getElementById("modal-overlay").addEventListener("click", () => {
-        console.log("Click on Overlay");
-    
-        if (modalContainer.classList.contains("show")) {
-            modalContainer.classList.remove("show");
-            modalContainer.classList.add("hidden");
-        }
-    
-        // Hide the overlay itself
-        document.getElementById("modal-overlay").classList.remove("show");
-        document.getElementById("modal-overlay").classList.add("hidden");
-    });
-    
+    // Listen for Celtic overlay clicks to close modal
+    if (!window.__calendarOverlayWired) {
+        document.addEventListener('celtic-overlay-click', () => {
+            const modalContent = modalContainer.querySelector("#modal-content");
+            if (modalContainer.classList.contains("show")) {
+                console.log("Click on Celtic Overlay");
+                if (modalContent) {
+                    modalContent.classList.remove("fade-in");
+                    modalContent.classList.add("fade-out");
+                    modalContent.addEventListener("animationend", () => {
+                        if (modalContainer.classList.contains("show")) {
+                            modalContainer.classList.remove("show");
+                            modalContainer.classList.add("hidden");
+                        }
+                        // Don't use hideOverlay() to avoid Celtic overlay conflicts
+                        document.body.classList.remove("modal-open");
+                        modalContent.classList.remove("fade-out");
+                    }, { once: true });
+                } else {
+                    if (modalContainer.classList.contains("show")) {
+                        modalContainer.classList.remove("show");
+                        modalContainer.classList.add("hidden");
+                    }
+                    // Don't use hideOverlay() to avoid Celtic overlay conflicts
+                    document.body.classList.remove("modal-open");
+                }
+            }
+        });
+        window.__calendarOverlayWired = true;
+    }
 
     // Attach event listener to close modal
     modalClose.addEventListener("click", closeModal);
 
     // Attach event listender to Today button
     document.getElementById("calendar-today-btn").addEventListener("click", async () => {
+        // Don't block decoration if today's Celtic date isn't available
+        let celticMonth, celticDay;
+        try {
         const todayCeltic = await getCelticDate();
-        if (!todayCeltic) {
-            console.error("Could not determine today's Celtic date.");
-            return;
-        }
 
-        const { celticMonth, celticDay } = todayCeltic;
+        if (todayCeltic) ({ celticMonth, celticDay } = todayCeltic);
+         } catch (err) {
+            console.warn("Could not fetch Celtic date; continuing without 'today' highlight.", err);
+         }
         const gregorian = convertCelticToGregorian(celticMonth, celticDay);
 
         if (!gregorian) {
@@ -278,7 +267,7 @@ export async function setupCalendarEvents() {
 }
 
 // Open modal window and insert HTML
-function showModal(monthName) {
+export function showModal(monthName) {
 
     lastOpenedMonth = monthName; // ✅ Store the last opened month
     console.log("📅 Last opened month set to:", lastOpenedMonth);
@@ -289,17 +278,9 @@ function showModal(monthName) {
         return;
     }
 
-    // Show the modal overlay
-    document.getElementById("modal-overlay").classList.add("show");
-    document.getElementById("modal-overlay").classList.remove("hidden");
+    // Show calendar modal with its own background overlay
+    // Don't use showOverlay() to avoid conflicts with Celtic modals
 
-    // Make overlay clickable
-    document.getElementById("modal-overlay").addEventListener("click", () => {
-        console.log("Click on overlay");
-        // Hide the overlay itself
-        document.getElementById("modal-overlay").classList.remove("show");
-        document.getElementById("modal-overlay").classList.add("hidden");
-    });
 
  
     modalContainer.classList.remove("hidden");
@@ -311,6 +292,36 @@ function showModal(monthName) {
         if (modalDetails) {
             modalContainer.classList.add("show");
             document.body.classList.add("modal-open"); // Prevent scrolling
+
+            // Play fade-in on modal content
+            const modalContent = modalContainer.querySelector("#modal-content");
+            if (modalContent) {
+                modalContent.classList.remove("fade-out");
+                modalContent.classList.add("fade-in");
+                modalContent.addEventListener("animationend", () => {
+                    modalContent.classList.remove("fade-in");
+                }, { once: true });
+            }
+
+
+            // ✦ Highlight today's date cell if it matches this month
+            try {
+              const todayISO = new Date().toISOString().split("T")[0];
+              const celticToday = convertGregorianToCeltic(todayISO);
+              if (celticToday && celticToday.startsWith(monthName)) {
+                const parts = celticToday.split(" ");
+                const todayDay = parseInt(parts[1], 10);
+                const cells = modalDetails.querySelectorAll(".calendar-grid td");
+                cells.forEach(td => {
+                  if (td.textContent.trim() === String(todayDay)) {
+                    td.classList.add("highlight-today");
+                    td.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }
+                });
+              }
+            } catch (err) {
+              console.warn("Highlight today failed:", err);
+            }
 
             if (monthName === 'Mirabilis') {
                 const today = new Date();
@@ -389,28 +400,40 @@ function showModal(monthName) {
 
                     <!-- 💌 Add Event Form -->
                     <div id="tab-content-add" class="calendar-tab-content">
-                    <!-- <h3 class="goldenTitle">Add Your Event</h3> -->
-                    <form id="add-event-form">
-                        <ul>
-                        <li><label for="event-name">Event Name</label>
-                            <input type="text" id="event-name" required /></li>
-                        <li><label for="event-type">Type of Event</label>
-                            <select id="event-type" name="event-type">
+                    <form id="add-event-form" style="text-align: left; padding: 20px;">
+                        <label for="event-name">Event Name:
+                            <input type="text" id="event-name" required class="celtic-form-input" />
+                        </label>
+
+                        <label for="event-type">Type of Event:
+                            <select id="event-type" name="event-type" class="celtic-form-input">
                                 <option value="🔥 Date">🔥 Date</option>
                                 <option value="😎 Friends">😎 Friends</option>
                                 <option value="🎉 Celebrations">🎉 Celebrations</option>
                                 <option value="🌸 My Cycle">🌸 My Cycle</option>
-                                <option value="💡 General" active>💡 General</option>
+                                <option value="💡 General" selected>💡 General</option>
                                 <option value="🏥 Health">🏥 Health</option>
                                 <option value="💜 Romantic">💜 Romantic</option>
                                 <option value="🖥️ Professional">🖥️ Professional</option>
-                            </select></li>
-                        <li><label for="event-note">Event Description</label>
-                            <textarea id="event-note" rows="1" cols="35"></textarea></li>
-                        <li><label for="event-date">Date</label>
-                            <input type="text" id="event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
-                        <li><button type="submit" class="add-event-button">Add Event</button></li>
-                        </ul>
+                            </select>
+                        </label>
+
+                        <label for="event-date">Date:
+                            <input type="date" id="event-date" class="flatpickr-input celtic-form-input" placeholder="Pick your date 🌕" required />
+                        </label>
+
+                        <label for="event-note">Event Description:
+                            <textarea id="event-note" class="celtic-form-textarea"></textarea>
+                        </label>
+
+                        <label for="event-recurring" class="celtic-form-checkbox-container">
+                            <input type="checkbox" id="event-recurring" class="celtic-form-checkbox" />
+                            <span class="celtic-form-checkbox-label">Make it Recurring</span>
+                        </label>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button type="submit" class="add-event-button">Add Event</button>
+                        </div>
                     </form>
                     </div>
                 `;
@@ -455,11 +478,13 @@ function showModal(monthName) {
                     });
                     }
 
-                    if (leap) { // <- leap exists only in this branch
-                    const crestNoctis = document.getElementById("crest-noctis");
-                    if (crestNoctis) {
-                        showDayModal(2, "Mirabilis", "2025-12-23");
-                    }
+                    if (leap) {
+                        const crestNoctis = document.getElementById("crest-noctis");
+                        if (crestNoctis) {
+                            crestNoctis.addEventListener("click", () => {
+                            showDayModal(2, "Mirabilis", "2025-12-23");
+                            });
+                        }
                     }
                 }, 0);
             }
@@ -471,93 +496,119 @@ function showModal(monthName) {
             // ✅ Call enhancement only when the modal is displayed
             enhanceCalendarTable(modalContainer, monthName);
 
-            flatpickr("#event-date", {
-                altInput: true,
-                altFormat: "F j, Y",
-                dateFormat: "Y-m-d",
-                theme: "moonveil"
-            });
+            // Initialize flatpickr when the Add Event tab becomes active
+            setTimeout(() => {
+                initEventDatePicker();
+            }, 100);
 
-            document.getElementById("add-event-form").addEventListener("submit", async (e) => {
-              e.preventDefault();
 
-              const eventName = document.getElementById("event-name").value.trim();
-              const eventType = document.getElementById("event-type").value;
-              const eventDate = document.getElementById("event-date").value;
-              const eventNotes = document.getElementById("event-note").value.trim();
+const addForm = document.getElementById("add-event-form");
+if (addForm) {
+  addForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-              if (!eventName || !eventDate) {
-                alert("Please enter both an event name and date.");
-                return;
-              }
+    const submitBtn = e.submitter || addForm.querySelector(".add-event-button");
+    setBusy(submitBtn, true);
 
-              const newEvent = {
-                id: Date.now().toString(),
-                title: eventName,
-                type: eventType,
-                date: eventDate,
-                notes: eventNotes,
-                recurring: false
-              };
+    const eventName  = document.getElementById("event-name").value.trim();
+    const eventType  = document.getElementById("event-type").value;
+    const eventDate  = document.getElementById("event-date").value;
+    const eventNotes = document.getElementById("event-note").value.trim();
+    const eventRecurring = document.getElementById("event-recurring").checked;
 
-              // Save to backend
-              const response = await fetch("/api/custom-events", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newEvent)
-              });
-              if (!response.ok) {
-                alert("Failed to add event.");
-                return;
-              }
+    if (!eventName || !eventDate) {
+      alert("Please enter both an event name and date.");
+      setBusy(submitBtn, false);
+      return;
+    }
 
-              // Refresh calendar events
-              await setupCalendarEvents();
+    // keep newEvent in scope for the SweetAlert branch
+    const newEvent = {
+      id: Date.now().toString(),
+      title: eventName,
+      type: "custom-event",     // <- consistent with Settings
+      category: eventType,       // <- use the selected value from the form
+      date: eventDate,
+      notes: eventNotes,
+      recurring: eventRecurring
+    };
 
-              // Show confirmation via SweetAlert2
-              const wd    = getCelticWeekdayFromGregorian(eventDate);
-              const lunar = convertGregorianToCeltic(eventDate);
-              const [monthName, dayStr] = lunar.split(" ");
+    try {
+      // go through API helper so dev/prod just works
+      await api.addCustomEvent(newEvent);
 
-              Swal.fire({
-                icon: 'success',
-                title: `Event saved for ${wd}, ${lunar}`,
-                showCancelButton: true,
-                confirmButtonText: 'View Event'
-              }).then(result => {
-                if (result.isConfirmed) {
-                  // Open the day modal
-                  document.querySelector('.nav-link#nav-calendar').click();
-                  setTimeout(() => {
-                    showDayModal(parseInt(dayStr, 10), monthName, eventDate, newEvent.id);
-                    // highlight the newly added event slide
-                    const slideEl = document.querySelector(`.custom-event-slide[data-event-id="${newEvent.id}"]`);
-                    if (slideEl) {
-                      slideEl.classList.add('highlight-pulse');
-                      setTimeout(() => slideEl.classList.remove('highlight-pulse'), 2000);
-                    }
-                  }, 300);
-                }
-              });
-            });
+      // (optional) refresh the grid decorations for this month without re-wiring everything
+      // await enhanceCalendarTable(document.getElementById("modal-container"), lastOpenedMonth);
+
+      // ✅ Success UI
+      const wd    = getCelticWeekdayFromGregorian(eventDate);
+      const lunar = convertGregorianToCeltic(eventDate);
+
+      // Handle Mirabilis special case
+      let monthLabel, dayStr;
+      if (lunar.startsWith("Mirabilis")) {
+        monthLabel = "Mirabilis";
+        dayStr = lunar.includes("Noctis") ? "2" : "1";
+      } else {
+        [monthLabel, dayStr] = lunar.split(" ");
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: `Event saved for ${wd}, ${lunar}`,
+        showCancelButton: true,
+        confirmButtonText: "View Event"
+      }).then(result => {
+        if (result.isConfirmed) {
+          document.querySelector(".nav-link#nav-calendar").click();
+          setTimeout(() => {
+            showDayModal(parseInt(dayStr, 10), monthLabel, eventDate, newEvent.id);
+            const slideEl = document.querySelector(`.custom-event-slide[data-event-id="${newEvent.id}"]`);
+            if (slideEl) {
+              slideEl.classList.add("highlight-pulse");
+              setTimeout(() => slideEl.classList.remove("highlight-pulse"), 2000);
+            }
+          }, 300);
+        }
+      });
+
+    } catch (err) {
+      console.error("Add from calendar failed:", err);
+      alert("Oops! Couldn’t save that event. Please try again.");
+    } finally {
+      setBusy(submitBtn, false);
+    }
+  });
+}
         }
     }
 }
 
 // Close modal
- function closeModal() {
+function closeModal() {
     console.log("Click Close Button");
     const modalContainer = document.getElementById("modal-container");
+    const modalContent = modalContainer?.querySelector("#modal-content");
 
-    document.body.classList.remove("modal-open"); //Add scrollbars to body
+    const immediateHide = () => {
+        if (modalContainer) {
+            modalContainer.classList.add("hidden");
+            modalContainer.classList.remove("show");
+        }
+        // Don't use hideOverlay() to avoid Celtic overlay conflicts
+        document.body.classList.remove("modal-open");
+    };
 
-    if (modalContainer) {
-        modalContainer.classList.add("hidden");
-    }    
-
-    // Show the modal overlay
-    document.getElementById("modal-overlay").classList.add("hidden");
-    document.getElementById("modal-overlay").classList.remove("show");
+    if (modalContent) {
+        modalContent.classList.remove("fade-in");
+        modalContent.classList.add("fade-out");
+        modalContent.addEventListener("animationend", () => {
+            modalContent.classList.remove("fade-out");
+            immediateHide();
+        }, { once: true });
+    } else {
+        immediateHide();
+    }
 }
 
 // Fetch monthly tag line
@@ -580,7 +631,21 @@ async function fetchTagline(monthName) {
     }
 }
 
-// Sets up the 3 tabs inside the  modal
+// Simple datepicker initialization like the working birthdateInput
+function initEventDatePicker() {
+    const eventDateInput = document.getElementById("event-date");
+    if (!eventDateInput) return;
+    
+    // Use the same simple approach as the working birthdateInput
+    flatpickr("#event-date", {
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
+        theme: "moonveil"
+    });
+}
+
+// Sets up the 3 tabs inside the modal
 function setupCalendarTabNavigation() {
     const tabs = document.querySelectorAll(".calendar-tab-button");
     const contents = document.querySelectorAll(".calendar-tab-content");
@@ -596,12 +661,19 @@ function setupCalendarTabNavigation() {
         // Activate the clicked tab
         tab.classList.add("active");
         document.getElementById(targetId).classList.add("active");
+        
+        // If switching to the Add Event tab, ensure datepicker is properly initialized
+        if (targetId === "tab-content-add") {
+            setTimeout(() => {
+                initEventDatePicker();
+            }, 50);
+        }
       });
     });
 }
 
 // Add click events to HTML table
-async function enhanceCalendarTable(modalContainer, monthName) {
+async function enhanceCalendarTable(modalContainer, monthName, prefsOverride) {
     console.log(`Enhancing calendar for ${monthName}...`);
 
     if (cachedNationalHolidays.length === 0) {
@@ -639,9 +711,9 @@ async function enhanceCalendarTable(modalContainer, monthName) {
     const festivals = await fetchFestivals();
 
     // Preferences (fallback defaults)
-    const prefs = (typeof getMysticalPrefs === "function")
-      ? getMysticalPrefs()
-      : { showHolidays: true, showCustomEvents: true, showPastEvents: true };
+    const prefs = prefsOverride || ((typeof getMysticalPrefs === "function")
+        ? getMysticalPrefs()
+        : { showHolidays: true, showCustomEvents: true, showPastEvents: true, showMoons: true, showEclipses: true });
 
     tableCells.forEach((cell) => {
         const day = parseInt(cell.textContent, 10);
@@ -658,41 +730,46 @@ async function enhanceCalendarTable(modalContainer, monthName) {
         }
         const formattedGregorianDate = `${gregorian.gregorianYear}-${String(gregorian.gregorianMonth).padStart(2, "0")}-${String(gregorian.gregorianDay).padStart(2, "0")}`;
 
-        const eclipseEvent = eclipses.find(e => e.date.startsWith(formattedGregorianDate));
-        if (eclipseEvent) {
+        const eclipseEvent = eclipses.find(e => sameISODate(e.date, formattedGregorianDate));
+        if (prefs.showEclipses && eclipseEvent) {
             console.log(`🌑 Marking ${day} as Eclipse Day: ${eclipseEvent.title}`);
             cell.classList.add("eclipse-day");
             cell.setAttribute("title", `${eclipseEvent.title} 🌘`);
         }
-
-        const moonEvent = lunarData.find(moon => moon.date.startsWith(formattedGregorianDate));
+        const moonEvent = lunarData.find(moon => sameISODate(moon.date, formattedGregorianDate));
         console.log("Coverted Gregorian date is ", formattedGregorianDate);
-        if (moonEvent && moonEvent.phase && moonEvent.phase.toLowerCase() === "full moon") {
+        if (prefs.showMoons && moonEvent && moonEvent.phase && moonEvent.phase.toLowerCase() === "full moon") {
             console.log(`🌕 Marking ${day} as Full Moon: ${moonEvent.moonName || moonEvent.phase}`);
             cell.classList.add("full-moon-day");
             const moonLabel = `${moonEvent.moonName || moonEvent.phase} 🌕`;
             cell.setAttribute("title", moonLabel);
         }
 
-        if (monthName === celticMonth && day === celticDay) {
+        if (celticMonth && celticDay && monthName === celticMonth && day === celticDay) {
             cell.classList.add("highlight-today");
         }
 
-        const festival = festivals.find(h => h.date === formattedGregorianDate);
+        const festival = festivals.find(f => normalizeISODate(f.date) === formattedGregorianDate);
         if (festival) {
-            console.log(`Marking ${formattedGregorianDate} as Festival: ${festival.title}`);
+            const festLabel = festival.title || festival.name || "Festival";
+            console.log(`Marking ${formattedGregorianDate} as Festival: ${festLabel}`);
             cell.classList.add("festival-day");
-            cell.setAttribute("title", `${festival.title} 🎉`);
+            cell.setAttribute("title", `${festLabel} 🎉`);
         }
 
-        // Holidays
+        // Holidays (normalize to guard against 'YYYY-MM-DDTHH:mm:ssZ')
+        // Holidays (normalize to guard against 'YYYY-MM-DDTHH:mm:ssZ')
         if (prefs.showHolidays) {
-            const holiday = cachedNationalHolidays.find(h => h.date === formattedGregorianDate && h.date >= startISO && h.date <= endISO);
-            if (holiday) {
-                console.log(`Marking ${formattedGregorianDate} as National Holiday: ${holiday.title}`);
-                cell.classList.add("national-holiday");
-                cell.setAttribute("title", `${holiday.title} 🎉`);
-            }
+        const holiday = cachedNationalHolidays.find(h => {
+            const hISO = normalizeISODate(h.date);
+            return sameISODate(hISO, formattedGregorianDate);
+        });
+        if (holiday) {
+            const label = holiday.title || holiday.name || "Holiday";
+            console.log(`🎉 Marking ${formattedGregorianDate} as National Holiday: ${label}`);
+            cell.classList.add("national-holiday");
+            cell.setAttribute("title", `${label} 🎉`);
+        }
         }
 
         // Custom events
@@ -736,56 +813,65 @@ async function enhanceCalendarTable(modalContainer, monthName) {
     });
 }
 
-// Fetch national holidays dynamically
+// Fetch national holidays dynamically (resilient + normalized)
 async function fetchNationalHolidays() {
-    console.log('Fetching national holidays now!!');
-    try {
-        const response = await fetch("/api/national-holidays");
-        if (!response.ok) throw new Error("Failed to fetch national holidays");
-        const data = await response.json();
-        cachedNationalHolidays = data; // Store globally for reuse
-        console.log("✅ National Holidays Fetched:", cachedNationalHolidays);
-        return data;
-    } catch (error) {
-        console.error("Error fetching national holidays:", error);
-        return [];
-    }
+  // Helper to coerce whatever the backend returns into [{ date, title }]
+  const normalize = (raw) => {
+    const arr = Array.isArray(raw)
+      ? raw
+      : (raw?.national_holidays || raw?.holidays || raw?.data || []);
+    return (arr || [])
+      .map(h => ({
+        date: normalizeISODate(
+          h.date ||
+          h.isoDate ||
+          h.iso_date ||
+          h.observed ||
+          h.start_date ||
+          h.start ||
+          ""
+        ),
+        title: h.title || h.name || h.localName || h.holiday || h.description || "Holiday"
+      }))
+      .filter(h => h.date); // keep only items with a date
+  };
+
+  // 1) Try the dedicated endpoint
+  let data = await api.nationalHolidays().catch(() => null);
+  let normalized = normalize(data);
+
+  // 2) Fallback: pull from calendarData if the endpoint is empty
+  if (!normalized.length) {
+    const cal = await api.calendarData().catch(() => null);
+    normalized = normalize(cal);
+  }
+
+  // 3) Cache + debug
+  cachedNationalHolidays = normalized;
+  console.log("🎌 cachedNationalHolidays:", normalized.length, normalized.slice(0, 3));
+  return normalized;
 }
 
 async function getCelticDate() {
-    try {
-        const response = await fetch("/api/celtic-date");
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        return {
-            celticMonth: data.month, // "Janus"
-            celticDay: parseInt(data.celtic_day, 10), // 19
-        };
-    } catch (error) {
-        console.error("Failed to fetch Celtic date:", error);
-        return null;
-    }
+    // Use local calculation to avoid backend timezone/off-by-one issues
+    const today = new Date();
+    const localISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const localCelticDate = convertGregorianToCeltic(localISO);
+    const [monthName, dayStr] = localCelticDate.split(' ');
+    const celticDay = parseInt(dayStr, 10);
+    
+    console.log("Calendar using local Celtic date calculation:", localCelticDate);
+    
+    // Still fetch from backend for consistency, but override the calculation
+    const data = await api.celticDate();
+    
+    // Use our corrected calculation
+    return { celticMonth: monthName, celticDay: celticDay };
 }
 
 async function fetchEclipseEvents() {
-    try {
-        console.log("🌘 Calling fetchEclipseEvents()...");
-        const response = await fetch("/api/eclipse-events");
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const eclipseData = await response.json();
-        console.log("✅ Eclipse Data Retrieved:", eclipseData);
-
-        return eclipseData;
-    } catch (error) {
-        console.error("❌ Failed to fetch eclipse events:", error);
-        return [];
-    }
+    const eclipseData = await api.eclipseEvents();
+    return eclipseData;
 }
 
 // Fetch lunar phases dynamically for a given Celtic month
@@ -799,55 +885,35 @@ export async function fetchMoonPhases(celticMonth) {
   }
 
   try {
-    const response = await fetch(`/dynamic-moon-phases?start_date=${startISO}&end_date=${endISO}`);
-    if (!response.ok) throw new Error("Failed to fetch moon phases");
-    const moonData = await response.json();
-    console.log("🌙 Moon Phases Retrieved:", moonData);
-    return moonData;
-  } catch (error) {
-    console.error("❌ Error fetching moon phases:", error);
-    return [];
-  }
+        const moonData = await api.dynamicMoonPhases(startISO, endISO);
+        console.log("🌙 Moon Phases Retrieved:", moonData);
+        return moonData;
+    } catch (error) {
+        console.error("❌ Error fetching moon phases:", error);
+        return [];
+    }   
 }
 
 // Helper to fetch moon phases for an explicit ISO range
 async function fetchMoonPhasesBetween(startISO, endISO) {
   try {
-    const res = await fetch(`/dynamic-moon-phases?start_date=${startISO}&end_date=${endISO}`);
-    if (!res.ok) throw new Error("Failed to fetch moon phases");
-    return await res.json();
-  } catch (e) {
-    console.error("❌ Error fetching moon phases (range):", e);
-    return [];
-  }
+        return await api.dynamicMoonPhases(startISO, endISO);
+    } catch (e) {
+        console.error("❌ Error fetching moon phases (range):", e);
+        return [];
+    }
 }
 
 // Fetch custom events dynamically
 async function fetchCustomEvents() {
-    try {
-        const response = await fetch("/api/custom-events");
-        if (!response.ok) throw new Error("Failed to fetch custom events");
-        return await response.json();
-    } catch (error) {
-        console.error("Error fetching custom events:", error);
-        return [];
-    }
+    return await api.customEvents();
 }
 
 // Fetch Celtic festivals dynamically
 async function fetchFestivals() {
-    console.log('Fetching Festivals now!!');
-    try {
-        const response = await fetch("/festivals");
-        if (!response.ok) throw new Error("Failed to fetch festivals");
-        const data = await response.json();
-        cachedFestivals = data; // Store globally for reuse
-        console.log("✅ Festivals Fetched:", cachedFestivals);
-        return data;
-    } catch (error) {
-        console.error("Error fetching festivals:", error);
-        return [];
-    }
+    const data = await api.festivals();
+    cachedFestivals = data;
+    return data;
 }
 
 function waitForImagesToLoad(container, callback) {
@@ -901,7 +967,9 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
     modalContainer.classList.remove("hidden");
 
     const constellationOverlay = document.getElementById("constellation-layer");
-    constellationOverlay.className = `${celticMonth.toLowerCase()}-stars`;
+    if (constellationOverlay) {
+        constellationOverlay.className = `${celticMonth.toLowerCase()}-stars`;
+    }
   
     // Convert the Celtic date to Gregorian
     const gregorian = convertCelticToGregorian(celticMonth, celticDay);
@@ -912,9 +980,6 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
 
     const formattedDay = gregorian.gregorianDay.toString().padStart(2, "0");
     const formattedMonth = gregorian.gregorianMonth.toString().padStart(2, "0");
-
-    const zodiacName = getCelticZodiacName(gregorian.gregorianMonth, gregorian.gregorianDay);
-    const zodiacSign = await fetchZodiacInfoByName(zodiacName);
 
      // Get additional data
     //const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
@@ -936,13 +1001,9 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
     const dateStr = `${year}-${monthStr}-${dayStr}`;
   
     try {
-        // Call the dynamic endpoint using the constructed date string
-        const response = await fetch(`/dynamic-moon-phases?start_date=${dateStr}&end_date=${dateStr}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (!data || data.length === 0) {
+       // Call the dynamic endpoint via the API helper so it always hits the backend
+        const data = await api.dynamicMoonPhases(dateStr, dateStr);
+        if (!Array.isArray(data) || data.length === 0) {
             throw new Error("Invalid lunar data received");
         }
         const lunarData = data[0] || {};          // Always have an object
@@ -995,21 +1056,38 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
             return eventDate === formattedGregorianDate;
         });
 
-        // Generate featured icon for custom event slide
-        const iconMap = {
-            "😎 Friends": "😎",
-            "🎉 Celebrations": "🎉",
-            "🌸 My Cycle": "🌸",
-            "💡 General": "💡",
-            "🏥 Health": "🏥",
-            "💜 Romantic": "💜",
-            "🖥️ Professional": "🖥️",
-            "🔥 Date!!": "🔥" // If you use custom labels
-          };
+        const _prefsForDay = (typeof getMysticalPrefs === "function")
+            ? getMysticalPrefs()
+            : { showEclipses: true };
+
+        
+        // grab the first emoji in a string (works for fire, hearts, etc.)
+        function firstEmoji(s = "") {
+            const m = s.match(/\p{Extended_Pictographic}/u);
+            return m ? m[0] : "";
+        }
+
+        // loose text-based fallback if there’s no emoji and no exact map hit
+        function iconFromLoose(label = "") {
+            const t = label.toLowerCase();
+            if (t.includes("date"))       return "🔥";
+            if (t.includes("friend"))     return "😎";
+            if (t.includes("celebrat"))   return "🎉";
+            if (t.includes("cycle"))      return "🌸";
+            if (t.includes("health"))     return "🏥";
+            if (t.includes("romantic") ||
+                t.includes("love"))       return "💜";
+            if (t.includes("pro") ||
+                t.includes("work") ||
+                t.includes("career"))     return "🖥️";
+            return "💡";
+        }
 
 
         console.log("Formatted Gregorian date used with eclipses: ", formattedGregorianDate);
         console.log("Today Eclipse data fetched: ", eclipseEvent);
+
+        
 
         // Find the festival for this date
         const festivals = await fetchFestivals();
@@ -1069,20 +1147,21 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
 
         // Find the holiday for this date
         const holidayInfo = cachedNationalHolidays
-        .filter(h => h.date === dateStr)
-        .map(h => {
-        const imageSlugHoliday = slugifyCharm(h.title);
-        return `<p><strong>${h.title}</strong></p>
-                <img src='/assets/images/holidays/holiday-${imageSlugHoliday}.png' class='holiday-img' alt='${h.title}' />`;
-        })
+            .filter(h => sameISODate(h.date, dateStr))
+            .map(h => {
+            const label = h.title || h.name || "Holiday";
+            const imageSlugHoliday = slugifyCharm(label);
+            return `<p><strong>${label}</strong></p>
+            <img src='/assets/images/holidays/holiday-${imageSlugHoliday}.png' class='holiday-img' alt='${label}' />`;
+            })
         .join("") || "No national holidays today.";
 
         let eclipseHTML = "";
-        if (eclipseEvent) {
-            console.log("Eclipse Event is:", eclipseEvent.type);
-            const eclipseImage = eclipseEvent.type === "solar-eclipse"
-                ? "eclipse-solar.png"
-                : "eclipse-lunar.png";
+        if (_prefsForDay.showEclipses && eclipseEvent) {
+        console.log("Eclipse Event is:", eclipseEvent.type);
+        const eclipseImage = eclipseEvent.type === "solar-eclipse"
+            ? "eclipse-solar.png"
+            : "eclipse-lunar.png";
 
         eclipseHTML = `
             <div class="eclipse-block">
@@ -1116,7 +1195,33 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
             `;
         }
 
-        // No longer needed: eventsHTML (custom events will be rendered as individual slides)
+        // safely escape user text
+        const escapeHtml = (s = "") =>
+        String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+        // build a beautiful slide for a single event
+        function renderEventSlide(evt) {
+            const label = (evt.category || evt.type || "💡 General").trim();
+            const icon  = getEventIcon(evt);
+            const titleSafe = escapeHtml(evt.title || "Untitled event");
+            const notesHtml = evt.notes
+                ? `<p class="event-notes">${escapeHtml(evt.notes).replace(/\n/g, "<br/>")}</p>`
+                : "";
+
+            return `
+            <div class="day-slide custom-event-slide" data-event-id="${evt.id}">
+                <img src="/assets/images/decor/divider.png" class="divider" alt="Divider" />
+                <h2 class="event-card__title">${titleSafe}</h2>
+                 <div class="event-card-wrapper">
+                    <div class="event-card">
+                        <div class="event-card__icon">💜</div> <!-- icon floats above -->
+                        ${notesHtml}
+                    </div>
+                
+                </div> 
+            </div>
+`;
+        }
 
         // Update modal with lunar details
         modalDetails.innerHTML = `
@@ -1130,22 +1235,13 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
                         zodiacHTML, 
                         holidayHTML, 
                         eclipseHTML, 
-                        // eventsHTML removed
                         celticMonth,
                         celticDay,
                         formattedGregorianDate,
                         moonLabel,
                         moonText
                         })}
-                    ${events.map(evt => `
-                        <div class="day-slide custom-event-slide" data-event-id="${evt.id}">
-                          <img src='/assets/images/decor/divider.png' class='divider' alt='Divider' />
-                          <h3 class="goldenTitle">Your Event</h3>
-                          <p>${evt.title}</p>
-                          ${evt.notes ? `<p>${evt.notes}</p>` : ''}
-                          <p>${evt.type}</p>
-                        </div>
-                    `).join('')}
+                    ${events.map(renderEventSlide).join("")}
                 </div>
 
                <button class="day-carousel-next"><img src="/assets/images/decor/moon-crescent-next.png" alt="Next" /></button>
@@ -1244,11 +1340,8 @@ function getCelticZodiacName(gregorianMonth, gregorianDay) {
 
 async function fetchZodiacInfoByName(name) {
     try {
-        const response = await fetch("/api/calendar-data");
-        if (!response.ok) throw new Error("Failed to fetch zodiac info");
-
-        const data = await response.json();
-        return data.zodiac.find(z => z.name === name) || null;
+        const data = await api.calendarData();
+        return data.zodiac.find(z => z.name === name) || null;  
     } catch (error) {
         console.error("Error fetching zodiac info:", error);
         return null;
@@ -1266,11 +1359,7 @@ function getFormattedMonth(monthNum) {
 async function getCustomEvents(gregorianMonth, gregorianDay, gregorianYear) {
     console.log("Fetching custom events...");
     try {
-        const response = await fetch("/api/custom-events");
-        if (!response.ok) throw new Error("Failed to fetch events");
-
-        const events = await response.json();
-
+        const events = await api.customEvents();
         const monthStr = String(gregorianMonth).padStart(2, "0");
         const dayStr = String(gregorianDay).padStart(2, "0");
         const targetDate = `${gregorianYear}-${monthStr}-${dayStr}`;
@@ -1375,11 +1464,11 @@ function generateDaySlides({
         if (celticDay === 1) {
             mirabilisTitle = "Mirabilis Solis";
             mirabilisPoem = "The sun dances on the edge of time,<br />Golden and defiant, it bends the chime.<br />A sacred spark, a seed of light,<br />That births the wheel in radiant flight.";
-            mirabilisSymbol = `<img src="static/assets/images/months/mirabilis-solis-notext.png" class="mirabilis-symbol" alt="Solis Symbol" />`;
+            mirabilisSymbol = `<img src="/assets/images/months/mirabilis-solis-notext.png" class="mirabilis-symbol" alt="Solis Symbol" />`;
         } else if (celticDay === 2) {
             mirabilisTitle = "Mirabilis Noctis";
             mirabilisPoem = "A breath of shadow, soft and still,\nA second hush upon the hill.\nShe stirs in dreams beneath the veil,\nWhere moonlight writes the ancient tale.";
-            mirabilisSymbol = `<img src="static/assets/images/months/mirabilis-noctis-notext.png" class="mirabilis-symbol" alt="Noctis Symbol" />`;
+            mirabilisSymbol = `<img src="/assets/images/months/mirabilis-noctis-notext.png" class="mirabilis-symbol" alt="Noctis Symbol" />`;
         }
     }
 
@@ -1438,148 +1527,74 @@ function initDayCarousel(carousel, allSlides, currentSlide) {
     });
 }
 
-export function applyMysticalSettings(prefs) {
-
-    // 🎉 Toggle Holidays
-    const holidayRows = document.querySelectorAll(".national-holiday-row");
-    holidayRows.forEach(row => {
-        row.classList.toggle("legend-row-hidden", !prefs.showHolidays);
-    });
-
-    const holidayCells = document.querySelectorAll(".national-holiday");
-    holidayCells.forEach(cell => {
-        if (prefs.showHolidays) {
-            cell.classList.add("national-holiday");
-        } else {
-            cell.classList.remove("national-holiday");
-        }
-    });
-
-    // 💜 Toggle Custom Events
-    const customEventRows = document.querySelectorAll(".custom-event-day-row");
-    customEventRows.forEach(row => {
-        row.classList.toggle("legend-row-hidden", !prefs.showCustomEvents);
-    });
-
-    const customEventCells = document.querySelectorAll(".custom-event-day");
-    customEventCells.forEach(cell => {
-        if (prefs.showCustomEvents) {
-            cell.classList.add("custom-event-day");
-        } else {
-            cell.classList.remove("custom-event-day");
-        }
-    });
-
-    // ✨ Toggle Mystical Suggestions display logic
-    const showMystical = true;
-    const mysticalArea = document.getElementById("mystical-insight");
-
-    // (Eclipse block display now always handled by presence, not prefs.showEclipses)
-
-    if (mysticalArea) {
-        const heading = mysticalArea.querySelector("h3");
-        const message = mysticalArea.querySelector("span");
-
-        if (showMystical && mysticalArea) {
-            const messages = [
-                "🌙 Trust your inner tides.",
-                "✨ Today is a good day to cast intentions.",
-                "🔮 The stars whisper secrets today...",
-                "🌿 Pause. Listen to nature. It knows.",
-                "🌙 Trust your inner tides.",
-                "✨ Today is a good day to cast intentions.",
-                "🔮 The stars whisper secrets today...",
-                "🪄 Cast your hopes into the universe.",
-                "🌸 A seed planted today blooms tomorrow.",
-                "🌌 Let stardust guide your heart.",
-                "🕯️ Light a candle and focus on your intentions for the day.",
-                "🌜Meditate under the moonlight and visualize your dreams.",
-                "߷ Draw a rune and interpret its meaning for guidance.",
-                "💌 Write a letter to your future self and store it safely.",
-                "🍁 Collect a small item from nature and set an intention with it."
-            ];
-            const randomIndex = Math.floor(Math.random() * messages.length);
-            heading.classList.remove("hidden");
-            message.textContent = messages[randomIndex];
-            message.classList.remove("hidden");
-            mysticalArea.classList.remove("hidden");
-        } else {
-            heading.classList.add("hidden");
-            message.textContent = "";
-            message.classList.add("hidden");
-            mysticalArea.classList.add("hidden");
-        }
-    }
-
-    // 🌒 Control Eclipse visibility based on preferences
-    /*
-    const eclipseElements = document.querySelectorAll(".eclipse-day");
-    eclipseElements.forEach(el => {
-        el.style.display = prefs.showEclipses ? "table-cell" : "none";
-    });
-
-    const eclipseSection = document.querySelector("#modal-details h3.subheader + p");
-    if (eclipseSection && eclipseSection.textContent.includes("Eclipse")) {
-        eclipseSection.parentElement.style.display = prefs.showEclipses ? "block" : "none";
-    }
-        */
+// Clear all day-cell decorations so we can rebuild from prefs
+function _clearMonthDecorations(container) {
+  const cells = container.querySelectorAll(".calendar-grid td");
+  cells.forEach(cell => {
+    cell.classList.remove(
+      "eclipse-day",
+      "full-moon-day",
+      "festival-day",
+      "national-holiday",
+      "custom-event-day",
+      "highlight-today"
+    );
+    cell.removeAttribute("title");
+    cell.removeAttribute("data-event-id");
+  });
 }
 
-// Add only one submit listener for calendar page
-document.addEventListener("submit", async (event) => {
-    const isCalendarForm = event.target && event.target.id === "add-event-form";
-    const isOnCalendarPage = window.location.hash === "#calendar";
+// If the month modal is open, rebuild decorations with current prefs
+function _refreshMonthGridIfOpen(prefs) {
+  const modal = document.getElementById("modal-container");
+  if (!modal || !modal.classList.contains("show") || !lastOpenedMonth) return;
+  _clearMonthDecorations(modal);
+  // reuse the month that is open and apply the new prefs
+  enhanceCalendarTable(modal, lastOpenedMonth, prefs);
+}
 
-    if (isCalendarForm && isOnCalendarPage) {
-        event.preventDefault();
-        console.log("✨ Adding new custom event from CALENDAR...");
+export function applyMysticalSettings(prefs) {
+  // 1) Toggle legend rows via a small map (DRY)
+  const legendMap = [
+    { key: "showHolidays",     selector: ".national-holiday-row" },
+    { key: "showCustomEvents", selector: ".custom-event-day-row" },
+    { key: "showMoons",        selector: ".full-moon-day-row" },
+    { key: "showEclipses",     selector: ".eclipse-day-row" },
+    // optional: only if you add a specific legend row for past events
+    { key: "showPastEvents",   selector: ".past-events-row" }
+  ];
 
-        const eventName = document.getElementById("event-name").value.trim();
-        const eventType = document.getElementById("event-type").value.trim();
-        const eventNotes = document.getElementById("event-note").value.trim();
-        const eventDate = document.getElementById("event-date").value;
+  legendMap.forEach(({ key, selector }) => {
+    document.querySelectorAll(selector).forEach(row => {
+      row.classList.toggle("legend-row-hidden", !prefs[key]);
+    });
+  });
 
-        if (!eventName || !eventDate) {
-            alert("Please enter a valid event name and date.");
-            return;
-        }
+  // 2) Mystical suggestions block uses the shared mysticalMessages list
+  const mysticalArea = document.getElementById("mystical-insight");
+  if (mysticalArea) {
+    const heading = mysticalArea.querySelector("h3");
+    const message = mysticalArea.querySelector("span");
+    const showMystical = !!prefs.mysticalSuggestions;
 
-        const formattedDate = new Date(eventDate).toISOString().split("T")[0];
-
-        const newEvent = {
-            id: Date.now().toString(), // ✨ Unique identifier based on timestamp
-            title: eventName,
-            type: eventType || "General",
-            notes: eventNotes || "",
-            date: formattedDate
-        };
-
-        console.log("🎉 Event to be added (Calendar):", newEvent);
-
-        try {
-            const response = await fetch("/api/custom-events", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(newEvent)
-            });
-
-            // Fetch all events again and save them to localStorage
-            // Instantly update localStorage without refetching
-            customEvents.push(newEvent);
-            saveCustomEvents(customEvents);
-
-            if (!response.ok) throw new Error("Failed to add event.");
-
-            const result = await response.json();
-            console.log("✅ Event added from Calendar:", result);
-
-            // Reopen the modal with updated info!
-            showModal(lastOpenedMonth);
-
-        } catch (error) {
-            console.error("❌ Error adding calendar event:", error);
-        }
+    if (showMystical) {
+      const msg = mysticalMessages[Math.floor(Math.random() * mysticalMessages.length)] || "";
+      if (heading) heading.classList.remove("hidden");
+      if (message) {
+        message.textContent = msg;
+        message.classList.remove("hidden");
+      }
+      mysticalArea.classList.remove("hidden");
+    } else {
+      if (heading) heading.classList.add("hidden");
+      if (message) {
+        message.textContent = "";
+        message.classList.add("hidden");
+      }
+      mysticalArea.classList.add("hidden");
     }
-});
+  }
+
+  // 3) If the month modal is open, rebuild the grid markers so prefs take effect immediately
+  _refreshMonthGridIfOpen(prefs);
+}

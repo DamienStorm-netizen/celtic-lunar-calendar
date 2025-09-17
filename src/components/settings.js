@@ -1,12 +1,16 @@
-import { convertGregorianToCeltic, getCelticWeekday, getCelticWeekdayFromGregorian } from "../utils/dateUtils.js";
+import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from "../utils/dateUtils.js";
 import { applyMysticalSettings, showDayModal } from "./calendar.js";
 import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
+import { fetchCustomEvents, deleteCustomEvent, updateCustomEvent } from "./eventsAPI.js";
+import { showCelticModal, hideCelticModal } from "../utils/modalOverlay.js";
+import { escapeHtml, sanitizeForAttribute, createElement, validateEventData } from "../utils/security.js";
+
 
 // Helper to show a toast and wire up “View it now”
 function showEventToast(id, gregorianDate) {
   const toast       = document.getElementById("event-toast");
   const toastDate   = document.getElementById("toast-date");
-  const toastButton = document.getElementById("toast-view-btn");
+  const toastButton = document.getElementById("event-toast-view");
 
   // Build the Celtic date string
   const weekday = getCelticWeekdayFromGregorian(gregorianDate);
@@ -20,7 +24,7 @@ function showEventToast(id, gregorianDate) {
   // “View it now” jumps you to that date and pulses the event
   toastButton.onclick = () => {
     document.querySelector('.nav-link#nav-calendar').click();
-    showCalendarForDate(new Date(gregorianDate));         // your function to switch month
+    //showCalendarForDate(new Date(gregorianDate));         // your function to switch month
     const el = document.querySelector(`[data-event-id="${id}"]`);
     if (el) el.classList.add("highlight-pulse");
     setTimeout(() => el && el.classList.remove("highlight-pulse"), 2000);
@@ -28,10 +32,17 @@ function showEventToast(id, gregorianDate) {
   };
 }
 
+// Utility: mark a button (or any element) as busy/idle
+function setBusy(el, isBusy = true) {
+  if (!el) return;
+  el.disabled = !!isBusy;
+  el.setAttribute("aria-busy", String(!!isBusy));
+  el.classList.toggle("is-busy", !!isBusy);
+}
+
 export function renderSettings() {
     return `
         <div id="settings-container" class="fade-in">
-            <div id="modal-overlay" class="modal-overlay hidden"></div>
             <h1 class="settings-title">Settings</h1>
 
             <!-- Custom Events Management -->
@@ -40,7 +51,7 @@ export function renderSettings() {
                 <h2>🌗 Date Conversion</h2>
                 <p class="settings-subheader">Gregorian to Lunar Date</p>
                 <ul class="conversion-settings">
-                    <li>Gregorian Date: <input type="text" id="convert-to-celtic" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
+                    <li>Gregorian Date: <input type="date" id="convert-to-celtic" class="flatpickr-input" placeholder="Pick your date 🌕" required /></li>
                    <li class="lunar-date-row"><span class="lunar-label">Lunar Date:</span><span class="converted-date">Trésda, Juno 9</span></li>
                 </ul>
             
@@ -59,78 +70,6 @@ export function renderSettings() {
                     <p>Loading your magical events...</p>
                 </div>
 
-                <!--- ADD Custom Event --->
-                <div id="add-event-modal" class="modal modal-settings">
-                    <div class="modal-content">
-                        <span class="close-modal-add  mystical-close">✦</span>
-                        <h2>Add New Event</h2>
-                        <form id="add-event-form">
-                            <label for="event-name">Event Name:
-                            <input type="text" id="event-name" required /></label>
-
-                            <label for="event-type">Type of Event:<br />
-                            <select id="event-type">
-                                <option value="🔥 Date">🔥 Date</option>
-                                        <option value="😎 Friends">😎 Friends</option>
-                                        <option value="🎉 Celebrations">🎉 Celebrations</option>
-                                        <option value="🌸 My Cycle">🌸 My Cycle</option>
-                                        <option value="💡 General" active>💡 General</option>
-                                        <option value="🏥 Health">🏥 Health</option>
-                                        <option value="💜 Romantic">💜 Romantic</option>
-                                        <option value="🖥️ Professional">🖥️ Professional</option>
-                            </select></label>
-
-                            <label for="event-date">Date:<br />
-                            <input type="date" id="event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></label>
-
-                            <label for="event-note">Event Description:
-                            <textarea id="event-note"></textarea></label>
-
-                            <label for="event-recurring">
-                                <input type="checkbox" id="event-recurring" />
-                                Make it Recurring
-                            </label>
-
-                            <button type="submit">Save Event</button>
-                            <button type="button" class="cancel-modal-add">Cancel</button>
-                        </form> 
-                    </div>
-                </div>
-
-                <!--- EDIT Custom Event -->
-                <div id="edit-event-modal" class="modal modal-settings">
-                    <div class="modal-content">
-                        <span class="close-modal-edit mystical-close">✦</span>
-                        <h2>Edit Your Event</h2>
-                        <form id="edit-event-form">
-                            <label for="edit-event-name">Event Name:<input type="text" id="edit-event-name" required /></label>
-                            <label for="edit-event-type">Type:
-                            <select id="edit-event-type">
-                                <option value="🔥 Date">🔥 Date</option>
-                                <option value="😎 Friends">😎 Friends</option>
-                                <option value="🎉 Celebrations">🎉 Celebrations</option>
-                                <option value="🌸 My Cycle">🌸 My Cycle</option>
-                                <option value="💡 General" active>💡 General</option>
-                                <option value="🏥 Health">🏥 Health</option>
-                                <option value="💜 Romantic">💜 Romantic</option>
-                                <option value="🖥️ Professional">🖥️ Professional</option>
-                            </select></label>
-
-                            <label for="edit-event-date">Date:<br />
-                            <input type="date" id="edit-event-date" class="flatpickr-input" placeholder="Pick your date 🌕" required /></label>
-
-                            <label for="edit-event-notes">Notes:<br />
-                            <textarea id="edit-event-notes"></textarea></label>
-
-                            <label for="edit-event-recurring">
-                                <input type="checkbox" id="edit-event-recurring" />
-                                Recurring Event
-                            </label>
-
-                            <button type="submit" class="save-event-btn">Save Changes</button>&nbsp;&nbsp;<button type="button" class="cancel-modal-edit">Cancel</button>      
-                        </form>
-                    </div>
-                </div>
             </section>
 
             <br />
@@ -138,35 +77,50 @@ export function renderSettings() {
 
             <!-- Mystical Preferences -->
             <section id="mystical-settings">
-                <h2>🔮 Mystical Preferences</h2>
-                <p class="settings-subheader">Fine-tune your Almanac.</p>
+              <h2>🔮 Mystical Preferences</h2>
+              <p class="settings-subheader">Fine-tune your Almanac.</p>
 
-                <ul class="mystical-list">
-                    
-                    <li class="mystical-toggle">
-                        <span>Show National Holidays</span>
-                        <label class="switch">
-                        <input type="checkbox" id="show-holidays" data-on="🎉" data-off="🧾" />
-                        <span class="slider round"></span>
-                        </label>
-                    </li>
+              <ul class="mystical-list">
+                <li class="mystical-toggle">
+                  <span>Show National Holidays</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-holidays" data-on="🎉" data-off="🧾" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
 
-                    <li class="mystical-toggle">
-                        <span>Show Custom Events</span>
-                        <label class="switch">
-                            <input type="checkbox" id="show-custom-events" data-on="💜" data-off="🖤" />
-                            <span class="slider round"></span>
-                            </span>
-                        </label>
-                    </li>
-                    <li class="mystical-toggle">
-                        <span>Show Past Events</span>
-                        <label class="switch">
-                            <input type="checkbox" id="show-past-events" data-on="🕰️" data-off="🚫" />
-                            <span class="slider round"></span>
-                        </label>
-                    </li>
-                <ul>
+                <li class="mystical-toggle">
+                  <span>Show Custom Events</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-custom-events" data-on="💜" data-off="🖤" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
+
+                <li class="mystical-toggle">
+                  <span>Show Moon Phases</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-moons" data-on="🌕" data-off="🌘" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
+
+                <li class="mystical-toggle">
+                  <span>Show Eclipses</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-eclipses" data-on="🌑" data-off="☀️" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
+
+                <li class="mystical-toggle">
+                  <span>Show Past Events</span>
+                  <label class="switch">
+                    <input type="checkbox" id="show-past-events" data-on="🕰️" data-off="🚫" />
+                    <span class="slider round"></span>
+                  </label>
+                </li>
+              </ul>
             </section>
 
             <br />
@@ -181,302 +135,120 @@ export function renderSettings() {
             <!-- Shooting Stars on close overlay -->
             <div id="shooting-stars-container"></div>
 
-            <!-- Toast conatiner for add Event -->
-            <div id="event-toast" class="event-toast hidden">
-                ✨ Event added for <span id="toast-date"></span> – <button id="toast-view-btn">View Event</button>
-            </div>
         </div>
     `;
 }
 
 // 🌟 Updated: Display mystical preferences including Custom Events
 export function getMysticalPrefs() {
-    const saved = localStorage.getItem("mysticalPrefs");
-    const defaults = {
-        mysticalSuggestions: true,
-        showHolidays: true,
-        showCustomEvents: true, // ✅ This line makes all the difference
-        showPastEvents: false,
-        showConstellations: true
-    };
-
-    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
-}
-
-import { fetchCustomEvents, deleteCustomEvent } from "./eventsAPI.js";
-
-
-function openEditModal(eventId) {
-    const modal = document.getElementById("edit-event-modal");
-    const form = document.getElementById("edit-event-form");
-
-    console.log("Event ID to edit is ", eventId);
-
-    // Fetch the current event data
-    fetch(`/api/custom-events`)
-        .then(response => response.json())
-        .then(events => {
-            const event = events.find(e => e.id === eventId);
-            if (!event) {
-                console.error("Event not found.");
-                return;
-            }
-
-            console.log("Type to edit is ", event.type);
-
-            // Pre-fill form with event data
-            document.getElementById("edit-event-name").value = event.title;
-            document.getElementById("edit-event-type").value = event.type || "General";
-            document.getElementById("edit-event-date").value = event.date;
-            // If using Flatpickr, also set its selected date
-            const editDateInput = document.getElementById("edit-event-date");
-            if (editDateInput._flatpickr) {
-                editDateInput._flatpickr.setDate(event.date, true);
-            }
-            document.getElementById("edit-event-notes").value = event.notes || "";
-            document.getElementById("edit-event-recurring").checked = event.recurring || false;
-
-            // Store original event date for reference
-            form.setAttribute("data-original-id", event.id);
-
-            // Show the modal
-            modal.classList.remove("hidden");
-            modal.classList.add("show");
-
-            // Show the modal overlay
-            document.getElementById("modal-overlay").classList.add("show");
-            document.getElementById("modal-overlay").classList.remove("hidden");
-
-            // Close modal - X
-            document.querySelectorAll(".close-modal-edit").forEach(button => {
-                button.addEventListener("click", () => {
-                    const modal = document.getElementById("edit-event-modal");
-                    // Hide modal
-                    modal.classList.remove("show");
-                    modal.classList.add("hidden");
-                     // Hide overlay
-                     document.getElementById("modal-overlay").classList.add("hidden");
-                     document.getElementById("modal-overlay").classList.remove("show");
-                });
-            });
-
-            // Close modal - cancel button
-            document.querySelectorAll(".cancel-modal-edit").forEach(button => {
-                button.addEventListener("click", () => {
-                    const modal = document.getElementById("edit-event-modal");
-                    // Hide modal
-                    modal.classList.remove("show");
-                    modal.classList.add("hidden");
-                    // Hide overlay
-                    document.getElementById("modal-overlay").classList.add("hidden");
-                    document.getElementById("modal-overlay").classList.remove("show");
-                });
-            });
-            
-        })
-        .catch(error => console.error("Error fetching event:", error));
-}
-
-// Attach Event Listeners when Settings Page Loads
-export function setupSettingsEvents() {
-
-    console.log("☸️ Running the setupSettingsEvent function");
-
-    const defaultPreferences = {
-        mysticalSuggestions: true,
-        showHolidays: true,
-        showCustomEvents: true,
-        showPastEvents: false
-    };
-
-    
-    function saveMysticalPrefs(prefs) {
-        localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
-    }
-
-    // Prevent duplicate listeners
-    const editForm = document.getElementById("edit-event-form");
-    editForm.removeEventListener("submit", handleEditEventSubmit); // clear old if any
-    editForm.addEventListener("submit", handleEditEventSubmit);   // bind fresh ✨
-
-    const addEventForm = document.getElementById("add-event-form");
-    addEventForm.removeEventListener("submit", handleAddEventSubmit); // clear old
-    addEventForm.addEventListener("submit", handleAddEventSubmit);    // attach fresh
-
-
-    // Hide overlay and make it clickable
-    document.getElementById("modal-overlay").addEventListener("click", () => {
-
-        console.log("Click on overlay");
-        const editModal = document.getElementById("edit-event-modal");
-        const addModal = document.getElementById("add-event-modal");
-    
-        if (editModal.classList.contains("show")) {
-            editModal.classList.remove("show");
-            editModal.classList.add("hidden");
-        }
-    
-        if (addModal.classList.contains("show")) {
-            addModal.classList.remove("show");
-            addModal.classList.add("hidden");
-        }
-    
-        // Hide the overlay itself
-        document.getElementById("modal-overlay").classList.remove("show");
-        document.getElementById("modal-overlay").classList.add("hidden");
-    });
-
-   // Fetch and populate custom events list on load
-    fetchCustomEvents()
-        .then(events => populateEventList(events))
-        .catch(error => console.error("Error loading events:", error));
-        
-
-    const prefs = getMysticalPrefs();
-    document.getElementById("show-holidays").checked = prefs.showHolidays;
-    document.getElementById("show-custom-events").checked = prefs.showCustomEvents;
-    document.getElementById("show-past-events").checked = prefs.showPastEvents;
-
-    function updateToggleIcons() {
-        document.querySelectorAll(".switch input[type='checkbox']").forEach(input => {
-            const slider = input.nextElementSibling;
-            const onSymbol = input.dataset.on || "🔮";
-            const offSymbol = input.dataset.off || "✨";
-    
-            // Create/update the span’s emoji content
-            slider.innerHTML = `<span class="toggle-icon">${input.checked ? onSymbol : offSymbol}</span>`;
-        });
-    }
-    
-    // Attach listener to update the icon on change
-    function initMysticalToggles() {
-        document.querySelectorAll(".switch input[type='checkbox']").forEach(input => {
-            input.addEventListener("change", updateToggleIcons);
-        });
-    
-        // Initial state
-        updateToggleIcons();
-    }
-    
-    // Call it once Settings loads
-    initMysticalToggles();
-    // Gregorian→Celtic converter
-    const convertInput = document.getElementById("convert-to-celtic");
-    const convertedDisplay = document.querySelector(".converted-date");
-    if (convertInput && convertedDisplay) {
-      convertInput.addEventListener("change", e => {
-        const dateStr = e.target.value;
-        const celtic = convertGregorianToCeltic(dateStr);
-        if (celtic === "Unknown Date" || celtic === "Invalid Date") {
-            convertedDisplay.textContent = celtic;
-        } else {
-            const weekday = getCelticWeekdayFromGregorian(dateStr);
-            convertedDisplay.textContent = `${weekday}, ${celtic}`;
-        }
-      });
-      // Set default to today's date and initialize display
-      const todayStr = new Date().toISOString().split('T')[0];
-      convertInput.value = todayStr;
-      convertInput.dispatchEvent(new Event('change'));
-    }
-
-    flatpickr("#convert-to-celtic", {
-        altInput: true,
-        altFormat: "F j, Y",
-        dateFormat: "Y-m-d",
-        theme: "moonveil", // optional for readability
-        onChange: function(selectedDates, dateStr) {
-            const celtic = convertGregorianToCeltic(dateStr);
-            if (celtic === "Unknown Date" || celtic === "Invalid Date") {
-                convertedDisplay.textContent = celtic;
-            } else {
-                const weekday = getCelticWeekdayFromGregorian(dateStr);
-                convertedDisplay.textContent = `${weekday}, ${celtic}`;
-            }
-        }
-    });
-    
-    flatpickr("#event-date", {
-        altInput: true,
-        altFormat: "F j, Y",
-        dateFormat: "Y-m-d",
-        theme: "moonveil"
-    });
-
-    flatpickr("#edit-event-date", {
-        altInput: true,
-        altFormat: "F j, Y",
-        dateFormat: "Y-m-d",
-        theme: "moonveil"
-    });
+  const saved = localStorage.getItem("mysticalPrefs");
+  const defaults = {
+    mysticalSuggestions: true,
+    showHolidays: true,
+    showCustomEvents: true,
+    showMoons: true,        // ✅ new default
+    showEclipses: true,     // ✅ new default
+    showPastEvents: false,
+    showConstellations: true
+  };
+  return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
 }
 
 // Function to show add event modal
 function showAddEventModal() {
-    
     console.log("📝 Open Add Event Modal...");
-    const modal = document.getElementById("add-event-modal");
-    // Show Modal
-    modal.classList.remove("hidden");
-    modal.classList.add("show");
-    // Show the modal overlay
-    document.getElementById("modal-overlay").classList.add("show");
-    document.getElementById("modal-overlay").classList.remove("hidden");
+    
+    const modalContent = `
+        <h2 class="goldenTitle">Add New Event</h2>
+        <form id="add-event-form" style="text-align: left;">
+            <label for="event-name">Event Name:
+                <input type="text" id="event-name" required class="celtic-form-input" />
+            </label>
 
-    // Close modal and hide overlay when clicking the close button
-    document.querySelectorAll(".cancel-modal-add").forEach(button => {
-        button.addEventListener("click", () => {
-            // Hide modal
-            modal.classList.remove("show");
-            modal.classList.add("hidden");
-            // Show the modal overlay
-            document.getElementById("modal-overlay").classList.remove("show");
-            document.getElementById("modal-overlay").classList.add("hidden");
-        });
-    });
+            <label for="event-type">Type of Event:
+                <select id="event-type" class="celtic-form-input">
+                    <option value="🔥 Date">🔥 Date</option>
+                    <option value="😎 Friends">😎 Friends</option>
+                    <option value="🎉 Celebrations">🎉 Celebrations</option>
+                    <option value="🌸 My Cycle">🌸 My Cycle</option>
+                    <option value="💡 General" selected>💡 General</option>
+                    <option value="🏥 Health">🏥 Health</option>
+                    <option value="💜 Romantic">💜 Romantic</option>
+                    <option value="🖥️ Professional">🖥️ Professional</option>
+                </select>
+            </label>
 
-    // Close modal and hide overlay when clicking the X link
-    document.querySelectorAll(".close-modal-add").forEach(button => {
-        button.addEventListener("click", () => {
-            // Hide modal
-            modal.classList.remove("show");
-            modal.classList.add("hidden");
-            // Show the modal overlay
-            document.getElementById("modal-overlay").classList.remove("show");
-            document.getElementById("modal-overlay").classList.add("hidden");
-        });
-    });
+            <label for="event-date">Date:
+                <input type="date" id="event-date" required class="celtic-form-input" />
+            </label>
 
+            <label for="event-note">Event Description:
+                <textarea id="event-note" class="celtic-form-textarea"></textarea>
+            </label>
+
+            <label for="event-recurring" class="celtic-form-checkbox-container">
+                <input type="checkbox" id="event-recurring" class="celtic-form-checkbox" />
+                <span class="celtic-form-checkbox-label">Make it Recurring</span>
+            </label>
+
+            <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+                <button type="submit" class="settings-btn">Save Event</button>
+                <button type="button" class="settings-btn" id="cancel-add-event">Cancel</button>
+            </div>
+        </form> 
+    `;
+
+    // Show Celtic modal
+    const modal = showCelticModal(modalContent, { id: 'add-event-modal' });
+    
+    // Wire the form submit
+    const addForm = modal.querySelector("#add-event-form");
+    if (addForm) {
+        addForm.onsubmit = handleAddEventSubmit;
+    }
+    
+    // Wire cancel button
+    const cancelBtn = modal.querySelector("#cancel-add-event");
+    if (cancelBtn) {
+        cancelBtn.onclick = () => hideCelticModal('add-event-modal');
+    }
 }
 
 // Function to handle event submission - ADD
 async function handleAddEventSubmit(event) {
-
-    // Hide overlay
-    document.getElementById("modal-overlay").classList.add("hidden");
-    document.getElementById("modal-overlay").classList.remove("show");
-
     console.log("Adding an event");
     event.preventDefault(); // Prevent default form submission behavior
 
-    // Grab form values
-    const eventName = document.getElementById("event-name").value.trim();
-    const eventType = document.getElementById("event-type").value;
-    const eventDate = document.getElementById("event-date").value;
-    const eventNotes = document.getElementById("event-note").value.trim();
-    const eventRecurring = document.getElementById("event-recurring").checked;
+    // Grab and validate form values
+    const rawEventData = {
+        title: document.getElementById("event-name").value.trim(),
+        category: document.getElementById("event-type").value,
+        date: document.getElementById("event-date").value,
+        notes: document.getElementById("event-note").value.trim(),
+        recurring: document.getElementById("event-recurring").checked
+    };
 
-    // Ensure required fields are filled
-    if (!eventName || !eventDate) {
-        alert("Please enter both an event name and date.");
+    // Validate and sanitize input
+    const validation = validateEventData(rawEventData);
+    if (!validation.isValid) {
+        alert("Please fix the following errors:\n" + validation.errors.join("\n"));
         return;
     }
 
+    const { title: eventName, category: eventType, date: eventDate, notes: eventNotes, recurring: eventRecurring } = validation.sanitized;
+
+    // Identify the submit button (works in all browsers)
+    const submitBtn =
+      event.submitter ||
+      document.querySelector("#add-event-form button[type='submit']");
+    setBusy(submitBtn, true);
+
     // Construct event object
     const newEvent = {
-        id: Date.now().toString(), // simple and unique-ish
+        id: Date.now().toString(),
         title: eventName,
-        type: eventType,
+        type: "custom-event",
+        category: eventType,
         date: eventDate,
         notes: eventNotes,
         recurring: eventRecurring,
@@ -512,8 +284,8 @@ async function handleAddEventSubmit(event) {
         const result = await response.json();
         console.log("✅ Event added successfully:", result);
 
-        // Close modal & refresh event list
-        document.getElementById("add-event-modal").style.display = "none";
+        // Close Celtic modal & refresh event list
+        hideCelticModal('add-event-modal');
 
         // ✨ Refresh the list with live data!
         const updatedEvents = await fetchCustomEvents();
@@ -544,7 +316,7 @@ async function handleAddEventSubmit(event) {
         // ✨ Clear form
         document.getElementById("event-name").value = "";
         document.getElementById("event-date").value = "";
-        document.getElementById("event-type").value = "General";
+        document.getElementById("event-type").value = "💡 General";
         document.getElementById("event-note").value = "";
 
         // AFTER you’ve saved the newEvent and refreshed your list…
@@ -558,7 +330,7 @@ async function handleAddEventSubmit(event) {
 
         Swal.fire({
             title: `Event saved for ${wd}, ${lunar}`,
-            html: '<img src="/src/assets/icons/logo-icon.png" class="swal2-logo-icon" alt="Lunar Logo">',
+            html: '<img src="/assets/icons/logo-icon.png" class="swal2-logo-icon" alt="Lunar Logo">',
             customClass: {
                 popup: 'celestial-toast'
             },
@@ -572,9 +344,17 @@ async function handleAddEventSubmit(event) {
             document.querySelector('.nav-link#nav-calendar').click();
 
             // After calendar view renders, open the day modal directly
-            const [monthName, dayStr] = lunar.split(' ');
+            let monthName, dayStr;
+            if (lunar.startsWith('Mirabilis')) {
+              monthName = 'Mirabilis';
+              dayStr = lunar.includes('Noctis') ? '2' : '1'; // Solis=1, Noctis=2
+            } else {
+              [monthName, dayStr] = lunar.split(' ');
+            }
             setTimeout(() => {
-              showDayModal(parseInt(dayStr, 10), monthName, eventDate, newEvent.id);
+              const dayNum = parseInt(dayStr, 10);
+              showDayModal(dayNum, monthName, eventDate, newEvent.id);
+
               // Highlight the newly added event
               const evt = document.querySelector(`[data-event-id="${newEvent.id}"]`);
               if (evt) {
@@ -592,32 +372,77 @@ async function handleAddEventSubmit(event) {
     } catch (error) {
         console.error("❌ Error adding event:", error);
         alert("Oops! Something went wrong while adding your event.");
+    } finally {
+      // always release the button
+      setBusy(submitBtn, false);
     }
 }
 
 function populateEventList(events) {
-    const container = document.getElementById("event-list-container");
-    container.innerHTML = ""; // Clear placeholder text
+  const container = document.getElementById("event-list-container");
+  container.innerHTML = ""; // Clear placeholder text
 
-    events.forEach(event => {
-        console.log("Processing event:", event); // Debugging
+  if (!events || events.length === 0) {
+    container.innerHTML = `<p class="empty-note">No custom events yet. Add your first one above ✨</p>`;
+    return;
+  }
 
-        const eventElement = document.createElement("div");
-        eventElement.classList.add("event-item");
-        eventElement.innerHTML = `
-            <ul class="settings-event-list">
-                <li><h3>${event.title} - ${event.type}</h3></li>
-                <li>${event.date}</li>
-                <li>${event.notes || "No notes added."}</li>
-                <li><button class="settings-edit-event" data-id="${event.id}">Edit</button><button class="settings-delete-event" data-id="${event.id}">Delete</button></li>
-            </ul>
-        `;
+  events.forEach(event => {
+    const stableId = event.id || `${event.date}|${event.title || event.name || ""}`;
 
-        container.appendChild(eventElement);
+    // Create event element safely without innerHTML
+    const eventElement = document.createElement("div");
+    eventElement.classList.add("event-item");
+    
+    const ul = document.createElement("ul");
+    ul.classList.add("settings-event-list");
+    
+    // Title and category (safely escaped)
+    const titleLi = document.createElement("li");
+    const h3 = document.createElement("h3");
+    h3.textContent = `${event.title || event.name || 'Untitled'} - ${event.category || event.type || "custom-event"}`;
+    titleLi.appendChild(h3);
+    ul.appendChild(titleLi);
+    
+    // Date
+    const dateLi = document.createElement("li");
+    dateLi.textContent = event.date;
+    ul.appendChild(dateLi);
+    
+    // Notes (safely escaped)
+    const notesLi = document.createElement("li");
+    notesLi.textContent = event.notes || "No notes added.";
+    ul.appendChild(notesLi);
+    
+    // Buttons
+    const buttonsLi = document.createElement("li");
+    
+    const editButton = createElement("button", {
+      className: "settings-edit-event",
+      textContent: "Edit",
+      attributes: {
+        "data-id": sanitizeForAttribute(stableId),
+        "data-key": sanitizeForAttribute(`${event.date}|${event.title ?? event.name ?? ''}`)
+      }
     });
+    
+    const deleteButton = createElement("button", {
+      className: "settings-delete-event",
+      textContent: "Delete",
+      attributes: {
+        "data-id": sanitizeForAttribute(stableId),
+        "data-key": sanitizeForAttribute(`${event.date}|${event.title ?? event.name ?? ''}`)
+      }
+    });
+    
+    buttonsLi.appendChild(editButton);
+    buttonsLi.appendChild(deleteButton);
+    ul.appendChild(buttonsLi);
+    
+    eventElement.appendChild(ul);
+    container.appendChild(eventElement);
+  });
 
-    // ✅ Attach event handlers *after* buttons exist
-    attachEventHandlers();
 }
 
 // Function to handle Edit Event - PUT
@@ -627,11 +452,13 @@ async function handleEditEventSubmit(event) {
     const form = document.getElementById("edit-event-form");
     const originalId = form.getAttribute("data-original-id");
 
+    // AFTER
     const updatedEvent = {
-        title: document.getElementById("edit-event-name").value.trim(),
-        type: document.getElementById("edit-event-type").value,
-        date: document.getElementById("edit-event-date").value,
-        notes: document.getElementById("edit-event-notes").value.trim()
+      title: document.getElementById("edit-event-name").value.trim(),
+      type: "custom-event",
+      category: document.getElementById("edit-event-type").value,
+      date: document.getElementById("edit-event-date").value,
+      notes: document.getElementById("edit-event-notes").value.trim()
     };
 
     updatedEvent.recurring = document.getElementById("edit-event-recurring").checked;
@@ -668,129 +495,385 @@ async function handleEditEventSubmit(event) {
     }
 }
 
-async function handleDeleteEvent(eventId) {
-    console.log("🚀 handleDeleteEvent function triggered!");
-
-    if (!eventId) {
-        console.error("❌ Error: eventId is undefined.");
-        return;
-    }
-
-    console.log(`🗑️ Attempting to delete event on: ${eventId}`);
-
-    try {
-        const response = await fetch(`/api/custom-events/${eventId}`, {
-            method: "DELETE",
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to delete event: ${response.statusText}`);
-        }
-
-        console.log(`✅ Event on ${eventId} deleted successfully!`);
-
-        // 🧹 **Step 1: Clear the event list before refreshing**
-        const container = document.getElementById("event-list-container");
-        if (container) {
-            container.innerHTML = "<p>Refreshing events...</p>";
-        }
-
-        // ⏳ **Step 2: Delay fetch slightly to allow server time to reload JSON**
-        setTimeout(async () => {
-            console.log("🔄 Fetching updated events...");
-            const updatedEvents = await fetchCustomEvents();
-            populateEventList(updatedEvents);
-        }, 1000); // Small delay for a smoother experience
-
-    } catch (error) {
-        console.error("❌ Error deleting event:", error);
-    }
-}
-
-function attachEventHandlers() {
-
-    // Add a Custom Event
-    document.getElementById("add-event-button").addEventListener("click", () => {
-        showAddEventModal();
+export function attachEventHandlers() {
+  // Add a Custom Event
+  const addBtn = document.getElementById("add-event-button");
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      showAddEventModal();
     });
+  }
 
-     // Redirect to About Page
-     document.getElementById("about-page-button").addEventListener("click", () => {
-        console.log("Clicked on About link");
-        window.location.hash = "about";
+  // Redirect to About Page
+  const aboutBtn = document.getElementById("about-page-button");
+  if (aboutBtn) {
+    aboutBtn.addEventListener("click", () => {
+      console.log("Clicked on About link");
+      window.location.hash = "about";
     });
+  }
 
-    // Edit a Custom Event 
-    document.querySelectorAll(".settings-edit-event").forEach(button => {
-        button.addEventListener("click", (event) => {
-            console.log("Edit button clicked!");  // Debugging
-            const eventId = event.target.getAttribute("data-id"); // Or "data-id" if that’s how you're storing it
-            if (eventId) {
-                openEditModal(eventId); // 💫 Open the modal with the correct event info
-            } else {
-                console.error("No data-id attribute found on edit button.");
-            }
-        });
+  // Set Mystical Preferences
+  const toggleMystical = document.getElementById("toggle-mystical");
+  if (toggleMystical) {
+    toggleMystical.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.mysticalSuggestions = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
     });
+  }
 
-    // Delete a Custom Event
-    document.querySelectorAll(".settings-delete-event").forEach(button => {
-        button.addEventListener("click", (event) => {
-            console.log("Delete button clicked!!!");
-    
-            // Check if the event target is correct
-            const targetButton = event.target;
-            if (!targetButton) {
-                console.error("Error: event.target is undefined.");
-                return;
-            }
-    
-            // Ensure the data-date attribute is being read correctly
-            const eventId = targetButton.getAttribute("data-id");
-            if (!eventId) {
-                console.error("Error: data-id attribute not found.");
-                return;
-            }
-    
-            console.log("Attempting to delete event on:", eventId);
-    
-            // Call the delete function
-            handleDeleteEvent(eventId);
-        });
+  const showHolidays = document.getElementById("show-holidays");
+  if (showHolidays) {
+    showHolidays.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showHolidays = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
     });
+  }
 
-    // Set Mystical Preferences
-    document.getElementById("toggle-mystical").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.mysticalSuggestions = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
+  const showCustom = document.getElementById("show-custom-events");
+  if (showCustom) {
+    showCustom.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showCustomEvents = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
     });
-    
-    
-    document.getElementById("show-holidays").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showHolidays = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
+  }
 
-    document.getElementById("show-custom-events").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showCustomEvents = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs); // 🪄 Make it visually apply right away
+  const showMoons = document.getElementById("show-moons");
+  if (showMoons) {
+    showMoons.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showMoons = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
     });
-    document.getElementById("show-past-events").addEventListener("change", (e) => {
-        const prefs = getMysticalPrefs();
-        prefs.showPastEvents = e.target.checked;
-        saveMysticalPrefs(prefs);
-        applyMysticalSettings(prefs);
-    });
+  }
 
-    // Removed toggle-constellations and constellation-layer event handler
+  const showEclipses = document.getElementById("show-eclipses");
+  if (showEclipses) {
+    showEclipses.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showEclipses = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
+    });
+  }
+
+  const showPast = document.getElementById("show-past-events");
+  if (showPast) {
+    showPast.addEventListener("change", (e) => {
+      const prefs = getMysticalPrefs();
+      prefs.showPastEvents = e.target.checked;
+      saveMysticalPrefs(prefs);
+      applyMysticalSettings(prefs);
+    });
+  }
+
+  // Ensure the switches reflect saved prefs when Settings opens
+  _syncMysticalToggleUI();
+
+  // Initialize the Gregorian → Lunar picker and ensure toggle icons sync for iPad/Safari
+  initConversionPicker();
+  _syncToggleIcons();
 }
 
 export function saveMysticalPrefs(prefs) {
     localStorage.setItem("mysticalPrefs", JSON.stringify(prefs));
+}
+
+// --- Delegated click handling for Edit/Delete in the settings list ---
+export function setupSettingsEvents() {
+  // Attach once, after the settings view is rendered
+  const list = document.getElementById("event-list-container");
+  if (list) {
+    list.addEventListener(
+      "click",
+      (e) => {
+        const btn = e.target.closest(".settings-edit-event, .settings-delete-event");
+        if (!btn || !list.contains(btn)) return;
+
+        const payload = {
+          id: btn.dataset.id || "",
+          key: btn.dataset.key || "",
+        };
+
+        if (btn.classList.contains("settings-edit-event")) {
+          openEditModal(payload);
+        } else if (btn.classList.contains("settings-delete-event")) {
+          handleDeleteEvent(payload, btn);
+        }
+      },
+      { passive: true }
+    );
+  }
+}
+
+// Keep toggle UI in sync with saved preferences
+function _syncMysticalToggleUI() {
+  const prefs = getMysticalPrefs();
+  const map = {
+    "show-holidays": prefs.showHolidays,
+    "show-custom-events": prefs.showCustomEvents,
+    "show-moons": prefs.showMoons,
+    "show-eclipses": prefs.showEclipses,
+    "show-past-events": prefs.showPastEvents
+  };
+  Object.entries(map).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!val;
+  });
+}
+
+/**
+ * Copy data-on/off from the input onto the .slider so CSS on iPad/Safari
+ * can read the correct icon for each toggle.
+ */
+function _syncToggleIcons() {
+  document.querySelectorAll("#mystical-settings .mystical-toggle .switch").forEach(label => {
+    const input  = label.querySelector("input[type='checkbox']");
+    const slider = label.querySelector(".slider");
+    if (!input || !slider) return;
+    const on  = input.getAttribute("data-on");
+    const off = input.getAttribute("data-off");
+    if (on)  slider.setAttribute("data-on", on);
+    if (off) slider.setAttribute("data-off", off);
+  });
+}
+
+/**
+ * Initialize flatpickr for the "Gregorian → Lunar" converter input
+ * and update the rendered lunar date when the user picks a date.
+ */
+function initConversionPicker() {
+  const input = document.getElementById("convert-to-celtic");
+  const outEl = document.querySelector(".converted-date");
+  if (!input || !outEl || typeof flatpickr !== "function") {
+    // Nothing to wire up (or flatpickr not loaded on this view)
+    return;
+  }
+
+  // Use the same simple approach as the working birthdateInput
+  flatpickr(input, {
+    altInput: true,
+    altFormat: "F j, Y",
+    dateFormat: "Y-m-d",
+    theme: "moonveil",
+    onChange: (_selectedDates, dateStr) => {
+      if (!dateStr) return;
+      try {
+        const weekday = getCelticWeekdayFromGregorian(dateStr);
+        const lunar   = convertGregorianToCeltic(dateStr);
+        outEl.textContent = `${weekday}, ${lunar}`;
+      } catch (err) {
+        console.warn("Failed to convert picked date → lunar:", err);
+      }
+    }
+  });
+}
+
+// Utility: build our stable composite key
+function _eventKey(e) {
+  return `${e?.date}|${e?.title ?? e?.name ?? ""}`;
+}
+
+// Utility: match by id OR composite key
+function _matches(e, id, key) {
+  return String(e?.id) === String(id) || _eventKey(e) === key;
+}
+
+// Open the Edit modal, prefilling fields for the selected event
+async function openEditModal(arg) {
+  const id = typeof arg === "object" ? arg.id : arg;
+  const key = typeof arg === "object" ? arg.key : undefined;
+
+  let all = [];
+  try {
+    all = await fetchCustomEvents(); // merged backend + local
+  } catch (e) {
+    console.warn("fetchCustomEvents failed in openEditModal:", e);
+  }
+  if (!Array.isArray(all) || all.length === 0) {
+    try {
+      all = loadCustomEvents() || [];
+    } catch {}
+  }
+
+  const evt = all.find((e) => _matches(e, id, key));
+  if (!evt) {
+    console.error("Event not found.", { id, key });
+    return;
+  }
+
+  const modalContent = `
+    <h2 class="goldenTitle">Edit Your Event</h2>
+    <form id="edit-event-form" style="text-align: left;">
+        <label for="edit-event-name">Event Name:
+            <input type="text" id="edit-event-name" value="${evt.title ?? evt.name ?? ""}" required class="celtic-form-input" />
+        </label>
+        
+        <label for="edit-event-type">Type:
+            <select id="edit-event-type" class="celtic-form-input">
+                <option value="🔥 Date" ${(evt.category ?? evt.type) === "🔥 Date" ? "selected" : ""}>🔥 Date</option>
+                <option value="😎 Friends" ${(evt.category ?? evt.type) === "😎 Friends" ? "selected" : ""}>😎 Friends</option>
+                <option value="🎉 Celebrations" ${(evt.category ?? evt.type) === "🎉 Celebrations" ? "selected" : ""}>🎉 Celebrations</option>
+                <option value="🌸 My Cycle" ${(evt.category ?? evt.type) === "🌸 My Cycle" ? "selected" : ""}>🌸 My Cycle</option>
+                <option value="💡 General" ${(evt.category ?? evt.type) === "💡 General" ? "selected" : ""}>💡 General</option>
+                <option value="🏥 Health" ${(evt.category ?? evt.type) === "🏥 Health" ? "selected" : ""}>🏥 Health</option>
+                <option value="💜 Romantic" ${(evt.category ?? evt.type) === "💜 Romantic" ? "selected" : ""}>💜 Romantic</option>
+                <option value="🖥️ Professional" ${(evt.category ?? evt.type) === "🖥️ Professional" ? "selected" : ""}>🖥️ Professional</option>
+            </select>
+        </label>
+
+        <label for="edit-event-date">Date:
+            <input type="date" id="edit-event-date" value="${evt.date || ""}" required class="celtic-form-input" />
+        </label>
+
+        <label for="edit-event-notes">Notes:
+            <textarea id="edit-event-notes" class="celtic-form-textarea">${evt.note ?? evt.notes ?? ""}</textarea>
+        </label>
+
+        <label for="edit-event-recurring" class="celtic-form-checkbox-container">
+            <input type="checkbox" id="edit-event-recurring" ${evt.recurring ? "checked" : ""} class="celtic-form-checkbox" />
+            <span class="celtic-form-checkbox-label">Recurring Event</span>
+        </label>
+
+        <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+            <button type="submit" class="settings-btn save-event-btn">Save Changes</button>
+            <button type="button" class="settings-btn" id="cancel-edit-event">Cancel</button>
+        </div>
+    </form>
+  `;
+
+  // Show Celtic modal
+  const modal = showCelticModal(modalContent, { id: 'edit-event-modal' });
+
+  // Wire form submit
+  const form = modal.querySelector("#edit-event-form");
+  if (form) {
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+
+      const saveBtn = e.submitter || form.querySelector(".save-event-btn");
+      setBusy(saveBtn, true);
+
+      try {
+        const nameEl = form.querySelector("#edit-event-name");
+        const typeEl = form.querySelector("#edit-event-type");
+        const dateEl = form.querySelector("#edit-event-date");
+        const notesEl = form.querySelector("#edit-event-notes");
+        const recEl = form.querySelector("#edit-event-recurring");
+
+        const updated = {
+          ...evt,
+          title: nameEl?.value?.trim() || evt.title || evt.name || "",
+          name: nameEl?.value?.trim() || evt.name || evt.title || "",
+          category: typeEl?.value || evt.category || evt.type || "💡 General",
+          type: "custom-event",
+          date: dateEl?.value || evt.date,
+          notes: notesEl?.value ?? evt.notes ?? "",
+          recurring: !!recEl?.checked,
+        };
+
+        // Update local first for instant UX
+        try {
+          const local = Array.isArray(loadCustomEvents?.()) ? loadCustomEvents() : [];
+          const idx = local.findIndex((e) => _matches(e, evt.id, _eventKey(evt)));
+          if (idx >= 0) local[idx] = { ...local[idx], ...updated };
+          else local.push(updated);
+          saveCustomEvents(local);
+        } catch (err) {
+          console.warn("Local save failed in openEditModal:", err);
+        }
+
+        // Best-effort backend update (keyed by date)
+        // Update by id (preferred) or composite key fallback
+        try {
+          const targetId = updated.id || _eventKey(updated);
+          await updateCustomEvent(targetId, updated);
+        } catch (err) {
+          console.warn("Backend update warning:", err);
+        }
+
+        // Hide Celtic modal and refresh the list
+        hideCelticModal('edit-event-modal');
+        
+        try { window.renderCustomEventsList?.(); } catch {}
+      } finally {
+        setBusy(saveBtn, false);
+      }
+    };
+  }
+
+  // Wire cancel button
+  const cancelBtn = modal.querySelector("#cancel-edit-event");
+  if (cancelBtn) {
+    cancelBtn.onclick = () => hideCelticModal('edit-event-modal');
+  }
+}
+
+// Delete the selected event (local first, then backend best-effort)
+async function handleDeleteEvent(arg, btnEl) {
+  const id = typeof arg === "object" ? arg.id : arg;
+  const key = typeof arg === "object" ? arg.key : undefined;
+
+  setBusy(btnEl, true); // NEW
+
+  try {
+    let all = [];
+    try { all = await fetchCustomEvents(); }
+    catch (e) { console.warn("fetchCustomEvents failed in handleDeleteEvent:", e); }
+    if (!Array.isArray(all) || all.length === 0) {
+      try { all = loadCustomEvents() || []; } catch {}
+    }
+
+    const victim = all.find((e) => _matches(e, id, key));
+    if (!victim) {
+      console.error("Delete: event not found.", { id, key });
+      return;
+    }
+
+    // Remove from local
+    try {
+      const local = Array.isArray(loadCustomEvents?.()) ? loadCustomEvents() : [];
+      const next = local.filter((e) => !_matches(e, victim.id, _eventKey(victim)));
+      saveCustomEvents(next);
+    } catch (err) {
+      console.warn("Local delete failed in handleDeleteEvent:", err);
+    }
+
+    // Backend delete (by id or composite key fallback)
+    try {
+      const targetId = victim.id || _eventKey(victim);
+      await deleteCustomEvent(targetId);
+    } catch (err) {
+      console.warn("Backend delete warning:", err);
+    }
+
+    try { window.renderCustomEventsList?.(); } catch {}
+  } finally {
+    setBusy(btnEl, false); // NEW
+  }
+}
+
+// Fetch and paint the settings list
+export async function renderCustomEventsList() {
+  try {
+    const events = await fetchCustomEvents();
+    populateEventList(events);
+  } catch (err) {
+    console.warn("renderCustomEventsList failed:", err);
+    try {
+      populateEventList(loadCustomEvents() || []);
+    } catch {}
+  }
+}
+
+// Expose for other modules and inline refresh calls
+if (typeof window !== "undefined") {
+  window.renderCustomEventsList = renderCustomEventsList;
 }

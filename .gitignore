@@ -1,10 +1,43 @@
-# Ignore Python virtual environment
-env/
-
-# Ignore __pycache__
-__pycache__/
-
-# Ignore system files (macOS and Windows)
+# --- OS / editors ---
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
 
+# --- logs & misc ---
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.pid
+*.seed
+
+# --- dependencies & caches ---
+node_modules/
+.vite/
+coverage/
+*.tgz
+
+# --- env files ---
+# Keep env files out of git unless you intend to share non-secrets.
+.env
+.env.*
+!.env.example
+
+# --- build outputs ---
+# We DO commit /static for Cloudflare Pages (no build step), so DO NOT ignore it.
+# If you ever switch Pages back to building from source, you would ignore dist/:
+dist/
+static/
+
+# --- service worker maps (optional) ---
+workbox-*.js.map
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Backend directory (not needed for frontend deployment)
+lunar-almanac-backend/

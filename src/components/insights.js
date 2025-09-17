@@ -1,5 +1,6 @@
 import { slugifyCharm } from "../utils/slugifyCharm.js";
-import { initSwipe } from "../utils/swipeHandler.js"; // ✅ Add this at the top
+import { initSwipe } from "../utils/swipeHandler.js";
+import { showCelticModal, hideCelticModal } from "../utils/modalOverlay.js";
 
 export function renderInsights() {
   return `
@@ -21,94 +22,65 @@ export function renderInsights() {
 
         <div class="wheel-container">
           <div id="wheel">
-            <img src="/assets//images/zodiac/zodiac-wheel.png" alt="Celtic Zodiac Wheel" class="zodiac-wheel" />
+            <img src="/assets/images/zodiac/zodiac-wheel.png" alt="Celtic Zodiac Wheel" class="zodiac-wheel" />
           </div>
         </div>
 
       <ul class="zodiac-list">
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-birch.png" alt="Birch"/> 
+            <img src="/assets/images/zodiac/zodiac-birch.png" alt="Birch"/> 
             <p>Birch</p><span class="celtic-zodiac-date">Nivis 2 to Janus 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-rowan.png" alt="Rowan" /> 
+            <img src="/assets/images/zodiac/zodiac-rowan.png" alt="Rowan" /> 
             <p>Rowan</p><span class="celtic-zodiac-date">Janus 2 to Brigid 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-ash.png" alt="Ash" /> 
+            <img src="/assets/images/zodiac/zodiac-ash.png" alt="Ash" /> 
             <p>Ash</p><span class="celtic-zodiac-date">Brigid 2 to Flora 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-alder.png" alt="Alder" /> 
+            <img src="/assets/images/zodiac/zodiac-alder.png" alt="Alder" /> 
             <p>Alder</p><span class="celtic-zodiac-date">Flora 2 to Maia 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-willow.png" alt="Willow" /> 
+            <img src="/assets/images/zodiac/zodiac-willow.png" alt="Willow" /> 
             <p>Willow</p><span class="celtic-zodiac-date">Maia 2 to Juno 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-hawthorn.png" alt="Hawthorn" /> 
+            <img src="/assets/images/zodiac/zodiac-hawthorn.png" alt="Hawthorn" /> 
             <p>Hawthorn</p><span class="celtic-zodiac-date">Juno 2 to Solis 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-oak.png" alt="Oak" /> 
+            <img src="/assets/images/zodiac/zodiac-oak.png" alt="Oak" /> 
             <p>Oak</p><span class="celtic-zodiac-date">Solis 2 to Terra 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-holly.png" alt="Holly" /> 
+            <img src="/assets/images/zodiac/zodiac-holly.png" alt="Holly" /> 
             <p>Holly</p><span class="celtic-zodiac-date">Terra 2 to Lugh 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-hazel.png" alt="Hazel" /> 
+            <img src="/assets/images/zodiac/zodiac-hazel.png" alt="Hazel" /> 
             <p>Hazel</p><span class="celtic-zodiac-date">Lugh 2 to Pomona 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-vine.png" alt="Vine" /> 
+            <img src="/assets/images/zodiac/zodiac-vine.png" alt="Vine" /> 
             <p>Vine</p><span class="celtic-zodiac-date">Pomona 2 to Autumna 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-ivy.png" alt="Ivy" /> 
+            <img src="/assets/images/zodiac/zodiac-ivy.png" alt="Ivy" /> 
             <p>Ivy</p><span class="celtic-zodiac-date">Autumna 2 to Eira 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-reed.png" alt="Reed" /> 
+            <img src="/assets/images/zodiac/zodiac-reed.png" alt="Reed" /> 
             <p>Reed</p><span class="celtic-zodiac-date">Eira 2 to Aether 1</span>
         </li>
         <li class="zodiac-item hidden">
-            <img src="/assets//images/zodiac/zodiac-elder.png" alt="Elder" /> 
+            <img src="/assets/images/zodiac/zodiac-elder.png" alt="Elder" /> 
             <p>Elder</p><span class="celtic-zodiac-date">Aether 2 to Nivis 1</span>
         </li>
       </ul>
     </div>
-
-      <div id="modal-overlay" class="modal-overlay hidden"></div>
-      <div id="zodiac-modal" class="modal">
-        <div class="modal-content">
-          <button id="close-modal" class="mystical-close">
-            ✦
-          </button>
-          <h2 id="zodiac-name">Zodiac Name</h2>
-          <p id="zodiac-date-range">Date Range</p>
-          <img id="zodiac-image" src="" alt="Zodiac Sign" />
-          <p id="zodiac-description">Zodiac description here...</p>
-
-          <h3 class="subheader">Three Key Traits</h3>
-          <p id="zodiac-traits"></p>
-
-          <h3 class="subheader">Associated Element</h3>
-          <p id="zodiac-element"></p>
-
-          <h3 class="subheader">Associated Animal</h3>
-          <p id="zodiac-animal"></p>
-
-          <br />
-
-          <h3 class="subheader">Mythology</h3>
-          <p id="zodiac-mythology"></p> 
-
-          <a id="zodiac-learn-more" class="settings-btn celtic-zodiac-btn" href="#" target="_blank">Learn More</a>
-        </div>
-      </div>
   
     </div>
 
@@ -120,11 +92,11 @@ export function renderInsights() {
 
           <div id="festival-carousel" class="carousel-container">
             <button class="festival-carousel-prev">
-              <img src="/assets//images/decor/moon-crescent-prev.png" alt="Prev" />
+              <img src="/assets/images/decor/moon-crescent-prev.png" alt="Prev" />
             </button>
 
             <div class="festival-slide active">
-                <img src="/assets//images/festivals/festival-imbolc.png" alt="Imbolc" class="festival-icon" />
+                <img src="/assets/images/festivals/festival-imbolc.png" alt="Imbolc" class="festival-icon" />
                 <h2 class="festival-title">Imbolc</h2>
                 <h3 class="festival-date">15th of Janus</h3>
                 <p class="festival-description">
@@ -133,7 +105,7 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="/assets//images/festivals/festival-ostara.png" alt="Ostara" class="festival-icon" />
+                <img src="/assets/images/festivals/festival-ostara.png" alt="Ostara" class="festival-icon" />
                 <h2 class="festival-title">Ostara</h2>
                 <h3 class="festival-date">6th of Flora</h3>
                 <p class="festival-description">
@@ -142,7 +114,7 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="/assets//images/festivals/festival-beltane.png" alt="Beltane" class="festival-icon" />
+                <img src="/assets/images/festivals/festival-beltane.png" alt="Beltane" class="festival-icon" />
                 <h2 class="festival-title">Beltane</h2>
                 <h3 class="festival-date">19th of Maia</h3>
                 <p class="festival-description">
@@ -150,8 +122,8 @@ export function renderInsights() {
                 </p>
             </div>
 
-            <div class="festival-slide active">
-                <img src="/assets//images/festivals/festival-litha.png" alt="Litha" class="festival-icon" />
+            <div class="festival-slide">
+                <img src="/assets/images/festivals/festival-litha.png" alt="Litha" class="festival-icon" />
                 <h2 class="festival-title">Litha</h2>
                 <h3 class="festival-date">14th of Solis</h3>
                 <p class="festival-description">
@@ -160,7 +132,7 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="/assets//images/festivals/festival-lughnasadh.png" alt="Lughnasadh" class="festival-icon" />
+                <img src="/assets/images/festivals/festival-lughnasadh.png" alt="Lughnasadh" class="festival-icon" />
                 <h2 class="festival-title">Lughnasadh</h2>
                 <h3 class="festival-date">27th of Terra</h3>
                 <p class="festival-description">
@@ -169,7 +141,7 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="/assets//images/festivals/festival-mabon.png" alt="Mabon" class="festival-icon" />
+                <img src="/assets/images/festivals/festival-mabon.png" alt="Mabon" class="festival-icon" />
                 <h2 class="festival-title">Mabon</h2>
                 <h3 class="festival-date">19th of Lugh</h3>
                 <p class="festival-description">
@@ -178,7 +150,7 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="/assets//images/festivals/festival-samhain.png" alt="Samhain" class="festival-icon" />
+                <img src="/assets/images/festivals/festival-samhain.png" alt="Samhain" class="festival-icon" />
                 <h2 class="festival-title">Samhain</h2>
                 <h3 class="festival-date">6th of Eira</h3>
                 <p class="festival-description">
@@ -187,7 +159,7 @@ export function renderInsights() {
             </div>
 
             <div class="festival-slide">
-                <img src="/assets//images/festivals/festival-yule.png" alt="Yule" class="festival-icon" />
+                <img src="/assets/images/festivals/festival-yule.png" alt="Yule" class="festival-icon" />
                 <h2 class="festival-title">Yule</h2>
                 <h3 class="festival-date">Mirabilis</h3>
                 <p class="festival-description">
@@ -196,7 +168,7 @@ export function renderInsights() {
             </div>
 
             <button class="festival-carousel-next">
-              <img src="/assets//images/decor/moon-crescent-next.png" alt="Next" />
+              <img src="/assets/images/decor/moon-crescent-next.png" alt="Next" />
             </button>
         </div>
     </div>
@@ -206,16 +178,16 @@ export function renderInsights() {
     <div id="moon-poetry" class="tab-content"> 
       <h2 class="goldNugget" style="text-align:center; margin-bottom: 0">The Full Moons</h2>
 
-      <img class="full-moon" src="/assets//images/decor/full-moon.png" alt="Full Moon" />
+      <img class="full-moon" src="/assets/images/decor/full-moon.png" alt="Full Moon" />
 
       <div class="moon-carousel">
         <button class="carousel-prev">
-          <img src="/assets//images/decor/moon-crescent-prev.png" alt="Prev" />
+          <img src="/assets/images/decor/moon-crescent-prev.png" alt="Prev" />
         </button>
 
-        <div class="moon-slide" id="snow-moon">
+        <div class="moon-slide active" id="snow-moon">
             <h2 class="moon-title">Snow Moon</h2>
-            <h3 class="moon-date">22nd of Nivis</3>
+            <h3 class="moon-date">22nd of Nivis</h3>
             <p class="moon-poem">
                 The Snow Moon casts its tranquil glow, <br>
                 Upon the earth where frost does grow. <br>
@@ -224,9 +196,9 @@ export function renderInsights() {
             </p>
         </div>
 
-        <div class="moon-slide active" id="wolf-moon">
+        <div class="moon-slide" id="wolf-moon">
             <h2 class="moon-title">Wolf Moon</h2>
-            <h3 class="moon-date">24th of Janus</3>
+            <h3 class="moon-date">24th of Janus</h3>
             <p class="moon-poem">
                 Beneath the snow and howling skies, <br>
                 The Wolf Moon watches, ancient, wise. <br>
@@ -235,9 +207,9 @@ export function renderInsights() {
             </p>
         </div>
 
-        <div class="moon-slide active" id="worm-moon">
+        <div class="moon-slide" id="worm-moon">
             <h2 class="moon-title">Worm Moon</h2>
-            <h3 class="moon-date">26th of Brigid</3>
+            <h3 class="moon-date">26th of Brigid</h3>
             <p class="moon-poem">
               The Worm Moon stirs the thawing ground,<br />
               Where seeds of life are newly found.<br />
@@ -246,9 +218,9 @@ export function renderInsights() {
             </p>
         </div>
 
-        <div class="moon-slide active" id="pink-moon">
+        <div class="moon-slide" id="pink-moon">
             <h2 class="moon-title">Pink Moon</h2>
-            <h3 class="moon-date">28th of Flora</3>
+            <h3 class="moon-date">28th of Flora</h3>
             <p class="moon-poem">
                 Blush of dawn, the earth reclaims,<br />
                 Soft pink petals call our names.<br />
@@ -259,7 +231,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="flower-moon">
             <h2 class="moon-title">Flower Moon</h2>
-            <h3 class="moon-date">1st of Juno</3>
+            <h3 class="moon-date">1st of Juno</h3>
             <p class="moon-poem">
             Petals bloom in moonlit air,<br />
             A fragrant world beyond compare.<br />
@@ -268,9 +240,9 @@ export function renderInsights() {
             </p>
         </div>
 
-        <div class="moon-slide" id="Strawberry-moon">
+        <div class="moon-slide" id="strawberry-moon">
             <h2 class="moon-title">Strawberry Moon</h2>
-            <h3 class="moon-date">3rd of Solis</3>
+            <h3 class="moon-date">3rd of Solis</h3>
             <p class="moon-poem">
             The Strawberry Moon, ripe and red,<br />
             A time to savor what’s been bred.<br />
@@ -281,7 +253,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="thunder-moon">
             <h2 class="moon-title">Thunder Moon</h2>
-            <h3 class="moon-date">4th of Terra</3>
+            <h3 class="moon-date">4th of Terra</h3>
             <p class="moon-poem">
             Thunder roars, the moon’s alive,<br />
             With storms of passion, dreams will thrive.<br />
@@ -292,7 +264,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="grain-moon">
             <h2 class="moon-title">Grain Moon</h2>
-            <h3 class="moon-date">6th of Lugh</3>
+            <h3 class="moon-date">6th of Lugh</h3>
             <p class="moon-poem">
             Fields of grain in moonlight bask,<br />
             A time to gather, a sacred task.<br />
@@ -314,7 +286,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="hunters-moon">
             <h2 class="moon-title">Hunter's Moon</h2>
-            <h3 class="moon-date">8th of Autumna</3>
+            <h3 class="moon-date">8th of Autumna</h3>
             <p class="moon-poem">
             The Hunter’s Moon is sharp and keen,<br />
             A guide through shadows yet unseen.<br />
@@ -323,9 +295,9 @@ export function renderInsights() {
             </p>
         </div>
 
-        <div class="moon-slide" id="Frost-moon">
+        <div class="moon-slide" id="frost-moon">
             <h2 class="moon-title">Frost Moon</h2>
-            <h3 class="moon-date">10th of Eira</3>
+            <h3 class="moon-date">10th of Eira</h3>
             <p class="moon-poem">
             Frost-kissed trees stand still and bare,<br />
             A quiet world in winter’s care.<br />
@@ -336,7 +308,7 @@ export function renderInsights() {
 
         <div class="moon-slide" id="cold-moon">
             <h2 class="moon-title">Cold Moon</h2>
-            <h3 class="moon-date">12th of Aether</3>
+            <h3 class="moon-date">12th of Aether</h3>
             <p class="moon-poem">
             The Cold Moon whispers of the past,<br />
             Of trials endured and shadows cast.<br />
@@ -346,7 +318,7 @@ export function renderInsights() {
         </div>
 
         <button class="carousel-next">
-          <img src="/assets//images/decor/moon-crescent-next.png" alt="Next" />
+          <img src="/assets/images/decor/moon-crescent-next.png" alt="Next" />
         </button>
       </div>
     </div>
@@ -377,7 +349,6 @@ export function initializeTabbedNav() {
   }
 
 export function initializeCelticZodiac() {
-  const overlay = document.getElementById("modal-overlay");
 
   const wheel = document.getElementById("wheel");
   const hoverInfo = document.getElementById("hover-info");
@@ -406,107 +377,63 @@ export function initializeCelticZodiac() {
   }
 
   // Celtic Zodiac Modal
-  const zodiacModal = document.getElementById("zodiac-modal");
-  const closeModal = document.querySelector(".mystical-close");
   const zodiacItems = document.querySelectorAll(".zodiac-item");
-
-   // Hide overlay and make it clickable
-   document.getElementById("modal-overlay").addEventListener("click", () => {
-
-    console.log("Click on Overlay");
-    const celticZodiacModal = document.getElementById("zodiac-modal");
-
-    if (celticZodiacModal.classList.contains("show")) {
-      celticZodiacModal.classList.remove("show");
-      celticZodiacModal.classList.add("hidden");
-    }
-
-    // Locate open modal to centre of viewport
-    document.body.classList.add('modal-open');
-
-    // Hide the overlay itself
-    document.getElementById("modal-overlay").classList.remove("show");
-    document.getElementById("modal-overlay").classList.add("hidden");
-});
 
   // Assign click behaviour to thumbs
   zodiacItems.forEach(item => {
       item.addEventListener("click", () => {
           const zodiacName = item.querySelector("p").textContent;
-          console.log("Modal node ID:", document.getElementById('zodiac-modal'));
+          console.log("Opening zodiac modal for:", zodiacName);
           showZodiacModal(zodiacName);
       });
-  });
-
-  // Close Celtic zodiac modal
-  closeModal.addEventListener("click", () => {
-    zodiacModal.classList.remove("show");
-    overlay.classList.remove("show");
-    overlay.classList.add("hidden");
-
-    document.body.classList.remove('modal-open');
-
-    // Reset transform manually (ghosts hate this)
-    zodiacModal.style.transform = 'translate(-50%, -50%) scale(0.95)';
   });
 }
 
 async function showZodiacModal(zodiacName) {
-  const modal = document.getElementById("zodiac-modal");
-  const overlay = document.getElementById("modal-overlay");
-  const learnMoreBtn = document.querySelector(".celtic-zodiac-btn"); // 👈 Add this line here!
-
   try {
-      const response = await fetch(`/zodiac/insights/${encodeURIComponent(zodiacName)}`);
+      const response = await fetch(`/zodiac/by-name?name=${encodeURIComponent(zodiacName)}`);
       if (!response.ok) {
           throw new Error(`Zodiac sign '${zodiacName}' not found`);
       }
 
       const zodiacEntry = await response.json();
 
-      // 🪄 Show modal
-      modal.classList.remove("hidden");
-      overlay.classList.remove("hidden");
-      requestAnimationFrame(() => {
-          modal.classList.add("show");
-          overlay.classList.add("show");
-      });
-
-      // 🪄 Scroll modal into centre of viewport
-      setTimeout(() => {
-        const modal = document.getElementById("zodiac-modal");
-        if (modal) {
-          modal.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }, 100); // Delay ensures styles are applied
-
       const imageSlugZodiac = slugifyCharm(zodiacName);
+      
+      // Build learn more link if available
+      const learnMoreLink = zodiacEntry.url ? 
+        `<a class="settings-btn celtic-zodiac-btn" href="${zodiacEntry.url}" target="_blank">Learn More</a>` : 
+        '';
 
-      // 🖼️ Populate modal content
-      document.getElementById("zodiac-name").textContent = zodiacEntry.name;
-      document.getElementById("zodiac-date-range").textContent = zodiacEntry.celtic_date;
-      document.getElementById("zodiac-image").src = `/assets//images/zodiac/zodiac-${imageSlugZodiac}.png`;
-      document.getElementById("zodiac-description").textContent = zodiacEntry.symbolism;
-      document.getElementById("zodiac-traits").textContent = zodiacEntry.symbolism;
-      document.getElementById("zodiac-element").textContent = zodiacEntry.element || "Element unknown";
-      document.getElementById("zodiac-animal").textContent = zodiacEntry.animal;
-      document.getElementById("zodiac-mythology").textContent = zodiacEntry.mythical_creature;
+      // 🖼️ Create modal content
+      const modalContent = `
+        <h2 class="goldenTitle">${zodiacEntry.name}</h2>
+        <p><strong>${zodiacEntry.celtic_date}</strong></p>
+        <img src="/assets/images/zodiac/zodiac-${imageSlugZodiac}.png" alt="${zodiacEntry.name}" style="max-width: 200px; margin: 20px 0;" />
+        <p>${zodiacEntry.symbolism}</p>
 
-      console.log("Zodiac url is ", zodiacEntry.url);
+        <h3 class="subheader">Associated Element</h3>
+        <p>${zodiacEntry.element || "Element unknown"}</p>
 
-      if (zodiacEntry.url) {
-        learnMoreBtn.style.display = "inline-block";
-        learnMoreBtn.setAttribute("href", zodiacEntry.url);
-        learnMoreBtn.setAttribute("target", "_blank");
-      } else {
-          learnMoreBtn.style.display = "none"; // Hide if there's no link
-      }
+        <h3 class="subheader">Associated Animal</h3>
+        <p>${zodiacEntry.animal}</p>
+
+        <h3 class="subheader">Mythology</h3>
+        <p>${zodiacEntry.mythical_creature}</p>
+        
+        ${learnMoreLink}
+      `;
+
+      // 🪄 Show Celtic modal
+      showCelticModal(modalContent, { id: 'zodiac-modal' });
 
   } catch (error) {
       console.error("Error loading zodiac modal:", error);
+      showCelticModal(`
+        <h2>Error</h2>
+        <p>Unable to load zodiac information for ${zodiacName}.</p>
+      `, { id: 'zodiac-modal' });
   }
-
-
 }
 
 // ********************************
@@ -518,7 +445,7 @@ export function initializeFestivalCarousel() {
   const prevButton = document.querySelector(".festival-carousel-prev");
   const nextButton = document.querySelector(".festival-carousel-next");
 
-  const sparkleSound = new Audio('/assets//sound/sparkle.wav');
+  const sparkleSound = new Audio('/assets/sound/sparkle.wav');
   sparkleSound.volume = 0.6; // adjust as needed
 
   let currentSlide = 0;
@@ -574,7 +501,7 @@ export function initializeMoonPoetry() {
   const prevButton = document.querySelector(".carousel-prev");
   const nextButton = document.querySelector(".carousel-next");
 
-  const harpSound = new Audio("/assets//sound/harp.wav"); // Load sound file
+  const harpSound = new Audio("/assets/sound/harp.wav"); // Load sound file
   harpSound.volume = 0.6; // adjust as needed
 
   let currentSlide = 0;
@@ -655,20 +582,20 @@ export function initializeMoonPoetry() {
 
 function setInitialMoon() {
   const celticMonth = getCurrentCelticMonth();
-  const moonMapping = {
-      "Nivis": "wolf-moon",
-      "Janus": "snow-moon",
-      "Brigid": "worm-moon",
-      "Flora": "Pink-moon*",
-      "Juno": "flower-moon",
-      "Solis": "strawberry-moon",
-      "Terra": "thunder-moon",
-      "Lugh": "grain-moon",
-      "Pomona": "harvest-moon",
-      "Autumna": "hunters-moon",
-      "Eira": "frost-moon",
-      "Aether": "cold-moon"
-  };
+ const moonMapping = {
+    Nivis: "snow-moon",
+    Janus: "wolf-moon",
+    Brigid: "worm-moon",
+    Flora: "pink-moon",
+    Juno: "flower-moon",
+    Solis: "strawberry-moon",
+    Terra: "thunder-moon",
+    Lugh: "grain-moon",
+    Pomona: "harvest-moon",
+    Autumna: "hunters-moon",
+    Eira: "frost-moon",
+    Aether: "cold-moon"
+};
 
   console.log("This month is ", celticMonth);
 

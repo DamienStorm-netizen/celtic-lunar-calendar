@@ -1,5 +1,4 @@
 export function renderPrivacy() {
-    const app = document.getElementById('app');
     return `
     <section class="privacy">
 
