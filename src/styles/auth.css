@@ -3,6 +3,20 @@
  * Matches the mystical theme of the Lunar Almanac
  */
 
+/* Ensure auth modals appear above other modals */
+.celtic-modal[id*="auth"] {
+  z-index: 10500 !important;
+}
+
+.celtic-modal[id*="auth"] .celtic-modal-content {
+  z-index: 10501 !important;
+}
+
+/* Ensure close button appears above the modal content */
+.celtic-modal[id*="auth"] .celtic-modal-close {
+  z-index: 10502 !important;
+}
+
 /* Auth Section in Settings */
 .auth-section {
   background: linear-gradient(135deg, rgba(189, 159, 255, 0.1), rgba(139, 69, 198, 0.1));

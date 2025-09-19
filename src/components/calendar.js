@@ -5,7 +5,8 @@ import { initSwipe } from "../utils/swipeHandler.js";
 import { starFieldSVG } from "../constants/starField.js";
 import { getEventIcon } from "../utils/eventUtils.js";
 import { api } from "../utils/api.js";
-import { fetchCustomEvents } from "./eventsAPI.js";
+import { fetchCustomEvents, createCustomEvent } from "./eventsAPI.js";
+import { isAuthenticated, showLoginModal, onAuthStateChange } from "./auth.js";
 // Removed showOverlay, hideOverlay imports to avoid conflicts with Celtic modals
 
 import {
@@ -535,8 +536,8 @@ if (addForm) {
     };
 
     try {
-      // go through API helper so dev/prod just works
-      await api.addCustomEvent(newEvent);
+      // Use authenticated API to save to D1 database
+      await createCustomEvent(newEvent);
 
       // (optional) refresh the grid decorations for this month without re-wiring everything
       // await enhanceCalendarTable(document.getElementById("modal-container"), lastOpenedMonth);
@@ -650,19 +651,44 @@ function initEventDatePicker() {
 function setupCalendarTabNavigation() {
     const tabs = document.querySelectorAll(".calendar-tab-button");
     const contents = document.querySelectorAll(".calendar-tab-content");
-  
+
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => {
         const targetId = tab.id.replace("tab-", "tab-content-");
-  
+
+        // Check authentication for Add Event tab
+        if (targetId === "tab-content-add" && !isAuthenticated()) {
+            // Show authentication modal instead of switching tabs
+            showLoginModal();
+
+            // Set up a one-time callback for successful authentication
+            const onLoginSuccess = (user, token) => {
+                if (user && token) {
+                    // After successful login, switch to the add event tab
+                    tabs.forEach((t) => t.classList.remove("active"));
+                    contents.forEach((c) => c.classList.remove("active"));
+                    tab.classList.add("active");
+                    document.getElementById(targetId).classList.add("active");
+                    setTimeout(() => {
+                        initEventDatePicker();
+                    }, 50);
+                    // Remove the callback so it doesn't trigger again
+                    onAuthStateChange(null);
+                }
+            };
+            onAuthStateChange(onLoginSuccess);
+
+            return; // Don't switch tabs
+        }
+
         // Deactivate all tabs
         tabs.forEach((t) => t.classList.remove("active"));
         contents.forEach((c) => c.classList.remove("active"));
-  
+
         // Activate the clicked tab
         tab.classList.add("active");
         document.getElementById(targetId).classList.add("active");
-        
+
         // If switching to the Add Event tab, ensure datepicker is properly initialized
         if (targetId === "tab-content-add") {
             setTimeout(() => {

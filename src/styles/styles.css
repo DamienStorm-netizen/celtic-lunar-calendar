@@ -848,7 +848,19 @@ blockquote.moon-poem {
   background-image: url(/assets/images/decor/treeoflife-fade.png);
   background-repeat: no-repeat;
   width: 100%;
-  background-position-x: center;
+  background-position: center top;
+  background-size: contain;
+  min-height: 120vh;
+  padding-bottom: 100px;
+}
+
+.tree-of-life-full {
+  background-image: url(/assets/images/decor/treeoflife-fade.png);
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  min-height: 100vh;
+  background-attachment: fixed;
 }
 
 .poem-container {
@@ -3709,8 +3721,8 @@ body.modal-open {
   cursor: pointer;
 }
 
-/* Ensure flatpickr calendar appears above all modals on mobile */
-.flatpickr-calendar {
+/* Ensure flatpickr calendar appears above all modals on mobile (except birthday picker) */
+.flatpickr-calendar:not([data-birthday-picker]) {
   z-index: 10000 !important;
   position: fixed !important;
 }
@@ -3722,7 +3734,7 @@ body.modal-open {
     min-height: 44px; /* iOS minimum touch target */
   }
   
-  .flatpickr-calendar {
+  .flatpickr-calendar:not([data-birthday-picker]) {
     /* Ensure calendar is properly sized on mobile */
     max-width: 90vw;
     left: 50% !important;

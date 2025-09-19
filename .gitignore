@@ -20,12 +20,6 @@ node_modules/
 coverage/
 *.tgz
 
-# --- env files ---
-# Keep env files out of git unless you intend to share non-secrets.
-.env
-.env.*
-!.env.example
-
 # --- build outputs ---
 # We DO commit /static for Cloudflare Pages (no build step), so DO NOT ignore it.
 # If you ever switch Pages back to building from source, you would ignore dist/:

@@ -2,7 +2,12 @@
 
 ## 🌐 **API Overview**
 
-The Celtic Calendar App communicates with a **Python FastAPI backend** that provides Celtic calendar calculations, lunar data, festivals, and user event management. The API follows RESTful conventions and returns JSON responses.
+The Celtic Calendar App uses a **dual-backend architecture**:
+
+1. **Primary Backend:** Python FastAPI (Render.com) - Celtic calendar calculations, lunar data, festivals
+2. **Authentication Backend:** Cloudflare Workers + D1 Database - User authentication and event storage
+
+Both APIs follow RESTful conventions and return JSON responses. The authentication system provides cross-device synchronization and secure user data management.
 
 ---
 
@@ -11,18 +16,21 @@ The Celtic Calendar App communicates with a **Python FastAPI backend** that prov
 ### **Environment Setup**
 ```javascript
 // Development (Vite proxy)
-VITE_API_BASE="" // Uses localhost:8000 via proxy
+VITE_API_BASE="" // Uses localhost:8000 via proxy for Celtic Calendar API
 
-// Production (Render.com)  
-VITE_API_BASE="https://your-api-render.com"
+// Production
+VITE_API_BASE="https://your-api-render.com" // Celtic Calendar API
+// Authentication API: https://lunar-almanac-auth.west-coast-tantra-institute-account.workers.dev
 ```
 
 ### **Request Headers**
+
+#### **Celtic Calendar API (FastAPI)**
 ```javascript
 // All requests include:
 {
   "Accept": "application/json",
-  "Cache-Control": "no-store" // Prevents caching issues
+  "Cache-Control": "no-store"
 }
 
 // POST requests additionally include:
@@ -31,11 +39,211 @@ VITE_API_BASE="https://your-api-render.com"
 }
 ```
 
+#### **Authentication API (Cloudflare Workers)**
+```javascript
+// Public endpoints (register, login):
+{
+  "Accept": "application/json",
+  "Content-Type": "application/json"
+}
+
+// Protected endpoints (profile, events):
+{
+  "Accept": "application/json",
+  "Content-Type": "application/json",
+  "Authorization": "Bearer <jwt_token>"
+}
+```
+
 ---
 
 ## 📋 **API Endpoints**
 
-### **🏥 Health & System**
+### **🔐 Authentication & User Management (Cloudflare Workers)**
+
+#### `POST /api/auth/register`
+**Purpose:** Create a new user account
+**Authentication:** None required
+**Request Body:**
+```json
+{
+  "username": "mystical_user",
+  "email": "user@example.com",
+  "password": "SecurePassword123!"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "user": {
+    "id": 1,
+    "username": "mystical_user",
+    "email": "user@example.com",
+    "created_at": "2024-12-15T10:30:00Z"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### `POST /api/auth/login`
+**Purpose:** Authenticate existing user
+**Authentication:** None required
+**Request Body:**
+```json
+{
+  "username": "mystical_user",
+  "password": "SecurePassword123!"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "user": {
+    "id": 1,
+    "username": "mystical_user",
+    "email": "user@example.com"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### `POST /api/auth/logout`
+**Purpose:** End user session
+**Authentication:** Bearer token required
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Logged out successfully"
+}
+```
+
+#### `GET /api/auth/profile`
+**Purpose:** Get current user profile
+**Authentication:** Bearer token required
+**Response:**
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "mystical_user",
+    "email": "user@example.com",
+    "created_at": "2024-12-15T10:30:00Z",
+    "updated_at": "2024-12-15T10:30:00Z"
+  }
+}
+```
+
+#### `PUT /api/auth/profile`
+**Purpose:** Update user profile
+**Authentication:** Bearer token required
+**Request Body:**
+```json
+{
+  "email": "newemail@example.com"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "user": {
+    "id": 1,
+    "username": "mystical_user",
+    "email": "newemail@example.com",
+    "updated_at": "2024-12-15T11:45:00Z"
+  }
+}
+```
+
+#### `GET /api/auth/custom-events`
+**Purpose:** Get user's custom events from database
+**Authentication:** Bearer token required
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "title": "Birthday Celebration",
+    "date": "2024-07-15",
+    "type": "custom-event",
+    "category": "🎂 Birthday",
+    "notes": "Annual celebration",
+    "created_at": "2024-01-15T10:30:00Z"
+  }
+]
+```
+
+#### `POST /api/auth/custom-events`
+**Purpose:** Create new custom event for authenticated user
+**Authentication:** Bearer token required
+**Request Body:**
+```json
+{
+  "title": "Important Meeting",
+  "date": "2024-07-20",
+  "category": "💼 Work",
+  "notes": "Quarterly review"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "event": {
+    "id": 2,
+    "title": "Important Meeting",
+    "date": "2024-07-20",
+    "type": "custom-event",
+    "category": "💼 Work",
+    "notes": "Quarterly review",
+    "created_at": "2024-06-15T14:22:00Z"
+  }
+}
+```
+
+#### `PUT /api/auth/custom-events/{id}`
+**Purpose:** Update user's custom event
+**Authentication:** Bearer token required
+**Path Parameters:**
+- `id`: Event ID to update
+
+**Request Body:** (partial updates supported)
+```json
+{
+  "title": "Updated Meeting Title",
+  "notes": "Modified notes"
+}
+```
+
+**Response:** Updated event object (same format as POST response)
+
+#### `DELETE /api/auth/custom-events/{id}`
+**Purpose:** Delete user's custom event
+**Authentication:** Bearer token required
+**Path Parameters:**
+- `id`: Event ID to delete
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Event deleted successfully"
+}
+```
+
+---
+
+### **🏥 Health & System (Celtic Calendar API)**
 
 #### `GET /api/healthz`
 **Purpose:** Service health check and status  
@@ -163,23 +371,26 @@ GET /api/dynamic-moon-phases?start_date=2024-07-01&end_date=2024-07-31
 ```
 
 #### `GET /api/eclipse-events`
-**Purpose:** Get eclipse data and Celtic interpretations  
-**Authentication:** None required  
+**Purpose:** Get real astronomical eclipse data with mystical descriptions for 2025-2026
+**Authentication:** None required
 **Response:**
 ```json
 [
   {
-    "id": "solar_eclipse_2024",
-    "type": "Solar Eclipse",
-    "date": "2024-04-08",
-    "celticDate": "12th of Ostara",
-    "visibility": "North America",
-    "duration": "4m28s",
-    "significance": "Transformation and new cycles",
-    "description": "A powerful time for releasing old patterns",
-    "zodiacInfluence": "Hazel"
+    "type": "lunar-eclipse",
+    "title": "Total Lunar Eclipse",
+    "date": "2025-03-14 06:59:00",
+    "description": "The Blood Moon rises, casting the world in crimson shadows. A time of profound transformation and revelation, when the veil between realms grows thin. The spring eclipse heralds growth and new beginnings emerging from shadow.",
+    "magnitude": 1.18
+  },
+  {
+    "type": "solar-eclipse",
+    "title": "Partial Solar Eclipse",
+    "date": "2025-03-29 10:47:00",
+    "description": "The moon takes a gentle bite from the sun's radiance, creating a cosmic crescent. A time of subtle shifts and quiet transformation. The spring eclipse energizes new growth and awakening life force.",
+    "magnitude": 0.94
   }
-  // ... more eclipses
+  // ... more eclipses through 2026
 ]
 ```
 
@@ -428,12 +639,12 @@ All errors follow consistent format:
 - `POST /api/user-preferences` - Cross-device settings sync
 - `GET /api/meditation-guides` - Guided Celtic meditations
 
-### **Authentication (Future)**
-When user accounts are added:
-- JWT token-based authentication
-- User-specific event storage
-- Cross-device synchronization
-- Privacy controls
+### **Authentication (Implemented ✅)**
+- ✅ JWT token-based authentication with Cloudflare D1
+- ✅ User-specific event storage in database
+- ✅ Cross-device synchronization
+- ✅ Privacy controls and secure password hashing
+- ✅ Session management with token expiration
 
 ---
 

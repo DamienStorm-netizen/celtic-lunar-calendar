@@ -42,7 +42,13 @@ The Celtic Calendar App is a **Progressive Web Application (PWA)** that provides
 │  └─────────────┘ └─────────────┘ └─────────────────┘   │
 ├─────────────────────────────────────────────────────────┤
 │                 Backend Services                        │
-│       (Python FastAPI + Celtic Calendar Logic)         │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  Python FastAPI + Celtic Calendar Logic        │   │
+│  └─────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  Cloudflare Workers + D1 Database              │   │
+│  │  (Authentication & User Data)                  │   │
+│  └─────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -76,6 +82,7 @@ celtic_calendar/
 │   │   ├── faq.js          # Frequently asked questions
 │   │   ├── about.js        # About page
 │   │   ├── privacy.js      # Privacy policy
+│   │   ├── auth.js         # Authentication UI components
 │   │   └── eventsAPI.js    # Event management API calls
 │   ├── utils/              # Shared utilities
 │   │   ├── api.js          # API client and endpoints
@@ -226,23 +233,37 @@ User Action → Event Handler → Data Processing → API Call (if needed) → S
 ## 🔗 **API Integration**
 
 ### **Backend Architecture**
-- **Technology:** Python FastAPI
-- **Deployment:** Render.com
-- **Data Sources:** Celtic calendar calculations, lunar data, festivals
+- **Primary Backend:** Python FastAPI (Render.com)
+  - Celtic calendar calculations, lunar data, festivals
+- **Authentication Backend:** Cloudflare Workers + D1 Database
+  - User authentication, custom events storage
+- **Database:** Cloudflare D1 (SQLite-based edge database)
+  - Cross-device data synchronization
 
 ### **API Endpoints:**
+
+#### **Celtic Calendar API (FastAPI)**
 ```javascript
 GET  /api/healthz              // Service health check
-GET  /api/calendar-data        // Static calendar data  
+GET  /api/calendar-data        // Static calendar data
 GET  /api/celtic-date          // Current Celtic date
 GET  /api/dynamic-moon-phases  // Moon phases for date range
 GET  /api/festivals           // Celtic festivals
-GET  /api/eclipse-events      // Eclipse data
+GET  /api/eclipse-events      // Eclipse data with real astronomical calculations
 GET  /api/national-holidays   // Holiday information
-GET  /api/custom-events       // User events
-POST /api/custom-events       // Create user event
-PUT  /api/custom-events/{id}  // Update user event
-DELETE /api/custom-events/{id} // Delete user event
+```
+
+#### **Authentication API (Cloudflare Workers)**
+```javascript
+POST /api/auth/register        // User registration
+POST /api/auth/login          // User login
+POST /api/auth/logout         // User logout
+GET  /api/auth/profile        // Get user profile
+PUT  /api/auth/profile        // Update user profile
+GET  /api/auth/custom-events  // Get user's custom events
+POST /api/auth/custom-events  // Create user custom event
+PUT  /api/auth/custom-events/{id}   // Update user custom event
+DELETE /api/auth/custom-events/{id} // Delete user custom event
 ```
 
 ### **Environment Configuration:**
@@ -309,6 +330,63 @@ const uniqueEvents = deduplicateById(mergedEvents);
 
 ---
 
+## 🔐 **Authentication System**
+
+### **Cloudflare D1 Database Schema:**
+```sql
+-- Users table with secure authentication
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    salt TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Custom events tied to user accounts
+CREATE TABLE custom_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    date TEXT NOT NULL,
+    type TEXT DEFAULT 'custom-event',
+    category TEXT,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+-- User sessions for JWT token management
+CREATE TABLE user_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    session_token TEXT UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+```
+
+### **Authentication Flow:**
+```
+1. User registers/logs in → Cloudflare Worker validates credentials
+2. Password hashed with PBKDF2 + random salt
+3. JWT token generated and stored in session table
+4. Frontend stores JWT in localStorage
+5. Authenticated API calls include JWT in Authorization header
+6. Worker validates JWT and extracts user_id for database operations
+```
+
+### **Data Synchronization Strategy:**
+- **Primary Source:** Cloudflare D1 database (authenticated users)
+- **Fallback:** localStorage (guest users/offline mode)
+- **Merge Logic:** Database events take precedence over local events
+- **Cross-device Sync:** Automatic when user logs in on new device
+
+---
+
 ## 🛡️ **Security Architecture**
 
 ### **Input Validation Pipeline:**
@@ -327,6 +405,13 @@ User Input → validateEventData() → sanitizeForAttribute() → escapeHtml() �
 - **Input validation** - Validate before API calls
 - **Error handling** - No sensitive data in error messages
 - **HTTPS only** - All external resources
+
+### **Authentication Security:**
+- **Password Hashing:** PBKDF2 with 100,000 iterations + random salt
+- **JWT Tokens:** Secure token generation with expiration
+- **Session Management:** Database-tracked sessions with cleanup
+- **Authorization:** Bearer token validation on protected endpoints
+- **Edge Security:** Cloudflare's built-in DDoS and bot protection
 
 ---
 
@@ -400,11 +485,13 @@ npm run preview    # Preview production build
 - ✅ **Enhanced features** (plugin-like utilities)
 
 ### **Future Enhancements:**
-- **User Authentication** - Add login system
-- **Cloud Sync** - Sync events across devices  
-- **Offline Mode** - Enhanced PWA capabilities
+- ✅ **User Authentication** - Implemented with Cloudflare D1
+- ✅ **Cloud Sync** - Cross-device event synchronization active
+- **Enhanced Offline Mode** - Improved PWA capabilities
 - **Internationalization** - Multiple languages
 - **Theming System** - User-customizable themes
+- **Social Features** - Share events and insights
+- **Advanced Analytics** - Personal lunar patterns and insights
 
 ---
 

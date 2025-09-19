@@ -204,9 +204,8 @@ export function renderHome() {
                       <img src="/assets/images/decor/moon-crescent-next.png" alt="Next">
                     </button>
                 </div>
-            </div>
 
-            <!-- *** CELTIC BIRTHDAY SECTION *** -->
+                <!-- *** CELTIC BIRTHDAY SECTION *** -->
             <section class="celtic-birthday" style="background-image: url('/assets/images/decor/moon-circle.png'); background-repeat: no-repeat; background-position: center top; background-size: 250px;">
                 <h2 class="celtic-birthday-header">What is my Lunar Birthday?</h2>
                 <p>Enter your birthdate and discover your Celtic Zodiac sign and lunar date:</p>
@@ -321,7 +320,8 @@ export function renderHome() {
               id: Date.now().toString(),
               date: isoDate,
               title: `Celtic Birthday`,
-              type: "🎂 Birthday",
+              type: "custom-event",
+              category: "🎂 Birthday",
               notes: `Lunar: ${document.getElementById("lunarDateOutput").textContent}, Sign: ${document.getElementById("celticSignOutput").textContent}`,
               recurring: true
             };
@@ -370,13 +370,47 @@ export function renderHome() {
             });
         });
 
-        flatpickr("#birthdateInput", {
-            altInput: true,
-            altFormat: "F j, Y",
-            dateFormat: "Y-m-d",
-            defaultDate: "today",
-            theme: "moonveil"
-        });
+        // Initialize flatpickr for birthday input with better error handling
+        const initBirthdayPicker = () => {
+            const birthdayInput = document.getElementById("birthdateInput");
+            if (birthdayInput && typeof flatpickr === "function") {
+                // Destroy any existing instance first
+                if (birthdayInput._flatpickr) {
+                    birthdayInput._flatpickr.destroy();
+                }
+
+                flatpickr(birthdayInput, {
+                    altInput: true,
+                    altFormat: "F j, Y",
+                    dateFormat: "Y-m-d",
+                    theme: "moonveil",
+                    maxDate: "today",  // Don't allow future dates for birthdays
+                    position: "above auto",  // Try more specific positioning
+                    onReady: function(selectedDates, dateStr, instance) {
+                        // Force positioning above the input after calendar is ready
+                        if (instance.calendarContainer) {
+                            // Add data attribute to exclude from global CSS rules
+                            instance.calendarContainer.setAttribute('data-birthday-picker', 'true');
+
+                            const inputRect = birthdayInput.getBoundingClientRect();
+                            const calendarHeight = instance.calendarContainer.offsetHeight;
+
+                            instance.calendarContainer.style.position = "absolute";
+                            instance.calendarContainer.style.top = `${inputRect.top - calendarHeight - 10}px`;
+                            instance.calendarContainer.style.left = `${inputRect.left}px`;
+                            instance.calendarContainer.style.zIndex = "10600";
+                        }
+                    }
+                });
+                console.log("✨ Birthday flatpickr initialized successfully");
+            } else {
+                console.warn("Birthday flatpickr initialization failed - element or library not ready");
+            }
+        };
+
+        // Try to initialize immediately, then with a delay if needed
+        initBirthdayPicker();
+        setTimeout(initBirthdayPicker, 100);
 
     }, 0);
     return html;
