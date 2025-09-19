@@ -9,6 +9,7 @@ import { api } from "../utils/api.js";
 import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
 import { showDayModal, showModal, getNamedMoonForDate } from "./calendar.js";
 import { starFieldSVG } from "../constants/starField.js";
+import { fetchCustomEvents, createCustomEvent } from "./eventsAPI.js";
 
 import {
   getCelticWeekday,
@@ -327,16 +328,8 @@ export function renderHome() {
             // Save locally
             const existing = loadCustomEvents();
             saveCustomEvents([...existing, event]);
-            // Send to backend
-            fetch("/api/custom-events", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(event)
-            })
-            .then(resp => {
-              if (!resp.ok) throw new Error("Failed to save event");
-              return resp.json();
-            })
+            // Send to backend using the authenticated API
+            createCustomEvent(event)
             .then(() => {
               // Refresh home carousel to include the new birthday
               fetchComingEvents();
@@ -1047,22 +1040,6 @@ export async function fetchNationalHolidays() {
       }
 }
 
-// Fetch upcoming custom events (birthdays, anniversaries, etc.) for the next 3 days
-export async function fetchCustomEvents() {
-    console.log("Fetching custom events...");
-    try {
-      const response = await fetch("/api/custom-events");
-      if (!response.ok) throw new Error("Failed to fetch custom events");
-  
-      const customEvents = await response.json();
-      // Return everything; no date filtering here.
-      console.log('Custom events are: ', customEvents);
-      return customEvents; 
-    } catch (error) {
-      console.error("Error fetching custom events:", error);
-      return [];
-    }
-}
 
 // Populate the Coming Events carousel
 export function populateComingEventsCarousel(events) {

@@ -1,20 +1,18 @@
 {
   "name": "lunar-almanac",
   "version": "1.0.0",
- "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "backend:install": "cd \"../Backend_Files/lunar-almanac-backend\" && python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r prod_server/requirements.txt",
-  "backend": "sh -c 'cd \"../Backend_Files/lunar-almanac-backend\" && if [ ! -x .venv/bin/uvicorn ]; then python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r prod_server/requirements.txt; fi; exec .venv/bin/uvicorn prod_server.main:app --reload --host 0.0.0.0 --port 8000'",
-  "backend:health": "curl -s http://localhost:8000/healthz",
-  "dev:both": "concurrently -k -n BACKEND,FRONTEND -c blue,green \"npm run backend\" \"npm run dev\"",
-  "test": "vitest",
-  "test:run": "vitest run",
-  "test:coverage": "vitest run --coverage",
-  "test:ui": "vitest --ui",
-  "test:watch": "vitest --watch"
-},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "backend": "sh -c 'cd \"../Backend_Files/lunar-almanac-backend\" && if [ ! -x .venv/bin/uvicorn ]; then python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r prod_server/requirements.txt; fi; exec .venv/bin/uvicorn prod_server.main:app --reload --host 0.0.0.0 --port 8001'",
+    "backend:health": "curl -s http://localhost:8001/healthz",
+    "dev:both": "concurrently -k -n BACKEND,FRONTEND -c blue,green \"npm run backend\" \"npm run dev\"",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@tsndr/cloudflare-worker-jwt": "^2.4.0"
+  },
   "devDependencies": {
     "vite": "^5.4.19",
     "vite-plugin-pwa": "^1.0.2",
@@ -24,6 +22,7 @@
     "@vitest/ui": "^2.1.8",
     "jsdom": "^25.0.1",
     "vitest": "^2.1.8",
-    "vitest-fetch-mock": "^0.3.0"
+    "vitest-fetch-mock": "^0.3.0",
+    "wrangler": "^3.0.0"
   }
 }

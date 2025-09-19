@@ -5,6 +5,7 @@ import { initSwipe } from "../utils/swipeHandler.js";
 import { starFieldSVG } from "../constants/starField.js";
 import { getEventIcon } from "../utils/eventUtils.js";
 import { api } from "../utils/api.js";
+import { fetchCustomEvents } from "./eventsAPI.js";
 // Removed showOverlay, hideOverlay imports to avoid conflicts with Celtic modals
 
 import {
@@ -706,7 +707,7 @@ async function enhanceCalendarTable(modalContainer, monthName, prefsOverride) {
     console.log("🌙 lunarData array (", startISO, "→", endISO, "):", lunarData);
 
     const customEvents = await fetchCustomEvents();
-    console.log("Custom events retrieved:", customEvents);
+    console.log("Custom events retrieved (from eventsAPI):", customEvents);
 
     const festivals = await fetchFestivals();
 
@@ -904,10 +905,6 @@ async function fetchMoonPhasesBetween(startISO, endISO) {
     }
 }
 
-// Fetch custom events dynamically
-async function fetchCustomEvents() {
-    return await api.customEvents();
-}
 
 // Fetch Celtic festivals dynamically
 async function fetchFestivals() {
@@ -984,7 +981,20 @@ export async function showDayModal(day, monthName, formattedGregorianDate, event
      // Get additional data
     //const dayOfWeek = getDayOfWeek(gregorian.gregorianMonth, gregorian.gregorianDay);
     //const zodiac = getCelticZodiac(celticMonth, celticDay);
-    let events = await getCustomEvents(gregorian.gregorianMonth, gregorian.gregorianDay, gregorian.gregorianYear);
+    // Get custom events for this specific date
+    let allCustomEvents = await fetchCustomEvents();
+    let events = allCustomEvents.filter(event => {
+        const [eYear, eMonth, eDay] = event.date.split("-");
+        const monthStr = String(gregorian.gregorianMonth).padStart(2, "0");
+        const dayStr = String(gregorian.gregorianDay).padStart(2, "0");
+        const targetDate = `${gregorian.gregorianYear}-${monthStr}-${dayStr}`;
+
+        if (event.recurring) {
+            // match month/day each year
+            return eMonth === monthStr && eDay === dayStr;
+        }
+        return event.date === targetDate;
+    });
 
     // Ensure events is always an array
     if (!Array.isArray(events)) {
@@ -1356,27 +1366,6 @@ function getFormattedMonth(monthNum) {
     return monthNames[parseInt(monthNum, 10) - 1]; // Convert to zero-based index
 }
 
-async function getCustomEvents(gregorianMonth, gregorianDay, gregorianYear) {
-    console.log("Fetching custom events...");
-    try {
-        const events = await api.customEvents();
-        const monthStr = String(gregorianMonth).padStart(2, "0");
-        const dayStr = String(gregorianDay).padStart(2, "0");
-        const targetDate = `${gregorianYear}-${monthStr}-${dayStr}`;
-        return events.filter(event => {
-            const [eYear, eMonth, eDay] = event.date.split("-");
-            if (event.recurring) {
-                // match month/day each year
-                return eMonth === monthStr && eDay === dayStr;
-            }
-            return event.date === targetDate;
-        });
-
-    } catch (error) {
-        console.error("Error fetching events:", error);
-        return [];
-    }
-}
 
 function getMoonPoem(moonPhase, date) {
     const fullMoonNames = {

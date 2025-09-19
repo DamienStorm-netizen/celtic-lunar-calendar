@@ -3,8 +3,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
-  // Dev falls back to localhost:8000; prod builds don’t use the proxy.
-  const API_URL = env.VITE_API_BASE || 'http://localhost:8000';
+  // Dev falls back to localhost:8001; prod builds don't use the proxy.
+  const API_URL = env.VITE_API_BASE || 'http://localhost:8001';
 
   return {
     base: '/',

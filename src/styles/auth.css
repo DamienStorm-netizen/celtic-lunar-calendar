@@ -1,0 +1,307 @@
+/**
+ * Authentication Components Styling
+ * Matches the mystical theme of the Lunar Almanac
+ */
+
+/* Auth Section in Settings */
+.auth-section {
+  background: linear-gradient(135deg, rgba(189, 159, 255, 0.1), rgba(139, 69, 198, 0.1));
+  border: 1px solid rgba(189, 159, 255, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+}
+
+.auth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-greeting {
+  color: #bd9fff;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.auth-prompt {
+  color: #8b45c6;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.auth-button, .profile-btn {
+  background: linear-gradient(135deg, #bd9fff, #8b45c6);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(189, 159, 255, 0.3);
+}
+
+.profile-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.auth-button:hover, .profile-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(189, 159, 255, 0.4);
+  background: linear-gradient(135deg, #d1b3ff, #9b59d9);
+}
+
+/* Modal Auth Forms */
+.auth-tabs {
+  display: flex;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(15, 15, 26, 0.5);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 12px 20px;
+  background: transparent;
+  color: #bd9fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.auth-tab:hover {
+  background: rgba(189, 159, 255, 0.1);
+}
+
+.auth-tab.active {
+  background: linear-gradient(135deg, #bd9fff, #8b45c6);
+  color: white;
+}
+
+.auth-form {
+  text-align: left;
+}
+
+.auth-field {
+  margin-bottom: 20px;
+}
+
+.auth-field label {
+  display: block;
+  color: #bd9fff;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.auth-field input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid rgba(189, 159, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(15, 15, 26, 0.7);
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: #bd9fff;
+  box-shadow: 0 0 0 3px rgba(189, 159, 255, 0.2);
+  background: rgba(15, 15, 26, 0.9);
+}
+
+.field-help {
+  display: block;
+  color: rgba(189, 159, 255, 0.7);
+  font-size: 0.85rem;
+  margin-top: 5px;
+  line-height: 1.3;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.auth-submit-btn {
+  background: linear-gradient(135deg, #bd9fff, #8b45c6);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(189, 159, 255, 0.3);
+}
+
+.auth-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(189, 159, 255, 0.4);
+}
+
+.auth-submit-btn:disabled,
+.auth-submit-btn.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-error {
+  background: rgba(220, 38, 127, 0.1);
+  border: 1px solid rgba(220, 38, 127, 0.3);
+  border-radius: 8px;
+  color: #ff6b9d;
+  padding: 12px;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.auth-footer {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.auth-note {
+  color: rgba(189, 159, 255, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Profile Modal */
+.profile-info {
+  margin-bottom: 25px;
+}
+
+.profile-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(189, 159, 255, 0.2);
+}
+
+.profile-field:last-child {
+  border-bottom: none;
+}
+
+.profile-field label {
+  color: #bd9fff;
+  font-weight: 500;
+  margin: 0;
+}
+
+.profile-value {
+  color: #ffffff;
+  font-weight: 400;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Auth Required Message */
+.auth-required-message {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(189, 159, 255, 0.05);
+  border: 2px dashed rgba(189, 159, 255, 0.3);
+  border-radius: 15px;
+  margin: 20px 0;
+}
+
+.auth-required-message p {
+  color: #bd9fff;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+/* Loading States */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  to {
+    left: 100%;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .auth-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .auth-actions, .profile-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .auth-field input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .profile-field {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .auth-field input {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .auth-field input:focus {
+    background: rgba(0, 0, 0, 0.9);
+  }
+}

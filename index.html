@@ -11,7 +11,7 @@
     script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
     style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
     img-src 'self' data: https: blob:;
-    connect-src 'self' https://*.render.com https://lunar-almanac-backend.onrender.com;
+    connect-src 'self' https://*.render.com https://lunar-almanac-backend.onrender.com https://lunar-almanac-auth.west-coast-tantra-institute-account.workers.dev;
     font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;
     object-src 'none';
     base-uri 'self';
@@ -21,6 +21,7 @@
   
   <link rel="stylesheet" href="/src/styles/styles.css">
   <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="src/styles/auth.css">
   <meta name="theme-color" content="#d0bfff" />
 </head>
 <body>
@@ -78,15 +79,13 @@
   </footer>
 </div>
 
-<!-- Flatpickr Core with Subresource Integrity -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" 
-      integrity="sha384-6aHdH0HgsLYgxfgdJlFrlWQZXrPvvQCF6HrIY7YW/Ujo8lWd7mFOTbKZFdS0MF/s" 
+<!-- Flatpickr Core -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
       crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr" 
-        integrity="sha384-V6TZKqfj/g+MgCFZ5vgdK5T4AJD4hc8nPK6nQJYeH6TkXdGJVT8sBW1vGrMU5U5" 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"
         crossorigin="anonymous"></script>
 <!-- Your Custom Moon Veil Theme -->
-<link rel="stylesheet" href="/s/moonveil-theme.css">
+<link rel="stylesheet" href="/src/styles/moonveil-theme.css">
 
 <!-- index.html -->
 <div id="event-toast" class="event-toast hidden">
@@ -97,9 +96,8 @@
 
 <!-- PWA service worker is disabled during local development; VitePWA will inject the correct registration in production builds. -->
 
-<!-- SweetAlert2 for polished event confirmation with SRI -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" 
-        integrity="sha384-/XJQ6BqUdHAJu4T9ZQr8JLgNJVGlnKIZ2S9DnSz6sBL8vP1nQjXyHw1h5FwHQwO" 
+<!-- SweetAlert2 for polished event confirmation -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
         crossorigin="anonymous"></script>
 
 <!-- Vite runtime  -->

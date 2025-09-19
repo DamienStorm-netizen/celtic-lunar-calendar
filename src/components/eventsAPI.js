@@ -1,5 +1,6 @@
 import { api } from "../utils/api.js";
 import { loadCustomEvents } from "../utils/localStorage.js";
+import { authenticatedFetch, isAuthenticated } from "./auth.js";
 
 // Merge and de-duplicate events from backend & local by (date|title|name) key.
 // Prefer the LOCAL version when both exist so we keep client-assigned IDs.
@@ -31,14 +32,38 @@ function mergeEventsPreferLocal(localList = [], backendList = []) {
   });
 }
 
-// Fetch all custom events (backend first, fallback to localStorage).
+// Fetch all custom events (authenticated backend first, fallback to localStorage).
 // We also explicitly disable caching to avoid stale results on CF Pages.
 export async function fetchCustomEvents() {
   let backend = [];
-  try {
-    backend = await api.customEvents(); // includes cache-busting "t" param
-  } catch (error) {
-    console.warn("Backend /api/custom-events failed, will fall back to localStorage:", error);
+
+  // Try authenticated endpoint first if user is logged in
+  if (isAuthenticated()) {
+    try {
+      const AUTH_BASE_URL = 'https://lunar-almanac-auth.west-coast-tantra-institute-account.workers.dev'; // Update with your worker URL
+      const response = await authenticatedFetch(`${AUTH_BASE_URL}/api/custom-events`);
+      if (response.ok) {
+        backend = await response.json();
+      } else {
+        throw new Error(`Authenticated fetch failed: ${response.status}`);
+      }
+    } catch (error) {
+      console.warn("Authenticated custom events fetch failed, trying legacy API:", error);
+
+      // Fallback to legacy Python backend
+      try {
+        backend = await api.customEvents(); // includes cache-busting "t" param
+      } catch (legacyError) {
+        console.warn("Legacy backend /api/custom-events also failed:", legacyError);
+      }
+    }
+  } else {
+    // Not authenticated, try legacy backend only
+    try {
+      backend = await api.customEvents(); // includes cache-busting "t" param
+    } catch (error) {
+      console.warn("Backend /api/custom-events failed, will fall back to localStorage:", error);
+    }
   }
 
   let local = [];
@@ -51,8 +76,13 @@ export async function fetchCustomEvents() {
   const merged = mergeEventsPreferLocal(local, backend);
   // Debug breadcrumb: surface counts in console (and window) so we can compare prod vs dev.
   try {
-    const info = { total: merged.length, backend: backend.length, local: local.length };
-    console.info(`📅 Custom events loaded: ${info.total} (backend ${info.backend} + local ${info.local})`);
+    const info = {
+      total: merged.length,
+      backend: backend.length,
+      local: local.length,
+      authenticated: isAuthenticated()
+    };
+    console.info(`📅 Custom events loaded: ${info.total} (backend ${info.backend} + local ${info.local}) [auth: ${info.authenticated}]`);
     if (typeof window !== "undefined") {
       window.__CUSTOM_EVENT_COUNTS__ = info;
     }
@@ -60,8 +90,27 @@ export async function fetchCustomEvents() {
   return merged;
 }
 
-// Delete a custom event (best-effort; backend API remains authoritative).
+// Delete a custom event (authenticated endpoint first, fallback to legacy).
 export async function deleteCustomEvent(idOrKey) {
+  // Try authenticated endpoint first if user is logged in
+  if (isAuthenticated()) {
+    try {
+      const AUTH_BASE_URL = 'https://lunar-almanac-auth.west-coast-tantra-institute-account.workers.dev'; // Update with your worker URL
+      const response = await authenticatedFetch(`${AUTH_BASE_URL}/api/custom-events/${encodeURIComponent(idOrKey)}`, {
+        method: "DELETE"
+      });
+      if (response.ok) {
+        console.log(`Deleted event ${idOrKey} (authenticated)`);
+        return true;
+      } else {
+        throw new Error(`Authenticated delete failed: ${response.status}`);
+      }
+    } catch (error) {
+      console.warn("Authenticated delete failed, trying legacy API:", error);
+    }
+  }
+
+  // Fallback to legacy Python backend
   try {
     const response = await fetch(`/api/custom-events/${encodeURIComponent(idOrKey)}`, {
       method: "DELETE",
@@ -69,14 +118,36 @@ export async function deleteCustomEvent(idOrKey) {
       headers: { "Cache-Control": "no-store" }
     });
     if (!response.ok) throw new Error("Failed to delete event");
-    console.log(`Deleted event ${idOrKey}`);
+    console.log(`Deleted event ${idOrKey} (legacy)`);
     return true;
   } catch (error) {
     console.error("Error deleting event:", error);
+    return false;
   }
 }
 
 export async function updateCustomEvent(idOrKey, updatedData) {
+  // Try authenticated endpoint first if user is logged in
+  if (isAuthenticated()) {
+    try {
+      const AUTH_BASE_URL = 'https://lunar-almanac-auth.west-coast-tantra-institute-account.workers.dev'; // Update with your worker URL
+      const response = await authenticatedFetch(`${AUTH_BASE_URL}/api/custom-events/${encodeURIComponent(idOrKey)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+      if (response.ok) {
+        console.log(`Updated event ${idOrKey} (authenticated)`);
+        return true;
+      } else {
+        throw new Error(`Authenticated update failed: ${response.status}`);
+      }
+    } catch (error) {
+      console.warn("Authenticated update failed, trying legacy API:", error);
+    }
+  }
+
+  // Fallback to legacy Python backend
   try {
     const response = await fetch(`/api/custom-events/${encodeURIComponent(idOrKey)}`, {
       method: "PUT",
@@ -85,9 +156,51 @@ export async function updateCustomEvent(idOrKey, updatedData) {
       body: JSON.stringify(updatedData),
     });
     if (!response.ok) throw new Error("Failed to update event");
-    console.log(`Updated event ${idOrKey}`);
+    console.log(`Updated event ${idOrKey} (legacy)`);
     return true;
   } catch (error) {
     console.error("Error updating event:", error);
+    return false;
+  }
+}
+
+// Create a new custom event (authenticated endpoint first, fallback to legacy).
+export async function createCustomEvent(eventData) {
+  // Try authenticated endpoint first if user is logged in
+  if (isAuthenticated()) {
+    try {
+      const AUTH_BASE_URL = 'https://lunar-almanac-auth.west-coast-tantra-institute-account.workers.dev'; // Update with your worker URL
+      const response = await authenticatedFetch(`${AUTH_BASE_URL}/api/custom-events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventData),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`Created event (authenticated):`, result);
+        return result;
+      } else {
+        throw new Error(`Authenticated create failed: ${response.status}`);
+      }
+    } catch (error) {
+      console.warn("Authenticated create failed, trying legacy API:", error);
+    }
+  }
+
+  // Fallback to legacy Python backend
+  try {
+    const response = await fetch("/api/custom-events", {
+      cache: 'no-store',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(eventData)
+    });
+    if (!response.ok) throw new Error("Failed to create event");
+    const result = await response.json();
+    console.log(`Created event (legacy):`, result);
+    return result;
+  } catch (error) {
+    console.error("Error creating event:", error);
+    throw error;
   }
 }

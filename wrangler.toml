@@ -1,7 +1,19 @@
 # wrangler.toml
-name = "render-keeper"
+name = "lunar-almanac-auth"
 main = "src/index.js"
 compatibility_date = "2024-11-01"
 
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "lunar-almanac-db"
+database_id = "c4b2c70e-5335-4499-883d-85f20f33a77d"
+
 [triggers]
 crons = ["*/12 * * * *"]  # every 12 minutes
+
+# Environment variables for production
+[vars]
+JWT_SECRET = "aaYtEyhbiq9OkcjAVHmwzMGdQ6Mv9VDQVyNdJ3m3Rqs="  # Replace with secure secret
+BCRYPT_ROUNDS = "12"
+SESSION_DURATION_HOURS = "24"

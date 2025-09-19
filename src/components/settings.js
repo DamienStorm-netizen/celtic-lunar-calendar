@@ -1,9 +1,10 @@
 import { convertGregorianToCeltic, getCelticWeekdayFromGregorian } from "../utils/dateUtils.js";
 import { applyMysticalSettings, showDayModal } from "./calendar.js";
 import { saveCustomEvents, loadCustomEvents } from "../utils/localStorage.js";
-import { fetchCustomEvents, deleteCustomEvent, updateCustomEvent } from "./eventsAPI.js";
+import { fetchCustomEvents, deleteCustomEvent, updateCustomEvent, createCustomEvent } from "./eventsAPI.js";
 import { showCelticModal, hideCelticModal } from "../utils/modalOverlay.js";
 import { escapeHtml, sanitizeForAttribute, createElement, validateEventData } from "../utils/security.js";
+import { isAuthenticated, initAuth } from "./auth.js";
 
 
 // Helper to show a toast and wire up “View it now”
@@ -44,6 +45,16 @@ export function renderSettings() {
     return `
         <div id="settings-container" class="fade-in">
             <h1 class="settings-title">Settings</h1>
+
+            <!-- Authentication Section -->
+            <section id="auth-section" class="auth-section">
+                <div class="auth-header">
+                    <div id="user-info" class="user-info">
+                        <span class="auth-prompt">Please log in to save your events</span>
+                    </div>
+                    <button id="auth-button" class="auth-button">Login</button>
+                </div>
+            </section>
 
             <!-- Custom Events Management -->
             <section id="custom-events-settings">
@@ -268,20 +279,9 @@ async function handleAddEventSubmit(event) {
 
     console.log("📤 Sending new event:", newEvent);
 
-    // Send event data to Python backend
+    // Send event data using the new createCustomEvent function
     try {
-        const response = await fetch("/api/custom-events", {
-            cache: 'no-store',
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newEvent)
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to add event");
-        }
-
-        const result = await response.json();
+        const result = await createCustomEvent(newEvent);
         console.log("✅ Event added successfully:", result);
 
         // Close Celtic modal & refresh event list
@@ -496,10 +496,18 @@ async function handleEditEventSubmit(event) {
 }
 
 export function attachEventHandlers() {
+  // Initialize authentication
+  initAuth();
+
   // Add a Custom Event
   const addBtn = document.getElementById("add-event-button");
   if (addBtn) {
     addBtn.addEventListener("click", () => {
+      if (!isAuthenticated()) {
+        // Show login modal if not authenticated
+        document.getElementById('auth-button').click();
+        return;
+      }
       showAddEventModal();
     });
   }
